@@ -1,0 +1,28 @@
+Source: projman
+Section: python
+Priority: optional
+Maintainer: Alexandre Fayolle  <alexandre.fayolle@logilab.fr> 
+Build-Depends: debhelper (>= 4.0.0), python-dev, python
+Standards-Version: 3.6.2
+
+Package: projman
+Architecture: all
+Depends: python, python-egenix-mxdatetime, python-logilab-common, python-xml, python-imaging, sgml-base
+Provides: python2.3-projman, projman-common
+Conflicts: python2.3-projman, projman-common
+Replaces: python2.3-projman, projman-common
+Description: tool for project management
+ projman is a tool for project management and diagrams creation,
+ as Gantt diagram and resources activities diagram.
+ It includes lots of functionnalties as
+  * scheduling of a project
+  * managing work-groups'actvities
+  * Gantt diagrams generation
+  * Resources'usage diagrams generation
+  * generation of xml doc (under docbook dtd) to list tasks, evaluate costs
+  * conversion from/to planner/pygantt format
+ .
+ All different format and output are XML files.
+ .
+ Homepage: http://www.logilab.org/projects/projman
+

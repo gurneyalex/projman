@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<project name="" company="" manager="" phase="" project-start="20040310T000000Z" mrproject-version="2" calendar="1">
+  <properties>
+    <property name="cost" type="cost" owner="resource" label="Cost" description="standard cost for a resource"/>
+  </properties>
+  <phases/>
+  <calendars>
+    <day-types>
+      <day-type id="0" name="Working" description="A default working day"/>
+      <day-type id="1" name="Nonworking" description="A default non working day"/>
+      <day-type id="2" name="Use base" description="Use day from base calendar"/>
+      <day-type id="3" name="Ferie" description=""/>
+      <day-type id="4" name="Holiday" description=""/>
+    </day-types>
+    <calendar id="1" name="Defaut">
+      <default-week mon="0" tue="0" wed="0" thu="0" fri="0" sat="1" sun="1"/>
+      <overridden-day-types>
+        <overridden-day-type id="0">
+          <interval start="0800" end="1200"/>
+          <interval start="1300" end="1700"/>
+        </overridden-day-type>
+      </overridden-day-types>
+      <days/>
+      <calendar id="2" name="jours_feries">
+        <default-week mon="2" tue="2" wed="2" thu="2" fri="2" sat="2" sun="2"/>
+        <overridden-day-types/>
+        <days>
+          <day date="20040101" type="day-type" id="3"/>
+          <day date="20040601" type="day-type" id="3"/>
+          <day date="20040412" type="day-type" id="3"/>
+        </days>
+        <calendar id="3" name="cal_resource1">
+          <default-week mon="2" tue="2" wed="2" thu="2" fri="2" sat="2" sun="2"/>
+          <overridden-day-types/>
+          <days>
+            <day date="20040511" type="day-type" id="4"/>
+            <day date="20040618" type="day-type" id="4"/>
+            <day date="20040514" type="day-type" id="4"/>
+            <day date="20040616" type="day-type" id="4"/>
+            <day date="20040512" type="day-type" id="4"/>
+            <day date="20040614" type="day-type" id="4"/>
+            <day date="20040510" type="day-type" id="4"/>
+            <day date="20040617" type="day-type" id="4"/>
+            <day date="20040513" type="day-type" id="4"/>
+            <day date="20040615" type="day-type" id="4"/>
+          </days>
+        </calendar>
+        <calendar id="4" name="cal_resource2">
+          <default-week mon="2" tue="2" wed="2" thu="2" fri="2" sat="2" sun="2"/>
+          <overridden-day-types/>
+          <days/>
+        </calendar>
+      </calendar>
+    </calendar>
+  </calendars>
+  <tasks>
+    <task id="1" name="tache1" note="" work="57600" duration="57600" start="20040312T000000Z" end="20040315T170000Z" percent-complete="0" type="normal" scheduling="fixed-duration">
+      <constraint type="must-start-on" time="20040314T000000Z"/>
+      <task id="2" name="sous_tache1" note="" work="28800" duration="57600" start="20040312T000000Z" end="20040315T170000Z" percent-complete="0" type="normal" scheduling="fixed-duration">
+        <constraint type="start-no-earlier-than" time="20040312T000000Z"/>
+      </task>
+    </task>
+    <task id="3" name="Jalon1" note="" work="0" start="20040310T000000Z" end="20040310T000000Z" percent-complete="0" type="milestone" scheduling="fixed-work"/>
+  </tasks>
+  <resource-groups/>
+  <resources>
+    <resource id="1" name="resource1" type="1" units="0" email="resource1@societe.fr" note="" std-rate="0" calendar="2">
+      <properties>
+        <property name="cost" value=""/>
+      </properties>
+    </resource>
+    <resource id="2" name="resource2" type="1" units="0" email="resource2@societe.fr" note="" std-rate="0" calendar="4">
+      <properties>
+        <property name="cost" value=""/>
+      </properties>
+    </resource>
+  </resources>
+  <allocations>
+    <allocation task-id="1" resource-id="1" units="100"/>
+  </allocations>
+</project>

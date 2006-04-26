@@ -1,0 +1,831 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- <!DOCTYPE book PUBLIC "-//LOGILAB/DTD DocBook V4.1.2-Based Extension V0.1//EN" "dcbk-logilab.dtd" [
+ -->
+<!DOCTYPE book [
+
+<!ENTITY projman "<application>Projman</application>">
+<!ENTITY python "<application>Python</application>">
+<!ENTITY logilab "<orgname>Logilab</orgname>">
+
+<!ENTITY projmantag       "<emphasis role='bold'>&lt;projman></emphasis>">
+<!ENTITY project          "<emphasis role='bold'>&lt;project></emphasis>">
+<!ENTITY schedule         "<emphasis role='bold'>&lt;schedule></emphasis>">
+<!ENTITY milestone        "<emphasis role='bold'>&lt;milestone></emphasis>">
+<!ENTITY task             "<emphasis role='bold'>&lt;task></emphasis>">
+<!ENTITY constraintdate   "<emphasis role='bold'>&lt;constraint-date></emphasis>">
+<!ENTITY constrainttask   "<emphasis role='bold'>&lt;constraint-task></emphasis>">
+<!ENTITY constraintres    "<emphasis role='bold'>&lt;constraint-resource></emphasis>">
+<!ENTITY activities       "<emphasis role='bold'>&lt;activities></emphasis>">
+<!ENTITY reportslist      "<emphasis role='bold'>&lt;reports-list></emphasis>">
+<!ENTITY report           "<emphasis role='bold'>&lt;report></emphasis>">
+<!ENTITY duration         "<emphasis role='bold'>&lt;duration></emphasis>">
+<!ENTITY timeslot         "<emphasis role='bold'>&lt;time-slot></emphasis>">
+<!ENTITY progress         "<emphasis role='bold'>&lt;progress></emphasis>">
+<!ENTITY priority         "<emphasis role='bold'>&lt;priority></emphasis>">
+<!ENTITY status           "<emphasis role='bold'>&lt;status></emphasis>">
+<!ENTITY useresource      "<emphasis role='bold'>&lt;use-resource></emphasis>">
+<!ENTITY resource         "<emphasis role='bold'>&lt;resource></emphasis>">
+<!ENTITY importresources  "<emphasis role='bold'>&lt;import-resources></emphasis>">
+<!ENTITY importactivities "<emphasis role='bold'>&lt;import-activities></emphasis>">
+<!ENTITY importtasks      "<emphasis role='bold'>&lt;import-tasks></emphasis>">
+<!ENTITY importschedule   "<emphasis role='bold'>&lt;import-schedule></emphasis>">
+<!ENTITY resourceslist    "<emphasis role='bold'>&lt;resources-list></emphasis>">
+<!ENTITY usecalendar      "<emphasis role='bold'>&lt;use-calendar></emphasis>">
+<!ENTITY calendar         "<emphasis role='bold'>&lt;calendar></emphasis>">
+<!ENTITY starton          "<emphasis role='bold'>&lt;start-on></emphasis>">
+<!ENTITY stopon           "<emphasis role='bold'>&lt;stop-on></emphasis>">
+<!ENTITY day              "<emphasis role='bold'>&lt;day></emphasis>">
+<!ENTITY timeperiod       "<emphasis role='bold'>&lt;timeperiod></emphasis>">
+<!ENTITY daytypes         "<emphasis role='bold'>&lt;day-types></emphasis>">
+<!ENTITY daytype          "<emphasis role='bold'>&lt;day-type></emphasis>">
+<!ENTITY interval         "<emphasis role='bold'>&lt;interval></emphasis>">
+] >
+
+<book id="projman_um" lang="en">
+ 
+<bookinfo>
+  <title>Projman user manual</title>
+  <date>2004/04/26</date>
+  <author> 
+    <firstname>Sandrine</firstname>
+    <surname>Ribeau</surname>
+  </author>
+  <copyright>
+    <holder>Logilab</holder>
+    <year>2004</year>
+  </copyright>
+  <abstract>
+    <para>
+        <emphasis>FIXME (changed the meaning of projman/project/task elements)</emphasis>
+        This is the reference manual for the &projman; software. &projman; has
+        three functionnalities. First, &projman; reads a project
+        description from a xml formatted file and outputs differents kind of diagrams like, 
+        a Gantt diagram, or resources activities description in different
+        formats (html, svg, png...). Second, &projman; has the ability to allow data
+        exchange between other soft like <ulink url="http://mrproject.codefactory.se">
+        Planner</ulink>. And finally, &projman; can schedule a
+        project, so proposes a planned project. The main difference between &projman; and other
+        similar project is its ability to schedule the project for you, trying to
+        satisfy all constraints given in your project description and
+        resources availability description.
+      </para>
+  </abstract>
+</bookinfo>
+
+<!-- FIXME : screenshots -->
+
+<chapter><title>Installation</title>
+  <section><title>Downloads</title>
+    <para>
+First of all, since &projman; is a &python; script, you must have <ulink
+ url="http://www.python.org">&python;</ulink> installed !
+    </para><para>
+&projman; requires the <ulink
+ url="http://www.egenix.com/files/python/eGenix-mx-Extensions.html">mx.DateTime</ulink>
+ package. 
+    </para><para>
+&projman; itself may be found <ulink
+url="ftp://ftp.logilab.org/pub/projman">here</ulink>. The package contains the
+  &projman; librairies and a command line tool, an example, the <ulink 
+url="http://www.fukt.hk-r.se/~flognat/hacks/strptime.py">strptime.py</ulink> 
+module for M$ Windows unfortunate users and this documentation page. The main
+site is at <ulink url="http://www.logilab.org/projects/projman">&logilab;</ulink>.
+    </para><para>
+If you want to obtain another rendering than HTML or SVG, you must download the Pythonware's
+Python Imaging Library (PIL) available <ulink url="http://www.pythonware.com/products/pil/">here</ulink>
+    </para>
+    <formalpara><title>Note for happy debian users</title>
+&projman; is available as a debian package. You can retreive it by adding 
+"deb ftp://ftp.logilab.org/pub/debian unstable" to your
+  <filename>/etc/apt/sources.list</filename> file.
+    </formalpara>
+  </section>
+  <section><title>Install</title>
+    <para>
+Projman is a &python; script and provides distutils facilities. To install it, just
+extract it, enter in the extracted directory and run <command>python setup.py
+install</command>. It should be the same thing for all dependancy packages.
+    </para>
+  </section>
+
+  <section id="contrib"><title>Contribute!</title>
+    <para>
+Please consider contributing anything useful to this package.
+    </para>
+  </section>
+</chapter>
+
+<chapter><title>The projman files</title>
+  <para>
+      You will find here a description of the different files that maybe found in
+      &projman; description. Indeed, &projman; describes at least three
+      files: one for the project description, one for the resources
+      description and last for the activities (past or future)
+      description. This is the minimal requirements for &projman; description. The
+      other component that can compose &projman; is the result of
+      scheduling.
+      All the files used for &projman; description are independant
+      from each other. 
+  </para>
+
+  <section id="projgen"><title>Projman file</title>
+      <example><title>The DTD for the &projman; element</title>
+        <programlisting><![CDATA[
+          <!ELEMENT projman (import-tasks | import-activities |
+                             import-resources | import-schedule)*)>
+          <!ELEMENT import-tasks EMPTY>
+          <!ATTLIST import-tasks
+                    file          CDATA                   #REQUIRED>
+
+          <!ELEMENT import-activities EMPTY>
+          <!ATTLIST import-activities 
+                    file          CDATA                   #REQUIRED>
+          
+          <!ELEMENT import-schedule EMPTY>
+          <!ATTLIST import-schedule
+                    file          CDATA                   #REQUIRED>
+
+          <!ELEMENT import-resources EMPTY>
+          <!ATTLIST import-resources 
+                    file          CDATA                   #REQUIRED>
+        ]]>
+        </programlisting>
+      </example>
+      <para>
+        The &projmantag; node is the root of a &projman;
+        description. You can import a resources file by adding a
+        &importresources; child to this node which has the file
+        attribute set to the file name. You can import too, an
+        activities file, a project file, and finally a schedule file
+        by adding a &importactivities;, &importtasks; or 
+        &importschedule; child to this node with as file name, the
+        file attribute.
+      </para>
+  </section>
+    
+  <section id="taskgen"><title>Project file</title>
+
+    <section><title>Project</title>
+      <example><title>Portion of the DTD for the &project; element</title>
+        <programlisting><![CDATA[
+            <!ELEMENT task (label?,resource*,(constraint-date |
+                               constraint-task |constraint-resource)*,
+                               (task|import-project|milestone)+, priority?)>
+            <!ATTLIST project
+                      id            ID                      #REQUIRED>
+            
+            <!-- project from file -->
+            <!ELEMENT import-project EMPTY>
+            <!ATTLIST import-project
+                      file          CDATA                   #REQUIRED>
+            ]]>
+        </programlisting>
+      </example>
+      <para>
+          The &project; node is the root of a  project file description. 
+      </para>
+      <para>
+          The &importtasks; node allows the project to be composed of
+          multiple other projects. Everything will work as if this
+          node was replaced by the content of this imported project file. 
+      </para>
+      <para>
+          The &constraintdate;, &constrainttask; and &constraintres;
+          nodes are all the possible constraints that can be set on a
+          project. See <xref linkend="constraintsgen"/> for how to describe constraints.
+      </para>
+    </section>
+
+    <section><title>Milestone</title>
+      <example><title>Portion of the DTD for the &milestone; element</title>
+        <programlisting><![CDATA[
+            <!ELEMENT milestone (label?, (constraint-date |
+                                 constraint-task |constraint-resource)*,
+                                 (task|import-project|milestone)+)*)>
+            <!ATTLIST milestone
+                      id            ID                      #REQUIRED >
+            ]]>
+          </programlisting>
+      </example>
+      <para>
+        The &milestone; node is the atomic element that can compose a
+        project. This is related to an events which takes place at a
+        specific date but without any duration or timing information. Task and Project node inherits from Milestone. 
+      </para>
+    </section>
+
+    <section><title>Task</title>
+      <example><title>Portion of the DTD for the &task; element</title>
+        <programlisting><![CDATA[
+            <!ELEMENT task (label?, (constraint-date | constraint-task
+                            |constraint-resource)*,(duration,progress?),
+                            priority?,(task|milestone|import-project)*)>
+            <!ATTLIST task
+                      id       ID                #REQUIRED>
+
+            <!-- label, duration and progress of the task -->
+
+            <!ELEMENT label (#PCDATA)>
+
+            <!ELEMENT duration (#PCDATA)>
+            <!ATTLIST duration
+                      unit (days|weeks|months) "days">
+
+            <!ELEMENT progress (#PCDATA)>
+    ]]>     
+        </programlisting>
+      </example>
+      <para>
+          The &task; node describes a given task, identified by its "id" attribute. A task
+          maybe a container (i.e. contains some other tasks and/or milestone
+          and/or imported projects) or a
+          leaf. If it's a leaf, the &duration; node is required to indicate the number of
+          days of work needed by this task. You can optionaly add an "unit" attribute if
+          you want to indicate a number of weeks or months. 
+      </para>
+      <para>
+          The &progress; gives the percentage of work done for this task. A leaf task is
+          considered as finished when its progress is 100%. Note that if you have a task
+          with 2 days as duration and a 50% progress, &projman; will consider that this
+          task needs one more day of work.
+      </para>
+        <para>
+          The node &priority; has value in range from 0 (lowest) to
+          9. By default, all tasks are considered as if they had a 5 priority. You
+          can ordering task by setting this attribute. If a task t1
+          has a lower priority than a task t2, it's equivalent to
+          having a task constraint "t1 begin after begin of t2". Note that if no
+          "priority" attribute is present, a task will inherit from its parent priority.
+        </para>
+      <para>
+          See <xref linkend="constraintsgen"/> for how to describing constraints. Another
+            way to give constraint between task is to use the task's "priority"
+            attribute. 
+      </para>
+    </section>
+  </section>
+  <section id="constraintsgen"><title>Constraints : date constraint,
+    task constraint and resource constraint.</title>
+      <example><title>Portion of the DTD for the &constraintdate;
+    &constrainttask; and &constraintres; element</title>
+      <programlisting><![CDATA[
+          <!-- constraint between tasks  -->
+          <!ELEMENT constraint-task EMPTY>
+          <!ATTLIST constraint-task
+                    idref    IDREF                          #REQUIRED
+                    type     (begin-after-end|begin-after-begin|
+                             end-after-end|end-after-begin) #REQUIRED>
+          
+          <!-- constraint on date for a task  -->
+          <!ELEMENT constraint-date (#PCDATA)>
+          <!ATTLIST constraint-date
+                    type     (begin-after-date|begin-at-date|begin-before-date|
+                             end-after-date|end-at-date|end-before-date)
+                                                            #REQUIRED>
+
+          <!-- constraint on resources to use for tasks -->
+          <!ELEMENT constraint-resource EMPTY>
+          <!ATTLIST constraint-resource
+                    type          CDATA                   #IMPLIED"
+                    usage         CDATA                   #REQUIRED">
+          ]]>
+        </programlisting>
+    </example>
+    <section><title>Date constraints</title>
+        <para>
+        The possible date constraint are the following : begin before date, begin at date,
+        begin after date, end before date, end at date and end after date. The value of the &constraintdate; element must be in the standard
+        date format.
+        </para>
+    </section>
+    <section><title>Task constraints</title>
+        <para>
+          A task constraint permits to give an order between tasks execution. The
+        following type are possible : begin after end, begin after begin, end after
+        begin and end after end. The most used is the begin after end
+        constraint. The value of the &constrainttask; element must
+        be a task id.
+          </para>
+    </section>
+    <section><title>Resource constraints</title>
+        <para>
+          A resource constraint permits to assign one or more resource to a
+        task. The attribute "type" permits to design the profile of
+        the resources needed to complete the task. Indeed "type"
+        describes the type of the resource. The attribute "usage"
+        gives the percentage of time the resource has to give to the
+        task.
+          </para>
+    </section>
+  </section>
+
+  <section id="resourcesgen"><title>Resources file</title>
+
+    <section><title>Resources-list</title>
+      <example><title>Portion of the DTD for the &resourceslist; element</title>
+        <programlisting><![CDATA[
+            <!ELEMENT resources-list (resource|calendar)+ >
+            <!ATTLIST resources-list
+                      id        ID          #IMPLIED>
+            ]]>
+        </programlisting>
+      </example>
+      <para>
+          The &resourceslist; node is the root of resources file. 
+      </para>
+    </section>
+
+    <section><title>Resource</title>
+      <example><title>Portion of the DTD for the &resource; element</title>
+          <programlisting><![CDATA[
+            <!ELEMENT resource (use-calendar)*>
+            <!ATTLIST resource
+                      id       CDATA             #REQUIRED
+                      type     CDATA             #IMPLIED>
+
+            <!-- time table of a resource -->
+            <!ELEMENT use-calendar EMPTY>
+            <!ATTLIST use-calendar
+                      idref    CDATA             #REQUIRED>
+            ]]>
+         </programlisting>
+      </example>
+      <para>
+          The &resource; node describe a resource, identified by its
+          "id" attribute.  Usual resource "type" attribute are
+          "worker", "computer"...
+        </para>
+        <para>
+          You can link a resource to its calendar with the &usecalendar;
+          element. A calendar indicates when this resource is (not)
+          available (see below for further
+          description of calendar). If a resource is not linked to any calendar, the
+          resource will be considered as available every day. 
+      </para>
+    </section>
+
+    <section><title>Calendar</title>
+      <example><title>Portion of the DTD for the &calendar; element</title>
+        <programlisting><![CDATA[
+            <!ELEMENT calendar (label?, day-types, default-working,
+                                default-nonworking, (day|timeperiod)*, start-on?,
+                                stop-on?, calendar*)>
+            <!ATTLIST calendar
+                      id       CDATA             #REQUIRED>
+            
+            <!-- YYYY/MM/DD -->
+            <!ELEMENT start-on (#PCDATA)>   
+            <!ELEMENT stop-on  (#PCDATA)>
+
+            <!-- day covers two types of days: day of week {mon,
+            tue, wed, ...etc}, the national days (holidays which takes
+            place each year) mm/dd. -->
+            <!ELEMENT day (#PCDATA)>   
+            <!ATTLIST day
+                      type     CDATA             #REQUIRED>
+            
+            <!-- from YYYY/MM/DD to YYYY/MM/DD -->
+            <!ELEMENT timeperiod EMPTY>
+            <!ATTLIST timeperiod
+                      from     CDATA             #REQUIRED
+                      to       CDATA	         #REQUIRED
+                      type     CDATA             #REQUIRED>
+
+            <!ELEMENT default-working (#PCDATA)>
+            <!ELEMENT default-nonworking (#PCDATA)>
+            ]]>
+          </programlisting>
+      </example>
+      <para>
+          The &calendar; node is done to define the resources availability. By default,
+          every days are considered as worked. You can then add to a calendar some not
+          worked days with the following nodes:
+          <itemizedlist>
+            <listitem>
+              <para>
+                &starton; indicates that days before this date are not worked.
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                &stopon; indicates that days after this date are not worked.
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                &day; indicates with the attribute "type", the type of
+                the given day. "type"'s value is referered to the type
+                of days declared in the node &daytypes;. The given day
+                can be a day of the week taken in {mon, tue, wed, thu,
+                fri, sat, sun} or a date , in short format MM/DD for the national day
+                (e.g. day of nonworking type which take place each
+                year).
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                &timeperiod; indicates that days between "from" date
+                and "to" date are of type indicated by the attributes
+                "type". You can specify period of working type or non
+                working type.
+              </para>
+            </listitem>
+	</itemizedlist>
+      </para>
+        <example><title>Portion of the DTD for the &daytypes;
+        element</title>
+          <programlisting><![CDATA[
+            <!ELEMENT day-types (day-type*)>
+
+            <!ELEMENT day-type (label?, interval*)>
+            <!ATTLIST day-type
+                      id       CDATA         #REQUIRED>
+
+            <!-- Interval of time for day-type -->
+            <!ELEMENT interval EMPTY>
+            <!ATTLIST interval
+                      start     CDATA         #REQUIRED
+                      end       CDATA         #REQUIRED>
+
+        ]]>
+        </programlisting> 
+        </example>
+        <para>
+          The &daytypes; node defines the root of the description of
+          all the type of days that the calendar could use to describe
+          the resource unavailability.
+        </para>
+        <para>
+          The &daytype; node define a type of day. A type of day is
+          defined by a label (e.g. the name of the day type) and an
+          interval of working time. If a &daytype; node doesn't have
+          a child node &interval;, that means that the type of day defined
+          is a non working type. The attribute "start" and "end" of
+          &interval; is a time in format HHMM.
+        </para>
+        <para>
+          For example, look at the following time table:
+          <programlisting role="python">
+            &lt;<emphasis role="keyword">calendar</emphasis> <emphasis
+              role="name">id</emphasis>=<emphasis role="string">"c_john"</emphasis>>
+            &lt;<emphasis role="keyword">label</emphasis>><emphasis
+              role="string">John's calendar</emphasis> &lt;/<emphasis role="keyword">label</emphasis>>
+              &lt;<emphasis role="keyword">day-types</emphasis>>
+                &lt;<emphasis role="keyword">day-type</emphasis> <emphasis role="name">id</emphasis>=<emphasis role="string">"work_day"</emphasis>>
+                  &lt;<emphasis role="keyword">label</emphasis>><emphasis
+              role="string">Usual working</emphasis>&lt;/<emphasis role="keyword">label</emphasis>>
+                  &lt;<emphasis role="keyword">interval</emphasis><emphasis
+              role="name">start</emphasis>=<emphasis
+              role="string">"0800"</emphasis> <emphasis
+              role="name">end</emphasis>=<emphasis
+              role="string">"1200"</emphasis>/>
+                  &lt;<emphasis role="keyword">interval</emphasis><emphasis
+              role="name">start</emphasis>=<emphasis
+              role="string">"1300"</emphasis> <emphasis
+              role="name">end</emphasis>=<emphasis
+              role="string">"1700"</emphasis>/>
+                &lt;/<emphasis role="keyword">day-type</emphasis>>
+                &lt;<emphasis role="keyword">day-type</emphasis> <emphasis role="name">id</emphasis>=<emphasis role="string">"day_off"</emphasis>>
+                  &lt;<emphasis role="keyword">label</emphasis>><emphasis
+              role="string">Holiday</emphasis>&lt;/<emphasis role="keyword">label</emphasis>>
+                &lt;/<emphasis role="keyword">day-type</emphasis>>
+               &lt;/<emphasis role="keyword">day-types</emphasis>>
+              &lt;<emphasis role="keyword">default-working</emphasis>
+            <emphasis role="name">idref</emphasis>=<emphasis
+              role="string">"work_day"</emphasis>/>
+              &lt;<emphasis role="keyword">default-nonworking</emphasis>
+            <emphasis role="name">idref</emphasis>=<emphasis
+              role="string">"day_off"</emphasis>/>
+              &lt;<emphasis role="keyword">day</emphasis> <emphasis
+              role="name">type</emphasis>=<emphasis
+              role="string">"day_off"</emphasis>><emphasis role="string">"sat"</emphasis>&lt;/<emphasis role="keyword">day</emphasis>>
+              &lt;<emphasis role="keyword">day</emphasis> <emphasis
+              role="name">type</emphasis>=<emphasis
+              role="string">"day_off"</emphasis>><emphasis role="string">"sun"</emphasis>&lt;/<emphasis role="keyword">day</emphasis>>
+              &lt;<emphasis
+              role="keyword">timeperiod</emphasis><emphasis
+              role="name">to</emphasis>=<emphasis
+              role="string">"2004-06-12"</emphasis> <emphasis
+              role="name">from</emphasis>=<emphasis
+              role="string">"2004-06-05"</emphasis> <emphasis
+              role="name">type</emphasis>=<emphasis role="string">"day_off"</emphasis>/>
+            &lt;/<emphasis role="keyword">calendar</emphasis>>
+          </programlisting>
+          This table means that resources linked to this table won't work :
+          <itemizedlist>
+            <listitem>
+              <para>
+                every week on sunday and saturday
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                the january 1 of every year
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                from june 5 to june 12 of year 2004
+              </para>
+            </listitem>
+	</itemizedlist>
+          This calendar means that a resource works from 8 a.m. to 12
+          a.m. and from 1 p.m. to 5 p.m..
+      </para>
+    </section>
+  </section>
+
+  <section id="schedulingfile"><title>Scheduling file</title>
+      <example><title>Portion of the DTD for the &schedule; element</title>
+      <programlisting><![CDATA[
+          <!ELEMENT schedule (constraint-date*, (task|milestone))>
+          <!ATTLIST schedule
+                    id            ID                      #REQUIRED">
+
+          <!ELEMENT task (constraint-date*, priority, status?,
+                          reports-list?)>
+          ]]>
+        </programlisting>
+    </example>
+      <para>
+        The &schedule; node is the root of the results from the
+        scheduling. Each node &task; and &milestone; are element
+        already existing in the project description. This file
+        contains all the informations generated during the
+        scheduling. That's why &task; and &milestone; can only have as
+        children elements &constraintdate;, &priority;, &reportslist; and
+        &status;. The &constraintdate; are essentialy of type
+        "begin-at-date" and "end-at-date". The &status; is computed
+        according to past and planned activities for this task. The
+        &reportslist; contains &report; elements and describes the
+        planned activties. (See <xref linkend="activitiesgen"/> for
+        more informations on activities description.). The attribute
+        "id" is a reference to the project associated to this results.
+      </para>
+  </section>
+
+    <section id="activitiesgen"><title>Activities file</title>
+      <example><title>Portion of the DTD for the &activities; element</title>
+      <programlisting><![CDATA[
+          <!ELEMENT activities ((task|milestone)*) >
+          <!ATTLIST activities
+                    id            ID                      #REQUIRED">
+
+          <!ELEMENT task (reports-list)>
+          
+          <!ELEMENT reports-list (report)+>
+
+          <!ELEMENT report EMPTY>
+          <!ATTLIST report
+                    idref         IDREF                   #REQUIRED
+                    from          CDATA                   #REQUIRED
+                    to            CDATA                   #REQUIRED
+                    usage         CDATA                   #REQUIRED>
+
+          ]]>
+        </programlisting>
+    </example>
+      <para>
+        The &activities; node is the root of the registered activities
+        (past and future) associated to the project as id the
+        attribute "id". 
+      </para>
+      <para>
+        A &report; node is a detailled description of an activity. The
+        attribute "from" indicates the begin date of the activities
+        and the attribute "to" indicates the end date. The attribute
+        "idref" is a reference to the resource id which is linked to
+        this report activity. The attribute "usage" describes the
+        percentage of time the resource will spend on the task during
+        this activity.
+      </para>
+  </section>
+
+</chapter>
+
+<chapter id="use"><title>Converting, scheduling and rendering</title>
+  <para>
+      As we said at the beginning, three functionnalities exists for
+      &projman;. Also, there is three ways of using &projman;.
+      Here is the synopsis of the &projman; command line possibilities:
+      <synopsis>
+        
+    usage:
+       1) To convert data:
+       projman --convert [--arg=value] &lt;xml_input_file&gt; &lt;xml_output_file&gt;
+        
+       2) To render diagrams:
+       projman --diagram [--arg=value] &lt;projman_input_file&gt; &lt;output_image&gt;
+
+       3) To schedule the project:
+       projman --plan [--arg=value] &lt;projman_input_file&gt; &lt;output_file&gt;
+
+       4) To generate XML documents for call for tenders:
+       projman --xmldoc [--arg=value] &lt;projman_input_file&gt; &lt;output_file&gt;
+
+      </synopsis>
+      This can first import data in &projman; format (by using
+      --convert option) and then schedule the project (by using
+      --plan) and then generate the wanted diagrams (by using
+      --diagram option).
+      The specificity of &projman; is that you can schedule a project
+      a single time and then generate the diagrams from the scheduling
+      results. Each result of this operation are stored in XML files. 
+  </para>
+    <para>
+      Now, we will describe how works each of &projman; functionnalities
+      and all the options available for each mode.
+    </para>
+
+    <section><title>Converting</title>
+      <para>
+        The different options available to convert file are the
+        following ones:
+        <synopsis>
+          --in-format / -i
+                     specifies the format of the input.
+                     - planner
+                     - pygantt
+                     - projman
+    
+          --out-format / -o
+                     specifies the output format.
+                     - projman [default]
+                       Generate activities_description.0.xml,
+                       resources_description.0.xml and
+                       project_description.0.xml if --project,
+                       --resources and --activities
+                       options are omitted.
+                     - planner
+                     - pygantt
+
+          --project / -p
+                     specifies the dest file path for the description
+                     of the project
+            
+          --resources / -r
+                     specifies the dest file path for the description
+                     of the resources
+
+          --activity / -a
+                     specifies the dest file path for the description
+                     of the activities 
+
+
+        </synopsis>
+      </para>
+      <para>
+        If &lt;xml_input_file&gt; contains more than one project
+        description, the conversion will generate an output file for
+        each project description.
+      </para>
+
+  </section>
+    
+  <section id="schedulinggen"><title>Scheduling</title>
+    <para>
+        You will find in this section some things that you should no about those
+        differents algorithm. 
+      </para><para>
+        &projman; provides two way to schedule a project : the standard (old) algorithm
+        or another algorithm using constraint programming. Each algorithm try do reduce
+        the end of the project. 
+    </para>
+      <para>
+        The options available for the scheduling mode are:
+        <synopsis>
+          --include-references
+                     input file will be modified to include references to 
+                     produced schedules
+        </synopsis>
+      </para>
+      
+    <section id="def_sched"><title>Default scheduling</title>
+      <para>
+          The default algorithm is the fastest of both and will surely found a solution
+          for a scheduling, even if all constraints are not satisfied. However, this
+          algorithm handles resources assigments and resources calendar.
+      </para>
+    </section>
+    <section id="constraint_sched"><title>Constraint scheduling</title>
+      <para>
+          This algorith will try to satisfy all the constraints described in the project
+          file. If some constraints are unsatisfable, it won't find any solution. You
+          should then correct your project file to make it find a solution.
+      </para><para>
+          Here are some hypothesis made by this algorithm :
+        <itemizedlist>
+	  <listitem><para>
+                a resource work on a single task per day.
+              </para></listitem><listitem><para>
+                a task is performed by a single resource. This means that if a task has more
+                than one used resources, it will choose only one of these resources to work on
+                this task.
+              </para></listitem><listitem><para>
+                a task which doesn't have some used resources specified (nor its ancestors) is
+                not affected by the tow previous point.
+              </para></listitem>
+          </itemizedlist>
+        </para>
+      </section>
+  </section>
+
+  <section id="renderinggen"><title>Rendering</title>
+    <para>
+        TO VALIDATE NOT SURE!!!!!!
+        &projman; is able to draw the Gantt diagram in the following format :
+        HTML, SVG, ARG, BMP, CUR, DCX, EPS, FLI, FPX, GBR, GIF, HTML, ICO, IM, IPTC,
+        JPEG, MIC, MPEG, MSP, PCD, PCX, PDF, PNG, PPM, PSD, SGI, SUN, SVG, TGA, TIFF,
+        WMF, XBM and XPM .
+      </para>
+      <para>
+        The diagram should look similar in all formats.
+      </para>
+      <para>
+        The differents options available are:
+        <synopsis>
+          --diagram-type
+                      specifies the type of diagram to generate
+                      this option is required
+                      - resources (describes resources activities
+                        in past and future)
+                      - gantt
+
+          --selected-resource
+                      specifies the id of the resource to take
+                      in account for resources diagrams
+                      [default=all resources]
+            
+          --renderer 
+                      specifies the output renderering for resources
+                      diagram [default=png] use only with schedule input
+                      - html (bugs)
+                      - png
+            
+          --timestep
+                      timeline increment in days for diagram
+                      [default=1]
+          
+          --depth
+                      specifies the depth to visualisate for diagrams
+                      [default=0, this means all the tree]
+          
+          --view-begin
+                      begin date for diagram view [default=date begin project]
+                      ex: yyyy/mm/dd
+
+          --view-end
+                      end date for diagram view [default=date end project]
+                      ex: yyyy/mm/dd
+        </synopsis>
+      </para>
+    </section>
+
+    <section id="xmldocgen"><title>XML documents</title>
+    <para>
+    	This mode of action proposes tree view to answer to call for tenders. 
+	Each view is an XML file which can be included in a global answer to call for tenders.
+	</para>
+      <para>
+        The differents options available are:
+        <synopsis>
+	
+	        --view
+              	      Specify the type of view generated
+              	      - [tasks-costs]:  Will create a table in which the project's tasks are listed with all the main informations (duration, cost, resources)
+                      - tasks-list: Will dump tasks information.
+                      - tasks-dates: Will dump begin, end date and global cost for tasks.
+
+      	  --format
+                      set output format.
+                      - [docbook]: respectful of format dockbook 4.2.
+                      - html: NOT IMPLEMENTED YET
+                      - csv: plain text with separator NOT IMPLEMENTED YET
+        </synopsis>
+      </para>
+    </section>
+
+
+</chapter>
+
+<appendix><title>Annexes</title>
+  <section id="relat"><title>Related programs</title>
+    <para>
+If you're looking for GPL'd project management software, you should try <ulink
+url="http://toutdoux.sourceforge.net/">ToutDoux</ulink>, that aims to be a
+complete tool and needs Gnome libraries or <ulink
+url="http://mrproject.codefactory.se/">Mr Project</ulink>, a
+M$ Project clone (needs Gnome libraries too). Another possibility is <ulink
+url="http://tutos.sf.net">TUTOS</ulink>, written in PHP and which provide a
+bunch of others functionalities like a bug tracking system, an address book...
+    </para><para>
+If you only want to draw Gantt diagram, try <ulink
+url="http://www.gumbley.demon.co.uk/qtgantt.html">QtGantt</ulink>, that
+needs Qt or <ulink url="http://www.egantt.com/jgantt/">JGantt</ulink>, a Java
+component.  
+    </para>
+  </section>
+
+</appendix>
+
+</book>

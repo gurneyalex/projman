@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- This DTD decribes the attributes and elements for a project description 
+     in PyGantt. -->
+
+<!-- Public Identifier of this DTD is 
+     "-//LOGILAB//DTD PyGantt Project Description V1.0//EN"
+  -->
+
+<!-- Declaration of various entities for classifying the elements -->
+<!ENTITY % label.class "label">
+<!ENTITY % resources.desc.class "resource">
+<!ENTITY % calendars.desc.class "calendar">
+<!ENTITY % calendar.class "use-calendar">
+<!ENTITY % bound.class "start-on?,stop-on?">
+<!ENTITY % day.types.class "day-types|day-type">
+<!ENTITY % default-types "default-working, default-nonworking">
+<!ENTITY % off.class "day|timeperiod">
+<!ENTITY % interval.class "interval">
+
+<!-- Declaration of various entities for classifying the attributes -->
+<!ENTITY % id.attribs 
+            "id            ID                      #REQUIRED">
+<!ENTITY % idref.attribs 
+            "idref         CDATA                   #REQUIRED">
+<!ENTITY % time.unit.attribs
+            "unit          (days|weeks|months)     'days'">
+<!ENTITY % slot.def.attribs
+            "from          CDATA                   #REQUIRED
+             to            CDATA                   #IMPLIED">
+<!ENTITY % time.def.attribs
+            "start          CDATA                   #REQUIRED
+             end            CDATA                   #IMPLIED">
+<!ENTITY % type.attribs
+            "type          CDATA                   #REQUIRED">
+<!ENTITY % name.attribs
+            "name          CDATA                   #REQUIRED">
+<!ENTITY % unitcost.attribs
+            "unit      CDATA                'euros'">
+
+<!-- Resources list -->
+
+<!ELEMENT resources-list ((%calendars.desc.class;)|(%resources.desc.class;))+>
+<!ATTLIST resources-list %id.attribs; >
+
+<!ELEMENT resource ((%label.class;),(%calendar.class;)*)>
+<!ATTLIST resource %id.attribs; %type.attribs; %cost.attribs; >
+
+<!-- time table of a resource -->
+<!ELEMENT use-calendar EMPTY>
+<!ATTLIST use-calendar %idref.attribs; >
+
+<!-- hourly cost -->
+<!ELEMENT hourly-rate (#PCDATA)>
+<!ATTLIST hourly-rate %unitcost.attribs; >
+
+<!ELEMENT calendar ((%label.class;), (%day.types.class;),
+(%default-types;), (%off.class;)*, (%bound.class;), (%calendars.desc.class;)*)>
+<!ATTLIST calendar %id.attribs;  >
+
+<!-- type of day used by a calendar -->
+<!ELEMENT day-types (%day.types.class;)*>
+
+<!ELEMENT day-type ((%label.class;)?, (%interval.class;)*)>
+<!ATTLIST day-type %id.attribs; >
+
+<!-- default type of days used by this calendar -->
+<!ELEMENT default-working EMPTY>
+<!ATTLIST default-working %idref.attribs; >
+
+<!ELEMENT default-nonworking EMPTY>
+<!ATTLIST default-nonworking %idref.attribs; >
+
+<!-- YYYY/MM/DD -->
+<!ELEMENT start-on (#PCDATA)>   
+<!ELEMENT stop-on  (#PCDATA)>   
+
+<!-- the id of day type according to the day types defined  -->
+<!ELEMENT day (#PCDATA)>
+<!ATTLIST day %type.attribs; >
+  
+<!-- from YYYY/MM/DD to YYYY/MM/DD -->
+<!ELEMENT timeperiod EMPTY>
+<!ATTLIST timeperiod %slot.def.attribs; %type.attribs;>
+
+<!ELEMENT label (#PCDATA)>
+
+<!-- Interval of time for day-type -->
+<!ELEMENT interval EMPTY>
+<!ATTLIST interval %time.def.attribs; >

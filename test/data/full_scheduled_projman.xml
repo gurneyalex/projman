@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+	<import-tasks file='full_tasked_project.xml'/>
+	<import-resources file='full_resourced_list.xml'/>
+	<import-schedule file='out_full_schedule.xml'/>
+	<import-activities file='full_activities.xml'/>
+</project>

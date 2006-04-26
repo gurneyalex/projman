@@ -1,0 +1,33 @@
+======
+Format
+======
+
+TODO : turn this into proper document
+
+changes : 
+
+- projman (url=)
+  - activity
+  - project
+  - resources
+  - schedule
+- project 
+  - tasks
+
+new: 
+
+- project (file=)
+  - activity
+  - tasks
+  - resources
+- task
+  -tasks
+
+before : content of progress = 0 - 100 
+now : content of progress = 0. - 1.
+
+before : attr usage = 0 - 100 
+now : attr usage = 0. - 1.
+
+s/import-project/import-tasks/
+

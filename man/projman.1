@@ -1,0 +1,169 @@
+.TH projman 1 "2004-10-14" "logilab projman"
+
+.SH NAME 
+.B projman
+ \- tool for project management and diagrams creation
+
+.SH SYNOPSIS 
+.B projman 
+[
+.I command
+] [
+.I options
+] [
+.I FILES ...
+]
+
+.SH DESCRIPTION
+Projman is a tool for project management and diagrams creation, as
+Gantt diagram and resources activities diagram. It includes lots of
+functionnalties as conversion format between some softs, planning of
+project's tasks, diagrams generation and finally special views for
+call tenders utilities.  All different format and output are XML
+files.
+
+The list of the functionalities is printed by calling 'projman'
+without arguments.
+
+.SH COMMANDS
+  projman -c (--convert)
+    to convert files from one type to another
+    ex: projman -c -i pygantt -o projman input.xml output.xml
+
+  projman -d (--diagram)
+    to generate diagrams (resources, gantt, etc.)
+    ex: projman -d --diagram-type=gantt projman.xml image.png
+
+  projman -s (--schedule, --plan)
+    to schedule project
+    ex:  projman -s -I projman.xml schedule.xml
+
+  projman -x (--xml-view, --xml-doc)
+    to generate xml views (list, cost , date)
+    ex: projman -x -v cost projman.xml view.xml
+    
+  projman -V (--version)
+    display version of installed projman
+
+  projman -h (-H, --help)
+    to get more help
+
+.SH OPTIONS
+.SS Convert
+.SP
+  -i; --in-format
+    specifies the format of the input.
+    * planner
+    * pygantt
+    * projman
+
+  -o; --out-format
+    specifies the output format.
+    * [projman]
+    * planner
+    * pygantt
+
+  -p; --project
+    specifies the dest file path for the description of the project
+
+  -r; --resources
+    specifies the dest file path for the description the resources
+
+  -a; --activity
+    specifies the dest file path for the description of the activities
+
+   if --project, --resources and --activities options are omitted:
+   projman generates activities_description.(i).xml,
+   resources_description.(i).xml and project_description.(i).xml (i is
+   the index of each element in projman object)
+
+.SS Diagram
+.SP
+  --diagram-type
+    specifies the type of diagram to generate
+    REQUIRED
+    * resources
+    * gantt
+    * gantt-resources (resources displayed as summary)
+
+  --selected-resource
+    specifies the id of the resource to take in account for resources diagrams
+    [default=all resources]
+
+  --renderer 
+    specifies the output renderering for resources diagram 
+    use only with schedule input
+    * [png]
+    * html (bugs)
+
+  --depth
+    specifies the depth to visualisate for diagrams
+    [default=0, this means all the tree]
+
+  --timestep
+    timeline increment in days for diagram
+    [default=1]
+
+  --view-begin
+    begin date for diagram view (yyyy/mm/dd)
+    [default=date begin project]
+
+  --view-end
+    end date for diagram view (yyyy/mm/dd)
+    [default=date end project]
+
+.SS XML-View
+.SP
+  -v; --view
+    Specify the type of view generated
+    * [cost]: Table with task, load, resources, cost
+    * list: List of all tasks
+    * date: Table with task, begin date, end date, cost.
+
+  -f; --format
+    set output format.
+    * [docbook]: respectful of format dockbook 4.2.
+    * html: NOT IMPLEMENTED YET
+    * csv: NOT IMPLEMENTED YET
+     
+  --display-cost
+    Add global cost of project at the end of the view
+
+  --display-duration
+    Add global duration of project at the end of the view
+    
+  --display-rates
+    Add daily rates for each resources working on project
+
+.SS Schedule
+.SP
+  -I; --include-references
+    input file will be modified to include references to 
+    produced schedules
+"
+.SH SEE ALSO 
+http://www.logilab.org/projects/projman/
+
+.SH COPYRIGHT 
+(c) 2004 Logilab. General Public Licence.
+
+This program is free software; you can redistribute it and/or modify 
+it under the terms of the GNU General Public License as published 
+by the Free Software Foundation; either version 2 of the License, 
+or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, 
+but WITHOUT ANY WARRANTY; without even the implied warranty of 
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License 
+along with this program; if not, write to the Free Software 
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, 
+MA 02111-1307 USA.
+
+.SH BUGS 
+Full listing at http://intranet.logilab.fr/jpl/view?rql=728
+
+.SH AUTHOR 
+Logilab <contact@logilab.fr>

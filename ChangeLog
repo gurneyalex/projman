@@ -1,0 +1,188 @@
+ChangeLog for Projman
+=====================
+
+
+	-- 0.11.0
+
+    * fix unicode bug in projman_reader.py
+	
+2005-11-29  --  0.10.0
+    * rather important rewrite
+	- lots of renaming (variables, files, etc)
+	- correct XML handling
+	- lots of dead code removed
+	- rewrite of schedule/*py
+	- removed classes Activity*
+	- etc.
+    * new file format
+
+	
+
+2005-06-14  --  0.9.3
+    * REFACTORING: gros travail sur la gestion du fichier prj et de la
+      gestion des path relatifs dans la ligne de commande
+	
+    * BUG #8602 ecrire du joli docbook
+	
+    * BUG #8638 ecriture d'un mauvais import de schedule.xml
+	
+    * BUG #8869 fichier prj est pas créé si manque schedule
+	
+    * BUG #9097 vérifier exemples sont à jour dans paquet
+	
+    * BUG #9103 diagramme ressource difficile à lire
+	
+2005-06-14  --  0.9.2
+    * BUG #8871 traceback for DTD errors
+
+    * BUG #9069 two task with same id give strange results
+
+    * BUG #9067 recursive dependency on one task
+
+	
+2005-04-22  --  0.9.1
+    * BUG #8602 ecrire du joli docbook
+
+    * BUG #8742 retour à la ligne dans un élément label -> caca
+
+    * BUG #8740 option -V -> stack trace
+
+    * BUG #8867 décalage dans les tableaux comporte nbsp en trop
+
+
+
+2005-02-11  --  0.9.0
+    * ENH #8631 indentation des taches dans vues
+
+    * BUG #8430 UnicodeEncodeError:
+
+    * BUG #8605 pas de coût dans le tableau des dates
+
+    * BUG #8604 rendu % du diagramme des ressources faux quand timestep > 1
+
+    * BUG #8628 Addition de 2 schedules successifs sur un meme projman
+
+    * BUG #8666 conversion planner projman marche pas
+
+
+
+2005-02-11  --  0.8.4
+    * ENH #1127 autoriser format docbook
+
+    * ENH #1089 format de fichier projman
+
+    * ENH #948 option pour virer taches terminées
+
+    * full refactoring of main.py to ease future enhancement
+
+    * added tests and improved coverage
+
+
+
+2004-10-22  --  0.8.3
+    * BUG #1188 reste références à pyganttrc
+
+    * BUG #944 création fichier temporaire bizarre
+
+    * BUG #1052 Erreur dans conversion pygantt -> projman
+
+    * BUG #1121 Exception sur une action de schedule
+
+    * BUG #1166 conversion depuis pygantt foire les durées
+
+    * BUG #1128 planification ignore les activités
+
+    * BUG #8341 erreurs sur activités
+
+    * BUG #1124 Erreur sur contrainte begin-at-date
+
+
+
+2004-10-15  --  0.8.2
+    * ENH : ajout tests haut niveau
+
+
+
+2004-10-11  --  0.8.1
+    * BUG 1172: erreur de planification
+
+    * ENH : ajout de log (module logging)
+
+    * ENH : début MAJ testss unitaires
+
+
+
+2004-07-23  --  0.8.0
+    * ENH 3 new options on any view (--xml-doc) !!! '--display-cost' '--display-rate' '--display-duration'
+
+    * ENH --display-cost: add a section with global cost of project after view
+
+    * ENH --display-duration: add a section with global duration of project and number of day.man
+
+    * ENH --display-rate: add a section with all ressources' daily-rate
+
+    * ENH order view accorfing to description of project. Keep hierarchy in list view
+
+    * ENH display ressources' rate on a daily basis instead of an hourly one
+
+    * BUG Schedule: fix bug when usage not 100. last usage could be 1000!!! due to float representation of 0.1: 0.1-0.1 = 4.5..e-15
+
+    * BUG Duration calculation: was 0.0 when usage not 100. fix bug and calculate good value
+
+    * BUG Vue task-list: print '1 jour.homme' 'x jours.homme' if x>1
+
+    * BUG Vue task-cost/task-date: print empty row instead of row full of zero
+
+    * BUG wrong type for default value of usage: string instead of number
+
+
+
+2004-06-03  --  0.7.0
+    * Vue mkview (xml/docbook): listings des taches avec leurs ressources attribuées
+
+    * Vue mkview (xml/docbook): un tableau dates et coût
+
+    * Vue mkview (xml/docbook): un tableau ressources et coûts.
+
+    * Bug fix : conversion format planner compatible avec la contrainte "des que possible"
+
+
+
+2004-05-26  --  0.6.0
+    * Diagram combining gantt and resources diagrams.
+
+    * Fix bugs when timestep > 1 for diagram.
+
+    * Changes in activities.dtd: task element no longer exists, replace by task-id attributes in reports-list element.
+
+    * Add smoke_test.
+
+    * Add a global file for output and all files generated in the same directory.
+
+
+
+2004-04-16  --  0.3.0
+    * Add resources diagram generation.
+
+    * Fix bug project begin date.
+
+
+
+2004-03-30  --  0.1.2
+    * Fix bug date constraints.
+
+    * Fix bug package name
+
+    * Fix bug short option.
+
+
+
+2004-03-29  --  0.1.1
+    * First release.
+
+    * Allow data exchange between Planner and Projman.
+
+    * Allow data exchange between PyGannt and Planner.
+
+
+

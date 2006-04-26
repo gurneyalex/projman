@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project id='project2'>
+  <label>Trivial Project</label>
+  <use-resource idref='ing_1'/>
+  <use-resource idref='ing_2'/>
+  <use-resource idref='ing_3'/>
+  <priority>-1</priority>
+  <task id='t2_1'>
+    <label>Developpement</label>
+    <priority>-1</priority>
+    <task id='t2_11'>
+      <label>Realisation</label>
+      <priority>-1</priority>
+      <duration>15.0</duration>
+    </task>
+    <task id='t2_12'>
+      <label>Validation</label>
+      <use-resource idref='ing_2'/>
+      <priority>-1</priority>
+      <duration>8.0</duration>
+    </task>
+  </task>
+  <task id='t2_2'>
+    <label>Conclusion</label>
+    <priority>-1</priority>
+    <duration>2.0</duration>
+    <constraint type='begin-after-end'>t2_1</constraint>
+  </task>
+  <task id='t2_3'>
+    <label>Recette</label>
+  </task>
+  <resources-list>
+    <resource type='engineer' id='ing_1' unitcost='640.0'>
+      <label>Emmanuel Breton</label>
+      <use-timetable idref='typic_cal'/>
+    </resource>
+    <resource type='engineer' id='ing_2' unitcost='640.0'>
+      <label>Arthur Lutz</label>
+      <use-timetable idref='typic_cal'/>
+    </resource>
+    <resource type='engineer' id='ing_3' unitcost='640.0'>
+      <label>Sandrine Ribeau</label>
+      <use-timetable idref='typic_cal'/>
+    </resource>
+    <timetable id='typic_cal'>
+      <label>Calendrier Francais</label>
+      <timeoff to='2002-12-31' from='2002-12-26'/>
+      <timeoff to='2003-03-14' from='2003-03-10'/>
+      <timeoff to='2003-08-18' from='2003-08-14'/>
+      <timeoff to='2004-05-21' from='2004-05-20'/>
+      <dayoff type='weekday'>sun</dayoff>
+      <dayoff type='weekday'>sat</dayoff>
+      <dayoff type='holiday'>01-01</dayoff>
+      <dayoff type='holiday'>05-01</dayoff>
+      <dayoff type='holiday'>05-08</dayoff>
+      <dayoff type='holiday'>07-14</dayoff>
+      <dayoff type='holiday'>08-15</dayoff>
+      <dayoff type='holiday'>11-01</dayoff>
+      <dayoff type='holiday'>11-11</dayoff>
+      <dayoff type='holiday'>12-25</dayoff>
+    </timetable>
+  </resources-list>
+</project>

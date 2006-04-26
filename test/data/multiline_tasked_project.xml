@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<task id="project1">
+  <constraint-resource usage="1" idref="cdp_1" type="manager"/>
+  <label>Simplest Project with a multiline
+  label, gosh can you believe it</label>
+  <task id="t1_1">
+    <label>Suivi de projet</label>
+    <description>Réunions de début et de fin de tranche, réunions
+      hebdomadaires, <emphasis>comptes-rendus</emphasis>, etc.</description>
+    <duration>25</duration>
+  </task>
+  <task id="t1_2">
+    <label>Développement</label>
+    <description>Conception et réalisation des livrables.</description>
+    <duration>10.6</duration>
+  </task>
+  <task id="t1_3">
+    <label>Développement</label>
+    <description>Conception et réalisation des livrables.</description>
+    <duration>0</duration>
+  </task>
+</task>

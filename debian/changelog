@@ -1,0 +1,218 @@
+projman (0.10.0-2) unstable; urgency=low
+
+  * reorganization to install into site-python, removing the need for 
+    pythonX.X- packages
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Tue, 10 Jan 2006 18:03:47 +0100
+
+projman (0.10.0-1) unstable; urgency=low
+
+  * New upstream release
+  * Dropped python2.2 support
+
+ -- Arthur Lutz <arthur.lutz@logilab.fr>  Tue, 29 Nov 2005 11:27:07 +0100
+
+projman (0.9.3-1) unstable; urgency=low
+
+  * delivery 0.9.3
+
+ -- emb <emb@logilab.fr>  Fri, 24 Jun 2005 18:29:04 +0200
+
+projman (0.9.2-1) unstable; urgency=low
+
+  * upstream release
+
+ -- Arthur Lutz <arthur.lutz@logilab.fr>  Tue, 14 Jun 2005 17:27:33 +0200
+
+projman (0.9.1-1) unstable; urgency=low
+
+  * delivery 0.9.1 regarding docbook format
+
+ -- emb <emb@logilab.fr>  Fri, 22 Apr 2005 17:34:25 +0200
+
+projman (0.9.0-1) unstable; urgency=low
+
+  * added depedancy to xmldiff
+  
+  * changed source
+
+ -- emb <emb@logilab.fr>  Fri, 11 Feb 2005 12:29:30 +0100
+
+projman (0.8.4-1) unstable; urgency=low
+
+  * delivery 0.8.4
+
+ -- emb <emb@logilab.fr>  Fri, 29 Oct 2004 16:40:21 +0200
+
+projman (0.8.3-1) unstable; urgency=low
+
+  * MAN pages
+
+ -- emb <emb@logilab.fr>  Fri, 22 Oct 2004 15:40:43 +0200
+
+projman (0.8.2-3) unstable; urgency=low
+
+  * fix man page handling
+
+ -- emb <emb@logilab.fr>  Mon, 18 Oct 2004 17:28:51 +0200
+
+projman (0.8.2-2) unstable; urgency=low
+
+  * Added MAN pages
+
+ -- emb <emb@logilab.fr>  Fri, 15 Oct 2004 17:51:03 +0200
+
+projman (0.8.2-1) unstable; urgency=low
+
+  * Changed name of package from python-projman to projman
+
+ -- emb <emb@logilab.fr>  Fri, 15 Oct 2004 13:29:35 +0200
+
+projman (0.8.1-1) unstable; urgency=low
+
+  * bug fix
+
+ -- emb <emb@logilab.fr>  Mon,  11 Oct 2004 16:40:58 +0200
+
+projman (0.8.0-3) unstable; urgency=low
+
+  * replace dependancy on python-pil with dependancy on python-imaging
+
+ -- emb <emb@logilab.fr>  Tue,  6 Jul 2004 16:56:58 +0200
+
+projman (0.8.0-2) unstable; urgency=low
+
+  * add dependancy on python-pil
+
+ -- emb <emb@logilab.fr>  Tue,  6 Jul 2004 16:25:25 +0200
+
+projman (0.8.0-1) unstable; urgency=low
+
+  * use of new procedure to deliver package
+
+ -- emb <emb@logilab.fr>  Tue,  6 Jul 2004 15:51:37 +0200
+
+projman (0.8.0-0) unstable; urgency=low
+
+  * ENH 3 new options on any view (--xml-doc) !!! '--display-cost' '--display-rate' '--display-duration'
+
+  * ENH --display-cost: add a section with global cost of project after view
+
+  * ENH --display-duration: add a section with global duration of project and number of day.man
+
+  * ENH --display-rate: add a section with all ressources' daily-rate
+
+  * ENH order view accorfing to description of project. Keep hierarchy in list view
+
+  * ENH display ressources' rate on a daily basis instead of an hourly one
+
+  * BUG Schedule: fix bug when usage not 100. last usage could be 1000!!! due to float representation of 0.1: 0.1-0.1 = 4.5..e-15
+
+  * BUG Duration calculation: was 0.0 when usage not 100. fix bug and calculate good value
+
+  * BUG Vue task-list: print '1 jour.homme' 'x jours.homme' if x>1 
+
+  * BUG Vue task-cost/task-date: print empty row instead of row full of zero
+
+  * BUG wrong type for default value of usage: string instead of number
+
+ -- emb <emb@logilab.fr>  Thu,  1 Jul 2004 16:33:40 +0200
+
+projman (0.7.0-1) unstable; urgency=low
+
+  * mkview (xml/docbook): task listings with their attribute
+  
+  * mkview (xml/docbook): dates / cost table
+  
+  * mkview (xml/docbook): resources / cost table
+  
+  * Bug fix : planner conversion compatible with the "as soon" constraint
+
+ -- emb <emb@logilab.fr>  Thu,  3 Jun 2004 16:09:03 +0200
+
+projman (0.6.0-1) unstable; urgency=low
+
+  * Diagram combining gantt and resources diagrams.
+  
+  * Fix bugs when timestep > 1 for diagram.
+  
+  * Changes in activities.dtd: task element no longer exists, replace by task-id attributes in reports-list element.
+  
+  * Add smoke_test.
+  
+  * Add a global file for output and all files generated in the same directory.
+
+ -- emb <emb@logilab.fr>  Wed, 26 May 2004 17:13:00 +0200
+
+projman (0.5.0-1) unstable; urgency=low
+
+  * Fix bugs with ouput files name.
+
+  * Complete package (last version, one script was missing).
+
+ -- Sandrine Ribeau <sand@logilab.fr>  Fri, 14 May 2004 15:02:53 +0200
+
+projman (0.4.1-1) unstable; urgency=low
+
+  * Fix bugs for diagrams, scheduling.
+
+  * Fix bug for project composed of other projects.
+
+  * Documentation available.
+
+ -- Sandrine Ribeau <sand@logilab.fr>  Fri, 30 Apr 2004 17:36:46 +0200
+
+projman (0.4.0-1) unstable; urgency=low
+
+  * Add functionnalities : scheduling
+
+  * Fix bugs and amelioration for resoures and gantt diagrams.
+
+ -- Sandrine Ribeau <sand@logilab.fr>  Fri, 23 Apr 2004 16:58:53 +0200
+
+projman (0.3.0-1) unstable; urgency=low
+
+  * Add functionnalities : gantt diagrams generation.
+
+  * Fix bug with resources diagrams generation.
+
+ -- Sandrine Ribeau <sand@logilab.fr>  Fri, 16 Apr 2004 17:32:11 +0200
+
+projman (0.2.0-1) unstable; urgency=low
+
+  * Add functionalities: resources diagrams generation.
+
+  * Fix bug with project begin date.
+
+ -- Sandrine Ribeau <sand@logilab.fr>  Fri,  2 Apr 2004 17:25:54 +0200
+
+projman (0.1.2-1) unstable; urgency=low
+
+  * Fix bug options and bad functions calls.
+
+ -- Sandrine Ribeau <sand@logilab.fr>  Tue, 30 Mar 2004 14:00:48 +0200
+
+projman (0.1.1-2) unstable; urgency=low
+
+  * Fix bug options and bad functions calls.
+
+ -- Sandrine Ribeau <sand@logilab.fr>  Tue, 30 Mar 2004 12:10:11 +0200
+
+projman (0.1.1-1) unstable; urgency=low
+
+  * Rename python-projman to projman.
+
+ -- Sandrine Ribeau <sand@logilab.fr>  Mon, 29 Mar 2004 17:03:20 +0200
+
+projman (0.1.1-0) unstable; urgency=low
+
+  * Remove bad imports.
+
+ -- Sandrine Ribeau <sand@logilab.fr>  Mon, 29 Mar 2004 16:26:36 +0200
+
+projman (0.1.0-1) unstable; urgency=low
+
+  * First version of Projman.
+
+ -- Sandrine Ribeau <sand@logilab.fr>  Fri, 26 Mar 2004 17:39:37 +0100
+

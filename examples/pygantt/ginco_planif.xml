@@ -1,0 +1,307 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project id='intranet_projets_ginco_planif'>
+  <resources-list>
+    <resource type='worker' id='intranet_personnel_logilabiens_emb'>
+      <label>Emmanuel Breton</label>
+      <use-timetable idref='vac_emb'/>
+      <use-timetable idref='standard-week'/>
+      <use-timetable idref='french-multi-year-public-holidays'/>
+      <use-timetable idref='logilab-holidays'/>
+      <use-timetable idref='french-2004-public-holidays'/>
+    </resource>
+    <resource type='dev' id='intranet_personnel_logilabiens_ludal'>
+      <label>Ludovic Aubry</label>
+      <use-timetable idref='standard-week'/>
+      <use-timetable idref='french-multi-year-public-holidays'/>
+      <use-timetable idref='french-2003-public-holidays'/>
+      <use-timetable idref='logilab-holidays'/>
+      <use-timetable idref='ludal-holidays'/>
+      <use-timetable idref='french-2004-public-holidays'/>
+    </resource>
+    <resource type='worker' id='intranet_personnel_logilabiens_sand'>
+      <label>Sandrine Ribeau</label>
+      <use-timetable idref='standard-week'/>
+      <use-timetable idref='french-multi-year-public-holidays'/>
+      <use-timetable idref='logilab-holidays'/>
+      <use-timetable idref='french-2004-public-holidays'/>
+    </resource>
+    <resource type='com' id='intranet_personnel_logilabiens_nico'>
+      <label>Nicolas Chauvat</label>
+      <use-timetable idref='standard-week'/>
+      <use-timetable idref='french-multi-year-public-holidays'/>
+      <use-timetable idref='french-2003-public-holidays'/>
+      <use-timetable idref='nico-holidays'/>
+      <use-timetable idref='french-2004-public-holidays'/>
+    </resource>
+    <resource type='com' id='intranet_personnel_logilabiens_jphc'>
+      <label>Jean-Philippe Chauvat</label>
+      <use-timetable idref='standard-week'/>
+      <use-timetable idref='french-multi-year-public-holidays'/>
+      <use-timetable idref='french-2003-public-holidays'/>
+      <use-timetable idref='jphc-holidays'/>
+      <use-timetable idref='french-2004-public-holidays'/>
+    </resource>
+    <resource type='dev' id='intranet_personnel_logilabiens_syt'>
+      <label>Sylvain Thénault</label>
+      <use-timetable idref='standard-week'/>
+      <use-timetable idref='french-multi-year-public-holidays'/>
+      <use-timetable idref='french-2003-public-holidays'/>
+      <use-timetable idref='logilab-holidays'/>
+      <use-timetable idref='syt-holidays'/>
+      <use-timetable idref='french-2004-public-holidays'/>
+    </resource>
+    <resource type='com' id='intranet_personnel_logilabiens_ocy'>
+      <label>Olivier Cayrol</label>
+      <use-timetable idref='standard-week'/>
+      <use-timetable idref='french-multi-year-public-holidays'/>
+      <use-timetable idref='french-2003-public-holidays'/>
+      <use-timetable idref='ocy-holidays'/>
+      <use-timetable idref='french-2004-public-holidays'/>
+    </resource>
+    <resource type='worker' id='intranet_personnel_logilabiens_arthur'>
+      <label>Arthur Lutz</label>
+      <use-timetable idref='standard-week'/>
+      <use-timetable idref='french-multi-year-public-holidays'/>
+      <use-timetable idref='logilab-holidays'/>
+      <use-timetable idref='french-2004-public-holidays'/>
+    </resource>
+    <resource type='dev' id='intranet_personnel_logilabiens_alf'>
+      <label>Alexandre Fayolle</label>
+      <use-timetable idref='standard-week'/>
+      <use-timetable idref='french-multi-year-public-holidays'/>
+      <use-timetable idref='french-2003-public-holidays'/>
+      <use-timetable idref='alf-holidays'/>
+      <use-timetable idref='french-2004-public-holidays'/>
+    </resource>
+    <resource type='dev' id='intranet_personnel_logilabiens_adim'>
+      <label>Adrien Di Mascio</label>
+      <use-timetable idref='standard-week'/>
+      <use-timetable idref='french-multi-year-public-holidays'/>
+      <use-timetable idref='french-2003-public-holidays'/>
+      <use-timetable idref='logilab-holidays'/>
+      <use-timetable idref='TimeTable.2003-04-04.0439'/>
+      <use-timetable idref='french-2004-public-holidays'/>
+    </resource>
+    <timetable id='ludal-holidays'>
+      <timeoff to='2002-12-27' from='2002-12-26'/>
+      <timeoff to='2003-01-02' from='2002-12-31'/>
+      <timeoff to='2003-08-17' from='2003-08-11'/>
+      <timeoff to='2004-04-19' from='2004-04-05'/>
+    </timetable>
+    <timetable id='standard-week'>
+      <dayoff type='weekday'>sunday</dayoff>
+      <dayoff type='weekday'>saturday</dayoff>
+    </timetable>
+    <timetable id='french-2004-public-holidays'>
+      <dayoff type='date'>2004-04-12</dayoff>
+      <dayoff type='date'>2004-05-20</dayoff>
+      <dayoff type='date'>2004-05-31</dayoff>
+    </timetable>
+    <timetable id='french-2003-public-holidays'>
+      <dayoff type='date'>2003-04-21</dayoff>
+      <dayoff type='date'>2003-05-29</dayoff>
+      <dayoff type='date'>2003-06-09</dayoff>
+    </timetable>
+    <timetable id='syt-holidays'>
+      <dayoff type='date'>2003-01-17</dayoff>
+      <dayoff type='date'>2003-06-16</dayoff>
+      <dayoff type='date'>2003-07-15</dayoff>
+      <dayoff type='date'>2003-08-11</dayoff>
+      <timeoff to='2002-12-31' from='2002-12-26'/>
+      <timeoff to='2003-03-14' from='2003-03-10'/>
+      <timeoff to='2003-08-18' from='2003-08-14'/>
+    </timetable>
+    <timetable id='nico-holidays'>
+      <timeoff to='2002-09-01' from='2002-08-15'/>
+      <timeoff to='2003-01-02' from='2002-12-26'/>
+      <timeoff to='2003-12-07' from='2003-11-29'/>
+      <timeoff to='2004-03-16' from='2004-03-12'/>
+      <timeoff to='2004-05-10' from='2004-04-15'/>
+    </timetable>
+    <timetable id='alf-holidays'>
+      <dayoff type='date'>2002-09-20</dayoff>
+      <timeoff to='2002-08-11' from='2002-07-26'/>
+      <timeoff to='2002-10-06' from='2002-09-27'/>
+      <timeoff to='2003-01-02' from='2002-12-31'/>
+      <timeoff to='2003-04-04' from='2003-04-03'/>
+      <timeoff to='2003-05-30' from='2003-05-26'/>
+      <timeoff to='2003-07-14' from='2003-06-30'/>
+      <timeoff to='2004-03-21' from='2004-03-15'/>
+      <timeoff to='2004-04-25' from='2004-04-19'/>
+    </timetable>
+    <timetable id='vac_emb'>
+      <start-on>2004-05-10</start-on>
+    </timetable>
+    <timetable id='jphc-holidays'/>
+    <timetable id='french-multi-year-public-holidays'>
+      <dayoff type='holiday'>01-01</dayoff>
+      <dayoff type='holiday'>05-01</dayoff>
+      <dayoff type='holiday'>05-08</dayoff>
+      <dayoff type='holiday'>07-14</dayoff>
+      <dayoff type='holiday'>08-15</dayoff>
+      <dayoff type='holiday'>11-01</dayoff>
+      <dayoff type='holiday'>11-11</dayoff>
+      <dayoff type='holiday'>12-25</dayoff>
+    </timetable>
+    <timetable id='TimeTable.2003-04-04.0439'>
+      <dayoff type='date'>2004-04-05</dayoff>
+      <timeoff to='2003-08-08' from='2003-08-04'/>
+    </timetable>
+    <timetable id='logilab-holidays'>
+      <dayoff type='date'>2003-11-10</dayoff>
+      <dayoff type='date'>2003-12-26</dayoff>
+      <dayoff type='date'>2004-01-04</dayoff>
+      <dayoff type='date'>2004-05-21</dayoff>
+    </timetable>
+    <timetable id='ocy-holidays'>
+      <dayoff type='date'>2003-04-22</dayoff>
+      <timeoff to='2002-08-19' from='2002-08-05'/>
+      <timeoff to='2002-12-27' from='2002-12-23'/>
+      <timeoff to='2003-01-02' from='2002-12-31'/>
+      <timeoff to='2003-08-18' from='2003-08-01'/>
+    </timetable>
+  </resources-list>
+  <label>Planif Ginco</label>
+  <task id='intranet_projets_ginco_planif_livraison_1_1'>
+    <label>Livraison v1.1.0</label>
+    <priority>5</priority>
+    <use-resource idref='intranet_personnel_logilabiens_adim'/>
+    <use-resource idref='intranet_personnel_logilabiens_arthur'/>
+    <constraint type='begin-at-date'>2004-02-16</constraint>
+    <constraint type='end-at-date'>2004-02-20</constraint>
+    <task id='intranet_projets_ginco_planif_livraison_1_1_bugs'>
+      <label>Correction bugs divers</label>
+      <priority>5</priority>
+      <duration>2</duration>
+      <time-slot to='2004-02-17' from='2004-02-16'/>
+      <progress>100%</progress>
+    </task>
+    <task id='intranet_projets_ginco_planif_livraison_1_1_courriels'>
+      <label>Interactions avec courriel électronique</label>
+      <priority>5</priority>
+      <constraint type='begin-after-end'>intranet_projets_ginco_planif_livraison_1_1_bugs</constraint>
+      <duration>3</duration>
+      <time-slot to='2004-02-20' from='2004-02-18'/>
+      <progress>100%</progress>
+    </task>
+  </task>
+  <task id='intranet_projets_ginco_planif_livraison_1_2_0'>
+    <label>Livraison v.1.2.0</label>
+    <use-resource idref='intranet_personnel_logilabiens_arthur'/>
+    <task id='intranet_projets_ginco_planif_livraison_1_2_0_142'>
+      <label>reunir deux anomalies</label>
+      <constraint type='begin-after-end'>intranet_projets_ginco_planif_livraison_1_2_0_597</constraint>
+      <duration>1</duration>
+      <time-slot to='2004-02-25' from='2004-02-24'/>
+      <progress>100%</progress>
+    </task>
+    <task id='intranet_projets_ginco_planif_livraison_1_2_0_597'>
+      <label>relation entre histoires</label>
+      <constraint type='begin-after-end'>intranet_projets_ginco_planif_livraison_1_2_0_598</constraint>
+      <duration>1</duration>
+      <time-slot to='2004-02-25' from='2004-02-24'/>
+      <progress>100%</progress>
+    </task>
+    <task id='intranet_projets_ginco_planif_livraison_1_2_0_598'>
+      <label>Titre du header</label>
+      <constraint type='begin-after-end'>intranet_projets_ginco_planif_livraison_1_2_0_607</constraint>
+      <duration>1</duration>
+      <time-slot to='2004-02-24' from='2004-02-24'/>
+      <progress>100%</progress>
+    </task>
+    <task id='intranet_projets_ginco_planif_livraison_1_2_0_607'>
+      <label>tableau de bord projets</label>
+      <duration>1</duration>
+      <time-slot to='2004-02-23' from='2004-02-23'/>
+      <progress>100%</progress>
+    </task>
+    <task id='intranet_projets_ginco_planif_livraison_1_2_0_652'>
+      <label>remettre a plat le schema</label>
+      <constraint type='begin-after-end'>intranet_projets_ginco_planif_livraison_1_2_0_142</constraint>
+      <duration>1</duration>
+      <time-slot to='2004-02-23' from='2004-02-23'/>
+      <progress>100%</progress>
+    </task>
+    <task id='intranet_projets_ginco_planif_livraison_1_2_0_677'>
+      <label>implementer mise a plat</label>
+      <duration>2</duration>
+      <time-slot to='2004-02-27' from='2004-02-25'/>
+      <progress>100%</progress>
+    </task>
+  </task>
+  <task id='intranet_projets_ginco_planif_livraison_1_2_1'>
+    <label>Livraison v.1.2.1</label>
+    <task id='intranet_projets_ginco_planif_livraison_1_2_1_various'>
+      <label>Minor bug fixes</label>
+      <use-resource idref='intranet_personnel_logilabiens_arthur'/>
+      <duration>1</duration>
+      <time-slot to='2004-03-01' from='2004-03-01'/>
+      <progress>100%</progress>
+    </task>
+  </task>
+  <task id='intranet_projets_ginco_planif_livraison_1_3'>
+    <label>Livraison v.1.3</label>
+    <task id='intranet_projets_ginco_planif_livraison_1_3_1'>
+      <label>adaptation authentification</label>
+      <use-resource idref='intranet_personnel_logilabiens_arthur'/>
+      <duration>1</duration>
+      <time-slot to='2004-03-03' from='2004-03-03'/>
+      <progress>100%</progress>
+    </task>
+    <task id='intranet_projets_ginco_planif_livraison_1_3_reorganisation_vues'>
+      <label>Reorganisation vues</label>
+      <use-resource idref='intranet_personnel_logilabiens_arthur'/>
+      <duration>1</duration>
+      <time-slot to='2004-03-04' from='2004-03-04'/>
+      <progress>100%</progress>
+    </task>
+    <task id='intranet_projets_ginco_planif_livraison_1_3_bug_fix'>
+      <label>bug fixes for 1.3.1</label>
+      <use-resource idref='intranet_personnel_logilabiens_arthur'/>
+      <duration>1</duration>
+      <time-slot to='2004-03-08' from='2004-03-08'/>
+      <progress>100%</progress>
+    </task>
+  </task>
+  <task id='intranet_projets_ginco_planif_livraison_2_0'>
+    <label>Livraison v.2.0</label>
+    <task id='intranet_projets_ginco_planif_livraison_2_0_backport_applications'>
+      <label>Adapter jpl au nouveau ginco</label>
+      <use-resource idref='intranet_personnel_logilabiens_arthur'/>
+      <duration>3</duration>
+      <time-slot to='2004-03-25' from='2004-03-24'/>
+      <time-slot to='2004-03-29' from='2004-03-29'/>
+      <time-slot to='2004-04-01' from='2004-03-31'/>
+      <time-slot to='2004-04-09' from='2004-04-07'/>
+      <progress>100%</progress>
+    </task>
+    <task id='intranet_projets_ginco_planif_livraison_2_0_backport_crm'>
+      <label>Adapter crm a ginco2</label>
+      <use-resource idref='intranet_personnel_logilabiens_arthur'/>
+      <use-resource idref='intranet_personnel_logilabiens_sand'/>
+      <duration>3</duration>
+      <time-slot to='2004-04-09' from='2004-04-07'/>
+      <progress>100%</progress>
+    </task>
+  </task>
+  <task id='intranet_projets_ginco_planif_livraison_1_x'>
+    <label>Livraison v.1.x</label>
+    <use-resource idref='intranet_personnel_logilabiens_arthur'/>
+    <task id='intranet_projets_ginco_planif_livraison_1_x_783'>
+      <label>signets vue de depart</label>
+      <duration>1</duration>
+    </task>
+    <task id='intranet_projets_ginco_planif_livraison_1_x_840'>
+      <label>personne chargé_de_version </label>
+      <duration>1</duration>
+      <time-slot to='2004-04-01' from='2004-04-01'/>
+      <progress>100%</progress>
+    </task>
+    <task id='intranet_projets_ginco_planif_livraison_1_x_diverscrm'>
+      <label>modifications crm</label>
+      <duration>1</duration>
+      <time-slot to='2004-03-31' from='2004-03-31'/>
+      <progress>100%</progress>
+    </task>
+  </task>
+</project>

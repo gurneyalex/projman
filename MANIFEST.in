@@ -1,0 +1,14 @@
+include ChangeLog
+include announce.txt
+include logging.conf
+include DEPENDS
+include TODO
+
+recursive-include doc *
+recursive-include man *
+recursive-include dtd *
+recursive-include bin *
+recursive-include test *
+recursive-include examples *
+recursive-include fonts *
+recursive-include xsl *

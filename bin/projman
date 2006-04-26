@@ -1,0 +1,4 @@
+#!/usr/bin/python
+from projman.main import run
+import sys
+run(sys.argv[1:])

@@ -1,0 +1,94 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project project-start='20040401T000000Z' name='Trivial Project' company='' mrproject-version='2' manager='' phase=''>
+  <calendars>
+    <day-types>
+      <day-type description='' id='1' name='Nonworking'/>
+      <day-type description='' id='0' name='Working'/>
+      <day-type description='' id='3' name='DefautWorking'/>
+      <day-type description='' id='2' name='Use base'/>
+    </day-types>
+    <calendar id='1' name='Calendrier Francais'>
+      <default-week wed='0' sun='1' fri='0' tue='0' mon='0' thu='0' sat='1'/>
+      <overridden-day-types>
+        <overridden-day-type id='0'>
+          <interval start='0800' end='1200'/>
+          <interval start='1300' end='1700'/>
+        </overridden-day-type>
+      </overridden-day-types>
+      <days>
+        <day date='20021226' type='day-type' id='1'/>
+        <day date='20021227' type='day-type' id='1'/>
+        <day date='20021228' type='day-type' id='1'/>
+        <day date='20021229' type='day-type' id='1'/>
+        <day date='20021230' type='day-type' id='1'/>
+        <day date='20021231' type='day-type' id='1'/>
+        <day date='20030310' type='day-type' id='1'/>
+        <day date='20030311' type='day-type' id='1'/>
+        <day date='20030312' type='day-type' id='1'/>
+        <day date='20030313' type='day-type' id='1'/>
+        <day date='20030314' type='day-type' id='1'/>
+        <day date='20030814' type='day-type' id='1'/>
+        <day date='20030815' type='day-type' id='1'/>
+        <day date='20030816' type='day-type' id='1'/>
+        <day date='20030817' type='day-type' id='1'/>
+        <day date='20030818' type='day-type' id='1'/>
+        <day date='20040520' type='day-type' id='1'/>
+        <day date='20040521' type='day-type' id='1'/>
+      </days>
+    </calendar>
+  </calendars>
+  <tasks>
+    <task end='20041018T114038Z' name='Trivial Project' start='20040401T000000Z' work='86400' scheduling='fixed-work' duration='86400' percent-complete='0' type='normal' id='1'>
+      <constraint type='must-start-on' time='20040401T000000Z'/>
+      <task end='' name='Developpement' start='20040401T000000Z' work='28800' scheduling='fixed-work' duration='28800' percent-complete='0' type='normal' id='2'>
+        <constraint type='must-start-on' time='20040401T000000Z'/>
+        <task end='' name='Realisation' start='20040401T000000Z' work='432000' scheduling='fixed-work' duration='432000' percent-complete='0' type='normal' id='3'>
+          <constraint type='must-start-on' time='20040401T000000Z'/>
+        </task>
+        <task end='' name='Validation' start='20040403T000000Z' work='230400' scheduling='fixed-work' duration='230400' percent-complete='0' type='normal' id='4'>
+          <constraint type='must-start-on' time='20040403T000000Z'/>
+        </task>
+      </task>
+      <task end='' name='Conclusion' start='20041027T000000Z' work='57600' scheduling='fixed-work' duration='57600' percent-complete='0' type='normal' id='5'>
+        <constraint type='must-start-on' time='20041027T000000Z'/>
+      </task>
+      <task end='' name='Recette' work='0' start='20041018T000000Z' duration='0' type='milestone' id='6'>
+        <constraint type='must-start-on' time='20041018T000000Z'/>
+      </task>
+    </task>
+  </tasks>
+  <resources>
+    <resource std-rate='' ovt-rate='' name='Emmanuel Breton' note='toto' units='0' group='' calendar='1' type='engineer' id='1'>
+      <properties>
+        <property name='cost' value=''/>
+      </properties>
+    </resource>
+    <resource std-rate='' ovt-rate='' name='Arthur Lutz' note='toto' units='0' group='' calendar='1' type='engineer' id='2'>
+      <properties>
+        <property name='cost' value=''/>
+      </properties>
+    </resource>
+    <resource std-rate='' ovt-rate='' name='Sandrine Ribeau' note='toto' units='0' group='' calendar='1' type='engineer' id='3'>
+      <properties>
+        <property name='cost' value=''/>
+      </properties>
+    </resource>
+  </resources>
+  <allocations>
+    <allocation task-id='1' resource-id='1' units='100'/>
+    <allocation task-id='1' resource-id='2' units='100'/>
+    <allocation task-id='1' resource-id='3' units='100'/>
+    <allocation task-id='2' resource-id='1' units='100'/>
+    <allocation task-id='2' resource-id='2' units='100'/>
+    <allocation task-id='2' resource-id='3' units='100'/>
+    <allocation task-id='3' resource-id='1' units='100'/>
+    <allocation task-id='3' resource-id='2' units='100'/>
+    <allocation task-id='3' resource-id='3' units='100'/>
+    <allocation task-id='4' resource-id='1' units='100'/>
+    <allocation task-id='4' resource-id='2' units='100'/>
+    <allocation task-id='4' resource-id='3' units='100'/>
+    <allocation task-id='5' resource-id='1' units='100'/>
+    <allocation task-id='5' resource-id='2' units='100'/>
+    <allocation task-id='5' resource-id='3' units='100'/>
+  </allocations>
+</project>

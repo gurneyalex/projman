@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- This DTD decribes the attributes and elements for the results
+     of ordering. -->
+
+<!-- Public Identifier of this DTD is 
+     "-//LOGILAB//DTD Projman Previsions Description After Ordering V1.0//EN"
+  -->
+
+
+
+<!-- Declaration of various entities for classifying the elements -->
+
+<!ENTITY % project.usage.class "project">
+<!ENTITY % task.tree.class "task|milestone">
+<!ENTITY % constraint.class "constraint-task|constraint-date">
+<!ENTITY % activities.class "reports-list">
+<!ENTITY % report.class "report">
+<!ENTITY % cost.class "cost">
+<!ENTITY % costs.class "global-cost|costs-list">
+
+<!-- Declaration of local class that can be overrided by extension -->
+<!ENTITY % local.project.class "">
+<!ENTITY % local.task.class "">
+
+<!-- Declaration of various entities for classifying the attributes -->
+<!ENTITY % id.attribs 
+            "id            ID                      #REQUIRED">
+<!ENTITY % idref.attribs 
+            "idref         IDREF                   #REQUIRED">
+<!ENTITY % task.desc.attribs
+            "priority      (0|1|2|3|4|5|6|7|8|9)   #IMPLIED"
+            "status        CDATA                   #IMPLIED">
+<!ENTITY % time.unit.attribs
+            "unit          (days|weeks|months)     'days'">
+<!ENTITY % slot.def.attribs
+            "from          CDATA                   #REQUIRED
+             to            CDATA                   #IMPLIED">
+<!ENTITY % constraint.def.attribs
+            "type          (begin-after-date|begin-at-date
+                            |begin-before-date|end-after-date
+                            |end-at-date|end-before-date
+        		    |begin-after-end|begin-after-begin
+                            |end-after-end|end-after-begin
+                            |synchronized)         #REQUIRED">
+
+<!ENTITY % constraint.resource.def.attribs
+            "usage         CDATA                   #REQUIRED">  
+
+<!ENTITY % resource.type.attribs
+            "type          CDATA                   #IMPLIED">
+                           <!-- usual resource types are 
+                                "worker", "computer"...   -->
+<!ENTITY % name.attribs
+            "name          CDATA                   #REQUIRED">
+
+<!ENTITY % cost.unit.attribs
+            "unit          CDATA                   'euros'">
+
+<!-- Scheduling description -->
+<!ELEMENT schedule ((%task.tree.class;)*)>
+<!ATTLIST schedule %id.attribs; >
+
+<!-- Project -->
+
+<!ELEMENT project ((%label.class;)?,(%resources.usage.class;)*,
+                   (%constraint.class;)*,(%task.tree.class;)+
+                   %local.project.class;) >
+<!ATTLIST project %id.attribs; >
+
+
+<!-- Task -->
+<!ELEMENT task ((%label.class;)?,(%description.class;)?,
+               (%constraint.class;)*, (%activities.class;)*,
+               (%costs.class)*,
+                ((%task.tree.class;)*) %local.task.class;) >
+<!ATTLIST task %id.attribs; %task.desc.attribs; >
+
+
+<!-- Milestone -->
+<!ELEMENT milestone ((%label.class;)?, (%constraint.class;)*,
+                    (%task.tree.class;)*)>
+<!ATTLIST milestone %id.attribs; >
+
+
+<!-- Reports activities -->
+
+<!ELEMENT reports-list (%report.class;)+>
+
+<!-- begin and end date of a time slot spent working on the task for the referenced resource. YYYY/MM/DD -->
+<!ELEMENT report EMPTY>
+<!ATTLIST report %idref.attribs; %slot.def.attribs; %constraint.resource.def.attribs; >
+
+
+<!-- constraint between tasks  -->
+<!ELEMENT constraint-date (#PCDATA)>
+<!ATTLIST constraint-date %constraint.def.attribs; >
+
+<!-- constraint on resources to use for tasks -->
+<!ELEMENT constraint-resource EMPTY>
+<!ATTLIST constraint-resource %constraint.resource.def.attribs;
+%resource.type.attribs; %idref.attribs; >
+
+
+<!-- List of costs -->
+<!ELEMENT global-cost (#PCDATA)>
+
+<!ELEMENT costs-list (%cost.class;)+>
+
+<!ELEMENT cost (#PCDATA)>
+<!ATTLIST cost %costunit.attribs; %idref.attribs;>
