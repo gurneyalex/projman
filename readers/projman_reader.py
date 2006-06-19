@@ -159,10 +159,9 @@ class TaskXMLReader(AbstractXMLReader) :
                 else:
                     self.stack.pop()
             elif tag in ('label', 'duration', 'progress', 'priority', 'constraint-date'):
-                chars = self.get_characters().strip()
+                chars = self.get_characters()
                 if not chars:
                     raise ProjectValidationError('file %%s line %%s : %s tag not supposed to be empty %%s'%(tag))
-                    
                 elif tag == 'label':
                     t.title = chars
                 elif tag == 'duration':
@@ -207,8 +206,8 @@ class ResourcesXMLReader(AbstractXMLReader) :
         AbstractXMLReader.__init__(self)
         # used to link all day-type information for calendar
         self._day_type = False
-        self._day_type_id = ''
-        self._day_type_name = ''
+        self._day_type_id = u''
+        self._day_type_name = u''
         self._id_nonworking_remove = []
         self._dict_days_types = {}
 
@@ -224,7 +223,7 @@ class ResourcesXMLReader(AbstractXMLReader) :
             self.assert_child_of(['resources-list'])
             self.assert_has_attrs(['type','id'])
             r_type = attr['type']
-            r = self._factory.create_resource(attr['id'], '', r_type, '')
+            r = self._factory.create_resource(attr['id'], u'', r_type, u'')
             self.stack[-1].append(r)
             self.stack.append(r)
         elif tag == 'hourly-rate':
@@ -250,7 +249,7 @@ class ResourcesXMLReader(AbstractXMLReader) :
             self.assert_has_attrs(['id'])
             self._day_type = True
             self._id = attr['id']
-            self._dict_days_types[attr['id']] = ''
+            self._dict_days_types[attr['id']] = u''
         elif tag == 'interval':
             self.assert_child_of(['day-type'])
             self.assert_has_attrs(['start','end'])
@@ -278,7 +277,7 @@ class ResourcesXMLReader(AbstractXMLReader) :
         elif tag == 'default-working':
             self.assert_child_of(['calendar'])
             self.assert_has_attrs(['idref'])
-            id = ''
+            id = u''
             type_name = self._dict_days_types[attr['idref']]
             for t_id in self.stack[-1].type_working_days:
                 if self.stack[-1].type_working_days[t_id][0] == type_name:
@@ -287,7 +286,7 @@ class ResourcesXMLReader(AbstractXMLReader) :
         elif tag == 'default-nonworking':
             self.assert_child_of(['calendar'])
             self.assert_has_attrs(['idref'])
-            id = ''
+            id = u''
             type_name = self._dict_days_types[attr['idref']]
             for t_id in self.stack[-1].type_nonworking_days:
                 if self.stack[-1].type_nonworking_days[t_id] == type_name:
@@ -320,36 +319,36 @@ class ResourcesXMLReader(AbstractXMLReader) :
         if tag in ('resource', 'calendar'):
             self.stack.pop()
             self.current_tag = None
-        elif tag == 'label':
-            if self._tags[-2] == "day-type":
-                data = self.get_characters()
-                self._day_type_name = data
-                self._dict_days_types[self._id] = data
-                self._day_type_id = len(res.type_nonworking_days)+1
-                res.type_nonworking_days[len(res.type_nonworking_days)+1] = data
-            elif self._tags[-2] == "calendar":
-                res.name = self.get_characters()
-            elif self._tags[-2] == "resource":
-                res.name = self.get_characters()
-            else:
-                raise ProjectValidationError('%%s %%s %%s %s'%self._tags)
-        elif tag == 'hourly-rate':
-            res.hourly_rate[0] = float(self.get_characters())
-        elif tag == 'start-on':
-            date = _extract_date(self.get_characters())
-            res.start_on = date
-        elif tag == 'stop-on':
-            date = _extract_date(self.get_characters())
-            res.stop_on = date
-        elif tag == 'day':
+        elif tag in ('label', 'hourly-rate', 'start-on', 'stop-on', 'day'):
             data = self.get_characters()
-            if data in ('mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'):
-                res.weekday[data] = self._day_type_name
-            elif len(data) < 8:
-                res.national_days.append(data)
-            else:
-                date = _extract_date(data)
-                res.add_timeperiod(date, date, self._day_type_name)
+            if not data:
+                raise ProjectValidationError('file %%s line %%s : %s tag not supposed to be empty %%s'%(tag))
+            if tag == 'label':
+                if self._tags[-2] == "day-type":
+                    self._day_type_name = data
+                    self._dict_days_types[self._id] = data
+                    self._day_type_id = len(res.type_nonworking_days)+1
+                    res.type_nonworking_days[len(res.type_nonworking_days)+1] = data
+                elif self._tags[-2] == "calendar":
+                    res.name = data
+                elif self._tags[-2] == "resource":
+                    res.name = data
+                else:
+                    raise ProjectValidationError('%%s %%s %%s %s'%self._tags)
+            elif tag == 'hourly-rate':
+                res.hourly_rate[0] = float(data)
+            elif tag == 'start-on':
+                res.start_on = _extract_date(data)
+            elif tag == 'stop-on':
+                res.stop_on = _extract_date(data)
+            elif tag == 'day':
+                if data in ('mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'):
+                    res.weekday[data] = self._day_type_name
+                elif len(data) < 8:
+                    res.national_days.append(data)
+                else:
+                    date = _extract_date(data)
+                    res.add_timeperiod(date, date, self._day_type_name)
 
     def _custom_return(self):
         return self.stack[0]
@@ -404,7 +403,7 @@ class ScheduleXMLReader(AbstractXMLReader) :
     def __init__(self):
         AbstractXMLReader.__init__(self)
         # use only to remember the resource id for task cost by resource
-        self.r_id = ''
+        self.r_id = u''
         self.task_id = None
         self.constraint_type = None
         self.activities = Table(default_value=None,
@@ -470,7 +469,7 @@ class ScheduleXMLReader(AbstractXMLReader) :
         See SAX's ContentHandler interface
         """
         t_id = self.task_id
-        data = ''.join(self._buffer).strip()
+        data = u''.join(self._buffer).strip()
         if tag == 'constraint-date':
             date = _extract_date(data)
             if self.constraint_type == BEGIN_AT_DATE:

@@ -53,7 +53,7 @@ class Calendar(VNode):
 
     TYPE = 'calendar'
     
-    def __init__(self, id, name=''):
+    def __init__(self, id, name=u''):
         VNode.__init__(self, id)
         self.name = name
         self.type_working_days = {'0':
@@ -66,9 +66,9 @@ class Calendar(VNode):
         # type of days of non work
         self.type_nonworking_days = {'0': 'DefaultNonworking'}
         # default working type
-        self.default_working = ''
+        self.default_working = u''
         # default non working type
-        self.default_nonworking = ''
+        self.default_nonworking = u''
         # day type in a usual week
         # ex : {day_of_week:type, ...} and day_of_week 
         #in {mon, tue, wed, thu, fri, sat, sun}
@@ -168,7 +168,7 @@ class Calendar(VNode):
         cal = self
         last = self
         c_spec = self
-        type = ''
+        day_type = u''
 
         if self.is_a_national_day(datetime):
             return False
@@ -177,17 +177,17 @@ class Calendar(VNode):
         if cal.is_specified(datetime):
             examined = True
             c_spec = self
-            type = c_spec.get_type(datetime)
+            day_type = c_spec.get_type(datetime)
             
         while not examined and cal.TYPE == 'calendar' :
             examined = cal.is_specified(datetime)
             if examined:
                 c_spec = cal
-                type = cal.get_type(datetime)
+                day_type = cal.get_type(datetime)
                 last = cal
             cal = cal.parent
         if examined:
-            return c_spec.is_a_working_type(type)
+            return c_spec.is_a_working_type(day_type)
         else:
             return last.is_a_working_type(last.get_weekday_type(datetime))
 
@@ -260,7 +260,7 @@ class Calendar(VNode):
         for from_date, to_date, _type in self.timeperiods:
             if from_date <= date <= to_date:
                 return _type
-        return ''
+        return u''
 
     def get_type_id(self, type):
         """
@@ -285,14 +285,14 @@ class Calendar(VNode):
         """
         return the number of seconds of work for a default day of work
         """
-        if self.default_working != '':
+        if not self.default_working:
             intervals = self.type_working_days[self.default_working][1]
             return self.get_total_seconds(intervals)
         else:
             node = self
             while node.TYPE == 'calendar':
                 node = node.parent
-                if node.TYPE == 'calendar' and node.default_working != '':
+                if node.TYPE == 'calendar' and not node.default_working :
                     intervals =  node.type_working_days[node.default_working][1]
                     return self.get_total_seconds(intervals)
             raise ValueError , "no default worktime found"

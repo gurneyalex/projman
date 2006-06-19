@@ -295,8 +295,8 @@ class ProjmanDOMVisitor(Visitor):
             intervals_list = working_days[1]
             for index in range(0, len(intervals_list)):
                 i = doc.createElementNS(NO_NS, 'interval')
-                start = ('').join(str(intervals_list[index][0]).split(':'))[:4]
-                end = ('').join(str(intervals_list[index][1]).split(':'))[:4]
+                start = (u'').join(str(intervals_list[index][0]).split(':'))[:4]
+                end = (u'').join(str(intervals_list[index][1]).split(':'))[:4]
                 i.setAttributeNS(NO_NS, 'start', start)
                 i.setAttributeNS(NO_NS, 'end', end)
                 day.appendChild(i) 

@@ -147,7 +147,7 @@ class TasksCostsDOMWriter(AbstractTaskWriter):
         entry = self.entry_node('left', indent+task.title)
         row.appendChild(entry)
         # task duration
-        duration = task.duration and unicode(task.duration) or ''
+        duration = task.duration and unicode(task.duration) or u''
         entry = self.entry_node('left', duration)
         row.appendChild(entry)
         # task cost by resources
@@ -159,7 +159,7 @@ class TasksCostsDOMWriter(AbstractTaskWriter):
         row.appendChild(entry)
         # task global cost
         # FIXME hack : a (containing) task with no resources has global cost of 1!
-        if durations.keys() == [''] and task_cost == 1.:
+        if durations.keys() == [u''] and task_cost == 1.:
             entry = self.entry_node('right', 0)
         else:
             entry = self.entry_node('right', format_monetary(task_cost))

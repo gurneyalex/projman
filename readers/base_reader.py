@@ -67,7 +67,7 @@ class ModelProjectFactory:
         """ create a new resources set """
         return ResourcesSet(rs_id)
 
-    def create_calendar(self, tt_id, tt_name = ''):
+    def create_calendar(self, tt_id, tt_name = u''):
         """ create a new time table """
         return Calendar(tt_id, tt_name)
 
@@ -154,7 +154,7 @@ class AbstractXMLReader(ContentHandler):
         if strip:
             self._buffer = [a.strip() for a in self._buffer if a.strip()]
         else:
-            joined_with = ''
+            joined_with = u''
         characters = joined_with.join(self._buffer)
         self._buffer = []
         return characters

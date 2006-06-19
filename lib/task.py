@@ -49,12 +49,12 @@ class TaskNode(VNode, HashMixin):
 
     def __init__(self, node_id):
         VNode.__init__(self, node_id)
-        self.title = ''
+        self.title = u''
         # list of couples ('{begin/end}-{at/before/after}-date', mxDate)
         self.date_constraints = set()
         # list of couples ('{begin/end}-after-{begin/end}', task_id)
         self.task_constraints = set()
-        self.description = ''
+        self.description = u''
         self._progress = None
         self._priority = None
         self.duration = 0

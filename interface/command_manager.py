@@ -114,7 +114,7 @@ class DiagramCommand(AbstractCommand):
         self.project = self.storage.load()
         if not self.project._is_scheduled:
             print 'WARNING : you are generating a diagram for an unscheduled project.'
-            print ''
+            print 
             print PLAN_HEAD
         # set diagram renderer
         """read input, draw, write result"""

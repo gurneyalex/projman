@@ -204,7 +204,8 @@ class Project:
         ordered_status = ['problem', 'todo', 'current', 'done']
         status_list = []
         for leaf in task.leaves():
-            _, _, status, _, _ = self.tasks.get_row_by_id(leaf.id)
+            # as leaf.id is int, self.tasks[leaf.id] will mistake it
+            _, _, status, _, _ = self.tasks.get_row_by_id(leaf.id) 
             status_list.append(status)
         for status in ordered_status:
             if status in status_list:
