@@ -163,7 +163,6 @@ class AbstractXMLReader(ContentHandler):
         try:
             self._attrs = attr
             self._start_element(tag, attr)
-            self._tags.append(tag)
         except ProjectValidationError, error:
             try:
                 msg = unicode(error)% (self._files[-1],
@@ -173,6 +172,7 @@ class AbstractXMLReader(ContentHandler):
                 self._tags.append(tag)
             except TypeError:
                 raise error
+        self._tags.append(tag)
 
     def _start_element(self, tag, attr):
         pass
@@ -180,7 +180,6 @@ class AbstractXMLReader(ContentHandler):
     def endElement(self, tag):
         try:
             self._end_element(tag)
-            self._tags.pop()
         except ProjectValidationError, error:
             try:
                 msg = unicode(error)% (self._files[-1],
@@ -189,6 +188,7 @@ class AbstractXMLReader(ContentHandler):
                 self._errors.append(msg)
             except TypeError:
                 raise error
+        self._tags.pop()
         
 
     def _end_element(self, tag):

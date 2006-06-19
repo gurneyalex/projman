@@ -158,18 +158,23 @@ class TaskXMLReader(AbstractXMLReader) :
                     self._main_project = 0
                 else:
                     self.stack.pop()
-            elif tag == 'label':
-                t.title = self.get_characters()
-            elif tag == 'duration':
-                t.duration = float(self.get_characters())
-            elif tag == 'progress':
-                t.progress = float(self.get_characters())
-            elif tag == "priority":
-                t.priority = int(self.get_characters())
-            elif tag =='constraint-date':
-                date = _extract_date(self.get_characters())
-                t.add_date_constraint(self.constraint_type, date)
-                self.constraint_type = None
+            elif tag in ('label', 'duration', 'progress', 'priority', 'constraint-date'):
+                chars = self.get_characters().strip()
+                if not chars:
+                    raise ProjectValidationError('file %%s line %%s : %s tag not supposed to be empty %%s'%(tag))
+                    
+                elif tag == 'label':
+                    t.title = chars
+                elif tag == 'duration':
+                    t.duration = float(chars)
+                elif tag == 'progress':
+                    t.progress = float(chars)
+                elif tag == "priority":
+                    t.priority = int(chars)
+                elif tag =='constraint-date':
+                    date = _extract_date(chars)
+                    t.add_date_constraint(self.constraint_type, date)
+                    self.constraint_type = None
             else:
                 if self.get_characters():
                     raise ProjectValidationError('file %%s line %%s : %s tag supposed to be empty %%s'%(tag))
