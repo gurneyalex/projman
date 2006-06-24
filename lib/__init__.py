@@ -23,8 +23,4 @@ from projman.lib.resource import Resource, ResourcesSet
 from projman.lib.calendar import Calendar
 from projman.lib._exceptions import *
 
-def date_range(begin, end, step=1):
-    date = begin
-    while date < end :
-        yield date
-        date += step
+from logilab.common.date import date_range
