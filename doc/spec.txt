@@ -52,8 +52,12 @@ instead of current "timestep" ?
 
 
 Modèle structure projet
+***********************
+
 Ce document présente les différents objets qui seront utilisés pour la représentation d'une structure de projet dans Pygantt et Projman.
+
 Milestone(VNode)
+----------------
 
 Cet objet décrit un type de tâche minimal, le jalon.
 
@@ -65,7 +69,9 @@ Attributs :
     * date_constraints : contraintes de dates
 
 Méthodes :
+
 Task(Milestone)
+---------------
 
 Cet objet décrit toutes tâches composant un projet. Les différences avec la précedente version de Pygantt se situent dans la notion de description de projet. PGTask tel qu'il est défini ci-dessous a pour fonction de décrire un projet par les tâches qui le composent et les contraintes en terme de dates, de priorités et de ressources qu'exige ce projet. La notion de ressource utilisée disparait pour être intégrée à l'objet PGResource.
 
@@ -88,6 +94,7 @@ Méthodes :
     * priorities_as_constraints(self) : # transforme les priorités en contrainte de tâche de type begin-after-begin
 
 Project(Task)
+-------------
 
 Cet objet décrit la tâche parent dans l'arborescence d'un projet. Il permet d'accéder aux ressources que l'on peut affecter aux tâches du projet.
 
@@ -103,8 +110,12 @@ Méthodes :
 
 
 Modèle structure ressources
+***************************
+
 Ce document présente les différents objets qui seront utilisés pour la représentation d'une structure de ressources dans Pygantt et Projman.
+
 Resource
+--------
 
 Cette version propose un modèle de ressource qui intègre la notion d'occupation des ressources via l'attribut allocations qui permet de savoir à quelle tâche sont affectées les ressources et le pourcentage d'utilisation de la resource pour chaque tâche affectée.
 
@@ -124,6 +135,7 @@ Méthodes :
     * percent_free(self) : int # retourne le pourcentage de liberté d'une ressource
 
 TimeTable
+---------
 
 Cet objet décrit le calendrier des disponibilités.
 
@@ -146,8 +158,12 @@ Méthodes:
 
 
 Modèle de structure activité
+****************************
+
 Ce modèle décrit l'ensemble des activités enregistrées, une série de rapports faits par les ressources pour résumer leurs occupations.
+
 Report
+------
 
 Cet objet décrit un rapport d'activité d'une ressource.
 
@@ -164,6 +180,7 @@ Méthodes :
     * duration(self, futur=None) : int # retourne le nombre de jour pour lequels une activité a été enregistrée
 
 ReportsSet
+----------
 
 Cet objet décrit l'ensemble des activités enregistrées pour un projet.
 
@@ -178,6 +195,7 @@ Méthodes :
 
 
 taskcoach
+
 cousin très éloigné de projman
 
 L'adresse du lien est : http://members.chello.nl/f.niessink/
