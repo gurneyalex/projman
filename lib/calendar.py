@@ -1,5 +1,5 @@
 # -*- coding: ISO-8859-1 -*-
-# Copyright (c) 2004 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2004-2006 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -16,7 +16,7 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 """
-Projman - (c)2000-2005 LOGILAB <contact@logilab.fr> - All rights reserved.
+Projman - (c)2000-2006 LOGILAB <contact@logilab.fr> - All rights reserved.
 
 Home: http://www.logilab.org/projman
 
@@ -31,24 +31,13 @@ from logilab.common.tree import VNode
 from mx.DateTime import Time
 
 # FIXME: day_week probably exists in DateTime
-day_week = {0:'mon', 1:'tue', 2:'wed', 3:'thu', 4:'fri', 5:'sat', 6:'sun'}
+day_week = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
 
 class Calendar(VNode):
     """
     Defines which days are work days.
 
     All days are work days, unless told otherwise by the calendar.
-
-    Attributes:
-      - name
-      - type_working_days
-      - type_nonworking_days
-      - default_working
-      - weekday
-      - timeperiods
-      - national_days
-      - start_on: begin date of the calendar
-      - stop_on : end date of the calendar
     """
 
     TYPE = 'calendar'
@@ -78,7 +67,7 @@ class Calendar(VNode):
         # with from_date and to_date as DateTime object
         self.timeperiods = []
         # register the national day, so a relative date 
-        #available each year (mm/dd)
+        # available each year (mm/dd)
         self.national_days = []
         self.start_on = None
         self.stop_on = None
@@ -198,35 +187,22 @@ class Calendar(VNode):
         test if t_name is a working type in the calendar 
         according to inherited properties
         """
-        res = False
-        for t_d in self.type_working_days:
-            if self.type_working_days[t_d][0] == t_name:
-                res = True
-        if not res:
-            cal = self
-            parent = self.parent
-            while not res and cal.parent.TYPE == 'calendar':
-                for t_d in parent.type_working_days:
-                    if parent.type_working_days[t_d][0] == t_name:
-                        res = True
-                cal = parent
-                parent = cal.parent
-        return res
+        cal = self
+        while cal.TYPE == 'calendar':
+            for item in cal.type_working_days.values():
+                if item[0] == t_name:
+                    return True
+            cal = cal.parent
+        return False
 
     def is_a_national_day(self, datetime):
         """
         test if datetime is a national day off
         """
-        month = datetime.month
-        day = datetime.day
-
         cal = self
         while cal.TYPE == 'calendar':
-            for national_day in cal.national_days:
-                n_month = int(national_day[0:2])
-                n_day = int(national_day[3:5])
-                if month == n_month and day == n_day:
-                    return True
+            if datetime.Format('%m/%d') in cal.national_days:
+                return True
             cal = cal.parent
         return False
     
@@ -246,7 +222,7 @@ class Calendar(VNode):
         """
         test if date is in timeperiods
         """
-        for from_date, to_date, type in self.timeperiods:
+        for from_date, to_date, _type in self.timeperiods:
             if from_date <= date <= to_date:
                 return True
         return False
@@ -279,7 +255,7 @@ class Calendar(VNode):
                     return (t_d, cal.id)
             cal = cal.parent
         if not examined:
-            raise 'Unknown type of days'
+            raise Exception('Unknown type of days')
 
     def get_default_worktime(self):
         """
@@ -295,7 +271,7 @@ class Calendar(VNode):
                 if node.TYPE == 'calendar' and node.default_working :
                     intervals =  node.type_working_days[node.default_working][1]
                     return self.get_total_seconds(intervals)
-            raise ValueError , "no default worktime found"
+            raise ValueError("no default worktime found")
 
     def get_default_wt_in_hours(self):
         """

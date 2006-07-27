@@ -30,6 +30,7 @@ from mx.DateTime import DateTime, Time, now
 from mx.DateTime.Parser import DateFromString
 from logilab.common.textutils import colorize_ansi
 from logilab.common.table import Table
+from logilab.common.compat import set
 from logilab.doctools.rest_docbook import FragmentWriter
 
 from projman import LOG_CONF
@@ -208,7 +209,7 @@ class ResourcesXMLReader(AbstractXMLReader) :
         self._day_type = False
         self._day_type_id = u''
         self._day_type_name = u''
-        self._id_nonworking_remove = []
+        self._id_nonworking_remove = set()
         self._dict_days_types = {}
 
     def _start_element(self, tag, attr):
@@ -256,21 +257,16 @@ class ResourcesXMLReader(AbstractXMLReader) :
             from_time = _extract_time(attr['start'])
             to_time = _extract_time(attr['end'])
             c = self.stack[-1]
+            self._id_nonworking_remove.add(self._day_type_id)
             if self._day_type_id not in c.type_working_days:
                 c.type_working_days[self._day_type_id] = []
                 type_name = self._day_type_name
                 c.type_working_days[self._day_type_id].insert(0, type_name)
                 interval = [(from_time, to_time)]
                 c.type_working_days[self._day_type_id].insert(1, interval)
-                # add id in list of nonworking id to remove
-                if self._day_type_id not in self._id_nonworking_remove:
-                    self._id_nonworking_remove.append(self._day_type_id)
             else:
                 interval = (from_time, to_time)
                 c.type_working_days[self._day_type_id][1].append(interval)
-                # add id in list of nonworking id to remove
-                if self._day_type_id not in self._id_nonworking_remove:
-                    self._id_nonworking_remove.append(self._day_type_id)
         elif tag == 'day':
             self.assert_has_attrs(['type'])
             self._day_type_name = self._dict_days_types[attr['type']]
