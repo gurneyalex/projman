@@ -14,19 +14,20 @@ This code is released under the GNU Public Licence v2. See www.gnu.org.
 """
 __revision__ = "$Id: unittest_reader_planner.py,v 1.5 2005-09-06 18:27:46 nico Exp $"
 
-import unittest
-import sys
+from logilab.common.testlib import TestCase, unittest_main
+
 from projman.lib import *
 from projman.readers import PlannerXMLReader
 from projman.lib.constants import BEGIN_AT_DATE, BEGIN_AFTER_END
 from mx.DateTime import DateTime, Time
     
-class PlannerXMLReaderTC(unittest.TestCase):
+class PlannerXMLReaderTC(TestCase):
     """
     Task represents a task or a group of tasks when it has children
     """
     def setUp(self):
         """ called before each test from this class """
+        self.skip('Planner: not supported')
         self.o = Project()
         self.o.title = 'Project'
         self.o.root_task = Task('t_0')
@@ -147,4 +148,4 @@ class PlannerXMLReaderTC(unittest.TestCase):
             self.assertEqual(task.title, file_task.title)
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest_main()

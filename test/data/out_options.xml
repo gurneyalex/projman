@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <dr:root xmlns:dr='http://www.logilab.org/2004/Documentor'>
-  <dr:object id='project1'>
+  <dr:object lang='fr' id='project1'>
     <table>
       <title>Tableau récapitulatif des coûts.</title>
       <tgroup align='left' colsep='1' cols='4' rowsep='1'>
@@ -27,7 +27,7 @@
       </tgroup>
     </table>
   </dr:object>
-  <dr:object id='rates'>
+  <dr:object lang='fr' id='rates'>
     <section id='rate_section'>
       <title>Tarifs journaliers</title>
       <para>Coût pour une journée type de travail:</para>
@@ -38,17 +38,17 @@
       </itemizedlist>
     </section>
   </dr:object>
-  <dr:object id='total-cost'>
+  <dr:object lang='fr' id='total-cost'>
     <section id='cost_section'>
       <title>Coût total</title>
       <para>Le coût total du projet se chiffre à 20 000,00 euros HT, soit 23 920,00 euros TTC.</para>
     </section>
   </dr:object>
-  <dr:object id='total-duration'>
+  <dr:object lang='fr' id='total-duration'>
     <section id='duration_section'>
       <title>Durée totale</title>
       <para>L'ensemble du projet se déroule entre le 11/07/2005 et le 16/08/2005.</para>
-      <para>La durée totale du projet se chiffre à 25 jours.homme.</para>
+      <para>La charge totale du projet se chiffre à 25 jours.homme.</para>
     </section>
   </dr:object>
 </dr:root>

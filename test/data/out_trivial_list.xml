@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <dr:root xmlns:dr='http://www.logilab.org/2004/Documentor'>
-  <dr:object id='project2'>
+  <dr:object lang='fr' id='project2'>
     <section id='t2_1'>
       <title>Developpement</title>
       <formalpara>

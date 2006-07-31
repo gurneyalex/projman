@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <dr:root xmlns:dr='http://www.logilab.org/2004/Documentor'>
-  <dr:object id='project1'>
+  <dr:object lang='fr' id='project1'>
     <table>
       <title>Tableau récapitulatif des dates</title>
       <tgroup align='left' colsep='1' cols='4' rowsep='1'>

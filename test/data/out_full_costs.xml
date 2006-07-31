@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <dr:root xmlns:dr='http://www.logilab.org/2004/Documentor'>
-  <dr:object id='HELLO'>
+  <dr:object lang='fr' id='HELLO'>
     <table>
       <title>Tableau récapitulatif des coûts.</title>
       <tgroup align='left' colsep='1' cols='4' rowsep='1'>

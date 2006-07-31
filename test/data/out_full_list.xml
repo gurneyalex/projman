@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <dr:root xmlns:dr='http://www.logilab.org/2004/Documentor'>
-  <dr:object id='HELLO'>
+  <dr:object lang='fr' id='HELLO'>
     <section id='t1'>
       <title>Première tranche</title>
       <para>Modélisation des données, adaptation et configuration de      HELLO, intégration de HELLO et <classname>GOODBYE</classname> (voir détails des tâches    ci-dessous). <para>Cette première tranche a une durée de huit semaines. Elle est    plus longue que les suivantes car elle nécessite la mise en oeuvre du socle	sur lequel sera bâtie la solution.</para>

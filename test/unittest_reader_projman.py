@@ -17,7 +17,8 @@ from projman.interface.option_manager import OptionManager
 from projman.lib._exceptions import DuplicatedTaskId, MalformedProjectFile
 
 
-import unittest
+from logilab.common.testlib import TestCase, unittest_main
+
 import sys
     
 class AbstractXMLReaderTest:
@@ -55,7 +56,7 @@ class AbstractXMLReaderTest:
         self.assertEquals(self.reader.get_characters(strip=False), u'  toto  \n  titi  \n')
         self.assertEquals(self.reader._buffer, [])
 
-class TaskXMLReaderTest(unittest.TestCase, AbstractXMLReaderTest):
+class TaskXMLReaderTest(TestCase, AbstractXMLReaderTest):
 
     def setUp(self):
         self.reader = TaskXMLReader()
@@ -68,7 +69,7 @@ class TaskXMLReaderTest(unittest.TestCase, AbstractXMLReaderTest):
 
     def test_multiline_task_desc(self):
         task = self.root.children[0]
-        expected_desc = u"Réunions de début et de fin de tranche, réunions      hebdomadaires, <emphasis>comptes-rendus</emphasis>, etc."
+        expected_desc = u"\n    Réunions de début et de fin de tranche, réunions\n      hebdomadaires, <emphasis>comptes-rendus</emphasis>, etc."
         self.assertEquals(expected_desc, task.description)
 
     def test_multiline_task_duration(self):
@@ -83,7 +84,7 @@ class TaskXMLReaderTest(unittest.TestCase, AbstractXMLReaderTest):
         task = self.root.children[0]
         self.assertEquals(0, task.progress)
 
-class ResourcesXMLReaderTest(unittest.TestCase, AbstractXMLReaderTest):
+class ResourcesXMLReaderTest(TestCase, AbstractXMLReaderTest):
     def setUp(self):
         self.reader = ResourcesXMLReader()
         self.resources = self.reader.fromFile('./data/three_resourced_list.xml')
@@ -108,8 +109,8 @@ class ResourcesXMLReaderTest(unittest.TestCase, AbstractXMLReaderTest):
         for day in (u'sat', u'sun'):
             self.assertEquals(cal.weekday[day], u'DefautNonworking')
         self.assertEquals(cal.national_days,
-                          [u'01-01', u'05-01', u'05-08', u'07-14',
-                           u'08-15', u'11-01', u'11-11', u'12-25'])
+                          [(1,1), (5,1), (5,8), (7,14),
+                           (8,15), (11,1), (11,11), (12,25)])
         self.assertEquals(cal.start_on, None)
         self.assertEquals(cal.stop_on, None)
         self.assertEquals(cal.type_nonworking_days,
@@ -130,7 +131,7 @@ class ResourcesXMLReaderTest(unittest.TestCase, AbstractXMLReaderTest):
 
 
 
-class ErrorXMLReaderTest(unittest.TestCase):
+class ErrorXMLReaderTest(TestCase):
 
     def test_error_project(self):
         self.reader = ResourcesXMLReader()
@@ -162,4 +163,4 @@ class ErrorXMLReaderTest(unittest.TestCase):
             self.assertEquals(len(str(ex).split('\n')), 10)
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest_main()
