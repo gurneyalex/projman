@@ -201,7 +201,7 @@ class Calendar(VNode):
         """
         cal = self
         while cal.TYPE == 'calendar':
-            if datetime.Format('%m/%d') in cal.national_days:
+            if datetime.strftime('%m-%d') in cal.national_days:
                 return True
             cal = cal.parent
         return False
