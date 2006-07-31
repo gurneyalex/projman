@@ -49,7 +49,7 @@ class CalendarTC(unittest.TestCase):
         self.c1.type_nonworking_days = type_nonworking_days_c1
         self.c1.default_working = 0
         self.c1.default_nonworking = 1
-        self.c1.national_days = ['01-01', '12-25', '11-11']
+        self.c1.national_days = [(1,1), (12,25), (11,11)]
         self.c2 = Calendar('c_2', 'Calendrier 2') 
         self.c1.append(self.c2)
         self.c2.type_working_days = type_working_days_c2

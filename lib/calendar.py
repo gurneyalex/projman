@@ -201,7 +201,7 @@ class Calendar(VNode):
         """
         cal = self
         while cal.TYPE == 'calendar':
-            if datetime.strftime('%m-%d') in cal.national_days:
+            if (datetime.month, datetime.day) in cal.national_days:
                 return True
             cal = cal.parent
         return False
@@ -261,17 +261,13 @@ class Calendar(VNode):
         """
         return the number of seconds of work for a default day of work
         """
-        if self.default_working:
-            intervals = self.type_working_days[self.default_working][1]
-            return self.get_total_seconds(intervals)
-        else:
-            node = self
-            while node.TYPE == 'calendar':
-                node = node.parent
-                if node.TYPE == 'calendar' and node.default_working :
-                    intervals =  node.type_working_days[node.default_working][1]
-                    return self.get_total_seconds(intervals)
-            raise ValueError("no default worktime found")
+        cal = self
+        while cal.TYPE == 'calendar':
+            if cal.TYPE == 'calendar' and cal.default_working != u'':
+                intervals =  cal.type_working_days[cal.default_working][1]
+                return cal.get_total_seconds(intervals)
+            cal = cal.parent
+        raise ValueError("no default worktime found")
 
     def get_default_wt_in_hours(self):
         """
