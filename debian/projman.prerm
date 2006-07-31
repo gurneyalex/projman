@@ -1,10 +1,4 @@
 #! /bin/sh -e
-#
-
-# remove .pyc and .pyo files
-dpkg --listfiles projman |
-	awk '$0~/\.py$/ {print $0"c\n" $0"o"}' |
-	xargs rm -f >&2
 
 # Remove SGML catalog entries
 CENTRALCAT=/etc/sgml/projman.cat
@@ -17,8 +11,6 @@ if [ -f $CENTRALCAT ]; then
 	rm -f $CENTRALCAT $CENTRALCAT.old
     fi
 fi
-
-
 
 #DEBHELPER#
 

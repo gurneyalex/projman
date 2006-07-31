@@ -1,4 +1,3 @@
-#!/usr/bin/python2.2
 # Copyright (c) 2000-2005 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
