@@ -344,8 +344,7 @@ class ResourcesXMLReader(AbstractXMLReader) :
                 if data in ('mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'):
                     res.weekday[data] = self._day_type_name
                 elif len(data) < 8:
-                    print "type(res)", type(res), id(res), res.id
-                    res.national_days.append(data)
+                    res.national_days.append(tuple([int(item) for item in data.split('-')]))
                 else:
                     date = _extract_date(data)
                     res.add_timeperiod(date, date, self._day_type_name)
