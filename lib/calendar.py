@@ -25,8 +25,6 @@ Manipulate a xml project description.
 This code is released under the GNU Public Licence v2. See www.gnu.org.
 """
 
-__revision__ = "$Id: calendar.py,v 1.2 2005-09-06 17:06:53 nico Exp $"
-
 from logilab.common.tree import VNode 
 from mx.DateTime import Time
 
@@ -159,9 +157,15 @@ class Calendar(VNode):
         c_spec = self
         day_type = u''
 
+        if not self.after_start(datetime):
+	    return False
+
+	if not self.before_stop(datetime):
+	    return False
+
         if self.is_a_national_day(datetime):
             return False
-        
+
         # case of root calendar
         if cal.is_specified(datetime):
             examined = True
@@ -206,6 +210,28 @@ class Calendar(VNode):
             cal = cal.parent
         return False
     
+    def after_start(self, datetime):
+        cal = self
+        while cal.TYPE == 'calendar':
+            if cal.start_on:
+	        if cal.start_on <= datetime:
+		    return True
+		else:
+                    return False
+            cal = cal.parent
+        return True
+
+    def before_stop(self, datetime):
+        cal = self
+        while cal.TYPE == 'calendar':
+            if cal.stop_on:
+	        if datetime <= cal.stop_on:
+		    return True
+		else:
+                    return False
+            cal = cal.parent
+        return True 
+ 
 
     def get_weekday_type(self, date):
         """

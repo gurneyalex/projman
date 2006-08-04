@@ -12,12 +12,10 @@ Manipulate a xml project description.
 This code is released under the GNU Public Licence v2. See www.gnu.org.
 
 """
-__revision__ = "$Id: unittest_lib_Calendar.py,v 1.11 2005-09-06 18:27:44 nico Exp $"
-
 import unittest
 import sys
 from projman.lib import *
-from mx.DateTime import DateTime, Time
+from mx.DateTime import DateTime, Time, Date
     
 class CalendarTC(unittest.TestCase):
     """
@@ -50,6 +48,8 @@ class CalendarTC(unittest.TestCase):
         self.c1.default_working = 0
         self.c1.default_nonworking = 1
         self.c1.national_days = [(1,1), (12,25), (11,11)]
+	self.c1.start_on = DateTime(2004,01,06) 
+	self.c1.stop_on = DateTime(2006,12,29) 
         self.c2 = Calendar('c_2', 'Calendrier 2') 
         self.c1.append(self.c2)
         self.c2.type_working_days = type_working_days_c2
@@ -89,11 +89,23 @@ class CalendarTC(unittest.TestCase):
 
         self.o.add_resource_set(self.rss)
 
+    def test_within_bounds(self):
+        self.assertEquals(self.c1.after_start(Date(2003,1,1)), False)
+        self.assertEquals(self.c1.after_start(Date(2004,1,5)), False)
+        self.assertEquals(self.c1.after_start(Date(2004,1,6)), True)
+        self.assertEquals(self.c1.after_start(Date(2005,1,1)), True)
+        self.assertEquals(self.c1.before_stop(Date(2003,1,1)), True)
+        self.assertEquals(self.c1.before_stop(Date(2006,12,30)), False)
+
     def test_know_values_is_available(self):
         """
         return True if datetime is a working day for the calendar
         """
+        self.assertEqual(self.c1.is_available(DateTime(2004, 01, 05)), False)
+        self.assertEqual(self.c1.is_available(DateTime(2004, 01, 06)), True)
         self.assertEqual(self.c1.is_available(DateTime(2004, 05, 07)), False)
+        self.assertEqual(self.c1.is_available(DateTime(2006, 12, 29)), True)
+        self.assertEqual(self.c1.is_available(DateTime(2006, 12, 30)), False)
         self.assertEqual(self.c2.is_available(DateTime(2004, 05, 07)), False)
 
     def test_know_values_is_a_working_type(self):

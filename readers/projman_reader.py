@@ -296,11 +296,12 @@ class ResourcesXMLReader(AbstractXMLReader) :
             type_name = self._dict_days_types[attr['type']]
             self.stack[-1].add_timeperiod(from_date, to_date, type_name)
         elif tag == 'start-on':
-            for id in self._id_nonworking_remove:
-                if id in self.stack[-1].type_nonworking_days:
-                    del self.stack[-1].type_nonworking_days[id]
-                else:
-                    print 'warning: day cannot be removed...', id # XXX
+	    pass
+#            for id in self._id_nonworking_remove:
+#                if id in self.stack[-1].type_nonworking_days:
+#                    del self.stack[-1].type_nonworking_days[id]
+#                else:
+#                    print 'warning: day cannot be removed...', id # XXX
         elif tag == 'stop-on':
             pass
         elif tag == 'label' :
