@@ -1,6 +1,9 @@
 ChangeLog for Projman
 =====================
 
+2006-07-31 -- 0.11.1
+
+    * fix national holidays bug in calendar
 
 2006-07-28 -- 0.11.0
 

@@ -12,7 +12,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-"""Copyright (c) 2000-2005 LOGILAB S.A. (Paris, FRANCE).
+"""Copyright (c) 2000-2006 LOGILAB S.A. (Paris, FRANCE).
 http://www.logilab.fr/ -- mailto:contact@logilab.fr  
 """
 
@@ -20,12 +20,12 @@ __revision__ = '$Id: __pkginfo__.py,v 1.25 2005-11-29 11:11:18 arthur Exp $'
 
 modname = 'projman'
 
-numversion = (0, 11, 0)
+numversion = (0, 11, 1)
 version = '.'.join([str(num) for num in numversion])
 
 
 license = 'GPL'
-copyright = '''Copyright © 2005 LOGILAB S.A. (Paris, FRANCE).
+copyright = '''Copyright © 2006 LOGILAB S.A. (Paris, FRANCE).
 http://www.logilab.fr/ -- mailto:contact@logilab.fr'''
 
 short_desc = "tool for project management"
