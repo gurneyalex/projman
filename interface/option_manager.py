@@ -1,4 +1,4 @@
-# Copyright (c) 2000-2004 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2000-2006 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -13,9 +13,8 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-"""Projman - (c)2004 Logilab - All rights reserved."""
 
-__revision__ ="$Id: option_manager.py,v 1.21 2005-09-09 07:47:11 alf Exp $"
+"""Projman - (c)2004-2006 Logilab - All rights reserved."""
 
 # match each format with corresponding file extension
 EXTENSIONS = {"docbook":"xml",

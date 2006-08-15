@@ -1,5 +1,5 @@
-#!/usr/bin/python2.3
-# Copyright (c) 2000-2004 LOGILAB S.A. (Paris, FRANCE).
+#!/usr/bin/python
+# Copyright (c) 2000-2006 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -14,12 +14,12 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-"""Projman - (c)2004 Logilab - All rights reserved."""
 
-__revision__ ="$Id: main.py,v 1.84 2005-09-09 07:49:33 alf Exp $"
+"""Projman - (c)2004-2006 Logilab - All rights reserved."""
 
 import sys
 import logging, logging.config
+from logilab.common.optparser import OptionParser
 from projman import LOG_CONF
 from projman.interface.option_manager import create_option_manager, UsageRequested
   
@@ -63,5 +63,3 @@ def run(args) :
         print 'ERROR:', error
         sys.exit(2)
 
-if __name__ == '__main__' :
-    run(sys.argv[1:])
