@@ -460,6 +460,8 @@ class ScheduleXMLReader(AbstractXMLReader) :
             self.assert_child_of(['costs_list'])
             self.assert_has_attrs(['idref'])
             self.r_id = attr['idref']
+        elif tag == 'priority':
+            pass # ignore for now XXX
         else:
             raise ProjectValidationError(UNKNOWN_TAG)
             
@@ -484,9 +486,8 @@ class ScheduleXMLReader(AbstractXMLReader) :
             self.costs.append_row( (t_id, self.r_id, float(data), None) )
         elif tag == 'error':
             self.schedule.errors.append(data)
-
-        if tag in ('task', 'milestone'): 
-            self.task_id = self.stack.pop()
+        #elif tag in ('task', 'milestone'):
+        #    self.task_id = self.stack.pop()
         self._buffer = []
 
     def _custom_return(self):

@@ -95,7 +95,7 @@ class TaskNode(VNode, HashMixin):
                         doc="task progress (percentage)")
 
     def get_priority(self):
-        """seek priority though parents, return 5 if not found"""
+        """return priority (inherited from parents if None)"""
         if self._priority is None and self.parent:
             return self.parent.priority
         else:

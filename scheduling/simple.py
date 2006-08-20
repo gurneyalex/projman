@@ -18,11 +18,10 @@
 schedule project without caring about resource conflicts
 """
 
-__revision__ = "$Id: simple.py,v 1.2 2005-09-12 18:24:51 nico Exp $"
-
 from mx.DateTime import today
 
 from projman.lib.constants import *
+import logging 
 
 def cmp_tasks(task_a, task_b):    
     """
@@ -53,6 +52,16 @@ def cmp_tasks(task_a, task_b):
                     raise Exception("a after b and b after a ?!?")
                 res = -1
                 break
+    if res == 0:
+        if task_a.priority is None and task_b.priority is None:
+            res = 0
+        elif task_a.priority is None:
+            res = 1
+        elif task_b.priority is None:
+            res = -1
+        else:
+            res = cmp(task_a.priority, task_b.priority)
+    logging.debug('%s %s %s'%(task_a, {-1:'<',0:'=',1:'>'}[res], task_b))
     return res
 
 class SimpleScheduler:
@@ -88,13 +97,13 @@ class SimpleScheduler:
         resources = [self.project.get_resource(r_id)
                      for r_type, r_id, usage in node.get_resource_constraints()]
         if not resources:
-            print "WARNING: task %s has no resource and will not be scheduled"%node.id
+            logging.warning("task %s has no resource and will not be scheduled"%node.id)
         for res in resources :
             self.date_res.setdefault(res.id, begin-1)
         load = node.duration*(1-node.progress)
         date = begin
         if load == 0 and begin == today():
-            print "WARNING: task %s is complete but was never worked on"%node.id
+            logging.warning("task %s is complete but was never worked on"%node.id)
         while load > 0 and resources :
             for resource in resources:
                 if self.date_res[resource.id] < date and resource.work_on(date): 

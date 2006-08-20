@@ -1,17 +1,17 @@
 """
-Projman - (c)2000-2005 LOGILAB <contact@logilab.fr> - All rights reserved.
+Projman - (c)2000-2006 LOGILAB <contact@logilab.fr> - All rights reserved.
 
 Home: http://www.logilab.org/projects/projman
 
 This code is released under the GNU Public Licence v2. See www.gnu.org.
 
 """
-__revision__ = "$Id: unittest_scheduling.py,v 1.14 2005-09-07 23:51:01 nico Exp $"
 
 from pprint import pprint
-import unittest
 import sys
+import os.path as osp
 
+from logilab.common.testlib import unittest_main, TestCase
 from logilab.common.compat import set
 from projman.lib import *
 from projman.interface.file_manager import ProjectStorage
@@ -24,7 +24,9 @@ def print_solutions(solutions):
     for s in solutions:
         pprint(s)
 
-class RawSchedulingTC(unittest.TestCase):
+DATADIR = osp.abspath(osp.join(osp.dirname(__file__), "data"))
+
+class RawSchedulingTC(TestCase):
 
     def test_solve_simple(self):
         # 2 tasks, no time -> no solution        
@@ -86,10 +88,10 @@ class RawSchedulingTC(unittest.TestCase):
 
 
 
-class CSPSchedulerTC(unittest.TestCase):
+class CSPSchedulerTC(TestCase):
 
     def setUp(self):
-        self.project = ProjectStorage("data", "csp_scheduling_projman.xml",
+        self.project = ProjectStorage(DATADIR, "csp_scheduling_projman.xml",
                                       archive_mode=False).load()
         
     def test_visit(self):
@@ -106,19 +108,31 @@ class CSPSchedulerTC(unittest.TestCase):
         self.assertEquals(expected_constraints, scheduler.constraints)
 
 
-class CmpTasksTC(unittest.TestCase):
+class CmpTasksTC(TestCase):
         
     def test_cmp(self):
         t0 = Task('0')
         t1 = Task('1')
-        assert cmp_tasks(t0,None) == 1
+        self.assertEquals( cmp_tasks(t0,None),  1)
         t1.add_task_constraint('begin-after-end', '0')
-        assert cmp_tasks(t0,t1) == -1
+        self.assertEquals( cmp_tasks(t0,t1),  -1)
+
+    def test_cmp(self):
+        t0 = Task('0')
+        t1 = Task('1')
+        self.assertEquals( cmp_tasks(t0,None),  1)
+        t0.priority = 2
+        self.assertEquals( cmp_tasks(t0,t1),  -1)
+        t1.priority = 1
+        self.assertEquals( cmp_tasks(t0,t1),  1)
+        t0.priority = 1
+        self.assertEquals( cmp_tasks(t0,t1),  0)
+
         
-class SimpleSchedulerTC(unittest.TestCase):
+class SimpleSchedulerTC(TestCase):
 
     def setUp(self):
-        self.project = ProjectStorage("data", "csp_scheduling_projman.xml",
+        self.project = ProjectStorage(DATADIR, "csp_scheduling_projman.xml",
                                       archive_mode=False).load()
         
     def test_visit1(self):
@@ -134,4 +148,4 @@ class SimpleSchedulerTC(unittest.TestCase):
         scheduler.schedule()
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest_main()
