@@ -15,13 +15,11 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """Projman - (c)2004 Logilab - All rights reserved."""
 
-__revision__ ="$Id: unittest_file_manager.py,v 1.5 2005-09-06 18:27:44 nico Exp $"
-
-import unittest
 import os, os.path
 from os.path import abspath, join
 
 from logilab.common.compat import set
+from logilab.common import testlib
 
 import projman.test
 
@@ -52,7 +50,7 @@ FILE_OPTIONS = [("-p", WRITTEN_TASK),
                 ("-r", WRITTEN_RESOURCE),
                 ("-a", WRITTEN_ACTVITY)]
 
-class FileTest(unittest.TestCase):
+class FileTest(testlib.TestCase):
 
     def setUp(self):
         self.test_path = TEST_DIR
@@ -224,7 +222,7 @@ class FileTest(unittest.TestCase):
             self.assertTarNames(storage)
             self.assertProject(storage)
           
-class WriteTest(unittest.TestCase):
+class WriteTest(testlib.TestCase):
 
     def setUp(self):
         for file_name in WRITTEN_FILES + [WRITTEN_TAR]:
@@ -269,4 +267,4 @@ class WriteTest(unittest.TestCase):
             self.assert_(os.path.exists(file_name))
 
 if __name__ == "__main__":
-    unittest.main()
+    unittest_main()

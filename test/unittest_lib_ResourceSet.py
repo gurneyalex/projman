@@ -9,14 +9,13 @@ Manipulate a xml project description.
 This code is released under the GNU Public Licence v2. See www.gnu.org.
 
 """
-__revision__ = "$Id: unittest_lib_ResourceSet.py,v 1.6 2005-09-06 18:27:45 nico Exp $"
 
-import unittest
-import sys
+from logilab.common import testlib
+
 from projman.lib import Resource, Calendar, ResourcesSet
 from mx.DateTime import DateTime, Time
     
-class ResourceTest(unittest.TestCase):
+class ResourceTest(testlib.TestCase):
     """
     Resource represents 
     """
@@ -92,4 +91,4 @@ class ResourceTest(unittest.TestCase):
         self.assertEquals(self.rss.get_calendar('c_2'), self.c2)
     
 if __name__ == '__main__':
-    unittest.main()
+    unittest_main()

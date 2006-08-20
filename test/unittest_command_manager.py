@@ -17,9 +17,10 @@
 
 __revision__ ="$Id: unittest_command_manager.py,v 1.5 2005-09-06 18:27:44 nico Exp $"
 
-import unittest
 import shutil
 import os, os.path
+
+from logilab.common import testlib
 
 from projman.interface.option_manager import OptionConvert, \
      OptionSchedule, OptionDiagram, OptionXmlView, OptionManager, \
@@ -44,7 +45,7 @@ TAR_PROJMAN = os.path.join(REF_DIR, TAR_PROJMAN)
 SCHEDULE = "out_schedule.xml"
 SCHEDULE_PATH = os.path.join(REF_DIR, SCHEDULE)
 
-class AbstractCommandTest(unittest.TestCase):
+class AbstractCommandTest(testlib.TestCase):
     """testing """
     
     def setUp(self):
@@ -241,4 +242,4 @@ class XmlTest(AbstractCommandTest):
         self.assert_(os.path.exists("generated/out_date.xml"))
 
 if __name__ == '__main__':
-    unittest.main()
+    testlib.unittest_main()

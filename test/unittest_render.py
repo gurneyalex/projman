@@ -17,15 +17,12 @@
 Projman - (c)2005 Logilab - All rights reserved.
 """
 
-__revision__ ="$Id: unittest_render.py,v 1.2 2005-09-06 18:02:22 nico Exp $"
-
-import unittest
-
+from logilab.common import testlib
 from projman.renderers import PILHandler, GanttRenderer, ResourcesRenderer
 from projman.interface.file_manager import ProjectStorage
 from projman.interface.option_manager import OptionDiagram
 
-class RenderTest(unittest.TestCase):
+class RenderTest(testlib.TestCase):
 
     def setUp(self):
         self.project = ProjectStorage("data", "full_scheduled_projman.xml",
@@ -63,4 +60,4 @@ class RenderTest(unittest.TestCase):
     
     
 if __name__ == '__main__':
-    unittest.main()
+    unittest_main()

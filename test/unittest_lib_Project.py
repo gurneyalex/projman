@@ -8,15 +8,13 @@ Home: http://www.logilab.org/projman
 This code is released under the GNU Public Licence v2. See www.gnu.org.
 """
 
-__revision__ = "$Id: unittest_lib_Project.py,v 1.6 2005-09-06 18:27:45 nico Exp $"
-
-import unittest
+from logilab.common import testlib
 import sys
 from mx.DateTime import now, DateTime
 from projman.lib import MileStone, Task, Project, ResourcesSet, \
      Resource
 
-class ProjectTC(unittest.TestCase):
+class ProjectTC(testlib.TestCase):
 
     def setUp(self):
         """called before each test from this class
@@ -120,5 +118,5 @@ class ProjectTC(unittest.TestCase):
     
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest_main()
 

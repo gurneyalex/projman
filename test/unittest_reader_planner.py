@@ -12,7 +12,6 @@ Manipulate a xml project description.
 This code is released under the GNU Public Licence v2. See www.gnu.org.
 
 """
-__revision__ = "$Id: unittest_reader_planner.py,v 1.5 2005-09-06 18:27:46 nico Exp $"
 
 from logilab.common.testlib import TestCase, unittest_main
 

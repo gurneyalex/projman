@@ -15,12 +15,11 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """Projman - (c)2004 Logilab - All rights reserved."""
 
-__revision__ ="$Id: unittest_option_manager.py,v 1.8 2005-09-06 18:09:03 nico Exp $"
-
-import unittest
 import shutil
 import os, os.path
 from mx.DateTime import DateTime
+from logilab.common import testlib
+
 from projman.interface.option_manager import OptionConvert, OptionSchedule ,\
      OptionDiagram, OptionXmlView, OptionManager, create_option_manager
 from projman.interface.command_manager import ConvertCommand, DiagramCommand
@@ -32,7 +31,7 @@ XML_PROJMAN_PATH = os.path.join(REF_DIR, XML_PROJMAN)
 TAR_PROJMAN_PATH = os.path.join(REF_DIR, TAR_TARED_PROJMAN)
 TAR_SCHEDULE_PATH = os.path.join(REF_DIR, TAR_TARED_SCHEDULED_PROJMAN)
 
-class OptionManagerTest(unittest.TestCase):
+class OptionManagerTest(testlib.TestCase):
     """testing """
     def setUp(self):
         self.default_options = OptionManager([("-X", None)],
@@ -83,7 +82,7 @@ class OptionManagerTest(unittest.TestCase):
         self.assertRaises(NotImplementedError, self.default_options.get_command)
 
 
-class ScheduleTest(unittest.TestCase):
+class ScheduleTest(testlib.TestCase):
 
     def setUp(self):
         # projman paths
@@ -157,7 +156,7 @@ class ScheduleTest(unittest.TestCase):
             self.assertEquals(option.is_including_reference(), False)
             self.assertEquals(option.type, 'csp')
 
-class ConvertTest(unittest.TestCase):
+class ConvertTest(testlib.TestCase):
 
     def setUp(self):
         self.default_options = OptionConvert([("-c", None),
@@ -230,7 +229,7 @@ class ConvertTest(unittest.TestCase):
         self.assertEquals(self.projman_options.is_writing_projman(), True)
 
 
-class DiagramTest(unittest.TestCase):
+class DiagramTest(testlib.TestCase):
     """testing """
     def setUp(self):
         self.default_options = OptionDiagram( [("-X", None)],
@@ -404,4 +403,4 @@ class DiagramTest(unittest.TestCase):
     
     
 if __name__ == '__main__':
-    unittest.main()
+    testlib.unittest_main()

@@ -1,4 +1,4 @@
-__revision__ = "$Id: applicationtest.py,v 1.6 2005-09-06 18:27:44 nico Exp $"
+# XXXFIXME redo with logilab.common.testlib
 
 import unittest
 import sys

@@ -1,8 +1,8 @@
-import unittest
+from logilab.common import testlib
 
 from projman import format_monetary, extract_extension
 
-class Test(unittest.TestCase):
+class Test(testlib.TestCase):
 
     def test_format_monetary(self):
         self.assertRaises(TypeError, format_monetary, self)
@@ -33,4 +33,4 @@ class Test(unittest.TestCase):
         self.assertEquals(("foo", "txt.old"), extract_extension("foo.txt.old"))
         
 if __name__ == "__main__":
-    unittest.main()
+    unittest_main()

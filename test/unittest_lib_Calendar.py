@@ -12,12 +12,11 @@ Manipulate a xml project description.
 This code is released under the GNU Public Licence v2. See www.gnu.org.
 
 """
-import unittest
-import sys
+from logilab.common import testlib
 from projman.lib import *
 from mx.DateTime import DateTime, Time, Date
     
-class CalendarTC(unittest.TestCase):
+class CalendarTC(testlib.TestCase):
     """
     Calendar represents 
     """
@@ -175,4 +174,4 @@ class CalendarTC(unittest.TestCase):
         self.assertEqual(self.c2.is_a_national_day(DateTime(2012, 01, 01)), True)
 
 if __name__ == '__main__':
-    unittest.main()
+    testlib.unittest_main()

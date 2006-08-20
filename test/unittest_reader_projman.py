@@ -9,17 +9,13 @@ Manipulate a xml project description.
 This code is released under the GNU Public Licence v2. See www.gnu.org.
 
 """
-__revision__ = "$Id: unittest_reader_projman.py,v 1.16 2005-11-09 16:47:37 arthur Exp $"
+
+from logilab.common.testlib import TestCase, unittest_main
 
 from projman.readers import TaskXMLReader, ResourcesXMLReader, ScheduleXMLReader, ProjectFileListReader
 from projman.interface.file_manager import ProjectStorage
 from projman.interface.option_manager import OptionManager
 from projman.lib._exceptions import DuplicatedTaskId, MalformedProjectFile
-
-
-from logilab.common.testlib import TestCase, unittest_main
-
-import sys
     
 class AbstractXMLReaderTest:
     def setUp(self):

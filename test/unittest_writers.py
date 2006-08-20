@@ -7,10 +7,7 @@ Home: http://www.logilab.org/projman
 This code is released under the GNU Public Licence v2. See www.gnu.org.
 """
 
-__revision__ = "$Id: unittest_writers.py,v 1.3 2005-11-10 11:34:23 arthur Exp $"
-
-from os.path import join
-import unittest
+import os.path as osp
 
 from logilab.common.testlib import TestCase
 
@@ -30,9 +27,9 @@ class WriterTestCase(TestCase):
         self.assertNotEqual(input, None)
         self.assertNotEqual(output, None)
         self.assertNotEqual(reference, None)
-        input = join('data', input)
-        output = join('generated', output)
-        reference = join('data', reference)
+        input = osp.join('data', input)
+        output = osp.join('generated', output)
+        reference = osp.join('data', reference)
         option = create_option_manager(self.cmd, [input, output])
         option.get_command().execute()
         self.assertFileEqual(reference, output)
@@ -137,5 +134,5 @@ class CostsWriterTC(WriterTestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest_main()
 

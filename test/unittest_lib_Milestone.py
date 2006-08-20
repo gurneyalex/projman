@@ -8,12 +8,8 @@ Home: http://www.logilab.org/projman
 This code is released under the GNU Public Licence v2. See www.gnu.org.
 """
 
-__revision__ = "$Id: unittest_lib_Milestone.py,v 1.8 2005-09-06 18:27:44 nico Exp $"
-
-import unittest
-import sys
 from mx.DateTime import DateTime
-from logilab.common.testlib import TestCase
+from logilab.common.testlib import TestCase, unittest_main
 
 from projman.lib import MileStone
 from projman.lib.constants import BEGIN_AFTER_END, BEGIN_AFTER_BEGIN, \
@@ -152,4 +148,4 @@ class MilestoneTest(TestCase):
 #             self.assertRaises(KeyError, result.__getitem__, key)
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest_main()
