@@ -94,22 +94,25 @@ class SimpleScheduler:
         #    begin = end - duration
         # add activities
         activities = []
-        resources = [self.project.get_resource(r_id)
+        resources = [(self.project.get_resource(r_id), usage/100)
                      for r_type, r_id, usage in node.get_resource_constraints()]
         if not resources:
-            logging.warning("task %s has no resource and will not be scheduled"%node.id)
-        for res in resources :
+            logging.warning("task %s has no resource and will not be scheduled",node.id)
+            return
+        self.date_res = {}
+        for res, usage in resources :
             self.date_res.setdefault(res.id, begin-1)
         load = node.duration*(1-node.progress)
         date = begin
         if load == 0 and begin == today():
             logging.warning("task %s is complete but was never worked on"%node.id)
         while load > 0 and resources :
-            for resource in resources:
-                if self.date_res[resource.id] < date and resource.work_on(date): 
-                    activities.append( (date, date, resource.id, node.id, 1) )
+            for resource, usage in resources:
+                if self.date_res[resource.id] < date and resource.work_on(date) \
+                   and self.project.get_total_usage(resource.id, date) <= 1-usage :
+                    activities.append( (date, date, resource.id, node.id, usage) )
                     self.date_res[resource.id] = date
-                    load -= 1
+                    load -= usage
                     if load <= 0:
                         break
             date += 1
