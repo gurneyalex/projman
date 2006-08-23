@@ -172,6 +172,11 @@ class AbstractXMLReader(ContentHandler):
                 self._tags.append(tag)
             except TypeError:
                 raise error
+        except:
+            if self._errors:
+                print 'WARNING: pending validation errors:'
+                print '\n'.join(self._errors)
+            raise
         self._tags.append(tag)
 
     def _start_element(self, tag, attr):
@@ -188,6 +193,11 @@ class AbstractXMLReader(ContentHandler):
                 self._errors.append(msg)
             except TypeError:
                 raise error
+        except:
+            if self._errors:
+                print 'WARNING: pending validation errors:'
+                print '\n'.join(self._errors)
+            raise
         self._tags.pop()
         
 
