@@ -32,7 +32,7 @@ import mx.DateTime
 from projman.__pkginfo__ import version
 from projman.interface.file_manager import ProjectStorage
 from projman.interface.command_manager import ConvertCommand, ScheduleCommand, \
-     DiagramCommand, XmlCommand
+     DiagramCommand#, XmlCommand
 from projman.interface import UsageRequested, MAIN_USAGE, CONVERT_USAGE, DIAGRAM_USAGE, \
      XML_DOC_USAGE, PLAN_USAGE, CONVERT_HEAD, PLAN_HEAD, DIAGRAM_HEAD, XML_HEAD
 
@@ -48,7 +48,7 @@ def create_option_manager(option_list, args):
     option_keys = [option[0] for option in option_list]
     # seek invoked command
     for option_state in (OptionManager, OptionConvert, OptionSchedule,
-                         OptionDiagram, OptionXmlView):
+                         OptionDiagram):#, OptionXmlView):
         for command in option_state.COMMAND:
             if command in option_keys:
                 OptionManager.option_set = option_state(option_list, args)
@@ -504,110 +504,110 @@ class OptionDiagram(OptionManager):
         """returns end date for diagram view"""
         return self.showids
     
-class OptionXmlView(OptionManager):
-    """gather all parameters/options corresponding to the xml-view command.
+## class OptionXmlView(OptionManager):
+##     """gather all parameters/options corresponding to the xml-view command.
     
-    ex: projman -x -v cost projman.xml view.xml
-    """
-    COMMAND = ("-x", "--xml-view", "--xml-doc")
-    OPTIONS = OptionManager.OPTIONS \
-              + ("-v", "--view", "-f", "--format", "--display-cost",
-                 "--display-duration", "--display-rates") 
-    USAGE = XML_DOC_USAGE
-    HEAD = XML_HEAD
-    def __init__(self, option_list, argument_list=None):
-        self.xml_view = 'cost'
-        self.xml_format = 'docbook'
-        self.display_rates = False
-        self.display_cost = False
-        self.display_duration = False
-        OptionManager.__init__(self, option_list, argument_list)
+##     ex: projman -x -v cost projman.xml view.xml
+##     """
+##     COMMAND = ("-x", "--xml-view", "--xml-doc")
+##     OPTIONS = OptionManager.OPTIONS \
+##               + ("-v", "--view", "-f", "--format", "--display-cost",
+##                  "--display-duration", "--display-rates") 
+##     USAGE = XML_DOC_USAGE
+##     HEAD = XML_HEAD
+##     def __init__(self, option_list, argument_list=None):
+##         self.xml_view = 'cost'
+##         self.xml_format = 'docbook'
+##         self.display_rates = False
+##         self.display_cost = False
+##         self.display_duration = False
+##         OptionManager.__init__(self, option_list, argument_list)
 
-    def __str__(self):
-        return "OptionXmlView (view=%s format=%s rates=%s costs=%s duration=%s)"\
-               % (self.xml_view, self.xml_format, self.display_rates,
-                  self.display_cost, self.display_duration)
+##     def __str__(self):
+##         return "OptionXmlView (view=%s format=%s rates=%s costs=%s duration=%s)"\
+##                % (self.xml_view, self.xml_format, self.display_rates,
+##                   self.display_cost, self.display_duration)
 
-    def _parse_options(self):
-        """extract values from options"""
-        OptionManager._parse_options(self)
-        # check all options
-        for name, value in self.option_list:
-            if name in ('-v', '--view'):
-                self.xml_view = value    
-                if value not in ("list", "cost", "date"):
-                    raise ValueError("unknown view: %s"% self.xml_view)
-            elif name in ('-f', '--format'):
-                self.xml_format = value    
-                if self.xml_format not in ("docbook", "csv", "html"):
-                    raise ValueError("unknown format: %s"% self.xml_format)
-            elif name == '--display-rates':
-                self.display_rates = True
-            elif name == '--display-cost':
-                self.display_cost = True
-            elif name == '--display-duration':
-                self.display_duration = True
-            #else: if not valid, error raised by check_options
+##     def _parse_options(self):
+##         """extract values from options"""
+##         OptionManager._parse_options(self)
+##         # check all options
+##         for name, value in self.option_list:
+##             if name in ('-v', '--view'):
+##                 self.xml_view = value    
+##                 if value not in ("list", "cost", "date"):
+##                     raise ValueError("unknown view: %s"% self.xml_view)
+##             elif name in ('-f', '--format'):
+##                 self.xml_format = value    
+##                 if self.xml_format not in ("docbook", "csv", "html"):
+##                     raise ValueError("unknown format: %s"% self.xml_format)
+##             elif name == '--display-rates':
+##                 self.display_rates = True
+##             elif name == '--display-cost':
+##                 self.display_cost = True
+##             elif name == '--display-duration':
+##                 self.display_duration = True
+##             #else: if not valid, error raised by check_options
                 
-    def _parse_file_options(self):
-        """extract values from a list of options. Set up first set of
-        options, which some among them are needed to create. Also
-        responsible for setting output
-        """
-        OptionManager._parse_file_options(self)
-        if not self.storage.output:
-            self.storage.set_output(self.xml_view + '.xml')
+##     def _parse_file_options(self):
+##         """extract values from a list of options. Set up first set of
+##         options, which some among them are needed to create. Also
+##         responsible for setting output
+##         """
+##         OptionManager._parse_file_options(self)
+##         if not self.storage.output:
+##             self.storage.set_output(self.xml_view + '.xml')
 
-    # GETTERS
-    def get_command(self):
-        """Create command associated with this set of options"""
-        return XmlCommand(self)
+##     # GETTERS
+##     def get_command(self):
+##         """Create command associated with this set of options"""
+##         return XmlCommand(self)
     
-    def get_view(self):
-        """returns name o fthe built view"""
-        return self.xml_view
+##     def get_view(self):
+##         """returns name o fthe built view"""
+##         return self.xml_view
     
-    def get_extension(self):
-        """returns format (extension) o the built view"""
-        return EXTENSIONS[self.xml_format]      
+##     def get_extension(self):
+##         """returns format (extension) o the built view"""
+##         return EXTENSIONS[self.xml_format]      
     
-    def is_list_view(self):
-        """returns True if building view listing all tasks"""
-        return self.xml_view == "list"
+##     def is_list_view(self):
+##         """returns True if building view listing all tasks"""
+##         return self.xml_view == "list"
     
-    def is_cost_view(self):
-        """returns True if building array listing all tasks
-        with their load/cost"""
-        return self.xml_view == "cost"
+##     def is_cost_view(self):
+##         """returns True if building array listing all tasks
+##         with their load/cost"""
+##         return self.xml_view == "cost"
     
-    def is_date_view(self):
-        """returns True if building array listing all tasks
-        with their duration"""
-        return self.xml_view == "date"
+##     def is_date_view(self):
+##         """returns True if building array listing all tasks
+##         with their duration"""
+##         return self.xml_view == "date"
     
-    def is_displaying_rates(self):
-        """return True if adding to xml view a report of all
-        resources' rates"""
-        return self.display_rates
+##     def is_displaying_rates(self):
+##         """return True if adding to xml view a report of all
+##         resources' rates"""
+##         return self.display_rates
     
-    def is_displaying_cost(self):
-        """return True if adding to xml view a section with
-        global cost of project"""
-        return self.display_cost
+##     def is_displaying_cost(self):
+##         """return True if adding to xml view a section with
+##         global cost of project"""
+##         return self.display_cost
     
-    def is_displaying_duration(self):
-        """return True if adding to xml view a section with
-        global duration of project"""
-        return self.display_duration
+##     def is_displaying_duration(self):
+##         """return True if adding to xml view a section with
+##         global duration of project"""
+##         return self.display_duration
 
-    def is_html_format(self):
-        """return True if writing wiew in html format"""
-        return self.xml_format == "html"
+##     def is_html_format(self):
+##         """return True if writing wiew in html format"""
+##         return self.xml_format == "html"
 
-    def is_csv_format(self):
-        """return True if writing wiew in csv format"""
-        return self.xml_format == "csv"
+##     def is_csv_format(self):
+##         """return True if writing wiew in csv format"""
+##         return self.xml_format == "csv"
 
-    def is_docbook_format(self):
-        """return True if writing wiew in docbook format"""
-        return self.xml_format == "docbook"
+##     def is_docbook_format(self):
+##         """return True if writing wiew in docbook format"""
+##         return self.xml_format == "docbook"

@@ -23,8 +23,8 @@ from xml.dom.ext import PrettyPrint
 from projman import LOG_CONF, ENCODING
 from projman.scheduling import schedule
 from projman.readers import PlannerXMLReader, ProjectXMLReader
-from projman.writers import PlannerDOMVisitor, ProjmanDOMVisitor, \
-     ListTasksDOMWriter, TasksDatesDOMWriter, TasksCostsDOMWriter
+from projman.writers import PlannerDOMVisitor, ProjmanDOMVisitor
+     #ListTasksDOMWriter, TasksDatesDOMWriter, TasksCostsDOMWriter
 from projman.renderers import ResourcesRenderer, GanttRenderer, \
      GanttResourcesRenderer, PILHandler
 
@@ -152,30 +152,30 @@ class DiagramCommand(AbstractCommand):
             output_f.write("</body></html>")
                 
 
-class XmlCommand(AbstractCommand):
-    """    to generate xml views (list, cost , date)
-    ex: projman -x -v cost projman.xml view.xml
-    """
-    def __init__(self, option_container):
-        AbstractCommand.__init__(self, option_container)
-        self.visitor = None
-        # set up input
-        self.project = self.storage.load()
-        #schedule
-        # FIXME: schedule or not schedule, that is the question
-        # schedule(self.project)
-        # import correct visitor
-        if self.options.is_list_view():
-            self.visitor = ListTasksDOMWriter(self.project, self.options)
-        elif self.options.is_date_view():
-            self.visitor = TasksDatesDOMWriter(self.project, self.options)
-        elif self.options.is_cost_view():
-            self.visitor = TasksCostsDOMWriter(self.project, self.options)
-        else:
-            raise ValueError("corrupted view %s" % (self.options.state,))
+## class XmlCommand(AbstractCommand):
+##     """    to generate xml views (list, cost , date)
+##     ex: projman -x -v cost projman.xml view.xml
+##     """
+##     def __init__(self, option_container):
+##         AbstractCommand.__init__(self, option_container)
+##         self.visitor = None
+##         # set up input
+##         self.project = self.storage.load()
+##         #schedule
+##         # FIXME: schedule or not schedule, that is the question
+##         # schedule(self.project)
+##         # import correct visitor
+##         if self.options.is_list_view():
+##             self.visitor = ListTasksDOMWriter(self.project, self.options)
+##         elif self.options.is_date_view():
+##             self.visitor = TasksDatesDOMWriter(self.project, self.options)
+##         elif self.options.is_cost_view():
+##             self.visitor = TasksCostsDOMWriter(self.project, self.options)
+##         else:
+##             raise ValueError("corrupted view %s" % (self.options.state,))
 
-    def execute(self):
-        """read input, make view"""
-        output = file(self.storage.output, 'w')
-        output.write(self.visitor.as_xml_string())
-        output.close()
+##     def execute(self):
+##         """read input, make view"""
+##         output = file(self.storage.output, 'w')
+##         output.write(self.visitor.as_xml_string())
+##         output.close()

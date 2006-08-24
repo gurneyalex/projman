@@ -14,19 +14,21 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+"""%%prog %s [options] %s
 
-"""Projman - (c)2004-2006 Logilab - All rights reserved."""
+Projman's command line tool. 
+%s"""
 
 import sys
 import logging, logging.config
 from logilab.common.optparser import OptionParser
 from projman import LOG_CONF
-from projman.interface.option_manager import create_option_manager, UsageRequested
   
 # FIXME: use optparse instead of getopt
 def run(args) :
     """Main function.
     """
+    from projman.interface.option_manager import create_option_manager, UsageRequested 
     # create & init logger
     logger = logging.getLogger("main")
     try:
@@ -64,3 +66,9 @@ def run(args) :
         print 'ERROR:', error
         sys.exit(2)
 
+
+
+def run2(args):
+    from logilab.common.clcommands import main_run
+    from projman import commands
+    main_run(args, __doc__)

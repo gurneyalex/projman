@@ -17,6 +17,3 @@
 
 from projman.writers.planner_export import PlannerDOMVisitor
 from projman.writers.projman_writer import ProjmanDOMVisitor
-from projman.writers.tasks_list_writer import ListTasksDOMWriter
-from projman.writers.tasks_dates_writer import TasksDatesDOMWriter
-from projman.writers.tasks_costs_writer import TasksCostsDOMWriter
