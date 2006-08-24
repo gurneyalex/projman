@@ -114,7 +114,7 @@ class AbstractWriter:
 
 # Abstract Writer  #######################################################
 
-TOTAL_COST = u"Le coût total du projet se chiffre à "\
+TOTAL_COST = u"Le coût total se chiffre à "\
              "%s euros HT, soit %s euros TTC."
 
 TOTAL_DATE = u"L'ensemble du projet se déroule entre le %s et le %s."
@@ -141,6 +141,8 @@ class AbstractTaskWriter(AbstractWriter):
     Implements default behaviour for all Task Writers:
     global calculation and common display.
     """
+    view_name = 'FIXME'
+    
     def __init__(self, projman, options):
         AbstractWriter.__init__(self, projman)
         self.options = options
@@ -150,29 +152,37 @@ class AbstractTaskWriter(AbstractWriter):
         self.tree_root = None
         self.project = None
         self.lang = 'fr'
+        self.vtask_root = options.vtask_root
         
     def open_tree(self, root):
         """formats & writes begining of doc according to docbook format.
         """
-        self.root = root
+        self.root = root        
         self.project = self.projman.root_task
         object_node = self.object_node(self.project.id)
         self.root.appendChild(object_node)
         self.tree.append(object_node)
-        self.tree_root = object_node
+        if self.vtask_root:
+            section = self.section_node('%s%s' % (self.view_name, self.vtask_root))
+            roottask = self.projman.get_task(self.vtask_root)
+            section.appendChild(self.title_node(roottask.title))
+            object_node.appendChild(section)
+            self.tree_root = section
+        else:
+            self.tree_root = object_node
 
     def close_tree(self):
         """formats & writes end of doc according to docbook format.
         """
-        # display rates       
+        # display rates
         if self.options.is_displaying_rates():
             self.root.appendChild(self.rate_node())
         # display total costs
         if self.options.is_displaying_cost():
-            self.root.appendChild(self.cost_node())
+            self.tree_root.appendChild(self.cost_node())
         # display total duration
         if self.options.is_displaying_duration():
-            self.root.appendChild(self.duration_node())
+            self.tree_root.appendChild(self.duration_node())
 
     def build_tree(self):
         """buid a node for each task."""
@@ -264,14 +274,23 @@ class AbstractTaskWriter(AbstractWriter):
     def cost_node(self):
         """create a section with total cost."""
         # display project cost
-        object_cost = self.object_node(u"total-cost")
-        section_cost = self.section_node(u"cost_section")
-        object_cost.appendChild(section_cost)
-        section_cost.appendChild(self.title_node(u"Coût total"))
+        if self.vtask_root:
+            rootid = '%s_' % self.vtask_root
+        else:
+            rootid = ''
+        section_cost = self.section_node(u"%scost_section" % rootid)
+        if self.vtask_root:
+            root = self.projman.get_task(self.vtask_root)
+            section_cost.appendChild(self.title_node(u"Coût du %s" % root.title.lower()))
+            objectn = None
+        else:
+            section_cost.appendChild(self.title_node(u"Coût total"))
+            objectn = self.object_node(u"%stotal-cost" % rootid)
+            objectn.appendChild(section_cost)
         section_cost.appendChild(self.para_node(
             TOTAL_COST % (format_monetary(self.project_cost),
                           format_monetary(self.project_cost * (1+TVA/100)))))
-        return object_cost
+        return objectn or section_cost
 
     def duration_node(self):
         """create a section with total duration."""

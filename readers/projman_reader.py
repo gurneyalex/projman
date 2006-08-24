@@ -1,5 +1,5 @@
 # -*- coding: ISO-8859-1 -*-
-# Copyright (c) 2000-2004 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2000-2006 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -23,9 +23,9 @@ __revision__ = "$Id: projman_reader.py,v 1.8 2006-02-19 14:51:06 nico Exp $"
 
 import sys
 import os.path
+from os.path import isabs, join
 
 from docutils.core import publish_string
-from os.path import isabs, join
 from mx.DateTime import DateTime, Time, now
 from mx.DateTime.Parser import DateFromString
 from logilab.common.textutils import colorize_ansi
@@ -50,10 +50,12 @@ class TaskXMLReader(AbstractXMLReader) :
     projman model
     """
 
-    def __init__(self):
+    def __init__(self, virtual_task_root=None):
         AbstractXMLReader.__init__(self)
-        self._main_project = 1
+        self._main_project = True
+        self.vtask_root = virtual_task_root
         self.inside_description = False
+        self.inside_root = self.vtask_root is None
         self.stack.append([])
 
     def _start_element(self, tag, attr):
@@ -77,6 +79,11 @@ class TaskXMLReader(AbstractXMLReader) :
     def _parse_element(self, tag, attr) :
         """new element found, parse it
         """
+        if not self.inside_root:
+            if tag == 'task' and attr['id'] == self.vtask_root:
+                self.inside_root = True
+            else:
+                return
         if tag == 'description':
             self.assert_child_of(['task'])
             self.inside_description = True
@@ -91,7 +98,7 @@ class TaskXMLReader(AbstractXMLReader) :
             if not isabs(file):
                 file = join(self._base_uris[-1], file)
             if not self._imported.has_key(file):
-                p = ProjectXMLReader()
+                p = ProjectXMLReader(self.vtask_root)
                 proj = p.fromFile(file)
                 self.stack[-1].append(proj)
                 self.stack.append(proj)
@@ -148,12 +155,19 @@ class TaskXMLReader(AbstractXMLReader) :
         """
         See SAX's ContentHandler interface
         """
+        if not self.inside_root:
+            return
         if self.inside_description: 
             self.process_not_parsed(tag)
         else:
             t = self.stack[-1]
             if tag in ('task', 'milestone'):
-                self.stack.pop()
+                popped = self.stack.pop()
+                try:
+                    if self.vtask_root == popped.id:
+                        self.inside_root = False
+                except AttributeError:
+                    pass
             elif tag in ('project', 'import-tasks'):
                 if self._main_project:
                     self._main_project = 0
@@ -196,6 +210,11 @@ class TaskXMLReader(AbstractXMLReader) :
     def _custom_return(self):
         return self.stack[0][0]
 
+    def characters(self, data):
+        if not self.inside_root:
+            return
+        AbstractXMLReader.characters(self, data)
+        
 # ResourceXMLReader ##########################################################
 
 class ResourcesXMLReader(AbstractXMLReader) :
@@ -501,8 +520,9 @@ class ProjectXMLReader(AbstractXMLReader) :
     sax handler to process XML file and create a Project instance
     """
     
-    def __init__(self):
+    def __init__(self, virtual_task_root=None):
         AbstractXMLReader.__init__(self)
+        self.vtask_root = virtual_task_root
         self.project = self._factory.create_project()
         self.skip_schedule = False
 
@@ -570,7 +590,7 @@ class ProjectXMLReader(AbstractXMLReader) :
             if not isabs(filename):
                 filename = join(self._base_uris[-1], filename)
             if not self._imported.has_key(filename):
-                p = TaskXMLReader()
+                p = TaskXMLReader(self.vtask_root)
                 task = p.fromFile(filename)
                 self.project.root_task = task
                 self._imported[filename] = 1

@@ -1,4 +1,4 @@
-# Copyright (c) 2000-2004 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2000-2006 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-"""Projman - (c)2004 Logilab - All rights reserved."""
+"""Projman - (c)2004-2006 Logilab - All rights reserved."""
 
 __revision__ ="$Id: file_manager.py,v 1.16 2005-09-06 17:06:43 nico Exp $"
 
@@ -90,7 +90,8 @@ class ProjectStorage:
     """load and save projman project from set of file names"""
     
     def __init__(self, repo_in, input_, output=None,
-                 archive_mode=True, input_projman=True):
+                 archive_mode=True, input_projman=True,
+                 virtual_task_root=None):
         """
          repo_in: name of directory of projman file 
          input_: name of projman file
@@ -98,6 +99,7 @@ class ProjectStorage:
          
          archive_mode: True if using a .prj file for output
          input_projman: input file under projman format
+         virtual_task_root: id of a task to use as root
         """
         # create logger
         self.logger = logging.getLogger("reader")
@@ -107,6 +109,7 @@ class ProjectStorage:
             logging.basicConfig()
         # set options
         self.archive_mode = archive_mode
+        self.vtask_root = virtual_task_root
         # default file names
         self._repo_in = repo_in
         self._input = input_
@@ -187,7 +190,7 @@ class ProjectStorage:
         file_in = os.path.join(self._repo_in, self._input)
         # set Projman reader by default
         if proj_reader is None or isinstance(proj_reader, ProjectXMLReader):
-            proj_reader = ProjectXMLReader()
+            proj_reader = ProjectXMLReader(self.vtask_root)
             file_in = self.from_projman()
         # reading
         try:

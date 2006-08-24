@@ -1,4 +1,4 @@
-# Copyright (c) 2000-2005 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2000-2006 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -14,7 +14,7 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-"""Projman - (c)2005 Logilab - All rights reserved."""
+"""Projman - (c)2005-2006 Logilab - All rights reserved."""
 
 __revision__ ="$Id: command_manager.py,v 1.13 2005-11-09 16:47:34 arthur Exp $"
 

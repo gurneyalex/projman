@@ -1,7 +1,7 @@
 # -*- coding: iso-8859-1 -*-
 """
 unit tests for module projman.lib.projman_reader.py
-Projman - (c)2000-2005LOGILAB <contact@logilab.fr> - All rights reserved.
+Projman - (c)2000-2006 LOGILAB <contact@logilab.fr> - All rights reserved.
 
 Home: http://www.logilab.org/projman
 Manipulate a xml project description.
@@ -78,6 +78,23 @@ class TaskXMLReaderTest(TestCase, AbstractXMLReaderTest):
 
     def test_multiline_task_progress(self):
         task = self.root.children[0]
+        self.assertEquals(0, task.progress)
+
+
+class TaskXMLReaderVirtualRootTest(TestCase):
+
+    def setUp(self):
+        self.reader = TaskXMLReader(virtual_task_root='t1_1')
+        self.root = self.reader.fromFile('./data/multiline_tasked_project.xml')
+
+    def test_virtual_root(self):
+        task = self.root
+        expected_title = "Suivi de projet"
+        self.assertEquals(expected_title, task.title)
+        self.assertEquals(len(task.children), 0)
+        expected_desc = u"\n    Réunions de début et de fin de tranche, réunions\n      hebdomadaires, <emphasis>comptes-rendus</emphasis>, etc."
+        self.assertEquals(expected_desc, task.description)
+        self.assertEquals(25, task.duration)
         self.assertEquals(0, task.progress)
 
 class ResourcesXMLReaderTest(TestCase, AbstractXMLReaderTest):

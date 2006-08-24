@@ -70,6 +70,7 @@ class Project:
         self.costs = Table(default_value=None,
                            col_names=['task', 'resource', 'cost', 'unit'])
 
+    
     def get_root_task(self):
         return self._root_task
 

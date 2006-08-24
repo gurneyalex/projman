@@ -26,7 +26,9 @@ DEFAULT_PYGANTT_EXPORT = 'pygantt_export.xml'
 DEFAULT_PLANNER_EXPORT = 'planner_export.xml'
 
 import os, os.path
+
 import mx.DateTime
+
 from projman.__pkginfo__ import version
 from projman.interface.file_manager import ProjectStorage
 from projman.interface.command_manager import ConvertCommand, ScheduleCommand, \
@@ -66,6 +68,7 @@ class OptionManager:
     COMMAND = ('-V', '--version')
     OPTIONS = ('-H', '-h', '--help', "-t", "--interactive", "-X", "--expanded",
                "-p", "--project", "-r", "--resources", "-a", "--activity",
+               '--task-root',
                "--verbose")
     USAGE = MAIN_USAGE
     HEAD = __doc__
@@ -75,6 +78,7 @@ class OptionManager:
         self.interactive_mode = False
         self.archive_mode = True
         self.verbose = False
+        self.vtask_root = None
         # common options
         self._check_options()
         self._parse_options()
@@ -82,7 +86,8 @@ class OptionManager:
         _repo_in, _input, output = self._parse_arguments(argument_list)
         self.storage = ProjectStorage(_repo_in, _input, output,
                                       archive_mode=self.is_archive_mode(),
-                                      input_projman=self.is_input_projman())
+                                      input_projman=self.is_input_projman(),
+                                      virtual_task_root=self.vtask_root)
         # parse options
         self._parse_file_options()
 
@@ -144,6 +149,8 @@ class OptionManager:
                 self.interactive_mode = True
             elif name in ("-X", "--expanded"):
                 self.archive_mode = False
+            elif name == "--task-root":
+                self.vtask_root = unicode(value)
             elif name == "--verbose":
                 self.verbose = True
             #else: if not valid, error raised by check_options

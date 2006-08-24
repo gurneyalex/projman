@@ -41,6 +41,7 @@ def run(args) :
              'depth=', 'help', 'convert', 'schedule', 'plan', 'diagram',
              'include-references', 'xml-doc', 'xml-view', 'view=', 'format=',
              'display-rates', 'display-cost', 'display-duration', 'interactive',
+             'task-root=',
              'expanded', "del-ended", "del-empty", "verbose", "version"]
     
     (opt, args) = getopt.getopt(args, 'i:o:p:r:a:g:Iv:f:cdsxVHhtXD', l_opt)
@@ -51,7 +52,7 @@ def run(args) :
         options_set = create_option_manager(opt, args)
         if options_set.is_verbose():
             print "Launching projman with in verbose mode with options", \
-                  str(options_set)
+                  options_set
         # execute command
         options_set.get_command().execute()
     except UsageRequested, usage_exc:

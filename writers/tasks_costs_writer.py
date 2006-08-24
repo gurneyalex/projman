@@ -28,7 +28,8 @@ class TasksCostsDOMWriter(AbstractTaskWriter):
     """
     return the dom representation of the tasks view.
     """
-
+    view_name = 'cost'
+    
     def __init__(self, project, options):
         AbstractTaskWriter.__init__(self, project, options)
         self.ENTETE = u"Tableau récapitulatif des coûts."
