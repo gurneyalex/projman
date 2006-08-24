@@ -118,16 +118,16 @@ class ResourcesXMLReaderTest(TestCase, AbstractXMLReaderTest):
         cal = self.resources.children[-1]
         self.assertEquals(cal.name, "Calendrier Francais")
         for day in (u'mon', u'tue', u'wed', u'thu', u'fri'):
-            self.assertEquals(cal.weekday[day], u'DefautWorking')
+            self.assertEquals(cal.weekday[day], u'Standard work day')
         for day in (u'sat', u'sun'):
-            self.assertEquals(cal.weekday[day], u'DefautNonworking')
+            self.assertEquals(cal.weekday[day], u'Week-end day')
         self.assertEquals(cal.national_days,
                           [(1,1), (5,1), (5,8), (7,14),
                            (8,15), (11,1), (11,11), (12,25)])
         self.assertEquals(cal.start_on, None)
         self.assertEquals(cal.stop_on, None)
         self.assertEquals(cal.type_nonworking_days,
-                          {1: u'DefautWorking', 2: u'DefautNonworking'})
+                          {1: u'Standard work day', 2: u'Week-end day', 3: u'Day Off'})
         
         self.assertEquals(cal.default_nonworking, 2)
         self.assertEquals(cal.default_working, 1)
@@ -140,7 +140,7 @@ class ResourcesXMLReaderTest(TestCase, AbstractXMLReaderTest):
             end = str(end).split()[0]
             self.assertEquals(expected_start, start)
             self.assertEquals(expected_end, end)
-            self.assertEquals(u'DefautNonworking', working)        
+            self.assertEquals(u'Day Off', working)        
 
 
 
