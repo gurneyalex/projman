@@ -63,61 +63,25 @@ class ProjmanCommand(Command):
          ),        
         )
 
+    def run(self, args):
+        """run the command with its specific arguments"""
+        if not args:
+            raise BadCommandUsage('missing argument')
+        output = self.config.output
+        repo_in, input = osp.split(osp.abspath(self.config.project_file))
+        self.storage = ProjectStorage(repo_in, input, output,
+                                      archive_mode=self.config.expanded,
+                                      virtual_task_root=getattr(self.config, 'task_root', None))
+        self.project = self.storage.load()
+        self._run(args)
 
-## class PMViewCommand(ProjmanCommand):
-##     """base class providing common behaviour for projman view commands"""
-    
-##     arguments = '<output file>'    
-
-##     def run(self, args):
-##         """run the command with its specific arguments"""
-##         output = pop_arg(args)
-##         repo_in, input = osp.split(osp.abspath(self.config.project_file))
-##         self.storage = ProjectStorage(repo_in, input, output,
-##                                       archive_mode=self.config.expanded,
-##                                       virtual_task_root=getattr(self.config, 'task_root', None))
-##         self.project = self.storage.load()
-##         self._run()
-    
-##     def _run(self):
-##         view = self._get_view()
-##         root = document("dr:root")
-##         view.generate(root, self.project)
-##         output = file(self.storage.output, 'w')
-##         PrettyPrint(root, stream=output)
-##         output.close()
-    
-## class PMTableCommand(PMViewCommand):
-##     options = PMViewCommand.options + (
-##         ('format',
-##          {'short': 'F',
-##           'type' : 'choice', 'metavar': '<output format>',
-##           'choices': ('docbook', 'html', 'csv'),
-##           'default': 'docbook',
-##           'help': 'identifier of a task to use as root',
-##           }
-##          ),
-##         )
-
-    
-## class PMSectionCommand(PMViewCommand):
-##     options = PMViewCommand.options + (
-##         ('format',
-##          {'short': 'F',
-##           'type' : 'choice', 'metavar': '<output format>',
-##           'choices': ('docbook', 'html'),
-##           'default': 'docbook',
-##           'help': 'identifier of a task to use as root',
-##           }
-##          ),
-##         )
 
 # Concrete commands ###########################################################
 
 
 class ViewCommand(ProjmanCommand):
-    """get a XML view from a project file (usually using Documentor + docbook
-    dialect)
+    """generate XML view(s) from a project file (usually using Documentor +
+    docbook dialect)
     """
     name = 'view'
     arguments = '<view name>...'    
@@ -130,6 +94,7 @@ class ViewCommand(ProjmanCommand):
           'help': 'specific output file to use',
           }
          ),
+        # XXX format not actually supported
         #('format',
         # {'short': 'F',
         #  'type' : 'choice', 'metavar': '<output format>',
@@ -145,20 +110,7 @@ class ViewCommand(ProjmanCommand):
           'help': 'display task\'s begin and end date (tasks-list view only)',
           }
          ),
-        
         )
-
-    def run(self, args):
-        """run the command with its specific arguments"""
-        if not args:
-            raise BadCommandUsage('missing argument')
-        output = self.config.output
-        repo_in, input = osp.split(osp.abspath(self.config.project_file))
-        self.storage = ProjectStorage(repo_in, input, output,
-                                      archive_mode=self.config.expanded,
-                                      virtual_task_root=getattr(self.config, 'task_root', None))
-        self.project = self.storage.load()
-        self._run(args)
     
     def _run(self, views):
         from projman.views import ALL_VIEWS
@@ -174,51 +126,125 @@ class ViewCommand(ProjmanCommand):
         PrettyPrint(root, stream=output)
         output.close()
 
-register_commands((ViewCommand,))
 
-## from projman.views import CostTableView, CostParaView, RatesSectionView, \
-##      TasksListSectionView
-    
-## class RatesSectionCommand(PMSectionCommand):
-##     """output a section indicating resources rates"""
-##     name = 'rates-section'
-##     def _get_view(self):
-##         return RatesSectionView(self.config)
+class DiagramCommand(ProjmanCommand):
+    """generate diagrams from a project file (resources, gantt, etc.)"""
+    name = 'diagram'
+    arguments = '<diagram name>...'    
 
-## class CostTableCommand(PMTableCommand):
-##     """output a tasks'cost table"""
-##     name = 'cost-table'
-##     options = PMTableCommand.options + (
-##         VIRTUAL_ROOT_OPTION,
-##         )
-##     def _get_view(self):
-##         return CostTableView(self.config)
+    options = ProjmanCommand.options + (
+        ('output',
+         {'short': 'o',
+          'type' : 'string', 'metavar': '<output xml file>',
+          'default': None,
+          'help': 'specific output file to use when a single diagram is generated',
+          }
+         ),
+        VIRTUAL_ROOT_OPTION,
+        ('selected-resource',
+         {'type' : 'string', 'metavar': '<resource identifier>',
+          'default': None,
+          'help': 'specifies the id of the resource to take in account for '
+                  'resources diagrams',
+          }
+         ),
+        ('format',
+         {'type' : 'choice', 'metavar': '<format>',
+          'choices': ('png', 'gif', 'jpeg', 'tif'), # 'html'
+          'default': 'png',
+          'help': 'specifies the output format for diagrams',
+          }
+         ),
+        ('depth',
+         {'type' : 'int', 'metavar': '<level>',
+          'default': 0,
+          'help': 'specifies the depth to visualisate for diagrams, default to '
+                  '0 which means all the tree',
+          }
+         ),
+        ('timestep',
+         {'type' : 'int', 'metavar': '<nb days>',
+          'default': 1,
+          'help': 'timeline increment in days for diagram',
+          }
+         ),
+        ('view-begin',
+         {'type' : 'date', 'metavar': '<yyyy/mm/dd>',
+          'default': None,
+          'help': 'begin date for diagram view',
+          }
+         ),
+        ('view-end',
+         {'type' : 'date', 'metavar': '<yyyy/mm/dd>',
+          'default': None,
+          'help': 'end date for diagram view',
+          }
+         ),
+        ('del-ended',
+         {'type' : 'yn', 'metavar': '<y or n>',
+          'default': False,
+          'help': 'do not display in resource diagram tasks wich are completed, '
+                  'meaning that time of work on them equals theirs duration.',
+          }
+         ),
+        ('del-empty',
+         {'type' : 'yn', 'metavar': '<y or n>',
+          'default': False,
+          'help': 'do not display in resource diagram tasks wich are not '
+                  'worked during given period',
+          }
+         ),
         
-## class CostParaCommand(PMTableCommand):
-##     """output a paragraph indicating the total cost of selected tasks"""
-##     name = 'cost-para'
-##     options = PMTableCommand.options + (
-##         VIRTUAL_ROOT_OPTION,
-##         )
-##     def _get_view(self):
-##         return CostParaView(self.config)
+        )
     
-## class TasksListSectionCommand(PMSectionCommand):
-##     """output a section indicating resources rates"""
-##     name = 'tasks-list-section'
-##     options = PMTableCommand.options + (
-##         VIRTUAL_ROOT_OPTION,
-##         ('display-dates',
-##          {'type' : 'yn', 'metavar': '<y or n>',
-##           'default': True,
-##           'help': 'display task\'s begin and end date',
-##           }
-##          ),
-##         )
-##     def _get_view(self):
-##         return TasksListSectionView(self.config)
+    def _run(self, diagrams):
+        #if self.config.renderer == 'html':
+        #    from projman.renderers.HTMLRenderer import ResourcesHTMLRenderer
+        #    renderer = ResourcesHTMLRenderer(self.options.get_render_options())
+        #else:
+        from projman.renderers import ResourcesRenderer, GanttRenderer, \
+             GanttResourcesRenderer, PILHandler
+        handler = PILHandler(self.config.format)
+        known_diagrams = {
+            'gantt': GanttRenderer,
+            'resources': ResourcesRenderer,
+            'gantt-resources': GanttResourcesRenderer,
+            }
+        for diagram in diagrams:
+            try:
+                renderer = known_diagrams[diagram](ConfigAdapter(self.config), handler)
+            except KeyError:
+                BadCommandUsage('unknown diagram %s' % diagram)
+            output = self.config.output or '%s.%s' % (diagram, self.config.format)
+            stream = open(output, 'w')
+            #if self.options.is_image_renderer():
+            renderer.render(self.project, stream)
+            #else:
+            #    title = 'Resources'.encode(ENCODING)
+            #    output_f.write("""<html>
+            #    <head><title>%s</title></head>
+            #    <body><h1 align='center'>Resources %s</h1>
+            #    <h3>begin on %s, possible end to %s</h3>\n"""% (
+            #        title,
+            #        dom_objects.schedules[0].get_view_begin().date,
+            #        dom_objects.schedules[0].get_view_end().date))
+            #    self.renderer.render(self.project, output_f)
+            #    output_f.write("</body></html>")
 
-
-## register_commands((CostTableCommand, CostParaCommand,
-##                    RatesSectionCommand,
-##                    TasksListSectionCommand))
+class ConfigAdapter:
+    def __init__(self, config):
+        self._config = config
+        self.delete_ended = config.del_ended
+    def get_render_options(self):
+        """return dictionary readable by renderers & drawers"""
+        return {'timestep' : self._config.timestep,
+                'detail' : 2,
+                'depth' : self._config.depth,
+                'view-begin' : self._config.view_begin,
+                'view-end' : self._config.view_end,
+                'showids' : False,
+                'rappel' : False,
+                'selected-resource' : self._config.selected_resource,
+                }
+        
+register_commands((ViewCommand, DiagramCommand))

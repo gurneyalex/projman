@@ -31,8 +31,8 @@ import mx.DateTime
 
 from projman.__pkginfo__ import version
 from projman.interface.file_manager import ProjectStorage
-from projman.interface.command_manager import ConvertCommand, ScheduleCommand, \
-     DiagramCommand#, XmlCommand
+from projman.interface.command_manager import ConvertCommand, ScheduleCommand#, \
+     #DiagramCommand#, XmlCommand
 from projman.interface import UsageRequested, MAIN_USAGE, CONVERT_USAGE, DIAGRAM_USAGE, \
      XML_DOC_USAGE, PLAN_USAGE, CONVERT_HEAD, PLAN_HEAD, DIAGRAM_HEAD, XML_HEAD
 
@@ -48,7 +48,7 @@ def create_option_manager(option_list, args):
     option_keys = [option[0] for option in option_list]
     # seek invoked command
     for option_state in (OptionManager, OptionConvert, OptionSchedule,
-                         OptionDiagram):#, OptionXmlView):
+                         ):#OptionDiagram, OptionXmlView):
         for command in option_state.COMMAND:
             if command in option_keys:
                 OptionManager.option_set = option_state(option_list, args)
@@ -340,169 +340,169 @@ class OptionSchedule(OptionManager):
         return self.include_references
     
         
-class OptionDiagram(OptionManager):
-    """gather all parameters/options corresponding to the diagram command.
+## class OptionDiagram(OptionManager):
+##     """gather all parameters/options corresponding to the diagram command.
     
-    ex: projman -d --diagram-type=gantt projman.xml image.png
-    """
-    COMMAND = ("-d", "--diagram")
-    OPTIONS = OptionManager.OPTIONS \
-              + ("--diagram-type", "--selected-resource", "--renderer",
-                 "--depth", "--timestep", "--view-begin", "--view-end",
-                 "-D", "--del-ended", "--del-empty") 
-    USAGE = DIAGRAM_USAGE
-    HEAD = DIAGRAM_HEAD
-    def __init__(self, option_list, argument_list=None):
-        self.delete_ended = False
-        self.delete_empty = False
-        self.diagram_type = 'gantt'
-        self.render_ext = 'png'
-        self.timestep = 1
-        self.detail = 2
-        self.depth = 0
-        self.view_begin = None
-        self.view_end = None
-        self.showids = False
-        self.rappel = False
-        self.selected_resource = None
-        self.colors_file = None
-        OptionManager.__init__(self, option_list, argument_list)
+##     ex: projman -d --diagram-type=gantt projman.xml image.png
+##     """
+##     COMMAND = ("-d", "--diagram")
+##     OPTIONS = OptionManager.OPTIONS \
+##               + ("--diagram-type", "--selected-resource", "--renderer",
+##                  "--depth", "--timestep", "--view-begin", "--view-end",
+##                  "-D", "--del-ended", "--del-empty") 
+##     USAGE = DIAGRAM_USAGE
+##     HEAD = DIAGRAM_HEAD
+##     def __init__(self, option_list, argument_list=None):
+##         self.delete_ended = False
+##         self.delete_empty = False
+##         self.diagram_type = 'gantt'
+##         self.render_ext = 'png'
+##         self.timestep = 1
+##         self.detail = 2
+##         self.depth = 0
+##         self.view_begin = None
+##         self.view_end = None
+##         self.showids = False
+##         self.rappel = False
+##         self.selected_resource = None
+##         self.colors_file = None
+##         OptionManager.__init__(self, option_list, argument_list)
 
-    def __str__(self):
-        return "OptionDiagram (type=%s render=%s step=%s detail=%s depth=%s)"\
-               % (self.diagram_type, self.render_ext, self.timestep,
-                  self.detail, self.depth)
+##     def __str__(self):
+##         return "OptionDiagram (type=%s render=%s step=%s detail=%s depth=%s)"\
+##                % (self.diagram_type, self.render_ext, self.timestep,
+##                   self.detail, self.depth)
 
-    def _parse_options(self):
-        """extract values from options.
+##     def _parse_options(self):
+##         """extract values from options.
 
-        raises ValueError if one of the parameters is mis-formatted"""
-        OptionManager._parse_options(self)
-        # check all options
-        for name, value in self.option_list:
-            if name == '--diagram-type':
-                self.diagram_type = value  
-                if self.diagram_type not in ("gantt", "resources",
-                                             "gantt-resources"):
-                    raise ValueError("unknown type: %s"% self.diagram_type)
-            elif name == '--renderer':
-                if self.render_ext not in ('png', 'gif', 'jpeg', 'tiff', "html"):
-                    raise ValueError("unknown renderer: %s"% self.render_ext)
-                else:
-                    self.render_ext = value
-            elif name == '--selected-resource':
-                self.selected_resource = value
-            elif name == '--timestep':
-                self.timestep = int(value)
-            elif name == '--depth':
-                self.depth = int(value)
-            elif name == '--view-begin':
-                try:
-                    self.view_begin = mx.DateTime.strptime(value, "%Y/%m/%d")
-                except mx.DateTime.Error :
-                    raise ValueError(
-                        "expected format of begin-date  is yyyy/mm/dd")
-            elif name == '--view-end':
-                try:
-                    self.view_end = mx.DateTime.strptime(value, "%Y/%m/%d")
-                except mx.DateTime.Error :
-                    raise ValueError(
-                        "expected format of end-date  is yyyy/mm/dd")
-            elif name == "--del-ended":
-                self.delete_ended = True
-            elif name == "--del-empty":
-                self.delete_empty = True
-            elif name == "-D":
-                self.delete_ended = True
-                self.delete_empty = True
-            #else: if not valid, error raised by check_options
+##         raises ValueError if one of the parameters is mis-formatted"""
+##         OptionManager._parse_options(self)
+##         # check all options
+##         for name, value in self.option_list:
+##             if name == '--diagram-type':
+##                 self.diagram_type = value  
+##                 if self.diagram_type not in ("gantt", "resources",
+##                                              "gantt-resources"):
+##                     raise ValueError("unknown type: %s"% self.diagram_type)
+##             elif name == '--renderer':
+##                 if self.render_ext not in ('png', 'gif', 'jpeg', 'tiff', "html"):
+##                     raise ValueError("unknown renderer: %s"% self.render_ext)
+##                 else:
+##                     self.render_ext = value
+##             elif name == '--selected-resource':
+##                 self.selected_resource = value
+##             elif name == '--timestep':
+##                 self.timestep = int(value)
+##             elif name == '--depth':
+##                 self.depth = int(value)
+##             elif name == '--view-begin':
+##                 try:
+##                     self.view_begin = mx.DateTime.strptime(value, "%Y/%m/%d")
+##                 except mx.DateTime.Error :
+##                     raise ValueError(
+##                         "expected format of begin-date  is yyyy/mm/dd")
+##             elif name == '--view-end':
+##                 try:
+##                     self.view_end = mx.DateTime.strptime(value, "%Y/%m/%d")
+##                 except mx.DateTime.Error :
+##                     raise ValueError(
+##                         "expected format of end-date  is yyyy/mm/dd")
+##             elif name == "--del-ended":
+##                 self.delete_ended = True
+##             elif name == "--del-empty":
+##                 self.delete_empty = True
+##             elif name == "-D":
+##                 self.delete_ended = True
+##                 self.delete_empty = True
+##             #else: if not valid, error raised by check_options
                 
-    def _parse_file_options(self):
-        """extract values from a list of options. Set up first set of
-        options, which some among them are needed to create. Also
-        responsible for setting output
-        """
-        OptionManager._parse_file_options(self)
-        if not self.storage.output:
-            self.storage.set_output(self.diagram_type \
-                                          + '.' + self.render_ext)
+##     def _parse_file_options(self):
+##         """extract values from a list of options. Set up first set of
+##         options, which some among them are needed to create. Also
+##         responsible for setting output
+##         """
+##         OptionManager._parse_file_options(self)
+##         if not self.storage.output:
+##             self.storage.set_output(self.diagram_type \
+##                                           + '.' + self.render_ext)
 
-    # GETTERS
-    def get_render_options(self):
-        """return dictionary readable by renderers & drawers"""
-        return {'timestep' : self.get_timestep(),
-                'detail' : self.get_detail(),
-                'depth' : self.get_depth(),
-                'view-begin' : self.get_begin_date(),
-                'view-end' : self.get_end_date(),
-                'showids' : self.get_showids(),
-                'rappel' : self.get_rappel(),
-                'selected-resource' : self.get_selected_resources()
-                }
+##     # GETTERS
+##     def get_render_options(self):
+##         """return dictionary readable by renderers & drawers"""
+##         return {'timestep' : self.get_timestep(),
+##                 'detail' : self.get_detail(),
+##                 'depth' : self.get_depth(),
+##                 'view-begin' : self.get_begin_date(),
+##                 'view-end' : self.get_end_date(),
+##                 'showids' : self.get_showids(),
+##                 'rappel' : self.get_rappel(),
+##                 'selected-resource' : self.get_selected_resources()
+##                 }
  
-    def get_command(self):
-        """Create command associated with this set of options"""
-        return DiagramCommand(self)
+##     def get_command(self):
+##         """Create command associated with this set of options"""
+##         return DiagramCommand(self)
     
-    def is_gantt_type(self):
-        """returns True if drawing a gantt diagram"""
-        return self.diagram_type == "gantt"
+##     def is_gantt_type(self):
+##         """returns True if drawing a gantt diagram"""
+##         return self.diagram_type == "gantt"
     
-    def is_resource_type(self):
-        """returns True if drawing a resource diagram"""
-        return self.diagram_type == "resources"
+##     def is_resource_type(self):
+##         """returns True if drawing a resource diagram"""
+##         return self.diagram_type == "resources"
     
-    def is_gantt_resource_type(self):
-        """returns True if drawing a gantt-resource diagram"""
-        return self.diagram_type == "gantt-resources"
+##     def is_gantt_resource_type(self):
+##         """returns True if drawing a gantt-resource diagram"""
+##         return self.diagram_type == "gantt-resources"
     
-    def is_image_renderer(self):
-        """returns True if drawing a png diagram"""
-        return self.render_ext in ('png', 'gif', 'jpeg', 'tiff')
+##     def is_image_renderer(self):
+##         """returns True if drawing a png diagram"""
+##         return self.render_ext in ('png', 'gif', 'jpeg', 'tiff')
     
-    def is_html_renderer(self):
-        """returns True if drawing a html diagram"""
-        return self.render_ext == "html"
+##     def is_html_renderer(self):
+##         """returns True if drawing a html diagram"""
+##         return self.render_ext == "html"
 
-    def get_diagram_type(self):
-        """returns extension of the image drawn"""
-        return self.diagram_type
+##     def get_diagram_type(self):
+##         """returns extension of the image drawn"""
+##         return self.diagram_type
 
-    def get_image_format(self):
-        """returns extension of the image drawn"""
-        return self.render_ext
+##     def get_image_format(self):
+##         """returns extension of the image drawn"""
+##         return self.render_ext
 
-    def get_selected_resources(self):
-        """returns resources to take in account for resources diagrams"""
-        return self.selected_resource
+##     def get_selected_resources(self):
+##         """returns resources to take in account for resources diagrams"""
+##         return self.selected_resource
 
-    def get_timestep(self):
-        """returns timeline increment in days for diagram"""
-        return self.timestep
+##     def get_timestep(self):
+##         """returns timeline increment in days for diagram"""
+##         return self.timestep
 
-    def get_depth(self):
-        """returns the depth to visualisate for diagrams"""
-        return self.depth
+##     def get_depth(self):
+##         """returns the depth to visualisate for diagrams"""
+##         return self.depth
 
-    def get_begin_date(self):
-        """returns begin date for diagram view"""
-        return self.view_begin
+##     def get_begin_date(self):
+##         """returns begin date for diagram view"""
+##         return self.view_begin
 
-    def get_end_date(self):
-        """returns end date for diagram view"""
-        return self.view_end
+##     def get_end_date(self):
+##         """returns end date for diagram view"""
+##         return self.view_end
 
-    def get_detail(self):
-        """returns the depth to visualisate for diagrams"""
-        return self.detail
+##     def get_detail(self):
+##         """returns the depth to visualisate for diagrams"""
+##         return self.detail
 
-    def get_rappel(self):
-        """returns begin date for diagram view"""
-        return self.rappel
+##     def get_rappel(self):
+##         """returns begin date for diagram view"""
+##         return self.rappel
 
-    def get_showids(self):
-        """returns end date for diagram view"""
-        return self.showids
+##     def get_showids(self):
+##         """returns end date for diagram view"""
+##         return self.showids
     
 ## class OptionXmlView(OptionManager):
 ##     """gather all parameters/options corresponding to the xml-view command.
