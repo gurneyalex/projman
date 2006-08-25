@@ -1,4 +1,22 @@
 # -*- coding: ISO-8859-1 -*-
+#
+# Copyright (c) 2006 LOGILAB S.A. (Paris, FRANCE).
+# http://www.logilab.fr/ -- mailto:contact@logilab.fr
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+"""provide view classes used to generate Documentor/Docbook views of the project
+"""
 
 from xml.dom.minidom import DOMImplementation, parseString
 from logilab.common.compat import set
@@ -106,15 +124,16 @@ class DocbookHelper:
     def custom_node(self, tag, ns=NO_NS):
         return self._doc.createElementNS(ns, tag)
 
+
 # other utilities and abstract classes ########################################
 
-# FIXME handle english
+# FIXME handle english (lang='en')
 
 TVA = 19.6
 EXT_DATE_FORMAT = u'%Y-%m-%d'
 DATE_NOT_SPECIFIED = "non spécifié"
 TOTAL_DATE = u"L'ensemble du projet se déroule entre le %s et le %s."
-TOTAL_DURATION = u"La charge totale du projet se chiffre à %s."
+TOTAL_DURATION = u"La charge totale se chiffre à %s."
 TOTAL_DURATION_UNIT = u"1 jour.homme"
 TOTAL_DURATION_UNITS_ROUND = u"%i jours.homme"
 TOTAL_DURATION_UNITS = u"%.1f jours.homme"
@@ -174,21 +193,30 @@ class XMLView:
             return '%s-%s' % (vtask_root, nid)
         return nid
 
-    def generate(self, root, projman):
+    def generate(self, xmldoc, projman):
         """return a dr:object node for the rate section view"""
-        self._init(root, projman)
+        self._init(projman, xmldoc)
         n = self.dbh.object_node(self.unique_id(self.name))
-        root.documentElement.appendChild(n)
+        xmldoc.documentElement.appendChild(n)
         for content in self.content_nodes():
             n.appendChild(content)
         return n
     
-    def _init(self, root, projman):
+    def _init(self, projman, xmldoc=None, dbh=None):
+        """initialize view members necessary for content generation"""
         self.projman = projman
-        self.dbh = DocbookHelper(root)
-        self.cdata = CostData(projman)
+        self.dbh = dbh or DocbookHelper(xmldoc)
+        try:
+            self.cdata = projman.__view_cost_data
+        except AttributeError:
+            self.cdata = projman.__view_cost_data = CostData(projman)
         
-
+    def subview_content_nodes(self, viewklass):
+        """instantiate the given view class and return its content nodes"""
+        view = viewklass(self.config)
+        view._init(projman, dbh=self.dbh)
+        return view.content_nodes()
+    
 
 # actual views ################################################################
 
@@ -226,14 +254,25 @@ class DurationSectionView(XMLView):
     def content_nodes(self):
         section = self.dbh.section_node(self.unique_id(u"duration-section"))
         section.appendChild(self.dbh.title_node(u"Durée totale"))
-        # XXX
-        date_begin, date_end = self.projman.get_task_date_range(self.projman.root_task)
-        section.appendChild(self.dbh.para_node(
-            TOTAL_DATE % (date_begin.strftime(FULL_DATE_FORMAT),
-                          date_end.strftime(FULL_DATE_FORMAT))))
-        section.appendChild(self.dbh.para_node(
-            TOTAL_DURATION %  get_daily_labor(self.project.maximum_duration())))
+        section.appendChild(self.subview_content_nodes(DateParaView)[0])
+        section.appendChild(self.subview_content_nodes(DurationParaView)[0])
         return section,
+
+class DateParaView(XMLView):
+    name = 'dates-para'
+    
+    def content_nodes(self):
+        begin, end = self.projman.get_task_date_range(self.projman.root_task)
+        text = TOTAL_DATE % (begin.strftime(FULL_DATE_FORMAT),
+                             end.strftime(FULL_DATE_FORMAT))
+        return self.dbh.para_node(text),
+    
+class DurationParaView(XMLView):
+    name = 'duration-para'
+    
+    def content_nodes(self):
+        text = TOTAL_DURATION % get_daily_labor(self.projman.root_task.maximum_duration())
+        return self.dbh.para_node(text),
 
     
 class CostTableView(XMLView):
@@ -454,7 +493,10 @@ class DurationTableView(CostTableView):
 
 
 ALL_VIEWS = {}
-for klass in (RatesSectionView, DurationSectionView, CostTableView,
-              CostParaView, TasksListSectionView, DurationTableView):
+for klass in (RatesSectionView,
+              DurationTableView, DurationParaView, DurationSectionView,
+              DateParaView,
+              CostTableView, CostParaView,
+              TasksListSectionView):
     ALL_VIEWS[klass.name] = klass
     
