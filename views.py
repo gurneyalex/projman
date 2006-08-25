@@ -131,6 +131,7 @@ class DocbookHelper:
 
 TVA = 19.6
 EXT_DATE_FORMAT = u'%Y-%m-%d'
+FULL_DATE_FORMAT = u'%d/%m/%Y'
 DATE_NOT_SPECIFIED = "non spécifié"
 TOTAL_DATE = u"L'ensemble du projet se déroule entre le %s et le %s."
 TOTAL_DURATION = u"La charge totale se chiffre à %s."
@@ -179,7 +180,7 @@ class CostData:
             self._compute(each, level+1)
 
     def used_resources(self):
-        return [self.projman.get_resource(rid) for rid in self._used_resources]
+        return [self.projman.get_resource(rid) for rid in self._used_resources if rid]
 
     
 class XMLView:
@@ -214,7 +215,7 @@ class XMLView:
     def subview_content_nodes(self, viewklass):
         """instantiate the given view class and return its content nodes"""
         view = viewklass(self.config)
-        view._init(projman, dbh=self.dbh)
+        view._init(self.projman, dbh=self.dbh)
         return view.content_nodes()
     
 

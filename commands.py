@@ -191,7 +191,7 @@ class DiagramCommand(ProjmanCommand):
          ),
         ('format',
          {'type' : 'choice', 'metavar': '<format>',
-          'choices': ('png', 'gif', 'jpeg', 'tif'), # 'html'
+          'choices': ('png', 'gif', 'jpeg', 'tiff'), # 'html'
           'default': 'png',
           'help': 'specifies the output format for diagrams',
           }
@@ -277,6 +277,7 @@ class ConfigAdapter:
     def __init__(self, config):
         self._config = config
         self.delete_ended = config.del_ended
+        self.delete_empty = config.del_empty
         
     def get_render_options(self):
         """return dictionary readable by renderers & drawers"""
@@ -317,14 +318,17 @@ class ConvertCommand(ProjmanCommand):
     
     def run(self, args):
         """run the command with its specific arguments"""
+        from projman.readers import PlannerXMLReader, ProjectXMLReader
         output = args[0]
         repo_in, input = osp.split(osp.abspath(self.config.project_file))
         self.storage = ProjectStorage(repo_in, input, output,
                                       archive_mode=not self.config.expanded,
+                                      input_projman=self.config.input_format == 'projman',
                                       virtual_task_root=getattr(self.config, 'task_root', None))
         readers = {'planner': PlannerXMLReader,
                    'projman': ProjectXMLReader}
-        self.project = self.storage.load(readers[self.config.input_format])
+        reader = readers[self.config.input_format]()
+        self.project = self.storage.load(reader)
         #if self.config.output_format == 'projman':
         self.storage.save(self.project)
         

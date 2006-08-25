@@ -176,8 +176,8 @@ class ProjectStorage:
             self.set_projman(file_name)
             reader.fromFile(file_path)
         except exceptions, ex:
-            #import traceback
-            #traceback.print_exc()
+            import traceback
+            traceback.print_exc()
             self.logger.info(ex)
             print ex
             sys.exit(1)

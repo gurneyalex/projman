@@ -27,12 +27,12 @@ LOG_CONF = "logging.conf"
 
 def verbose(*args):
     """print arguments if verbose option is set"""
-    from projman.interface.option_manager import OptionManager
-    if not OptionManager.option_set:
-        return
-    if OptionManager.option_set.is_verbose():
-        print ' '.join([isinstance(arg, unicode) and arg.encode(ENCODING) 
-                        or str(arg) for arg in args])
+    #from projman.interface.option_manager import OptionManager
+    #if not OptionManager.option_set:
+    #    return
+    #if OptionManager.option_set.is_verbose():
+    #    print ' '.join([isinstance(arg, unicode) and arg.encode(ENCODING) 
+    #                    or str(arg) for arg in args])
 
 # In order to format monetary numbers, we could think of standard
 # package locale, but it does not include spaces when using fr_FR.

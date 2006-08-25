@@ -1,4 +1,4 @@
-# Copyright (c) 2004 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2004-2006 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -19,6 +19,7 @@ __revision__ = "$Id: planner_reader.py,v 1.2 2005-11-09 16:47:36 arthur Exp $"
 
 from xml.sax import make_parser, ContentHandler
 
+from projman.lib._exceptions import ProjectValidationError
 from projman.readers.base_reader import AbstractXMLReader
 from projman.lib.constants import \
      BEGIN_AFTER_END, BEGIN_AFTER_BEGIN, END_AFTER_END, END_AFTER_BEGIN, \
@@ -135,8 +136,8 @@ class PlannerXMLReader(AbstractXMLReader) :
             if attr.get('percent-complete'):
                 t.progress = float(attr['percent-complete']) / 100
             t.title = attr['name']
-            t.add_date_constraints({BEGIN_AT_DATE : begin_date,
-                                    END_AT_DATE : end_date})
+            t.add_date_constraint(BEGIN_AT_DATE, begin_date)
+            t.add_date_constraint(END_AT_DATE, end_date)
             self.project_path[-1].append(t)
             self.project_path.append(t)
 
@@ -154,8 +155,7 @@ class PlannerXMLReader(AbstractXMLReader) :
             elif attr['type'] == 'start-no-earlier-than':
                 type = BEGIN_AFTER_DATE
             date = self._extract_date(attr['time'])
-            date_dict = {type:date}
-            self.project_path[-1].add_date_constraints(date_dict)
+            self.project_path[-1].add_date_constraint(type, date)
 
 
         # resource allocation ##
@@ -261,7 +261,7 @@ class PlannerXMLReader(AbstractXMLReader) :
             if attr['sun'] != '2':
                 cal.weekday['sun'] = self._type_of_days['d_'+attr['sun']]
         else :
-            raise AssertionError(UNKNOWN_TAG)
+            raise ProjectValidationError(UNKNOWN_TAG)
 
     def _custom_return(self):
         """ customize the returned value according to reader you are in"""
