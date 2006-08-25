@@ -23,7 +23,7 @@ from logilab.common import testlib
 
 import projman.test
 
-from projman.interface.file_manager import *
+from projman.storage import *
 from projman.interface.option_manager import OptionManager
 from projman.test import TEST_DIR, REF_DIR, GENERATED_DIR, make_project_name, \
      XML_PROJMAN, XML_TARED_PROJMAN, XML_TASK_FILE, XML_RESOURCE_FILE, XML_ACTIVITY_FILE, \

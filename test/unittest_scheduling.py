@@ -14,7 +14,7 @@ import os.path as osp
 from logilab.common.testlib import unittest_main, TestCase
 from logilab.common.compat import set
 from projman.lib import *
-from projman.interface.file_manager import ProjectStorage
+from projman.storage import ProjectStorage
 from projman.scheduling import schedule
 from projman.scheduling.simple import SimpleScheduler, cmp_tasks
 from projman.scheduling.csp import *

@@ -19,7 +19,7 @@ Projman - (c)2005 Logilab - All rights reserved.
 
 from logilab.common import testlib
 from projman.renderers import PILHandler, GanttRenderer, ResourcesRenderer
-from projman.interface.file_manager import ProjectStorage
+from projman.storage import ProjectStorage
 from projman.interface.option_manager import OptionDiagram
 
 class RenderTest(testlib.TestCase):

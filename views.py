@@ -188,7 +188,7 @@ class XMLView:
 
     def unique_id(self, nid):
         # use getattr since not all commands support task-root option
-        vtask_root = getattr(self.config, 'task_root', None)
+        vtask_root = self.config.task_root
         if vtask_root:
             return '%s-%s' % (vtask_root, nid)
         return nid

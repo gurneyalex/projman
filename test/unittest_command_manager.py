@@ -26,7 +26,7 @@ from projman.interface.option_manager import OptionConvert, \
      OptionSchedule, OptionDiagram, OptionXmlView, OptionManager, \
      DEFAULT_PROJMAN_EXPORT, DEFAULT_PLANNER_EXPORT
 from projman.interface.command_manager import ConvertCommand
-from projman.interface.file_manager import SUFFIX, \
+from projman.storage import SUFFIX, \
      RESOURCES_NAME, TASKS_NAME, ACTIVITIES_NAME, SCHEDULE_NAME, SCHEDULE_KEY
 from projman.test import TEST_DIR, REF_DIR, GENERATED_DIR, \
      PLANNER_PROJECT, XML_PROJMAN, XML_SCHEDULED_PROJMAN, \

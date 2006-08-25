@@ -22,7 +22,7 @@ __revision__ = "$Id: __init__.py,v 1.5 2005-09-06 18:27:43 nico Exp $"
 
 import os.path
 from projman import extract_extension
-from projman.interface.file_manager import SUFFIX
+from projman.storage import SUFFIX
 
 def make_project_name(name):
     return extract_extension(name)[0] + SUFFIX

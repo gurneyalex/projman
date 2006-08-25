@@ -19,56 +19,18 @@
 Projman's command line tool. 
 %s"""
 
-import sys
-import logging, logging.config
-from logilab.common.optparser import OptionParser
+from logging import config, getLogger, basicConfig
+
 from projman import LOG_CONF
-  
-# FIXME: use optparse instead of getopt
-def run(args) :
-    """Main function.
-    """
-    from projman.interface.option_manager import create_option_manager, UsageRequested 
-    # create & init logger
-    logger = logging.getLogger("main")
-    try:
-        logging.config.fileConfig(LOG_CONF)
-    except Exception:
-        logging.basicConfig()
-    # parse command line
-    import getopt
-    l_opt = ['diagram-type=', 'in-format=', 'out-format=', 'project=', 
-             'resources=', 'activity=', 'renderer=', 'type=',
-             'timestep=', 'view-begin=', 'view-end=', 'selected-resource=', 
-             'depth=', 'help', 'convert', 'schedule', 'plan', 'diagram',
-             'include-references', 'xml-doc', 'xml-view', 'view=', 'format=',
-             'display-rates', 'display-cost', 'display-duration', 'interactive',
-             'task-root=',
-             'expanded', "del-ended", "del-empty", "verbose", "version"]
-    
-    (opt, args) = getopt.getopt(args, 'i:o:p:r:a:g:Iv:f:cdsxVHhtXD', l_opt)
-    logger.info("projman called with options %s"% str(opt))
-    logger.debug("remaining args %s"% str(args))
-    try:
-        # creating option set
-        options_set = create_option_manager(opt, args)
-        if options_set.is_verbose():
-            print "Launching projman with in verbose mode with options", \
-                  options_set
-        # execute command
-        options_set.get_command().execute()
-    except UsageRequested, usage_exc:
-        print usage_exc
-        sys.exit(0)
-    except (ValueError, NotImplementedError), error:
-        import traceback
-        traceback.print_exc()
-        print 'ERROR:', error
-        sys.exit(2)
 
 
-
-def run2(args):
+def run(args):
     from logilab.common.clcommands import main_run
     from projman import commands
+    # create & init logger
+    logger = getLogger("main")
+    try:
+        config.fileConfig(LOG_CONF)
+    except Exception:
+        basicConfig()
     main_run(args, __doc__)

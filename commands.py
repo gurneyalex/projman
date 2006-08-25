@@ -22,7 +22,7 @@ from logilab.common.clcommands import BadCommandUsage, Command, \
      pop_arg, register_commands
 
 from projman.__pkginfo__ import version
-from projman.interface.file_manager import ProjectStorage
+from projman.storage import ProjectStorage
 from projman.views import document
 
 
@@ -65,12 +65,12 @@ class ProjmanCommand(Command):
 
     def run(self, args):
         """run the command with its specific arguments"""
-        if not args:
-            raise BadCommandUsage('missing argument')
-        output = self.config.output
+        # output has to be defined on concrete command, or this method
+        # should be overriden
+        output = self.config.output 
         repo_in, input = osp.split(osp.abspath(self.config.project_file))
         self.storage = ProjectStorage(repo_in, input, output,
-                                      archive_mode=self.config.expanded,
+                                      archive_mode=not self.config.expanded,
                                       virtual_task_root=getattr(self.config, 'task_root', None))
         self.project = self.storage.load()
         self._run(args)
@@ -79,11 +79,51 @@ class ProjmanCommand(Command):
 # Concrete commands ###########################################################
 
 
+class ScheduleCommand(ProjmanCommand):
+    """schedule a project"""
+    name = 'schedule'
+    max_args = 0
+    arguments = ''
+
+    options = ProjmanCommand.options + (
+        ('output',
+         {'short': 'o',
+          'type' : 'string', 'metavar': '<output xml file>',
+          'default': 'schedule.xml',
+          'help': 'specific output file to use',
+          }
+         ),
+        ('type',
+         {'type' : 'choice', 'metavar': '<schedule type>',
+          'choices': ('dumb', 'simple', 'csp'),
+          'default': 'dumb',
+          'help': 'scheduling method',
+          }
+         ),
+        ('include-reference',
+         {'short': 'I',
+          'type' : 'yn', 'metavar': '<y or n>',
+          'default': True,
+          'help': 'input file will be modified to include reference to '
+                  'produced schedule file',
+          }
+         ),
+        )
+    
+    def _run(self, views):
+        from projman.scheduling import schedule
+        schedule(self.project, self.config.type)
+        self.storage.save(self.project, write_schedule=True,
+                          include_reference=self.config.include_reference)
+
+
+
 class ViewCommand(ProjmanCommand):
     """generate XML view(s) from a project file (usually using Documentor +
     docbook dialect)
     """
     name = 'view'
+    min_args = 1
     arguments = '<view name>...'    
 
     options = ProjmanCommand.options + (
@@ -130,6 +170,7 @@ class ViewCommand(ProjmanCommand):
 class DiagramCommand(ProjmanCommand):
     """generate diagrams from a project file (resources, gantt, etc.)"""
     name = 'diagram'
+    min_args = 1
     arguments = '<diagram name>...'    
 
     options = ProjmanCommand.options + (
@@ -232,9 +273,11 @@ class DiagramCommand(ProjmanCommand):
             #    output_f.write("</body></html>")
 
 class ConfigAdapter:
+    """XXX temporaly needed since renderer expecte an old option manager object"""
     def __init__(self, config):
         self._config = config
         self.delete_ended = config.del_ended
+        
     def get_render_options(self):
         """return dictionary readable by renderers & drawers"""
         return {'timestep' : self._config.timestep,
@@ -246,5 +289,43 @@ class ConfigAdapter:
                 'rappel' : False,
                 'selected-resource' : self._config.selected_resource,
                 }
+
+
+class ConvertCommand(ProjmanCommand):
+    """convert planner file to the projman format"""
+    name = 'convert'
+    min_args = 1
+    max_args = 1
+    arguments = '<output file>'
+
+    options = ProjmanCommand.options + (
+        ('input-format',
+         {'type' : 'choice', 'metavar': '<format>',
+          'choices': ('planner', 'projman'),
+          'default': 'planner',
+          'help': 'format of the input file (projman or planner)',
+          }
+         ),
+        #('output-format',
+        # {'type' : 'choice', 'metavar': '<format>',
+        #  'choices': ('planner', 'projman'),
+        #  'default': 'projman',
+        #  'help': 'format of the output file (projman or planner)',
+        #  }
+        # ),
+        )
+    
+    def run(self, args):
+        """run the command with its specific arguments"""
+        output = args[0]
+        repo_in, input = osp.split(osp.abspath(self.config.project_file))
+        self.storage = ProjectStorage(repo_in, input, output,
+                                      archive_mode=not self.config.expanded,
+                                      virtual_task_root=getattr(self.config, 'task_root', None))
+        readers = {'planner': PlannerXMLReader,
+                   'projman': ProjectXMLReader}
+        self.project = self.storage.load(readers[self.config.input_format])
+        #if self.config.output_format == 'projman':
+        self.storage.save(self.project)
         
-register_commands((ViewCommand, DiagramCommand))
+register_commands((ScheduleCommand, ViewCommand, DiagramCommand, ConvertCommand))

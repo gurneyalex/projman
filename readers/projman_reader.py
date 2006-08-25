@@ -644,7 +644,7 @@ class ProjectFileListReader(AbstractXMLReader) :
     
     def _start_element(self, tag, attr) :
         # FIXME: cyclic import
-        from projman.interface.file_manager import RESOURCES_KEY, TASKS_KEY, \
+        from projman.storage import RESOURCES_KEY, TASKS_KEY, \
              ACTIVITIES_KEY, SCHEDULE_KEY
         if tag == 'project' :
             self.assert_child_of([None])
