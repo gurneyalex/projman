@@ -20,7 +20,12 @@ Projman - (c)2005 Logilab - All rights reserved.
 from logilab.common import testlib
 from projman.renderers import PILHandler, GanttRenderer, ResourcesRenderer
 from projman.storage import ProjectStorage
-from projman.interface.option_manager import OptionDiagram
+
+from projman.commands import ConfigAdapter
+
+config = ConfigAdapter(testlib.AttrObject(del_ended=False, del_empty=False,
+                                          timestep=1, depth=0, selected_resource=None,
+                                          view_begin=None, view_end=None))
 
 class RenderTest(testlib.TestCase):
 
@@ -29,35 +34,28 @@ class RenderTest(testlib.TestCase):
                                       archive_mode=False).load()
         self.project2 = ProjectStorage("data", "trivial_scheduled_projman.xml",
                                        archive_mode=False).load()
-        self.options = OptionDiagram([("-d", None),
-                                      ("-X", None),
-                                      ("--diagram-type", 'gantt'),
-                                      ], ["data/full_scheduled_projman.xml"])
-        self.options2 = OptionDiagram([("-d", None),
-                                       ("-X", None),
-                                       ], ["data/trivial_scheduled_projman.xml"])
         self.file = open('generated/render_test.png', 'w')
 
     def test_gantt_diagram(self):
-        handler = PILHandler(self.options.get_image_format())
-        renderer = GanttRenderer(self.options, handler)
+        handler = PILHandler('png')
+        renderer = GanttRenderer(config, handler)
         renderer.render(self.project, self.file)
 
     def test_resource_diagram(self):
-        handler = PILHandler(self.options.get_image_format())
-        renderer = ResourcesRenderer(self.options, handler)
+        handler = PILHandler('png')
+        renderer = ResourcesRenderer(config, handler)
         renderer.render(self.project, self.file)
 
     def test_gantt_diagram2(self):
-        handler = PILHandler(self.options2.get_image_format())
-        renderer = GanttRenderer(self.options2, handler)
-        renderer.render(self.project, self.file)
+        handler = PILHandler('png')
+        renderer = GanttRenderer(config, handler)
+        renderer.render(self.project2, self.file)
 
     def test_resource_diagram2(self):
-        handler = PILHandler(self.options2.get_image_format())
-        renderer = ResourcesRenderer(self.options2, handler)
-        renderer.render(self.project, self.file)
+        handler = PILHandler('png')
+        renderer = ResourcesRenderer(config, handler)
+        renderer.render(self.project2, self.file)
     
     
 if __name__ == '__main__':
-    unittest_main()
+    testlib.unittest_main()

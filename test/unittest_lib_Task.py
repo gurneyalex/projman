@@ -299,4 +299,4 @@ class ProgressTC(testlib.TestCase):
         self.assertEquals(t.progress, 1.)
     
 if __name__ == '__main__':
-    unittest_main()
+    testlib.unittest_main()

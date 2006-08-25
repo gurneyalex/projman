@@ -91,4 +91,4 @@ class ResourceTest(testlib.TestCase):
         self.assertEquals(self.rss.get_calendar('c_2'), self.c2)
     
 if __name__ == '__main__':
-    unittest_main()
+    testlib.unittest_main()

@@ -33,4 +33,4 @@ class Test(testlib.TestCase):
         self.assertEquals(("foo", "txt.old"), extract_extension("foo.txt.old"))
         
 if __name__ == "__main__":
-    unittest_main()
+    testlib.unittest_main()

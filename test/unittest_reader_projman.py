@@ -14,7 +14,6 @@ from logilab.common.testlib import TestCase, unittest_main
 
 from projman.readers import TaskXMLReader, ResourcesXMLReader, ScheduleXMLReader, ProjectFileListReader
 from projman.storage import ProjectStorage
-from projman.interface.option_manager import OptionManager
 from projman.lib._exceptions import DuplicatedTaskId, MalformedProjectFile
     
 class AbstractXMLReaderTest:
@@ -160,10 +159,8 @@ class ErrorXMLReaderTest(TestCase):
         self.reader = TaskXMLReader()
         self.assertRaises(MalformedProjectFile, self.reader.fromFile, './data/error_dtd_project.xml')
         args = [ './data/error_dtd_projman.xml']
-        optmgr = OptionManager([], args)
         storage = ProjectStorage('./data', 'error_dtd_projman.xml',
-                                 archive_mode=optmgr.is_archive_mode(),
-                                 input_projman=optmgr.is_input_projman())
+                                 archive_mode=False)
         self.assertRaises(SystemExit, storage.load)
 
 

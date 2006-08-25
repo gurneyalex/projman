@@ -118,5 +118,5 @@ class ProjectTC(testlib.TestCase):
     
 
 if __name__ == '__main__':
-    unittest_main()
+    testlib.unittest_main()
 
