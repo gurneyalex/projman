@@ -11,6 +11,7 @@ import os.path as osp
 
 from logilab.common.testlib import TestCase
 
+from projman.test import DATADIR
 
 from projman.interface.option_manager import create_option_manager
 
@@ -27,9 +28,8 @@ class WriterTestCase(TestCase):
         self.assertNotEqual(input, None)
         self.assertNotEqual(output, None)
         self.assertNotEqual(reference, None)
-        input = osp.join('data', input)
-        output = osp.join('generated', output)
-        reference = osp.join('data', reference)
+        input = osp.join(DATADIR, input)
+        reference = osp.join(DATADIR, reference)
         option = create_option_manager(self.cmd, [input, output])
         option.get_command().execute()
         self.assertFileEqual(reference, output)

@@ -10,13 +10,17 @@ This code is released under the GNU Public Licence v2. See www.gnu.org.
 
 """
 
+import os.path as osp
+
 from logilab.common.testlib import TestCase, unittest_main
 
 from projman.readers import TaskXMLReader, ResourcesXMLReader, ScheduleXMLReader, ProjectFileListReader
 from projman.interface.file_manager import ProjectStorage
 from projman.interface.option_manager import OptionManager
 from projman.lib._exceptions import DuplicatedTaskId, MalformedProjectFile
-    
+
+DATADIR = osp.abspath(osp.join(osp.dirname(__file__), 'data'))
+
 class AbstractXMLReaderTest:
     def setUp(self):
         self.reader = None # override to set to some useful reader
@@ -56,7 +60,7 @@ class TaskXMLReaderTest(TestCase, AbstractXMLReaderTest):
 
     def setUp(self):
         self.reader = TaskXMLReader()
-        self.root = self.reader.fromFile('./data/multiline_tasked_project.xml')
+        self.root = self.reader.fromFile(osp.join(DATADIR, 'multiline_tasked_project.xml'))
 
     def test_multiline_project_label(self):
         expected_title = "Simplest Project with a multiline label, gosh can you believe it"
@@ -83,7 +87,7 @@ class TaskXMLReaderTest(TestCase, AbstractXMLReaderTest):
 class ResourcesXMLReaderTest(TestCase, AbstractXMLReaderTest):
     def setUp(self):
         self.reader = ResourcesXMLReader()
-        self.resources = self.reader.fromFile('./data/three_resourced_list.xml')
+        self.resources = self.reader.fromFile(osp.join(DATADIR, 'three_resourced_list.xml'))
         
     def test_number_of_resources(self):
         self.assertEquals(len(self.resources.children), 4)
@@ -101,16 +105,16 @@ class ResourcesXMLReaderTest(TestCase, AbstractXMLReaderTest):
         cal = self.resources.children[-1]
         self.assertEquals(cal.name, "Calendrier Francais")
         for day in (u'mon', u'tue', u'wed', u'thu', u'fri'):
-            self.assertEquals(cal.weekday[day], u'DefautWorking')
+            self.assertEquals(cal.weekday[day], u'Standard work day')
         for day in (u'sat', u'sun'):
-            self.assertEquals(cal.weekday[day], u'DefautNonworking')
+            self.assertEquals(cal.weekday[day], u'Week-end day')
         self.assertEquals(cal.national_days,
                           [(1,1), (5,1), (5,8), (7,14),
                            (8,15), (11,1), (11,11), (12,25)])
         self.assertEquals(cal.start_on, None)
         self.assertEquals(cal.stop_on, None)
         self.assertEquals(cal.type_nonworking_days,
-                          {1: u'DefautWorking', 2: u'DefautNonworking'})
+                          {1: u'Standard work day', 2: u'Week-end day', 3: u'Day Off'})
         
         self.assertEquals(cal.default_nonworking, 2)
         self.assertEquals(cal.default_working, 1)
@@ -123,7 +127,7 @@ class ResourcesXMLReaderTest(TestCase, AbstractXMLReaderTest):
             end = str(end).split()[0]
             self.assertEquals(expected_start, start)
             self.assertEquals(expected_end, end)
-            self.assertEquals(u'DefautNonworking', working)        
+            self.assertEquals(u'Day Off', working)        
 
 
 
@@ -131,20 +135,20 @@ class ErrorXMLReaderTest(TestCase):
 
     def test_error_project(self):
         self.reader = ResourcesXMLReader()
-        self.assertRaises(Exception, self.reader.fromFile, './data/error_project.xml')
+        self.assertRaises(Exception, self.reader.fromFile, osp.join(DATADIR, 'error_project.xml'))
 
     def test_error_doubletask(self):
         self.reader = TaskXMLReader()
-        root = self.reader.fromFile('./data/error_doubletask.xml')
+        root = self.reader.fromFile(osp.join(DATADIR, 'error_doubletask.xml'))
         self.assertEquals(root.check_consistency(), ['Duplicate task id: double_t1_1'])
 
       
     def test_error_dtd_project(self):
         self.reader = TaskXMLReader()
-        self.assertRaises(MalformedProjectFile, self.reader.fromFile, './data/error_dtd_project.xml')
-        args = [ './data/error_dtd_projman.xml']
+        self.assertRaises(MalformedProjectFile, self.reader.fromFile, osp.join(DATADIR, 'error_dtd_project.xml'))
+        args = [ osp.join(DATADIR, 'error_dtd_projman.xml')]
         optmgr = OptionManager([], args)
-        storage = ProjectStorage('./data', 'error_dtd_projman.xml',
+        storage = ProjectStorage(DATADIR, 'error_dtd_projman.xml',
                                  archive_mode=optmgr.is_archive_mode(),
                                  input_projman=optmgr.is_input_projman())
         self.assertRaises(SystemExit, storage.load)
@@ -153,7 +157,7 @@ class ErrorXMLReaderTest(TestCase):
     def test_error_dtd_project_multi(self):
         self.reader = TaskXMLReader()
         try:
-            self.reader.fromFile('./data/multi_error_dtd_project.xml')
+            self.reader.fromFile(osp.join(DATADIR, 'multi_error_dtd_project.xml'))
         except MalformedProjectFile, ex:
             # more than one line of errors
             self.assertEquals(len(str(ex).split('\n')), 10)

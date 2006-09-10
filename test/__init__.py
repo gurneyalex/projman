@@ -18,21 +18,17 @@ projman is a python package to schedule and transform xml project file to
 gantt diagram, resource diagrams, etc.
 """
 
-__revision__ = "$Id: __init__.py,v 1.5 2005-09-06 18:27:43 nico Exp $"
-
-import os.path
+import os.path as osp
 from projman import extract_extension
 from projman.interface.file_manager import SUFFIX
 
 def make_project_name(name):
     return extract_extension(name)[0] + SUFFIX
 
-TEST_DIR = os.path.dirname(__file__)
-REF_DIR = "data"
-GENERATED_DIR = "generated"
+DATADIR = osp.abspath(osp.join(osp.dirname(__file__),'data'))
 
-PYGANTT_PROJECT = os.path.join(REF_DIR, "pygantt_planif.xml")
-PLANNER_PROJECT = os.path.join(REF_DIR, "example.mrproject")
+PYGANTT_PROJECT = osp.join(DATADIR, "pygantt_planif.xml")
+PLANNER_PROJECT = osp.join(DATADIR, "example.mrproject")
 
 TAR_TARED_PROJMAN = "projman.prj"
 TAR_TARED_SCHEDULED_PROJMAN = "scheduled_projman.prj"

@@ -17,27 +17,37 @@
 Projman - (c)2005 Logilab - All rights reserved.
 """
 
+import os.path as osp
+import tempfile, shutil
+
 from logilab.common import testlib
 from projman.renderers import PILHandler, GanttRenderer, ResourcesRenderer
 from projman.interface.file_manager import ProjectStorage
 from projman.interface.option_manager import OptionDiagram
+from projman.test import DATADIR
 
 class RenderTest(testlib.TestCase):
 
     def setUp(self):
-        self.project = ProjectStorage("data", "full_scheduled_projman.xml",
+        self.project = ProjectStorage(DATADIR, "full_scheduled_projman.xml",
                                       archive_mode=False).load()
-        self.project2 = ProjectStorage("data", "trivial_scheduled_projman.xml",
+        self.project2 = ProjectStorage(DATADIR, "trivial_scheduled_projman.xml",
                                        archive_mode=False).load()
         self.options = OptionDiagram([("-d", None),
                                       ("-X", None),
                                       ("--diagram-type", 'gantt'),
-                                      ], ["data/full_scheduled_projman.xml"])
+                                      ], [osp.join(DATADIR,
+                                                   "full_scheduled_projman.xml")])
         self.options2 = OptionDiagram([("-d", None),
                                        ("-X", None),
-                                       ], ["data/trivial_scheduled_projman.xml"])
-        self.file = open('generated/render_test.png', 'w')
+                                       ], [osp.join(DATADIR,
+                                                    "trivial_scheduled_projman.xml")])
+        self.tmpdir = tempfile.mkdtemp()
+        self.file = file(osp.join(self.tmpdir, 'render_test.png'), 'w')
 
+    def tearDown(self):
+        shutil.rmtree(self.tmpdir)
+        
     def test_gantt_diagram(self):
         handler = PILHandler(self.options.get_image_format())
         renderer = GanttRenderer(self.options, handler)

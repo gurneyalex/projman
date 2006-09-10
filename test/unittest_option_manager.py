@@ -15,21 +15,21 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """Projman - (c)2004 Logilab - All rights reserved."""
 
-import shutil
-import os, os.path
+import shutil, os, tempfile
+import os.path as osp
 from mx.DateTime import DateTime
 from logilab.common import testlib
 
 from projman.interface.option_manager import OptionConvert, OptionSchedule ,\
      OptionDiagram, OptionXmlView, OptionManager, create_option_manager
 from projman.interface.command_manager import ConvertCommand, DiagramCommand
-from projman.test import REF_DIR, GENERATED_DIR, XML_PROJMAN,  \
+from projman.test import DATADIR, XML_PROJMAN,  \
      TAR_TARED_PROJMAN, TAR_TARED_SCHEDULED_PROJMAN
 
-XML_PROJMAN_PATH = os.path.join(REF_DIR, XML_PROJMAN)
+XML_PROJMAN_PATH = osp.join(DATADIR, XML_PROJMAN)
 
-TAR_PROJMAN_PATH = os.path.join(REF_DIR, TAR_TARED_PROJMAN)
-TAR_SCHEDULE_PATH = os.path.join(REF_DIR, TAR_TARED_SCHEDULED_PROJMAN)
+TAR_PROJMAN_PATH = osp.join(DATADIR, TAR_TARED_PROJMAN)
+TAR_SCHEDULE_PATH = osp.join(DATADIR, TAR_TARED_SCHEDULED_PROJMAN)
 
 class OptionManagerTest(testlib.TestCase):
     """testing """
@@ -85,10 +85,11 @@ class OptionManagerTest(testlib.TestCase):
 class ScheduleTest(testlib.TestCase):
 
     def setUp(self):
+        self.tmpdir = tempfile.mkdtemp()
         # projman paths
-        self.projman_path = os.path.join(GENERATED_DIR, "tmp_projman.prj")
-        self.scheduled_path = os.path.join(GENERATED_DIR, "tmp_scheduled_projman.prj")
-        self.schedule = os.path.join(GENERATED_DIR, "tmp_schedule.xml")
+        self.projman_path = osp.join(self.tmpdir, "tmp_projman.prj")
+        self.scheduled_path = osp.join(self.tmpdir, "tmp_scheduled_projman.prj")
+        self.schedule = osp.join(self.tmpdir, "tmp_schedule.xml")
         shutil.copyfile(TAR_PROJMAN_PATH, self.projman_path)
         shutil.copyfile(TAR_SCHEDULE_PATH, self.scheduled_path)
         # options
@@ -126,6 +127,7 @@ class ScheduleTest(testlib.TestCase):
     def tearDown(self):
         os.remove(self.projman_path)
         os.remove(self.scheduled_path)
+        shutil.rmtree(self.tmpdir)
 
     def test_schedule_name(self):
         for option in [dict_option['not included']
@@ -140,9 +142,9 @@ class ScheduleTest(testlib.TestCase):
                               "out_schedule.xml")
         for option in [dict_option['output']
                        for dict_option in self.dict_options]:
-            self.assertEquals(option.storage.output, os.path.abspath(self.schedule))
+            self.assertEquals(option.storage.output, osp.abspath(self.schedule))
             self.assertEquals(option.storage.to_schedule(),
-                              os.path.abspath(self.schedule))
+                              osp.abspath(self.schedule))
         
 
     def test_options(self):

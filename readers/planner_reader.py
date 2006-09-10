@@ -24,6 +24,7 @@ from projman.lib.constants import \
      BEGIN_AFTER_END, BEGIN_AFTER_BEGIN, END_AFTER_END, END_AFTER_BEGIN, \
      BEGIN_AFTER_DATE, BEGIN_AT_DATE, BEGIN_BEFORE_DATE, \
      END_AFTER_DATE, END_AT_DATE, END_BEFORE_DATE
+from projman.lib._exceptions import ProjectValidationError
 
 UNKNOWN_TAG = 'file %s line %s : Unknown tag %s'
 
@@ -227,10 +228,6 @@ class PlannerXMLReader(AbstractXMLReader) :
                             id = len(c.type_nonworking_days) - 1
                             c.default_nonworking = id
 
-
-
-
-
         # day info ##
         elif tag == "day":
             if attr['id'] in self.day_dict:
@@ -261,7 +258,7 @@ class PlannerXMLReader(AbstractXMLReader) :
             if attr['sun'] != '2':
                 cal.weekday['sun'] = self._type_of_days['d_'+attr['sun']]
         else :
-            raise AssertionError(UNKNOWN_TAG)
+            raise ProjectValidationError(UNKNOWN_TAG)
 
     def _custom_return(self):
         """ customize the returned value according to reader you are in"""

@@ -13,13 +13,16 @@ This code is released under the GNU Public Licence v2. See www.gnu.org.
 
 """
 
+import os.path as osp
+
 from logilab.common.testlib import TestCase, unittest_main
 
 from projman.lib import *
 from projman.readers import PlannerXMLReader
 from projman.lib.constants import BEGIN_AT_DATE, BEGIN_AFTER_END
 from mx.DateTime import DateTime, Time
-    
+from projman.test import DATADIR
+
 class PlannerXMLReaderTC(TestCase):
     """
     Task represents a task or a group of tasks when it has children
@@ -106,7 +109,7 @@ class PlannerXMLReaderTC(TestCase):
         return the projman object associated to the planner xml description
         """
         reader = PlannerXMLReader()
-        path = reader.fromFile('data/planner_desc.mrproject')
+        path = reader.fromFile(osp.join(DATADIR,'planner_desc.mrproject'))
         rss_fromFile = path.resource_sets[0]
         project = path.projects[0]
         
