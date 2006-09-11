@@ -15,7 +15,7 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """Projman - (c)2004 Logilab - All rights reserved."""
 
-import os, os.path
+import os, os.path, tempfile
 from os.path import abspath, join
 
 from logilab.common.compat import set
@@ -24,26 +24,27 @@ from logilab.common import testlib
 import projman.test
 
 from projman.storage import *
-from projman.test import TEST_DIR, REF_DIR, GENERATED_DIR, make_project_name, \
-     XML_PROJMAN, XML_TARED_PROJMAN, XML_TASK_FILE, XML_RESOURCE_FILE, XML_ACTIVITY_FILE, \
-     TAR_PROJMAN, TAR_TARED_PROJMAN, TAR_TASK_FILE, TAR_RESOURCE_FILE, TAR_ACTIVITY_FILE
+from projman.test import DATADIR, make_project_name, XML_PROJMAN, \
+     XML_TARED_PROJMAN, XML_TASK_FILE, XML_RESOURCE_FILE, XML_ACTIVITY_FILE, \
+     TAR_PROJMAN, TAR_TARED_PROJMAN, TAR_TASK_FILE, TAR_RESOURCE_FILE, \
+     TAR_ACTIVITY_FILE
 
 WRITTEN_PROJMAN = "out_projman.xml"
 WRITTEN_TASK = "out_task.xml"
 WRITTEN_RESOURCE = "out_resources.xml"
 WRITTEN_ACTVITY = "out_activities.xml"
 
-DEFAULT_FILES = [join(REF_DIR, "projman.xml"),
-                 join(REF_DIR, "tasks.xml"),
-                 join(REF_DIR, "resources.xml"),
-                 join(REF_DIR, "activities.xml"),
-                 join(REF_DIR, "schedule.xml")]
+DEFAULT_FILES = [join(DATADIR, "projman.xml"),
+                 join(DATADIR, "tasks.xml"),
+                 join(DATADIR, "resources.xml"),
+                 join(DATADIR, "activities.xml"),
+                 join(DATADIR, "schedule.xml")]
 
-WRITTEN_FILES = [join(REF_DIR, WRITTEN_PROJMAN),
-                 join(REF_DIR, WRITTEN_RESOURCE),
-                 join(REF_DIR, WRITTEN_TASK),
-                 join(REF_DIR, WRITTEN_ACTVITY)]
-WRITTEN_TAR = join(REF_DIR, make_project_name(WRITTEN_PROJMAN))
+WRITTEN_FILES = [join(DATADIR, WRITTEN_PROJMAN),
+                 join(DATADIR, WRITTEN_RESOURCE),
+                 join(DATADIR, WRITTEN_TASK),
+                 join(DATADIR, WRITTEN_ACTVITY)]
+WRITTEN_TAR = join(DATADIR, make_project_name(WRITTEN_PROJMAN))
 
 FILE_OPTIONS = [("-p", WRITTEN_TASK),
                 ("-r", WRITTEN_RESOURCE),
@@ -52,12 +53,11 @@ FILE_OPTIONS = [("-p", WRITTEN_TASK),
 class FileTest(testlib.TestCase):
 
     def setUp(self):
-        self.test_path = TEST_DIR
-        self.data_path = abspath(REF_DIR)
-        self.generated_path = abspath(GENERATED_DIR)
-
+        self.tmpdir = tempfile.mkdtemp()
+        os.chdir(self.tmpdir)
+        
     def tearDown(self):
-        os.chdir(TEST_DIR)
+        shutil.rmtree(self.tmpdir)
 
     def assertDictEquals(self, got, expected):
         if got != expected:
@@ -101,7 +101,7 @@ class FileTest(testlib.TestCase):
         self.assertEquals(len(grouped), 2)
         
 ##     def test_no_repo_but_files(self):
-##         os.chdir(REF_DIR)
+##         os.chdir(DATADIR)
 ##         # declare
 ##         xml_to_packed_files = OptionManager(
 ##             FILE_OPTIONS+ [("-t", None),],
@@ -117,7 +117,7 @@ class FileTest(testlib.TestCase):
 ##         xml_to_packed_files.plan_projman(WRITTEN_PROJMAN)
         
 ##     def test_xml_no_repo(self):
-##         os.chdir(REF_DIR)
+##         os.chdir(DATADIR)
 ##         # declare
 ##         xml_to_pack = OptionManager(
 ##             [("-t", None)],
@@ -137,7 +137,7 @@ class FileTest(testlib.TestCase):
 ##             self.assertProject(storage)
             
 ##     def test_prj_no_repo(self):
-##         os.chdir(REF_DIR)
+##         os.chdir(DATADIR)
 ##         # declare
 ##         pack_to_pack = OptionManager(
 ##             [("-t", None)],
@@ -157,10 +157,10 @@ class FileTest(testlib.TestCase):
 ##     def test_xml_repo_in(self):
 ##         xml_to_pack = OptionManager(
 ##             [("-t", None)],
-##             [join(REF_DIR, XML_PROJMAN)]).storage
+##             [join(DATADIR, XML_PROJMAN)]).storage
 ##         xml_to_xml = OptionManager(
 ##             [("-t", None), ("-X", None)],
-##             [join(REF_DIR, XML_PROJMAN)]).storage
+##             [join(DATADIR, XML_PROJMAN)]).storage
 ##         storages = [xml_to_pack, xml_to_xml]
 ##         # projman [-X] input/project.xml
 ##         for storage in storages:
@@ -173,10 +173,10 @@ class FileTest(testlib.TestCase):
 ##     def test_prj_repo_in(self):
 ##         pack_to_pack = OptionManager(
 ##             [("-t", None)],
-##             [join(REF_DIR, TAR_TARED_PROJMAN)]).storage
+##             [join(DATADIR, TAR_TARED_PROJMAN)]).storage
 ##         pack_to_xml = OptionManager(
 ##             [("-t", None), ("-X", None)],
-##             [join(REF_DIR, TAR_TARED_PROJMAN)]).storage
+##             [join(DATADIR, TAR_TARED_PROJMAN)]).storage
 ##         storages = [pack_to_pack, pack_to_xml]
 ##         # projman [-X] input/project.prj
 ##         for storage in storages:
@@ -187,7 +187,7 @@ class FileTest(testlib.TestCase):
 ##             self.assertProject(storage)
 
 ##     def test_xml_repo_out(self):
-##         os.chdir(REF_DIR)
+##         os.chdir(DATADIR)
 ##         xml_to_pack = OptionManager(
 ##             [("-t", None)],
 ##             [XML_PROJMAN, join(self.generated_path, TAR_TARED_PROJMAN)]).storage
@@ -206,11 +206,11 @@ class FileTest(testlib.TestCase):
 ##     def test_prj_repo_both(self):
 ##         pack_to_pack = OptionManager(
 ##             [("-t", None)],
-##             [join(REF_DIR, TAR_TARED_PROJMAN),
+##             [join(DATADIR, TAR_TARED_PROJMAN),
 ##              join(GENERATED_DIR, TAR_TARED_PROJMAN)]).storage
 ##         pack_to_xml = OptionManager(
 ##             [("-t", None), ("-X", None)],
-##             [join(REF_DIR, TAR_TARED_PROJMAN),
+##             [join(DATADIR, TAR_TARED_PROJMAN),
 ##              join(GENERATED_DIR, TAR_TARED_PROJMAN)]).storage
 ##         storages = [pack_to_pack, pack_to_xml]
 ##         # projman [-X] data/project.prj generated/project.prj
@@ -242,7 +242,7 @@ class WriteTest(testlib.TestCase):
                            SCHEDULE_KEY : None})
         
     def test_write_xml(self):
-        xml_to_packed_files = ProjectStorage(REF_DIR, XML_PROJMAN, archive_mode=False)
+        xml_to_packed_files = ProjectStorage(DATADIR, XML_PROJMAN, archive_mode=False)
         projman = xml_to_packed_files.load()
         xml_to_packed_files.plan_projman(WRITTEN_PROJMAN)
         self.assertWrittenNames(xml_to_packed_files)
@@ -252,12 +252,12 @@ class WriteTest(testlib.TestCase):
             self.assert_(not os.path.exists(file_name))
             
     def test_write_tar(self):
-        xml_to_packed_files = ProjectStorage(REF_DIR, XML_PROJMAN, archive_mode=True)
+        xml_to_packed_files = ProjectStorage(DATADIR, XML_PROJMAN, archive_mode=True)
         projman = xml_to_packed_files.load()
         xml_to_packed_files.plan_projman(WRITTEN_PROJMAN)
         self.assertWrittenNames(xml_to_packed_files)
         xml_to_packed_files.save(projman)
-        self.assert_(not os.path.exists(join(REF_DIR, "out_projman.prj")))
+        self.assert_(not os.path.exists(join(DATADIR, "out_projman.prj")))
         for file_name in WRITTEN_FILES:
             self.assert_(os.path.exists(file_name))
 

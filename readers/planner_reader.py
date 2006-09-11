@@ -25,6 +25,7 @@ from projman.lib.constants import \
      BEGIN_AFTER_END, BEGIN_AFTER_BEGIN, END_AFTER_END, END_AFTER_BEGIN, \
      BEGIN_AFTER_DATE, BEGIN_AT_DATE, BEGIN_BEFORE_DATE, \
      END_AFTER_DATE, END_AT_DATE, END_BEFORE_DATE
+from projman.lib._exceptions import ProjectValidationError
 
 UNKNOWN_TAG = 'file %s line %s : Unknown tag %s'
 
@@ -226,10 +227,6 @@ class PlannerXMLReader(AbstractXMLReader) :
                         if self._type_of_days[type_of_day] == 'Nonworking':
                             id = len(c.type_nonworking_days) - 1
                             c.default_nonworking = id
-
-
-
-
 
         # day info ##
         elif tag == "day":

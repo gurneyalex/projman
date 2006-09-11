@@ -17,11 +17,15 @@
 Projman - (c)2005 Logilab - All rights reserved.
 """
 
+import os.path as osp
+import tempfile, shutil
+
 from logilab.common import testlib
 from projman.renderers import PILHandler, GanttRenderer, ResourcesRenderer
 from projman.storage import ProjectStorage
 
 from projman.commands import ConfigAdapter
+from projman.test import DATADIR
 
 config = ConfigAdapter(testlib.AttrObject(del_ended=False, del_empty=False,
                                           timestep=1, depth=0, selected_resource=None,
@@ -30,12 +34,16 @@ config = ConfigAdapter(testlib.AttrObject(del_ended=False, del_empty=False,
 class RenderTest(testlib.TestCase):
 
     def setUp(self):
-        self.project = ProjectStorage("data", "full_scheduled_projman.xml",
+        self.project = ProjectStorage(DATADIR, "full_scheduled_projman.xml",
                                       archive_mode=False).load()
-        self.project2 = ProjectStorage("data", "trivial_scheduled_projman.xml",
+        self.project2 = ProjectStorage(DATADIR, "trivial_scheduled_projman.xml",
                                        archive_mode=False).load()
-        self.file = open('generated/render_test.png', 'w')
+        self.tmpdir = tempfile.mkdtemp()
+        self.file = file(osp.join(self.tmpdir, 'render_test.png'), 'w')
 
+    def tearDown(self):
+        shutil.rmtree(self.tmpdir)
+        
     def test_gantt_diagram(self):
         handler = PILHandler('png')
         renderer = GanttRenderer(config, handler)

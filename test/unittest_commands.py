@@ -15,10 +15,8 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """Projman - (c)2004 Logilab - All rights reserved."""
 
-__revision__ ="$Id: unittest_command_manager.py,v 1.5 2005-09-06 18:27:44 nico Exp $"
-
-import shutil
-import os, os.path
+import shutil, os, tempfile
+import os.path as osp
 
 from logilab.common import testlib
 from logilab.common.clcommands import cmd_run
@@ -28,61 +26,40 @@ from projman import commands
 from projman.storage import SUFFIX, \
      RESOURCES_NAME, TASKS_NAME, ACTIVITIES_NAME, SCHEDULE_NAME, SCHEDULE_KEY
 
-#from projman.interface.option_manager import OptionConvert, \
-#     OptionSchedule, OptionDiagram, OptionXmlView, OptionManager, \
-#     DEFAULT_PROJMAN_EXPORT, DEFAULT_PLANNER_EXPORT
-#from projman.interface.command_manager import ConvertCommand
-from projman.test import TEST_DIR, REF_DIR, GENERATED_DIR, \
+from projman.test import DATADIR, \
      PLANNER_PROJECT, XML_PROJMAN, XML_SCHEDULED_PROJMAN, \
      XML_SCHEDULED_PROJMAN_FULL, TAR_PROJMAN, make_project_name
 
 
-XML_FILE_NAMES =  [os.path.join(REF_DIR, RESOURCES_NAME),
-                   os.path.join(REF_DIR, TASKS_NAME),
-                   os.path.join(REF_DIR, ACTIVITIES_NAME)]
+XML_FILE_NAMES =  [osp.join(DATADIR, RESOURCES_NAME),
+                   osp.join(DATADIR, TASKS_NAME),
+                   osp.join(DATADIR, ACTIVITIES_NAME)]
 
-DEFAULT_PROJMAN_EXPORT = os.path.join(REF_DIR, 'pmfromplanner.xml')
-XML_PROJMAN = os.path.join(REF_DIR, XML_PROJMAN)
-XML_SCHEDULED_PROJMAN = os.path.join(REF_DIR, XML_SCHEDULED_PROJMAN)
-XML_SCHEDULED_PROJMAN_FULL = os.path.join(REF_DIR, XML_SCHEDULED_PROJMAN_FULL)
-TAR_PROJMAN = os.path.join(REF_DIR, TAR_PROJMAN)
-SCHEDULE = "out_schedule.xml"
-SCHEDULE_PATH = os.path.join(REF_DIR, SCHEDULE)
+DEFAULT_PROJMAN_EXPORT = osp.join(DATADIR, 'pmfromplanner.xml')
+XML_PROJMAN = osp.join(DATADIR, XML_PROJMAN)
+XML_SCHEDULED_PROJMAN = osp.join(DATADIR, XML_SCHEDULED_PROJMAN)
+XML_SCHEDULED_PROJMAN_FULL = osp.join(DATADIR, XML_SCHEDULED_PROJMAN_FULL)
+TAR_PROJMAN = osp.join(DATADIR, TAR_PROJMAN)
 
 class AbstractCommandTest(testlib.TestCase):
     """testing """
     
     def setUp(self):
-        for file_name in XML_FILE_NAMES:
-            if os.path.exists(file_name):
-                os.remove(file_name)
+        self.tmpdir = tempfile.mkdtemp()
     
     def tearDown(self):
-        for file_name in XML_FILE_NAMES:
-            if os.path.exists(file_name):
-                os.remove(file_name)
+        shutil.rmtree(self.tmpdir)
 
 class ConvertTest(AbstractCommandTest):
     """testing """
     
-    def setUp(self):
-        AbstractCommandTest.setUp(self)
-        for file_name in [DEFAULT_PROJMAN_EXPORT, make_project_name(DEFAULT_PROJMAN_EXPORT)]:
-            if os.path.exists(file_name):
-                os.remove(file_name)
-
-    def tearDown(self):
-        AbstractCommandTest.tearDown(self)
-        for file_name in [DEFAULT_PROJMAN_EXPORT, make_project_name(DEFAULT_PROJMAN_EXPORT)]:
-            if os.path.exists(file_name):
-                os.remove(file_name)
-
     def test_planner(self):
-        cmd_run('convert', '--input-format', 'planner', '-Xy', '-f', PLANNER_PROJECT, DEFAULT_PROJMAN_EXPORT)
-        self.assert_(not os.path.exists(make_project_name(DEFAULT_PROJMAN_EXPORT)))
-        self.assert_(os.path.exists(DEFAULT_PROJMAN_EXPORT))
+        cmd_run('convert', '--input-format', 'planner', '-Xy',
+                '-f', PLANNER_PROJECT, DEFAULT_PROJMAN_EXPORT)
+        self.assert_(not osp.exists(make_project_name(DEFAULT_PROJMAN_EXPORT)))
+        self.assert_(osp.exists(DEFAULT_PROJMAN_EXPORT))
         for file_name in XML_FILE_NAMES:
-            self.assert_(os.path.exists(file_name))
+            self.assert_(osp.exists(file_name))
  
     
 class ScheduleTest(AbstractCommandTest):
@@ -90,126 +67,113 @@ class ScheduleTest(AbstractCommandTest):
     
     def setUp(self):
         AbstractCommandTest.setUp(self)
-        self.projman = "tmp_projman.xml"
-        self.projman_path =  os.path.join(REF_DIR, "tmp_projman.xml")
-        for file_name in [SCHEDULE_PATH, self.projman_path,
-                          make_project_name(self.projman_path)]:
-            if os.path.exists(file_name):
-                os.remove(file_name)
+        self.projman_path =  osp.join(DATADIR, "tmp_projman.xml")
         shutil.copyfile(XML_PROJMAN, self.projman_path)
-
+        self.sched = osp.join(self.tmpdir, 'schedule.xml')
+        
     def tearDown(self):
-        AbstractCommandTest.tearDown(self)
-        for file_name in [SCHEDULE_PATH, self.projman_path,
-                          make_project_name(self.projman_path)]:
-            if os.path.exists(file_name):
-                os.remove(file_name)
+        shutil.rmtree(self.tmpdir)
+        os.remove(self.projman_path)
     
     def test_default(self):
         # schedule xml and wrap into prj
-        cmd_run('schedule', '--type', 'csp', '-f', self.projman_path, '-o', SCHEDULE, '-In')
-        self.assert_(os.path.exists(SCHEDULE_PATH))
+        cmd_run('schedule', '--type', 'csp', '-f', self.projman_path,
+                '-o', self.sched, '-In')
+        self.assert_(osp.exists(self.sched))
         # schedule prj and unwrap
-        cmd_run('schedule', '--type', 'csp', '-f', self.projman_path, '-o', SCHEDULE, '-Xy', '-In')
+        cmd_run('schedule', '--type', 'csp', '-f', self.projman_path,
+                '-o', self.sched, '-Xy', '-In')
         #files = OptionManager([("-X", None)], [make_project_name(self.projman_path)]).storage
         #self.assertEquals(files.file_names[SCHEDULE_KEY], SCHEDULE_NAME)
-        self.assert_(os.path.exists(SCHEDULE_PATH))
+        self.assert_(osp.exists(self.sched))
     
     def test_include(self):
         # schedule xml and wrap into prj
-        cmd_run('schedule', '--type', 'csp', '-f', self.projman_path, '-o', SCHEDULE, '-Xn', '-Iy')
-        self.assert_(not os.path.exists(SCHEDULE_PATH))
+        cmd_run('schedule', '--type', 'csp', '-f', self.projman_path,
+                '-o', self.sched, '-Xn', '-Iy')
+        self.assert_(not osp.exists(self.sched))
         # schedule prj and unwrap
-        cmd_run('schedule', '--type', 'csp', '-f', self.projman_path, '-o', SCHEDULE, '-Xy', '-Iy')
+        cmd_run('schedule', '--type', 'csp', '-f', self.projman_path,
+                '-o', self.sched, '-Xy', '-Iy')
         #files = OptionManager([("-X", None)], [make_project_name(self.projman_path)]).storage
-        #self.assertEquals(files.file_names[SCHEDULE_KEY], SCHEDULE)
-        self.assert_(os.path.exists(SCHEDULE_PATH))
+        #self.assertEquals(files.file_names[self.sched_KEY], self.sched)
+        self.assert_(osp.exists(self.sched))
 
 class DiagramTest(AbstractCommandTest):
     
-    def setUp(self):
-        self.file_names = ["gantt.png", "generated/out_gantt.png",
-                          "resources.png", "generated/out_ress.tiff",
-                          "gantt-resources.png", "generated/both.png"]
-        for file_name in self.file_names:
-            if os.path.exists(file_name):
-                os.remove(file_name)
-
-    def tearDown(self):
-        AbstractCommandTest.tearDown(self)
-        for file_name in self.file_names:
-            if os.path.exists(file_name):
-                os.remove(file_name)
-    
     def test_gantt(self):
+        gantt = osp.join(self.tmpdir, 'out_gantt.png')
         cmd_run('diagram', '--timestep', '7', '-f', XML_SCHEDULED_PROJMAN, 'gantt')
-        self.assert_(os.path.exists("gantt.png"))
-        cmd_run('diagram', '--timestep', '7', '-f', XML_SCHEDULED_PROJMAN, '-o', 'generated/out_gantt.png', 'gantt')
+        self.assert_(osp.exists('gantt.png'))
+        os.remove('gantt.png')
+        cmd_run('diagram', '--timestep', '7', '-f', XML_SCHEDULED_PROJMAN, '-o',
+                gantt, 'gantt')
+        self.assert_(osp.exists(gantt))
         
-        self.assert_(os.path.exists("generated/out_gantt.png"))
     def test_gantt2(self):
-        cmd_run('diagram', '--timestep', '7', '-f', XML_SCHEDULED_PROJMAN_FULL, 'gantt')
-        self.assert_(os.path.exists("gantt.png"))
-        cmd_run('diagram', '--timestep', '7', '-f', XML_SCHEDULED_PROJMAN_FULL, '-o', 'generated/out_gantt.png', 'gantt')
-        self.assert_(os.path.exists("generated/out_gantt.png"))
+        gantt = osp.join(self.tmpdir, 'out_gantt.png')
+        cmd_run('diagram', '--timestep', '7',
+                '-f', XML_SCHEDULED_PROJMAN_FULL, 'gantt')
+        self.assert_(osp.exists("gantt.png"))
+        os.remove('gantt.png')
+        cmd_run('diagram', '--timestep', '7', '-f', XML_SCHEDULED_PROJMAN_FULL,
+                '-o', gantt, 'gantt')
+        self.assert_(osp.exists(gantt))
 
     def test_resources(self):
-        cmd_run('diagram', '-f', XML_SCHEDULED_PROJMAN, 'resources')
-        self.assert_(os.path.exists("resources.png"))
-        cmd_run('diagram', '-f', XML_SCHEDULED_PROJMAN, '--format', 'tiff', 'resources')
-        self.assert_(os.path.exists("resources.tiff"))
+        resources = osp.join(self.tmpdir, 'resources')
+        cmd_run('diagram', '-f', XML_SCHEDULED_PROJMAN, 'resources',
+                '-o', resources)
+        self.assert_(osp.exists(resources+'.png'))
+        cmd_run('diagram', '-f', XML_SCHEDULED_PROJMAN, '--format', 'tiff',
+                'resources', '-o', resources)
+        self.assert_(osp.exists(resources+'.tiff'))
     
     def test_gantt_resources(self):
-        cmd_run('diagram', '-f', XML_SCHEDULED_PROJMAN, 'gantt-resources')
-        self.assert_(os.path.exists("gantt-resources.png"))
+        img = osp.join(self.tmpdir, 'gantt-resources')
+        cmd_run('diagram', '-f', XML_SCHEDULED_PROJMAN, 'gantt-resources',
+                '-o', img,)
+        self.assert_(osp.exists(img))
 
 
 class XmlTest(AbstractCommandTest):
-    
-    def setUp(self):
-        self.file_names = ["cost.xml", "output.xml", "generated/out_cost.xml",
-                           "generated/out_list.xml", "generated/out_duration.xml", "generated/out_duration_section.xml",
-                           "generated/out_cost_para.xml", "generated/out_cost_table.xml", "generated/out_rates.xml",
-                           ]
-        for file_name in self.file_names:
-            if os.path.exists(file_name):
-                os.remove(file_name)
-
-    def tearDown(self):
-        AbstractCommandTest.tearDown(self)
-        for file_name in self.file_names:
-            if os.path.exists(file_name):
-                os.remove(file_name)
     
     def test_all(self):
         cmd_run('view', '-f', XML_SCHEDULED_PROJMAN,
                 'duration-table', 'duration-section', 'tasks-list-section',
                 'cost-para', 'cost-table', 'rates-section')
-        self.assert_(os.path.exists("output.xml"))
+        self.assert_(osp.exists("output.xml"))
         
     def test_duration_table(self):
-        cmd_run('view', '-f', XML_SCHEDULED_PROJMAN, '-o', 'generated/out_duration.xml', 'duration-table')
-        self.assert_(os.path.exists("generated/out_duration.xml"))
+        out = osp.join(self.tmpdir, 'out_duration.xml')
+        cmd_run('view', '-f', XML_SCHEDULED_PROJMAN, '-o', out, 'duration-table')
+        self.assert_(osp.exists(out))
         
     def test_duration_section(self):
-        cmd_run('view', '-f', XML_SCHEDULED_PROJMAN, '-o', 'generated/out_duration_section.xml', 'duration-section')
-        self.assert_(os.path.exists("generated/out_duration_section.xml"))
+        out = osp.join(self.tmpdir, 'out_duration.xml')
+        cmd_run('view', '-f', XML_SCHEDULED_PROJMAN, '-o', out, 'duration-section')
+        self.assert_(osp.exists(out))
     
     def test_tasks_list_section(self):
-        cmd_run('view', '-f', XML_SCHEDULED_PROJMAN, '-o', 'generated/out_list.xml', 'tasks-list-section')
-        self.assert_(os.path.exists("generated/out_list.xml"))
+        out = osp.join(self.tmpdir, 'out_duration.xml')
+        cmd_run('view', '-f', XML_SCHEDULED_PROJMAN,
+                '-o', out, 'tasks-list-section')
+        self.assert_(osp.exists(out))
 
     def test_cost_para(self):
-        cmd_run('view', '-f', XML_SCHEDULED_PROJMAN, '-o', 'generated/out_cost_para.xml', 'cost-para')
-        self.assert_(os.path.exists("generated/out_cost_para.xml"))
+        out = osp.join(self.tmpdir, 'out_duration.xml')        
+        cmd_run('view', '-f', XML_SCHEDULED_PROJMAN, '-o', out, 'cost-para')
+        self.assert_(osp.exists(out))
 
     def test_cost_table(self):
-        cmd_run('view', '-f', XML_SCHEDULED_PROJMAN, '-o', 'generated/out_cost_table.xml', 'cost-table')
-        self.assert_(os.path.exists("generated/out_cost_table.xml"))
+        out = osp.join(self.tmpdir, 'out_duration.xml')        
+        cmd_run('view', '-f', XML_SCHEDULED_PROJMAN, '-o', out, 'cost-table')
+        self.assert_(osp.exists(out))
 
     def test_rates_section(self):
-        cmd_run('view', '-f', XML_SCHEDULED_PROJMAN, '-o', 'generated/out_rates.xml', 'rates-section')
-        self.assert_(os.path.exists("generated/out_rates.xml"))
+        out = osp.join(self.tmpdir, 'out_duration.xml')        
+        cmd_run('view', '-f', XML_SCHEDULED_PROJMAN, '-o', out, 'rates-section')
+        self.assert_(osp.exists(out))
     
 if __name__ == '__main__':
     testlib.unittest_main()

@@ -10,12 +10,17 @@ This code is released under the GNU Public Licence v2. See www.gnu.org.
 
 """
 
+import os.path as osp
+
 from logilab.common.testlib import TestCase, unittest_main
 
 from projman.readers import TaskXMLReader, ResourcesXMLReader, ScheduleXMLReader, ProjectFileListReader
 from projman.storage import ProjectStorage
 from projman.lib._exceptions import DuplicatedTaskId, MalformedProjectFile
-    
+
+
+from projman.test import DATADIR
+
 class AbstractXMLReaderTest:
     def setUp(self):
         self.reader = None # override to set to some useful reader
@@ -55,7 +60,7 @@ class TaskXMLReaderTest(TestCase, AbstractXMLReaderTest):
 
     def setUp(self):
         self.reader = TaskXMLReader()
-        self.root = self.reader.fromFile('./data/multiline_tasked_project.xml')
+        self.root = self.reader.fromFile(osp.join(DATADIR, 'multiline_tasked_project.xml'))
 
     def test_multiline_project_label(self):
         expected_title = "Simplest Project with a multiline label, gosh can you believe it"
@@ -84,7 +89,8 @@ class TaskXMLReaderVirtualRootTest(TestCase):
 
     def setUp(self):
         self.reader = TaskXMLReader(virtual_task_root='t1_1')
-        self.root = self.reader.fromFile('./data/multiline_tasked_project.xml')
+        self.root = self.reader.fromFile(osp.join(DATADIR,
+                                                  'multiline_tasked_project.xml'))
 
     def test_virtual_root(self):
         task = self.root
@@ -99,7 +105,7 @@ class TaskXMLReaderVirtualRootTest(TestCase):
 class ResourcesXMLReaderTest(TestCase, AbstractXMLReaderTest):
     def setUp(self):
         self.reader = ResourcesXMLReader()
-        self.resources = self.reader.fromFile('./data/three_resourced_list.xml')
+        self.resources = self.reader.fromFile(osp.join(DATADIR, 'three_resourced_list.xml'))
         
     def test_number_of_resources(self):
         self.assertEquals(len(self.resources.children), 4)
@@ -147,19 +153,19 @@ class ErrorXMLReaderTest(TestCase):
 
     def test_error_project(self):
         self.reader = ResourcesXMLReader()
-        self.assertRaises(Exception, self.reader.fromFile, './data/error_project.xml')
+        self.assertRaises(Exception, self.reader.fromFile, osp.join(DATADIR, 'error_project.xml'))
 
     def test_error_doubletask(self):
         self.reader = TaskXMLReader()
-        root = self.reader.fromFile('./data/error_doubletask.xml')
+        root = self.reader.fromFile(osp.join(DATADIR, 'error_doubletask.xml'))
         self.assertEquals(root.check_consistency(), ['Duplicate task id: double_t1_1'])
 
       
     def test_error_dtd_project(self):
         self.reader = TaskXMLReader()
-        self.assertRaises(MalformedProjectFile, self.reader.fromFile, './data/error_dtd_project.xml')
-        args = [ './data/error_dtd_projman.xml']
-        storage = ProjectStorage('./data', 'error_dtd_projman.xml',
+        self.assertRaises(MalformedProjectFile, self.reader.fromFile, osp.join(DATADIR, 'error_dtd_project.xml'))
+        args = [ osp.join(DATADIR, 'error_dtd_projman.xml')]
+        storage = ProjectStorage(DATADIR, 'error_dtd_projman.xml',
                                  archive_mode=False)
         self.assertRaises(SystemExit, storage.load)
 
@@ -167,7 +173,7 @@ class ErrorXMLReaderTest(TestCase):
     def test_error_dtd_project_multi(self):
         self.reader = TaskXMLReader()
         try:
-            self.reader.fromFile('./data/multi_error_dtd_project.xml')
+            self.reader.fromFile(osp.join(DATADIR, 'multi_error_dtd_project.xml'))
         except MalformedProjectFile, ex:
             # more than one line of errors
             self.assertEquals(len(str(ex).split('\n')), 10)
