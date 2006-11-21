@@ -367,7 +367,7 @@ class CostTableView(XMLView):
 
 class CostParaView(XMLView):
     name = 'cost-para'
-    TOTAL_COST = u"Le coût total se chiffre à %s euros HT, soit %s euros TTC."
+    TOTAL_COST = u"Le coût total se chiffre à %s euros HT, soit %s euros TTC en appliquant les taux actuellement en vigueur."
         
     def content_nodes(self):
         """return a dr:object node for the cost paragraph view"""
