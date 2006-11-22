@@ -58,8 +58,11 @@ class GanttRenderer(AbstractRenderer) :
         self.render_node(project.root_task, project, begin_p, end_p)
         for task in self._pending_constraints:
             for c_type, c_id in task.task_constraints:
-                ct = task.get_node_by_id(c_id)
-                if ct in self._visible_tasks:
+                try:
+                    ct = task.get_node_by_id(c_id)
+                except NodeNotFound :
+                    ct = None
+                if ct and ct in self._visible_tasks:
                     self.drawer.task_constraints(c_type, task, ct)
 
     def render_node(self, node, project, begin_p, end_p):
