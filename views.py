@@ -135,16 +135,13 @@ FULL_DATE_FORMAT = u'%d/%m/%Y'
 DATE_NOT_SPECIFIED = "non spécifié"
 TOTAL_DATE = u"L'ensemble du projet se déroule entre le %s et le %s."
 TOTAL_DURATION = u"La charge totale se chiffre à %s."
-TOTAL_DURATION_UNIT = u"1 jour.homme"
-TOTAL_DURATION_UNITS_ROUND = u"%i jours.homme"
+TOTAL_DURATION_UNIT = u"%.1f jour.homme"
 TOTAL_DURATION_UNITS = u"%.1f jours.homme"
 
 def get_daily_labor(number):
     """return a string with unit jour(s).homme"""
-    if number == 1.: # float not int...
-        return TOTAL_DURATION_UNIT
-    elif int(number) == number:
-        return TOTAL_DURATION_UNITS_ROUND % number
+    if number <= 1.:
+        return TOTAL_DURATION_UNIT % number
     else:
         return TOTAL_DURATION_UNITS % number
 
