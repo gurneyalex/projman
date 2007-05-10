@@ -20,7 +20,7 @@ __revision__ ="$Id: file_manager.py,v 1.16 2005-09-06 17:06:43 nico Exp $"
 import sys
 import tarfile
 import logging, logging.config
-import os, os.path
+import os, os.path as osp
 from ConfigParser import ConfigParser
 
 from logilab.common.compat import set
@@ -29,49 +29,45 @@ from projman import LOG_CONF, extract_extension
 from projman.writers.projman_writer import as_xml_string, \
      write_schedule_as_xml, write_activities_as_xml
 
-from projman.readers import ProjectFileListReader, ProjectXMLReader
+from projman.readers import ProjectXMLReader
 from projman.lib._exceptions import MissingRequiredAttribute, \
      MalformedProjectFile, ScheduleCycle, ResourceNotFound,  \
      DuplicatedResource, TTException
 
-#TODO inplement interactive mode
+#TODO implement interactive mode
 #TODO use lists in self.file_names
 #FIXME: create better default files
 
-SUFFIX = ".prj"
 # conf pointing out what are the names of the files of the project
 CONF_FILE = "files.conf"
 CONF_SECTION = "project files"
-# keys used to access file name and file object
-PROJECT_KEY = "project"
-RESOURCES_KEY = "resources"
-TASKS_KEY = "tasks"
-ACTIVITIES_KEY = "activities"
-SCHEDULE_KEY = "schedule"
 # default file names
-PROJECT_NAME = "project.xml"
-RESOURCES_NAME = "resources_description.xml"
-TASKS_NAME = "tasks_description.xml"
-ACTIVITIES_NAME = "activities_description.xml"
-SCHEDULE_NAME = "schedule.xml"
+DEFAULT_NAMES = {
+    "resources" : "resources_description.xml",
+    "tasks" : "tasks_description.xml",
+    "activities" : "activities_description.xml",
+    "schedule" : "schedule.xml",
+}
 # default file content
 FILE_CONTENTS = {
-    PROJECT_KEY : """<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+    "project" : """<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <projman/>""",
-    RESOURCES_KEY : """<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+    "resources" : """<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <resources-set/>""",
-    TASKS_KEY : """<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+    "tasks" : """<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <project/>""",
-    ACTIVITIES_KEY : """<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-<activities/>"""}
+    "activities" : """<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<activities/>"""
+    }
 
 
 def default_writer(tree, file):
     file.write(as_xml_string(tree))
 
-def write_trees(trees, output_name, writer=default_writer):
+def _write_trees(trees, output_name, writer=default_writer):
     """write output file"""
     written_files = []
+    print "TREE", trees
     if len(trees) > 1:
         for index, tree in enumerate(trees):
             name, extension = extract_extension(output_name)
@@ -86,18 +82,49 @@ def write_trees(trees, output_name, writer=default_writer):
     #else: nothing to write
     return written_files
 
+class ProjectFiles:
+    def __init__(self):
+        self.repo_dir = ""
+        self.project = None
+        self.schedule = None
+        self.resources = []
+        self.activities = []
+        self.tasks = []
+
+    def copy_from_project(self, output, ofiles):
+        """Create new file names from a source project and a new project destination"""
+        _dir, _name = osp.split(osp.abspath(output))
+        self.repo_dir = _dir
+        self.project = _name
+        for n in "schedule resources activities tasks".split():
+            names = getattr(ofiles, n)
+            typ = type(names)
+            if typ!=list:
+                names = [names]
+            newnames = []
+            for name in names:
+                newnames.append(osp.basename(name))
+            if not newnames:
+                newnames = [DEFAULT_NAMES[n]]
+            if typ!=list:
+                newnames = names[0]
+            setattr(self, n, newnames)
+
+    def get_schedule(self):
+        return osp.join(self.repo_dir, self.schedule)
+    def get_project(self):
+        return osp.join(self.repo_dir, self.project)
+
 class ProjectStorage:
     """load and save projman project from set of file names"""
     
     def __init__(self, repo_in, input_, output=None,
-                 archive_mode=True, input_projman=True,
                  virtual_task_root=None):
         """
          repo_in: name of directory of projman file 
          input_: name of projman file
          output: name of output file
          
-         archive_mode: True if using a .prj file for output
          input_projman: input file under projman format
          virtual_task_root: id of a task to use as root
         """
@@ -108,189 +135,76 @@ class ProjectStorage:
         except Exception :
             logging.basicConfig()
         # set options
-        self.archive_mode = archive_mode
         self.vtask_root = virtual_task_root
-        # default file names
-        self._repo_in = repo_in
-        self._input = input_
-        self.output = output
-        self.file_names = {PROJECT_KEY : PROJECT_NAME,
-                           RESOURCES_KEY : RESOURCES_NAME,
-                           TASKS_KEY : TASKS_NAME,
-                           ACTIVITIES_KEY : ACTIVITIES_NAME,
-                           SCHEDULE_KEY : SCHEDULE_NAME}
-        self.to_be_written = {PROJECT_KEY : None,
-                              RESOURCES_KEY : None,
-                              TASKS_KEY : None,
-                              ACTIVITIES_KEY : None,
-                              SCHEDULE_KEY : None}
-        self.written_files = {PROJECT_KEY : [],
-                             RESOURCES_KEY : [],
-                             TASKS_KEY : [],
-                             ACTIVITIES_KEY : [],
-                             SCHEDULE_KEY : []}
-        if input_projman:
-            self._init_project()
-        
+
+        # manages the file names of the input project
+        self.files = ProjectFiles()
+        self.files.repo_dir = repo_in
+        self.files.project = input_
+        self.project = None
+
     def __str__(self):
         return self._input
 
-    def _init_project(self):
-        """build up tar_name according input and options"""
-        if self._input.endswith(SUFFIX):
-            # read archive 
-            self._init_archive(self._input)
-        else:
-            # read xml
-            self._init_projman(self._input)
-
-    def _init_archive(self, tar_name):
-        """load file names from a .prj file
-        
-        @returns: None if could not find specified File, nor open it
-        """
-        #TODO temporary dir? pb of path in import...
-        # extract & read conf file
-        tar_file = tarfile.open(self.from_repo(tar_name))
-        tar_file.extract(CONF_FILE, self._repo_in)
-        conf_parser = ConfigParser()
-        conf_file = open(self.from_repo(CONF_FILE))
-        conf_parser.readfp(conf_file)
-        conf_file.close()
-        # extract all files
-        for file_desc in conf_parser.options(CONF_SECTION):
-            file_name = conf_parser.get(CONF_SECTION, file_desc)
-            tar_file.extract(file_name, self._repo_in)
-            self.file_names[file_desc] =  os.path.basename(file_name)
-        # close archive
-        tar_file.close()
-        
-    def _init_projman(self, file_name):
-        """initialise self.file_names from a .xml file"""
-        file_path = self.from_repo(file_name)
-        reader = ProjectFileListReader(self)
-        exceptions = (MissingRequiredAttribute, 
-                      MalformedProjectFile, ScheduleCycle, ResourceNotFound,  
-                      DuplicatedResource, TTException)
-        try:
-            self.set_projman(file_name)
-            reader.fromFile(file_path)
-        except exceptions, ex:
-            import traceback
-            traceback.print_exc()
-            self.logger.info(ex)
-            print ex
-            sys.exit(1)
-            
-    def load(self, proj_reader=None):
+    def load(self, readerklass=None, **kwargs):
         """returns project built with reader defined in option container"""
-        exceptions = (MissingRequiredAttribute,
-                      MalformedProjectFile, ScheduleCycle, ResourceNotFound,
-                      DuplicatedResource, TTException)
-        file_in = os.path.join(self._repo_in, self._input)
+        if readerklass is None:
+            readerklass = ProjectXMLReader
+        file_in = osp.join(self.files.repo_dir, self.files.project)
         # set Projman reader by default
-        if proj_reader is None or isinstance(proj_reader, ProjectXMLReader):
-            proj_reader = ProjectXMLReader(self.vtask_root)
-            file_in = self.from_projman()
+        proj_reader = readerklass( self.files, self.vtask_root)
         # reading
-        try:
-            if self._input == '-':
-                return proj_reader.fromStream(sys.stdin)
-            else:
-                return proj_reader.fromFile(file_in)
-        except exceptions, ex:
-            #import traceback
-            #traceback.print_exc()
-            #self.logger.info(ex)
-            print ex
-            sys.exit(1)
-        
-    def tar_project(self, include_reference=False):
-        """build and compress archive"""
-        assert self.archive_mode, "option -X set: creating .prj forbidden"
-        tar_path = extract_extension(self.to_projman())[0] + SUFFIX
-        tar_file = tarfile.open(tar_path, "w")
-        # creating conf file which stores {filename: type of file}
-        conf_parser = ConfigParser()
-        conf_parser.add_section(CONF_SECTION)
-        # adding all files to archive
-        files_from_delete = []
-        for key, file_names in self.written_files.items():
-            if key == SCHEDULE_KEY and not include_reference:
-                continue
-            if len(file_names) == 0:
-                # no written file: check initial one
-                assert os.path.exists(self._from_repo_by_key(key)), \
-                       "%s missing"% self._from_repo_by_key(key)
-                tar_file.add(self._from_repo_by_key(key), self.file_names[key])
-                conf_parser.set(CONF_SECTION, key, self.file_names[key])
-                files_from_delete.append(self._from_repo_by_key(key))
-                
-            else:
-                # file modified. forget previous one and add new ones
-                for file_name in file_names:
-                    base_name =  os.path.basename(file_name)
-                    tar_file.add(file_name, base_name)
-                    conf_parser.set(CONF_SECTION, key, base_name)
-                    files_from_delete.append(file_name)
-        # writing and adding conf file
-        conf_file = open(self.from_repo(CONF_FILE), 'w')
-        conf_parser.write(conf_file)
-        conf_file.close()
-        tar_file.add(conf_file.name, CONF_FILE)
-        files_from_delete.append(conf_file.name)
-        # close and remove files
-        tar_file.close()
-        for file_stored in files_from_delete:
-            os.remove(file_stored)
+        self.project = proj_reader.fromFile(file_in)
 
     # WRITERS
     #########
-    def save(self, projman, write_schedule=False, include_reference=False):
+    def save(self, output=None, write_schedule=False, include_reference=False):
         """write all files of projects"""
-        self._write_tasks(projman)
-        self._write_resources(projman)
-        self._write_activities(projman)
-        self._write_projman(projman)
+        if output is not None:
+            files = ProjectFiles()
+            files.copy_from_project( output, self.files )
+        else:
+            files = self.files
+        self._write_tasks(files)
+        self._write_resources(files)
+        self._write_activities(files)
+        self._write_projman(files)
         if write_schedule:
-            self.write_schedule(projman)
+            self.write_schedule(files)
             if include_reference:
-                self.write_schedule_reference(projman)
-        if self.archive_mode:
-            self.tar_project(include_reference)
-        
-    def write_schedule(self, project):
+                self.write_schedule_reference(files)
+
+    def write_schedule(self, files):
         """writes schedule and include reference in projman (after
         calling load)"""
-        output_name = self.to_schedule()
-        write_schedule_as_xml(output_name, project)
-        self._set_written_files(SCHEDULE_KEY, [output_name])
+        output_name = files.get_schedule()
+        write_schedule_as_xml(output_name, self.project)
 
-    def write_schedule_reference(self, projman):
+    def write_schedule_reference(self, files):
         """modify projman file"""
-        file_obj = open(self.to_projman(), 'r')
+        # XXX moyen-bof comme methode...
+        file_obj = open(self.files.get_project(), 'r')
         lines = file_obj.readlines()
         file_obj.close()
-        for file_name in self.written_files[SCHEDULE_KEY]:
+        for fname in files.schedule:
             import_schedule = "\t<import-schedule file='%s'/>\n"\
-                              % os.path.basename(file_name)
+                              % osp.basename(fname)
             if import_schedule not in lines:
                 lines.insert(-2, import_schedule)
-            #else: already included
-        file_obj = open(self.to_projman(), 'w')
+        file_obj = open(files.get_project(), 'w')
         file_obj.writelines(lines)
-        file_obj.close()        
+        file_obj.close()
 
-    def _write_projman(self, projman):
+    def _write_projman(self, files):
         """write projman, pointing out the other files"""
-        output_f = open(self.to_projman(), 'w')
+        output_f = open(files.get_project(), 'w')
         output_f.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
         output_f.write("<project>\n")
         # write tasks
-        if self.written_files[TASKS_KEY]:
-            for file_name in self.written_files[TASKS_KEY]:
+        if files.tasks:
+            for file_name in files.tasks:
                 output_f.write("\t<import-tasks file=\'%s\'/>\n" \
-                               % os.path.basename(file_name))
+                               % osp.basename(file_name))
         else:
             output_f.write("\t<import-tasks file=\'%s\'/>\n" \
                            % self.file_names[TASKS_KEY])
@@ -298,7 +212,7 @@ class ProjectStorage:
         if self.written_files[RESOURCES_KEY]:
             for file_name in self.written_files[RESOURCES_KEY]:
                 output_f.write("\t<import-resources file=\'%s\'/>\n" \
-                               % os.path.basename(file_name))
+                               % osp.basename(file_name))
         else:
             output_f.write("\t<import-resources file=\'%s\'/>\n" \
                            % self.file_names[RESOURCES_KEY])
@@ -306,7 +220,7 @@ class ProjectStorage:
         if self.written_files[ACTIVITIES_KEY]:
             for file_name in self.written_files[ACTIVITIES_KEY]:
                 output_f.write("\t<import-activities file=\'%s\'/>\n" \
-                               % os.path.basename(file_name))
+                               % osp.basename(file_name))
         else:
             output_f.write("\t<import-activities file=\'%s\'/>\n" \
                            % self.file_names[ACTIVITIES_KEY])
@@ -314,135 +228,22 @@ class ProjectStorage:
         output_f.close()
         self._set_written_file(PROJECT_KEY, self.to_projman())
 
-    def _write_tasks(self, project):
+    def _write_tasks(self, files):
         """writes tasks (after calling load)"""
-        if self.to_be_written[TASKS_KEY] is None:
-            return
-        written_files = write_trees(project,
-                                    self.from_repo(self.to_be_written[TASKS_KEY]))
-        self._set_written_files(TASKS_KEY, written_files)
-            
-    def _write_resources(self, project):
+        # XXX CHECK IF WRITE IS NEEDED
+        output_name = osp.join(files.repo_dir, files.tasks)
+        written_files = _write_trees(self.project, output_name)
+
+    def _write_resources(self, files):
         """writes resources (after calling load)"""
-        if self.to_be_written[ACTIVITIES_KEY] is None:
-            return
-        written_files = write_trees(
-            project.resource_set,
-            self.from_repo(self.to_be_written[ACTIVITIES_KEY]))
-        self._set_written_files(ACTIVITIES_KEY, written_files)
-            
-    def _write_activities(self, project):
+        # XXX CHECK IF WRITE IS NEEDED
+        output_name = osp.join(files.repo_dir, files.resources)
+        written_files = _write_trees(
+            self.project.resource_set,
+            output_name)
+
+    def _write_activities(self, files):
         """writes activities (after calling load)"""
-        if self.to_be_written[RESOURCES_KEY] is None:
-            return
-        output_name = self.from_repo(self.to_be_written[RESOURCES_KEY])
-        write_activities_as_xml(output_name, project)
-        self._set_written_files(RESOURCES_KEY, [output_name])
-        
-    def _write_default_file(self, key, name=None):
-        """write a default file except for schedule"""
-        if not name:
-            name = self.file_names[key]
-        if key is SCHEDULE_KEY:
-            # no default file for schedule
-            return None
-        else:
-            assert not os.path.exists(name), \
-                   ValueError("%s exists. can't overwrite "% name)
-            default_file = open(name, "w")
-            default_file.write(FILE_CONTENTS[key])
-            default_file.close()
-            return name
-        
-    def _set_written_file(self, key, name):
-        """add a file object to matching key."""
-        full_path = self.from_repo(os.path.basename(name))
-        if full_path not in self.written_files[key]:
-            self.written_files[key].append(full_path)
-
-    def _set_written_files(self, key, names):
-        """add a file object to matching key."""
-        for name in names:
-            self._set_written_file(key, name)
-            
-    # GETTERS
-    #########        
-    def get_schedule(self):
-        if self.to_be_written[SCHEDULE_KEY]:
-            return self.to_be_written[SCHEDULE_KEY]
-        else:
-            return self.file_names[SCHEDULE_KEY]
-        
-    def to_projman(self):
-        if self.to_be_written[PROJECT_KEY]:
-            return self.from_repo(self.to_be_written[PROJECT_KEY])
-        else:
-            return self.from_repo(self.file_names[PROJECT_KEY])
-        
-    def to_schedule(self):
-        return self.from_repo(self.get_schedule())
-        
-    def from_projman(self):
-        return self.from_repo(self.file_names[PROJECT_KEY])
-        
-    def from_repo(self, name=None):
-        if name:
-            return os.path.join(self._repo_in, name)
-        else:
-            return self._repo_in
-        
-    def _from_repo_by_key(self, key):
-        return self.from_repo(self.file_names[key])
-
-    # SETTERS
-    #########
-    def set_output(self, name):
-        """set new value to output"""
-        self.output = os.path.basename(name)
-
-    def set_projman(self, name):
-        """set projman file"""
-        self.file_names[PROJECT_KEY] = os.path.basename(name)
-
-    def set_resources(self, name):
-        """set resources file"""
-        self.file_names[RESOURCES_KEY] = os.path.basename(name)
-
-    def set_tasks(self, name):
-        """set tasks file"""
-        self.file_names[TASKS_KEY] = os.path.basename(name)
- 
-    def set_activities(self, name):
-        """set activities file"""
-        self.file_names[ACTIVITIES_KEY] = os.path.basename(name)
- 
-    def set_schedule(self, name):
-        """set schedule file"""
-        self.file_names[SCHEDULE_KEY] =  os.path.basename(name)
-
-    def plan_projman(self, name):
-        """plan resources file"""
-        self.to_be_written[PROJECT_KEY] = os.path.basename(name)
-
-    def plan_resources(self, name):
-        """plan resources file"""
-        self.to_be_written[RESOURCES_KEY] = os.path.basename(name)
-
-    def plan_tasks(self, name):
-        """plan tasks file"""
-        self.to_be_written[TASKS_KEY] = os.path.basename(name)
- 
-    def plan_activities(self, name):
-        """plan activities file"""
-        self.to_be_written[ACTIVITIES_KEY] = os.path.basename(name)
- 
-    def plan_schedule(self, name):
-        """plan schedule file"""
-        self.to_be_written[SCHEDULE_KEY] = os.path.basename(name)
-
-    def plan_defaults(self):
-        """ask to write all files, setting default values if necessary"""
-        for key in [TASKS_KEY, ACTIVITIES_KEY, RESOURCES_KEY]:
-            if self.to_be_written[key] is None:
-                self.to_be_written[key] = self.file_names[key]
-        
+        # XXX CHECK IF WRITE IS NEEDED
+        output_name = osp.join(files.repo_dir, files.activities)
+        write_activities_as_xml(output_name, self.project)

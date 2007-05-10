@@ -1,4 +1,4 @@
-# -*- coding: ISO-8859-1 -*-
+# -*- coding: iso-8859-1 -*-
 # Copyright (c) 2000-2006 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
@@ -520,11 +520,12 @@ class ProjectXMLReader(AbstractXMLReader) :
     sax handler to process XML file and create a Project instance
     """
     
-    def __init__(self, virtual_task_root=None):
+    def __init__(self, files, virtual_task_root=None):
         AbstractXMLReader.__init__(self)
         self.vtask_root = virtual_task_root
         self.project = self._factory.create_project()
         self.skip_schedule = False
+        self.files = files
 
     def _start_element(self, tag, attr) :
         """
@@ -539,6 +540,7 @@ class ProjectXMLReader(AbstractXMLReader) :
             self.assert_has_attrs(['file'])
             try:
                 filename = attr['file']
+                self.files.schedule = filename
                 if not isabs(filename):
                     filename = join(self._base_uris[-1], filename)
                 if not self._imported.has_key(filename):
@@ -563,6 +565,7 @@ class ProjectXMLReader(AbstractXMLReader) :
             self.assert_child_of(['project'])
             self.assert_has_attrs(['file'])
             filename = attr['file']
+            self.files.resources.append(filename)
             if not isabs(filename):
                 filename = join(self._base_uris[-1], filename)
             if not self._imported.has_key(filename):
@@ -575,6 +578,7 @@ class ProjectXMLReader(AbstractXMLReader) :
             self.assert_child_of(['project'])
             self.assert_has_attrs(['file'])
             filename = attr['file']
+            self.files.activities.append(filename)
             if not isabs(filename):
                 filename = join(self._base_uris[-1], filename)
             if not self._imported.has_key(filename):
@@ -587,6 +591,7 @@ class ProjectXMLReader(AbstractXMLReader) :
             self.assert_child_of(['project'])
             self.assert_has_attrs(['file'])
             filename = attr['file']
+            self.files.tasks.append(filename)
             if not isabs(filename):
                 filename = join(self._base_uris[-1], filename)
             if not self._imported.has_key(filename):
@@ -624,78 +629,6 @@ class ProjectXMLReader(AbstractXMLReader) :
         if tag == 'import-schedule' and self.skip_schedule:
             self.skip_schedule = False
         
-
-# ProjectFileListReader #############################################################
-
-class ProjectFileListReader(AbstractXMLReader) :
-    """
-    Initialise the list of files in an instance of ProjectStorage
-    from the import-xxx elements in a projman file
-    """
-    
-    def __init__(self, storage):
-        AbstractXMLReader.__init__(self)
-        self.storage = storage
-
-    def exists(self, path):
-        """check file exists after applying repo on it"""
-        path = self.storage.from_repo(path)
-        return os.path.exists(path)
-    
-    def _start_element(self, tag, attr) :
-        # FIXME: cyclic import
-        from projman.storage import RESOURCES_KEY, TASKS_KEY, \
-             ACTIVITIES_KEY, SCHEDULE_KEY
-        if tag == 'project' :
-            self.assert_child_of([None])
-
-        elif tag == 'import-schedule':
-            self.assert_child_of(['project'])
-            self.assert_has_attrs(['file'])
-            file_name = attr['file']
-            if not self.exists(file_name):
-                raise ValueError("Wrong import in '%s': file '%s' does not exist"\
-                                 % (self.storage.from_projman(), file_name))
-            self.storage.set_schedule(file_name)
-
-        elif tag == 'import-resources' :
-            self.assert_child_of(['project'])
-            self.assert_has_attrs(['file'])
-            file_name = attr['file']
-            if not self.exists(file_name):
-                raise ValueError("Wrong import in '%s': file '%s' does not exist"\
-                                 % (self.storage.from_projman(), file_name))
-            self.storage.set_resources(file_name)
-
-        elif tag == 'import-activities' :
-            self.assert_child_of(['project'])
-            self.assert_has_attrs(['file'])
-            file_name = attr['file']
-            if not self.exists(file_name):
-                raise ValueError("Wrong import in '%s': file '%s' does not exist"\
-                                 % (self.storage.from_projman(), file_name))
-            self.storage.set_activities(file_name)
-
-        elif tag == 'import-tasks' :
-            self.assert_child_of(['project'])
-            self.assert_has_attrs(['file'])
-            file_name = attr['file']
-            if not self.exists(file_name):
-                raise ValueError("Wrong import in '%s': file '%s' does not exist"\
-                                 % (self.storage.from_projman(), file_name))
-            self.storage.set_tasks(file_name)
-
-        elif tag == 'import-project' :
-            sys.stderr.write('import-project deprecated in favor of import-tasks\n')
-            raise ProjectValidationError(UNKNOWN_TAG)
-        elif tag == 'projman' :
-            sys.stderr.write('projman deprecated in favor of project\n')
-            raise ProjectValidationError(UNKNOWN_TAG)
-        else:
-            raise ProjectValidationError(UNKNOWN_TAG)
-
-    def _custom_return(self):
-        return self.storage
 
 def _extract_date(date):
     """
