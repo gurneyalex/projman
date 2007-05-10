@@ -14,7 +14,7 @@ import os.path as osp
 
 from logilab.common.testlib import TestCase, unittest_main
 
-from projman.readers import TaskXMLReader, ResourcesXMLReader, ScheduleXMLReader, ProjectFileListReader
+from projman.readers import TaskXMLReader, ResourcesXMLReader, ScheduleXMLReader
 from projman.storage import ProjectStorage
 from projman.lib._exceptions import DuplicatedTaskId, MalformedProjectFile
 

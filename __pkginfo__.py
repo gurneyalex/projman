@@ -1,4 +1,4 @@
-# -*- coding: ISO-8859-1 -*-
+# -*- coding: iso-8859-1 -*-
 # pylint: disable-msg=W0622
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -20,7 +20,7 @@ __revision__ = '$Id: __pkginfo__.py,v 1.25 2005-11-29 11:11:18 arthur Exp $'
 
 modname = 'projman'
 
-numversion = (0, 11, 1)
+numversion = (0, 12, 0)
 version = '.'.join([str(num) for num in numversion])
 
 

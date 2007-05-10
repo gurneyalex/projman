@@ -48,31 +48,19 @@ class ProjmanCommand(Command):
           'help': 'specify the project description file to use',
           }
          ),
-        ('expanded',
-         {'short': 'X',
-          'type' : 'yn', 'metavar': '<y or n>',
-          'default': True,
-          'help': 'use .xml file instead of a projman file (.prj)',
-          }
-         ),
         ('verbose',
          {'type' : 'yn', 'metavar': '<y or n>',
           'default': False,
           'help': 'display additional information during execution of projman',
           }
-         ),        
+         ),
         )
 
     def run(self, args):
         """run the command with its specific arguments"""
-        # output has to be defined on concrete command, or this method
-        # should be overriden
-        output = self.config.output 
         repo_in, input = osp.split(osp.abspath(self.config.project_file))
-        self.storage = ProjectStorage(repo_in, input, output,
-                                      archive_mode=not self.config.expanded,
-                                      virtual_task_root=getattr(self.config, 'task_root', None))
-        self.project = self.storage.load()
+        self.storage = ProjectStorage(repo_in, input, virtual_task_root=getattr(self.config, 'task_root', None))
+        self.storage.load()
         self._run(args)
 
 
@@ -109,12 +97,12 @@ class ScheduleCommand(ProjmanCommand):
           }
          ),
         )
-    
+
     def _run(self, views):
         from projman.scheduling import schedule
-        schedule(self.project, self.config.type)
-        self.storage.save(self.project, write_schedule=True,
-                          include_reference=self.config.include_reference)
+        schedule(self.storage.project, self.config.type)
+        # IGNORE -o mais ca marchait pas avant non plus
+        self.storage.write_schedule( self.storage.files )
 
 
 
@@ -124,7 +112,7 @@ class ViewCommand(ProjmanCommand):
     """
     name = 'view'
     min_args = 1
-    arguments = '<view name>...'    
+    arguments = '<view name>...'
 
     options = ProjmanCommand.options + (
         ('output',
@@ -161,8 +149,8 @@ class ViewCommand(ProjmanCommand):
             except KeyError:
                 raise BadCommandUsage('unknown view %s' % viewname)
             view = viewklass(self.config)
-            view.generate(root, self.project)
-        output = file(self.storage.output, 'w')
+            view.generate(root, self.storage.project)
+        output = file(self.config.output, 'w')
         PrettyPrint(root, stream=output)
         output.close()
 
@@ -259,7 +247,7 @@ class DiagramCommand(ProjmanCommand):
             output = self.config.output or '%s.%s' % (diagram, self.config.format)
             stream = open(output, 'w')
             #if self.options.is_image_renderer():
-            renderer.render(self.project, stream)
+            renderer.render(self.storage.project, stream)
             #else:
             #    title = 'Resources'.encode(ENCODING)
             #    output_f.write("""<html>
@@ -315,21 +303,19 @@ class ConvertCommand(ProjmanCommand):
         #  }
         # ),
         )
-    
+
     def run(self, args):
         """run the command with its specific arguments"""
         from projman.readers import PlannerXMLReader, ProjectXMLReader
         output = args[0]
         repo_in, input = osp.split(osp.abspath(self.config.project_file))
-        self.storage = ProjectStorage(repo_in, input, output,
-                                      archive_mode=not self.config.expanded,
-                                      input_projman=self.config.input_format == 'projman',
+        self.storage = ProjectStorage(repo_in, input,
                                       virtual_task_root=getattr(self.config, 'task_root', None))
-        readers = {'planner': PlannerXMLReader,
-                   'projman': ProjectXMLReader}
-        reader = readers[self.config.input_format]()
-        self.project = self.storage.load(reader)
-        #if self.config.output_format == 'projman':
-        self.storage.save(self.project)
-        
+        if self.config.input_format == 'planner':
+            reader = PlannerXMLReader
+        else: # default, plus option parser doesn't allow anything else
+            reader = ProjectXMLReader
+        self.storage.load(reader)
+        self.storage.save(ouput=output) # XXX
+
 register_commands((ScheduleCommand, ViewCommand, DiagramCommand, ConvertCommand))
