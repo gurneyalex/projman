@@ -199,7 +199,8 @@ class TaskXMLReader(AbstractXMLReader) :
             if self.rest_description:
                 self.stack[-1].description = publish_string(desc,
                                                             settings_overrides={'output_encoding': 'unicode'},
-                                                            writer=docbook_writer)
+                                                            writer=docbook_writer,
+                                                            source_path=self._files[-1] + "<%s>"%self.stack[-1].id) 
             else:
                 self.stack[-1].description = desc
             assert isinstance(self.stack[-1].description, unicode), self.stack[-1].description
