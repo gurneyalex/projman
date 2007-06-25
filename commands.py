@@ -75,6 +75,8 @@ class ProjmanCommand(Command):
         self.project = self.storage.load()
         self._run(args)
 
+    def _run(self, args):
+        raise NotImplementedError
 
 # Concrete commands ###########################################################
 
@@ -113,6 +115,7 @@ class ScheduleCommand(ProjmanCommand):
     def _run(self, views):
         from projman.scheduling import schedule
         schedule(self.project, self.config.type)
+        #self.storage.plan_tasks("mytasks.xml")
         self.storage.save(self.project, write_schedule=True,
                           include_reference=self.config.include_reference)
 
@@ -255,7 +258,7 @@ class DiagramCommand(ProjmanCommand):
             try:
                 renderer = known_diagrams[diagram](ConfigAdapter(self.config), handler)
             except KeyError:
-                BadCommandUsage('unknown diagram %s' % diagram)
+                raise BadCommandUsage('unknown diagram %s' % diagram)
             output = self.config.output or '%s.%s' % (diagram, self.config.format)
             stream = open(output, 'w')
             #if self.options.is_image_renderer():
