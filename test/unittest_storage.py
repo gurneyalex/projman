@@ -57,6 +57,7 @@ class FileTest(testlib.TestCase):
         os.chdir(self.tmpdir)
         
     def tearDown(self):
+        import shutil
         shutil.rmtree(self.tmpdir)
 
     def assertDictEquals(self, got, expected):

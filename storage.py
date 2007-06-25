@@ -71,6 +71,7 @@ def default_writer(tree, file):
 
 def write_trees(trees, output_name, writer=default_writer):
     """write output file"""
+    print "TREES", trees
     written_files = []
     if len(trees) > 1:
         for index, tree in enumerate(trees):
