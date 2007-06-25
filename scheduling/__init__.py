@@ -19,15 +19,15 @@ __revision__ = "$Id: __init__.py,v 1.22 2005-09-07 23:51:01 nico Exp $"
 
 import sys
 import logging, logging.config
-from projman import verbose as verboselog
+from projman import verbose as verboselog, LOG_CONF
 
 # create & init logger
 logger = logging.getLogger("scheduler")
 try:
-    logging.config.fileConfig(LOG_CONF) # LOG_CONF not defined !
+    logging.config.fileConfig(LOG_CONF)
 except Exception :
     logging.basicConfig()
-            
+
 class ScheduleException(Exception):
     """base of scheduling exceptions"""
     

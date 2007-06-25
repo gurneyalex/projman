@@ -23,14 +23,14 @@ from os.path import dirname, abspath, isabs
 from xml.sax import make_parser, ContentHandler
 from xml.sax.handler import feature_namespaces
 
-from logilab.common.tree import NodeNotFound 
+from logilab.common.tree import NodeNotFound
 
 from projman.lib.project import Project
 from projman.lib.task import Task, MileStone
 from projman.lib.resource import Resource, ResourcesSet
 from projman.lib.calendar import Calendar
 from projman.lib._exceptions import ProjectValidationError, MalformedProjectFile
-                           
+
 
 class ModelProjectFactory:
     """ a factory which create Projman model's objects """

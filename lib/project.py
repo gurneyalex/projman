@@ -1,4 +1,4 @@
-# -*- coding: ISO-8859-1 -*-
+# -*- coding: utf-8 -*-
 # Copyright (c) 2005 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
@@ -30,7 +30,7 @@ __revision__ = "$Id: project.py,v 1.6 2005-11-10 11:34:20 arthur Exp $"
 import md5
 from warnings import warn
 
-from mx.DateTime import now
+from mx.DateTime import today
 
 from logilab.common.compat import set
 from logilab.common.table import Table
@@ -233,7 +233,7 @@ class Project:
         try:
             begin = min(begins)
         except ValueError:
-            raise ValueError('Task %s has no begin' % task.id)
+            raise ValueError('Task %s has no begin' % (task.id,))
         try:
             end = max(ends)
         except ValueError:
