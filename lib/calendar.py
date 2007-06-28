@@ -1,4 +1,4 @@
-# -*- coding: ISO-8859-1 -*-
+# -*- coding: utf-8 -*-
 # Copyright (c) 2004-2006 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
@@ -26,7 +26,7 @@ This code is released under the GNU Public Licence v2. See www.gnu.org.
 """
 
 from logilab.common.tree import VNode 
-from mx.DateTime import Time
+from mx.DateTime import Time, TimeDelta
 
 # FIXME: day_week probably exists in DateTime
 day_week = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
@@ -314,10 +314,10 @@ class Calendar(VNode):
         """
         return the seconds corresponding to intervals
         """
-        res = 0
+        res = TimeDelta(0)
         for from_time, to_time in intervals:
             res += to_time - from_time
-        return (res.hours * 60 * 60) + (res.minute * 60)
+        return res.seconds # XXX avant (res.hours * 60 * 60) + (res.minute * 60)
 
     def get_intervals(self, datetime):
         """

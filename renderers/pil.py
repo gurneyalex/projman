@@ -85,18 +85,17 @@ def rgb(color):
                 eval('0x%s'%color[5:7]))
     return COLORS[color]
 
-DEFAULT_FONT_DIRS = ('/usr/share/projman', \
-                    os.path.join(projman.__path__[0], "fonts"))
-try:
-    FONT_DIR = projman.fonts_dir
-except:
-    for font_dir in DEFAULT_FONT_DIRS:
-        if exists(font_dir):
-            FONT_DIR = font_dir
-            break
-    else:
-        FONT_DIR = None
-    
+DEFAULT_FONT_DIRS = ('/usr/share/projman',
+                     os.path.join(projman.__path__[0],
+                                  "fonts"))
+
+for font_dir in DEFAULT_FONT_DIRS:
+    if exists(font_dir):
+        FONT_DIR = font_dir
+        break
+else:
+    FONT_DIR = None
+
 FORMATS = ("ARG", "BMP", "CUR", "DCX", "EPS", "FLI", "FPX", "GBR", 
            "GIF", "ICO", "IM", "IPTC", "JPEG", "MIC", "MPEG", "MSP",
            "PCD", "PCX", "PDF", "PNG", "PPM", "PSD", "SGI", "SUN", 

@@ -63,6 +63,8 @@ class ProjmanCommand(Command):
         self.storage.load()
         self._run(args)
 
+    def _run(self, args):
+        raise NotImplementedError
 
 # Concrete commands ###########################################################
 
@@ -243,7 +245,7 @@ class DiagramCommand(ProjmanCommand):
             try:
                 renderer = known_diagrams[diagram](ConfigAdapter(self.config), handler)
             except KeyError:
-                BadCommandUsage('unknown diagram %s' % diagram)
+                raise BadCommandUsage('unknown diagram %s' % diagram)
             output = self.config.output or '%s.%s' % (diagram, self.config.format)
             stream = open(output, 'w')
             #if self.options.is_image_renderer():

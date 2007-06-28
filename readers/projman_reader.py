@@ -1,4 +1,10 @@
+<<<<<<< /home/ludal/SB/src/projman/readers/projman_reader.py.orig.7019435
 # -*- coding: iso-8859-1 -*-
+||||||| /tmp/projman_reader.py~base.nPoos7
+# -*- coding: ISO-8859-1 -*-
+=======
+# -*- coding: utf-8 -*-
+>>>>>>> /tmp/projman_reader.py~other.Ff6gIk
 # Copyright (c) 2000-2006 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
@@ -114,11 +120,11 @@ class TaskXMLReader(AbstractXMLReader) :
             self.assert_has_attrs(['id'])
             m = self._factory.create_milestone(attr['id'])
             self.stack[-1].append(m)
-            self.stack.append(m)                            
+            self.stack.append(m)
         elif tag == 'constraint-date':
             self.assert_child_of(['task', 'milestone'])
             self.assert_has_attrs(['type'])
-            self.constraint_type = attr['type']           
+            self.constraint_type = attr['type']
         elif tag == 'constraint-task' :
             self.assert_child_of(['task', 'milestone'])
             self.assert_has_attrs(['type', 'idref'])
@@ -199,7 +205,8 @@ class TaskXMLReader(AbstractXMLReader) :
             if self.rest_description:
                 self.stack[-1].description = publish_string(desc,
                                                             settings_overrides={'output_encoding': 'unicode'},
-                                                            writer=docbook_writer)
+                                                            writer=docbook_writer,
+                                                            source_path=self._files[-1] + "<%s>"%self.stack[-1].id) 
             else:
                 self.stack[-1].description = desc
             assert isinstance(self.stack[-1].description, unicode), self.stack[-1].description
@@ -552,7 +559,7 @@ class ProjectXMLReader(AbstractXMLReader) :
                     self._imported[filename] = 1
             except IOError:
                 #TODO: lancer une exception au niveau le plus haut
-                #qui lancerait une commande spéciale de 'recovery'
+                #qui lancerait une commande spÃ©ciale de 'recovery'
                 #puis une commande de schedule puis la commande
                 #initiale
                 self.skip_schedule = True

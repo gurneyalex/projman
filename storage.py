@@ -66,6 +66,7 @@ def default_writer(tree, file):
 
 def _write_trees(trees, output_name, writer=default_writer):
     """write output file"""
+    print "TREES", trees
     written_files = []
     print "TREE", trees
     if len(trees) > 1:
