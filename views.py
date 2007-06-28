@@ -1,4 +1,4 @@
-# -*- coding: ISO-8859-1 -*-
+# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2006 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
@@ -132,9 +132,9 @@ class DocbookHelper:
 TVA = 19.6
 EXT_DATE_FORMAT = u'%Y-%m-%d'
 FULL_DATE_FORMAT = u'%d/%m/%Y'
-DATE_NOT_SPECIFIED = "non spécifié"
-TOTAL_DATE = u"L'ensemble du projet se déroule entre le %s et le %s."
-TOTAL_DURATION = u"La charge totale se chiffre à %s."
+DATE_NOT_SPECIFIED = "non spÃ©cifiÃ©"
+TOTAL_DATE = u"L'ensemble du projet se dÃ©roule entre le %s et le %s."
+TOTAL_DURATION = u"La charge totale se chiffre Ã  %s."
 TOTAL_DURATION_UNIT = u"%.1f jour.homme"
 TOTAL_DURATION_UNITS = u"%.1f jours.homme"
 
@@ -181,6 +181,8 @@ class CostData:
 
     
 class XMLView:
+    name = None
+    
     def __init__(self, config):
         self.config = config
 
@@ -214,7 +216,9 @@ class XMLView:
         view = viewklass(self.config)
         view._init(self.projman, dbh=self.dbh)
         return view.content_nodes()
-    
+
+    def content_nodes(self):
+        raise NotImplementedError
 
 # actual views ################################################################
 
@@ -225,7 +229,7 @@ class RatesSectionView(XMLView):
         section = self.dbh.section_node(self.unique_id('rate-section'))
         resources = self.cdata.used_resources()
         section.appendChild(self.dbh.title_node(u"Tarifs journaliers"))
-        section.appendChild(self.dbh.para_node(u"Coût pour une journée type de travail:"))
+        section.appendChild(self.dbh.para_node(u"CoÃ»t pour une journÃ©e type de travail:"))
         section.appendChild(self.resources_rates(resources))
         return section,
 
@@ -251,7 +255,7 @@ class DurationSectionView(XMLView):
     
     def content_nodes(self):
         section = self.dbh.section_node(self.unique_id(u"duration-section"))
-        section.appendChild(self.dbh.title_node(u"Durée totale"))
+        section.appendChild(self.dbh.title_node(u"DurÃ©e totale"))
         section.appendChild(self.subview_content_nodes(DateParaView)[0])
         section.appendChild(self.subview_content_nodes(DurationParaView)[0])
         return section,
@@ -275,7 +279,7 @@ class DurationParaView(XMLView):
     
 class CostTableView(XMLView):
     name = 'cost-table'
-    ENTETE = u"Tableau récapitulatif des coûts."
+    ENTETE = u"Tableau rÃ©capitulatif des coÃ»ts."
     
     def content_nodes(self):
         """return a dr:object node for the cost table view"""
@@ -301,7 +305,7 @@ class CostTableView(XMLView):
         row.appendChild(self.dbh.table_cell_node())
         row.appendChild(self.dbh.table_cell_node('left', u'Charge (jours.homme)'))
         row.appendChild(self.dbh.table_cell_node('left', u'Ressources'))
-        row.appendChild(self.dbh.table_cell_node('right', u'Coût (euros)'))
+        row.appendChild(self.dbh.table_cell_node('right', u'CoÃ»t (euros)'))
         thead.appendChild(row)
         return thead
     
@@ -364,7 +368,7 @@ class CostTableView(XMLView):
 
 class CostParaView(XMLView):
     name = 'cost-para'
-    TOTAL_COST = u"Le coût total se chiffre à %s euros HT, soit %s euros TTC en appliquant les taux actuellement en vigueur."
+    TOTAL_COST = u"Le coÃ»t total se chiffre Ã  %s euros HT, soit %s euros TTC en appliquant les taux actuellement en vigueur."
         
     def content_nodes(self):
         """return a dr:object node for the cost paragraph view"""
@@ -439,7 +443,7 @@ class TasksListSectionView(XMLView):
     
 class DurationTableView(CostTableView):
     name = 'duration-table'
-    ENTETE = u"Tableau récapitulatif des dates."
+    ENTETE = u"Tableau rÃ©capitulatif des dates."
     
     def content_nodes(self):
         """return a dr:object node for the cost table view"""
@@ -463,9 +467,9 @@ class DurationTableView(CostTableView):
         thead = self.dbh.table_head_node()
         row = self.dbh.custom_node('row')
         row.appendChild(self.dbh.table_cell_node())
-        row.appendChild(self.dbh.table_cell_node('left', u'Date de début'))
+        row.appendChild(self.dbh.table_cell_node('left', u'Date de dÃ©but'))
         row.appendChild(self.dbh.table_cell_node('left', u'Date de fin'))
-        row.appendChild(self.dbh.table_cell_node('center', u'Durée (jours)'))
+        row.appendChild(self.dbh.table_cell_node('center', u'DurÃ©e (jours)'))
         thead.appendChild(row)
         return thead
     

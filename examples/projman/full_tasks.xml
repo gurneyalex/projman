@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<project id="LNGW">
+<task id="LNGW">
   <constraint-resource usage="100" idref="cdp_1" type="manager"/>
   <constraint-resource usage="100" idref="rh_1" type="administrative"/>
   <constraint-resource usage="100" idref="ing_1" type="engineer"/>
@@ -277,4 +277,4 @@
     </task>
   </task>
 
-</project>
+</task>
