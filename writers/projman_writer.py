@@ -155,7 +155,7 @@ def schedule_as_dom(project):
     doc = Document('schedule')
     root = doc.documentElement
     for task in project.root_task.leaves():
-        element = doc.createElementNS(NO_NS, 'task')
+        element = doc.createElementNS(NO_NS, task.TYPE)
         element.setAttributeNS(NO_NS, 'id', task.id)
         # add date-constraints
         begin, end = project.get_task_date_range(task)
