@@ -33,7 +33,7 @@
       et des rôles associés. Ce schéma constituera la référence du modèle de
       données pour l'application et tous les composants en feront donc usage.
       </description>
-      <duration>5.5</duration>
+      <duration>5</duration>
       <constraint-resource usage='100' idref='ing_1' type='n/a'/>
     </task>
 
