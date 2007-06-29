@@ -1,10 +1,4 @@
-<<<<<<< /home/ludal/SB/src/projman/readers/projman_reader.py.orig.7019435
-# -*- coding: iso-8859-1 -*-
-||||||| /tmp/projman_reader.py~base.nPoos7
-# -*- coding: ISO-8859-1 -*-
-=======
 # -*- coding: utf-8 -*-
->>>>>>> /tmp/projman_reader.py~other.Ff6gIk
 # Copyright (c) 2000-2006 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
