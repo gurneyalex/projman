@@ -1,4 +1,4 @@
-# -*- coding: ISO-8859-1 -*-
+# -*- coding: utf-8 -*-
 # Copyright (c) 2000-2004 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
@@ -51,57 +51,71 @@ class CSPScheduler:
         self.domains = {}
         self.constraints = set()
         self.solution = None
-        max_length = self.get_project_length()
+        self.start_date = None
+        self.calc_project_length()
         for leaf in project.root_task.leaves():
-            self._process_node(leaf, max_length)
+            self._process_node(leaf)
         self.add_resource_constraints()
         self.add_priorities_as_constraints()
-    
-    def get_project_length(self):
+
+    def calc_project_length(self):
+        """Computes start_date and max_length (duration of the project)"""
         max_length = self.project.root_task.maximum_duration()
-        begins, ends = [today()], [today()]
+        #begins, ends = [today()], [today()]
+        begins, ends = [], []
         for leaf in self.project.root_task.leaves():
+            print "LEAF", leaf
             for c_type, date in leaf.get_date_constraints():
                 if c_type in (BEGIN_AT_DATE, BEGIN_AFTER_DATE):
+                    print "-- begin --", date
                     begins.append(date)
                 elif c_type in (END_AT_DATE, END_BEFORE_DATE):
+                    print "-- ends  --", date
                     ends.append(date)
-        other_length = (max(ends) - min(begins)).days +1
-        #print max_length, other_length
-        return max(max_length, other_length)
+        if not self.start_date:
+            # We take the earliest date constraint as a start date
+            if begins:
+                self.start_date = min(begins)
+            elif ends:
+                self.start_date = min(ends)
+            else:
+                self.start_date = today()
+        if ends and begins:
+            other_length = (max(ends) - min(begins)).days +1
+        else:
+            other_length = 0
+        self.max_length = max(max_length, other_length)
 
 
-    def _process_node(self, node, max_length):
+    def _process_node(self, node):
+        max_length = self.max_length
         self.variables.append(node.id)
-        self.domains[node.id] = SchedulingDomain(0, max_length, node.duration)
+        self.domains[node.id] = SchedulingDomain(-max_length, max_length, node.duration)
         # add task constraints
         for constraint_type, task_id in node.get_task_constraints():
             constraint_class = CONSTRAINT_MAP[constraint_type]
             for leaf in node.get_task(task_id).leaves():
                 self.constraints.add(constraint_class(node.id, leaf.id))
         # add date constraints
-        start_date = today()
         for c_type, date in node.get_date_constraints():
-            if date < start_date :
-                print 'ignore', c_type, date, start_date
-                continue
             try:
                 if c_type == BEGIN_AFTER_DATE :
-                    self.domains[node.id].setLowestMin( (date-start_date).days )
+                    self.domains[node.id].setLowestMin( (date-self.start_date).days )
                     print node.id, 'begin after', date
                 elif c_type == END_BEFORE_DATE :
-                    self.domains[node.id].setHighestMax( (date-start_date).days +1) 
+                    self.domains[node.id].setHighestMax( (date-self.start_date).days +1) 
                     print node.id, 'end before', date
             except fi.ConsistencyFailure, exc:
-                print node.id, c_type, date, start_date, (date-start_date).days, self.domains[node.id]
+                print node.id, c_type, date, start_date, (date-self.start_date).days, self.domains[node.id]
                 raise
             
     def add_resource_constraints(self):
-        constraints = {}
+        constraints = {} # mapping resource -> set of tasks
         for leaf in self.project.root_task.leaves():
             for r_type, r_id, usage in leaf.get_resource_constraints():
                 constraints.setdefault(r_id, set()).add(leaf.id)
-        for r_id, task_ids in constraints.items():
+        for r_id, task_ids in constraints.iteritems():
+            # adds no overlap for (ti,tj), i<j for each resource
             while task_ids:
                 t1 = task_ids.pop()
                 for t2 in task_ids: 
@@ -129,20 +143,24 @@ class CSPScheduler:
         """
         #print self.variables, self.domains, self.constraints
         #raise TypeError("zou")
+        
         repo = Repository(self.variables, self.domains, self.constraints)
+        repo.display()
         solver = Solver(SchedulingDistributor())
-        self.solution = solver.solve_one(repo, verbose=verbose)
+        self.solution = solver.solve_one(repo, verbose)
         activities = []
         # FIXME: start date !
         # start_date, end_date = self.project.get_task_date_range(project.root_task)
-        start_date = today()
+        start_date = self.start_date
         for task_id, interval in self.solution.items():
             task_start = start_date + interval._start
-            task_end = start_date + max(0,interval._end-1)
-            assert task_start <= task_end, "%s %s %s"%(task_id,task_start,task_end)
+            task_end = start_date + max(interval._start,interval._end-1)
             task = self.project.root_task.get_task(task_id)
-            for r_type, r_id, usage in task.get_resource_constraints():                
+            for r_type, r_id, usage in task.get_resource_constraints():
                 activities.append((task_start, task_end, r_id, task_id, 1.))
+            if task.TYPE=='milestone':
+                for res in self.project.get_resources():
+                    activities.append((task_start, task_end, res, task_id, 1.))
 
         self.project.add_schedule(activities)
         return []
