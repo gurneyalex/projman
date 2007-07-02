@@ -24,6 +24,7 @@ import os, os.path as osp
 from ConfigParser import ConfigParser
 
 from logilab.common.compat import set
+from logilab.common.fileutils import mk_unique_filename
 
 from projman import LOG_CONF, extract_extension
 from projman.writers.projman_writer import as_xml_string, \
@@ -112,7 +113,13 @@ class ProjectFiles:
             setattr(self, n, newnames)
 
     def get_schedule(self):
-        return osp.join(self.repo_dir, self.schedule)
+        # schedule may be None since we can generate it
+        # in that case we make up a name
+        if self.schedule is None:
+            fschedule = mk_unique_filename( self.repo_dir, "schedule",".xml" )
+            self.schedule = osp.basename(fschedule)
+        return fschedule
+    
     def get_project(self):
         return osp.join(self.repo_dir, self.project)
 

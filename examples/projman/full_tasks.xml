@@ -14,7 +14,7 @@
     ci-dessous). <para>Cette première tranche a une durée de huit semaines. Elle est
     plus longue que les suivantes car elle nécessite la mise en oeuvre du socle
 	sur lequel sera bâtie la solution.</para></description>
-    <constraint-date type="begin-at-date">2005-01-01</constraint-date>
+    <constraint-date type="begin-at-date">2005-01-03</constraint-date>
 
     <task id="sp1">
       <label>Suivi de projet</label>
@@ -79,7 +79,7 @@
 
   <milestone id="end_t1">
       <label>Fin du premier Lot: état d'avancement</label>
-      <constraint-date type='begin-at-date'>2005-02-01</constraint-date>
+      <constraint-date type='begin-at-date'>2005-02-03</constraint-date>
       <constraint-task idref="interface" type='begin-after-end'/>
       <constraint-task idref="config-lingway" type='begin-after-end'/>
   </milestone>
@@ -108,7 +108,7 @@
       validation, ainsi que les rôles et les droits associés.</description>
       <duration>5</duration>
       <constraint-resource usage='100' idref='ing_1' type='n/a'/>
-      <constraint-date type='begin-after-date'>2005-02-04</constraint-date>
+      <constraint-date type='begin-after-date'>2005-02-06</constraint-date>
     </task>
 
     <task id="appli-externes">
@@ -118,7 +118,7 @@
       nécessaires.</description>
       <duration>7</duration>
       <constraint-resource usage='100' idref='ing_1' type='n/a'/>
-      <constraint-date type='begin-before-date'>2005-02-10</constraint-date>
+      <constraint-date type='begin-before-date'>2005-02-12</constraint-date>
       <constraint-task idref="proc-droits" type='end-after-end'/>
     </task>
 
@@ -130,8 +130,8 @@
       <duration>10</duration>
       <constraint-resource usage='100' idref='ing_1' type='n/a'/>
       <constraint-task idref="proc-droits" type='begin-after-end'/>
-      <constraint-date type='begin-at-date'>2005-02-15</constraint-date>
-      <constraint-date type='end-before-date'>2005-03-01</constraint-date>
+      <constraint-date type='begin-at-date'>2005-02-17</constraint-date>
+      <constraint-date type='end-before-date'>2005-03-03</constraint-date>
     </task>
   </task>
   
@@ -142,7 +142,7 @@
     l'interface, lien vers des applications externes, interface d'administration
     (voir détails des tâches ci-dessous).</description>
     <constraint-task idref="t2" type='begin-after-end'/>
-    <constraint-date type='end-at-date'>2005-03-31</constraint-date>
+    <constraint-date type='end-at-date'>2005-04-03</constraint-date>
 
     <task id="sp3">
       <label>Suivi de projet</label>
