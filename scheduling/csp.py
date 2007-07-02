@@ -24,6 +24,7 @@ from logilab.common.compat import set
 from projman.lib.constants import *
 from gcsp import ProjmanProblem, solve
 
+_VERBOSE=2
 
 class CSPScheduler:
     """
@@ -38,7 +39,6 @@ class CSPScheduler:
         self.calc_project_length()
         
         self.real_tasks = {}  # task_id -> (task_number,duration,list_of_resources)
-        self.pseudo_tasks = [] # pseudo number -> (task_id, resource_id)
         self.constraints = {} # Constraint Type -> list of task pairs
         self.task_ranges = {} # task_id -> date range or (None,None)
         self.resources = {}   # res_id -> res_number
@@ -68,7 +68,6 @@ class CSPScheduler:
         # advance start date to the first working day
         d = self.start_date
         while True:
-            print "Trying", d
             for res_id in self.project.get_resources():
                 res = self.project.get_resource(res_id)
                 if res.work_on( d ):
@@ -96,8 +95,7 @@ class CSPScheduler:
         for constraint_type, task_id in node.get_task_constraints():
             for leaf in node.get_task(task_id).leaves():
                 lst = self.constraints.setdefault(constraint_type, set())
-                nodes = sorted( [node.id, leaf.id] )
-                lst.add(tuple(nodes))
+                lst.add( (node.id, leaf.id)  )
         # collect date constraints
         for c_type, date in node.get_date_constraints():
             days = (date-self.start_date).days
@@ -105,14 +103,17 @@ class CSPScheduler:
                 raaaah
             if c_type == BEGIN_AFTER_DATE :
                 rnge[0] = days
-                print node.id, 'begin after', days
+                if _VERBOSE>1:
+                    print node.id, 'begin after', days
             elif c_type == END_BEFORE_DATE :
                 rnge[1] = days + 1
-                print node.id, 'end before', days
+                if _VERBOSE>1:
+                    print node.id, 'end before', days
         # collect resources
         for r_type, r_id, usage in node.get_resource_constraints():
             # keep usage around in case we use it one day
-            print "Resource", r_type, r_id, usage
+            if _VERBOSE>1:
+                print "Resource", r_type, r_id, usage
             r_num = self.resources.setdefault( r_id, len(self.resources) )
             task_resources.append( (r_num, usage) ) 
             
@@ -138,18 +139,21 @@ class CSPScheduler:
         Update the project's schedule
         Return list of errors occured during schedule
         """
-        
-        print "Tasks", len(self.real_tasks)
-        print "Res", len(self.resources)
-        print "Dur", self.max_duration
+        if _VERBOSE>0:
+            print "Tasks", len(self.real_tasks)
+            print "Res", len(self.resources)
+            print "Dur", self.max_duration
         pb = ProjmanProblem( len(self.real_tasks),
                              len(self.resources),
-                             int(self.max_duration) )
+                             2*int(self.max_duration) )
         pseudo_tasks = {}
-        for tid, (num, duration, resources) in self.real_tasks.items():
+        real_tasks_items = self.real_tasks.items()
+        real_tasks_items.sort( key = lambda x:x[1][0] )
+        for tid, (num, duration, resources) in real_tasks_items:
             pb.set_duration( num, int(duration) )
             rnge = self.task_ranges[tid]
-            print "Task %2d = #%2d [%4s,%4s]" % ((num,duration)+tuple(rnge))
+            if _VERBOSE>1:
+                print "Task %2d = #%2d [%4s,%4s] = '%20s'" % ((num,duration)+tuple(rnge)+(tid,))
             if rnge[0] is not None:
                 pb.set_low( num, int(rnge[0]) )
             if rnge[1] is not None:
@@ -159,9 +163,9 @@ class CSPScheduler:
                 continue
             for res,usage in resources:
                 pid = pb.alloc(num, res)
-                print "Task % 2d %12s (%2d/%2d) = %d" % (pid, tid, num, res, duration)
-                lst = pseudo_tasks.setdefault( tid, [] )
-                lst.append( (pid,res) )
+                if _VERBOSE>1:
+                    print "     Pseudo Task % 2d (%2d/%2d)" % (pid, num, res)
+                pseudo_tasks[ pid ] = ( num, res, tid )
 
         def _reg_csp( func, pairs ):
             """register constraint for pairs of tasks.
@@ -172,7 +176,8 @@ class CSPScheduler:
                 n1, _, _ = self.real_tasks[t1]
                 n2, _, _ = self.real_tasks[t2]
                 func( n1, n2 )
-                print "%s %s(%s), %s(%s)" %(func.__name__, t1, n1, t2, n2)
+                if _VERBOSE>1:
+                    print "%s %s(%s), %s(%s)" %(func.__name__, t1, n1, t2, n2)
 
         cs = self.constraints
         #print cs
@@ -183,23 +188,61 @@ class CSPScheduler:
 
         for res_id, res_num in self.resources.items():
             res = self.project.get_resource( res_id )
-            print "%02d" % res_num,
+            if _VERBOSE:
+                print "%02d" % res_num,
             for d in range(self.max_duration):
                 dt = self.start_date + d
                 #print dt
                 if not res.work_on( dt ):
                     pb.add_not_working_day( res_num, d )
-                    print "x",
+                    if _VERBOSE:
+                        print "x",
                 else:
-                    print ".",
+                    if _VERBOSE:
+                        print ".",
             print
         
         pb.set_convexity( True )
-        pb.set_time( -1 ) # 2 min max
+        pb.set_time( 100000 ) # 2 min max
+        pb.set_verbosity( _VERBOSE )
         solve( pb )
-        return []
-    
+
+        N = pb.get_number_of_solutions()
+        if N==0:
+            return []
+        SOL = pb.get_solution( N-1 )
+        duration = SOL.get_duration()
+        ntasks = SOL.get_ntasks()
+        tasks_days = [ [ day for day in range(duration) if SOL.isworking( task, day ) ] for task in range(ntasks) ]
         activities = []
+        rev_resources = [""]*len(self.resources)
+        for res_id, res in self.resources.items():
+            rev_resources[res] = res_id
+        for pid, days in enumerate( tasks_days ):
+            num, res, tid = pseudo_tasks[pid]
+            res_id = rev_resources[res]
+            for d in days:
+                date = self.start_date + d
+                activities.append( (date, date, res_id, tid, 1.) )
+
+        milestone = 0
+        nmilestones = SOL.get_nmilestones()
+        for tid, (num, duration, resources) in self.real_tasks.items():
+            if duration!=0:
+                continue
+            if milestone>=nmilestones:
+                break
+            d = SOL.get_milestone( milestone )
+            date = self.start_date + d
+            print "MILESTONE", tid, date
+            for res in self.project.get_resources():
+                activities.append( (date, date, res, tid, 1.) )
+            milestone += 1
+
+        self.project.add_schedule(activities)
+        return []
+
+        
         # FIXME: start date !
         # start_date, end_date = self.project.get_task_date_range(project.root_task)
         start_date = self.start_date
