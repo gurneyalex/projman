@@ -1,6 +1,6 @@
 
 LDFLAGS=`pkg-config --libs gecode gecode-minimodel gecode-search`
-CXXFLAGS=`pkg-config --cflags gecode gecode-minimodel gecode-search` -I/usr/include/python2.4
+CXXFLAGS=`pkg-config --cflags gecode gecode-minimodel gecode-search` -I/usr/include/python2.4 -g -O0
 
 all: sample gcsp.so
 
@@ -13,3 +13,6 @@ gcsp.so: projman_gecode.o timer.o gcspmodule.o
 
 clean:
 	rm *.o *.so
+
+projman_gecode.o gcspmodule.o: projman_gecode.hh
+

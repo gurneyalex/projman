@@ -17,6 +17,10 @@ BOOST_PYTHON_MODULE(gcsp)
 	.def("end_after_begin", &ProjmanProblem::add_end_after_begin )
 	.def("set_duration", &ProjmanProblem::set_duration )
 	.def("add_not_working_day", &ProjmanProblem::add_not_working_day )
+	.def("set_low", &ProjmanProblem::set_low )
+	.def("set_high", &ProjmanProblem::set_high )
+	.def("set_time", &ProjmanProblem::set_time )
+	.def("set_convexity", &ProjmanProblem::set_convexity )
     ;
 
     def("solve", &ProjmanSolver::run<BAB> );

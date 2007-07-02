@@ -4,20 +4,51 @@
 #include "timer.hh"
 #include <iostream>
 #include <algorithm>
+#include <iomanip>
 
 using namespace std;
 
 ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
     : tasks(this,pb.allocations.size(),IntSet::empty,0,pb.max_duration-1),
-      last_day(this,0,pb.max_duration)
+      last_day(this,0,pb.max_duration),
+      milestones(this,pb.n_milestones,0,pb.max_duration-1)
 {
     int i,j,k;
+    SetVarArray real_tasks(this, pb.ntasks, IntSet::empty,0,pb.max_duration-1);
+    SetVarArray task_plus_nw_cvx(this, pb.allocations.size(),
+				 IntSet::empty,0,pb.max_duration-1);
+    IntSet not_working_res[pb.max_resources];
+
+    for(i=0;i<pb.max_resources;++i)
+	not_working_res[i] = pb.get_not_working( i );
+
+//    cout << "BEGIN" << endl;
+//    debug(pb,tasks);
+//    cout << "------------------" << endl;
 	
     cout << "Initializing..."<< endl;
-//	for(i=0;i<pb.allocations.size();++i) {
-//	    convex(this, tasks[i]);
-//	    cout << "convexity for pseudo task " << i << endl;
-//	}
+
+    for(i=0;i<pb.allocations.size();++i) {
+	int res_id = pb.allocations[i].second;
+	int task_id = pb.allocations[i].first;
+	SetVar hull(this);
+	SetVar task_plus_nw(this);
+
+	convexHull(this, tasks[i], hull);
+	rel(this, tasks[i], SOT_UNION, not_working_res[res_id], SRT_EQ, task_plus_nw );
+	rel(this, task_plus_nw, SOT_INTER, hull, SRT_EQ, task_plus_nw_cvx[i]);
+	if (pb.convexity) {
+	    // this imposes a (pseudo-task) is convex when including not-working days
+	    convex(this, task_plus_nw_cvx[i]);
+	}
+
+	// imposes resource res_id not working days on task i
+	dom(this, tasks[i], SRT_DISJ, not_working_res[res_id]);
+    }
+
+    cout << "INIT" << endl;
+    debug(pb, "Pseudo tasks", tasks);
+    cout << "------------------" << endl;
 
     // This part expresses for each real task k:
     // D(k) = sum size(Ti) for i such as alloc(i).task = k
@@ -26,7 +57,7 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
 	vector<int> this_task_pseudo_tasks;
 	vector<int> this_task_resources;
 
-	cout << "Duration for real task " << task_id << endl;
+	cout << "Duration for real task " << task_id << ":" << duration << endl;
 
 	// find ressources and pseudo tasks allocated to this (real) task
 	for(alloc_iter alloc=pb.allocations.begin();alloc!=pb.allocations.end();++alloc) {
@@ -39,17 +70,51 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
 	    int pseudo_id = this_task_pseudo_tasks.front();
 	    cardinality(this, tasks[pseudo_id], duration, duration);
 	    cout << "Task " << task_id << "/" << pseudo_id << " single res" << endl;
-	} else {
-	    IntVarArray res_tasks(this,this_task_pseudo_tasks.size(), 0, pb.max_duration);
+	    rel(this, tasks[pseudo_id], SRT_EQ, real_tasks[task_id] );
+	} else if (this_task_pseudo_tasks.size()>1) {
+	    IntVarArray res_tasks(this,this_task_pseudo_tasks.size(), 0, duration);
 	    IntVar real_task_duration(this,0, pb.max_duration);
+	    SetVarArgs the_tasks(this_task_pseudo_tasks.size());
+	    SetVarArgs the_tasks_nw(this_task_pseudo_tasks.size());
+	    cout << "Task " << task_id << "/(";
 	    for(j=0;j<this_task_pseudo_tasks.size();++j) {
 		int pseudo_id = this_task_pseudo_tasks[j];
+		cardinality(this, tasks[pseudo_id], 0, duration);
 		cardinality(this, tasks[pseudo_id], res_tasks[j]);
+		cout << pseudo_id << ",";
+		the_tasks[j] = tasks[pseudo_id];
+		the_tasks_nw[j] = task_plus_nw_cvx[pseudo_id];
 	    }
 	    linear(this, res_tasks, IRT_EQ, duration);
-	    cout << "Task " << task_id << "/* using "<<this_task_pseudo_tasks.size()<< " res" << endl;
+
+	    rel(this,SOT_UNION,the_tasks,real_tasks[task_id]);
+	    cout << ") multiple res" << endl;
+
+	    if (pb.convexity) {
+		// make sure the task isn't interrupted
+		SetVar task_total(this);
+		rel(this,SOT_UNION,the_tasks_nw,task_total);
+		convex(this,task_total);
+	    }
+	} else {
+	    // duration 0, milestone
+	    cardinality(this, real_tasks[task_id], duration, duration);
+	    dom(this, milestones[pb.milestones[task_id]], pb.task_low[task_id], pb.task_high[task_id] );
 	}
+	if (this_task_pseudo_tasks.size()>=1) {
+	    int min_duration = duration/this_task_pseudo_tasks.size();
+	    cout << "Duration " << task_id << ":" << min_duration << "..."<<duration<<endl;
+	    cardinality(this, real_tasks[task_id], min_duration, duration);
+	}
+	cout << "task:"<< task_id <<" "<<pb.task_low[task_id]<<"..."<<pb.task_high[task_id]<<endl;
+	dom(this, real_tasks[task_id], SRT_SUB, pb.task_low[task_id], pb.task_high[task_id] );
+
     }
+
+//    cout << "Before overlap" << endl;
+//    debug(pb);
+//    cout << "------------------" << endl;
+
     
     // Expresses that tasks which use the same resource must not overlap
     for(int res_id=0;res_id<pb.max_resources;++res_id) {
@@ -71,54 +136,154 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
 	    // the non overlapping is for all task couples i<j that are associated with resource res_id 
 	    for(i=0;i<this_res_tasks.size();++i) {
 		for(j=i+1;j<this_res_tasks.size();++j) {
-		    rel(this, tasks[this_res_tasks[i]], SOT_INTER, tasks[this_res_tasks[j]],
-			SRT_EQ, IntSet::empty );
+		    rel(this, tasks[this_res_tasks[i]], SRT_DISJ, tasks[this_res_tasks[j]]);
 		}
-		IntSet not_working_res = pb.get_not_working(res_id);
-		rel(this, tasks[this_res_tasks[i]], SOT_INTER, not_working_res , SRT_EQ, IntSet::empty );
 	    }
 	}
     }
     
+    
+    cout << "Before convex" << endl;
+    debug(pb, "Pseudo tasks", tasks);
+    cout << "------------------" << endl;
 
     // union of tasks is convex
     // and contains 0
     SetVar all_days(this);
-    rel(this, SOT_UNION, tasks, all_days );
+    rel(this, SOT_UNION, task_plus_nw_cvx, all_days );
     dom(this, all_days, SRT_SUP, 0 );
     max(this, all_days, last_day);
+    convex(this, all_days);
     
+
+
+//    cout << "Before scheduling" << endl;
+//    debug(pb);
+//    cout << "------------------" << endl;
+
+
     // begin_after_end
     for(alloc_iter task_pair=pb.begin_after_end.begin();task_pair!=pb.begin_after_end.end();++task_pair) {
-	SetVarArgs bae(2);
-	bae[0] = tasks[task_pair->first];
-	bae[1] = tasks[task_pair->second];
-	sequence(this, bae);
+	int p0=task_pair->first;
+	int p1=task_pair->second;
+	IntVar max0(this,pb.task_low[p0],pb.task_high[p0]);
+	IntVar min1(this,pb.task_low[p1],pb.task_high[p1]);
+
+	if (pb.durations[p0])
+	    max(this, real_tasks[p0], max0);
+	else
+	    eq(this, max0, milestones[pb.milestones[p0]]);
+
+	if (pb.durations[p1])
+	    min(this, real_tasks[p1], min1);
+	else
+	    eq(this, min1, milestones[pb.milestones[p1]]);
+
+	rel(this, max0, IRT_LQ, min1);
+
+
+ 	SetVarArgs bae(2);
+ 	bae[0] = real_tasks[p0];
+ 	bae[1] = real_tasks[p1];
+ 	sequence(this, bae);
     }
+
+
     // begin_after_begin
-    for(alloc_iter task_pair=pb.begin_after_begin.begin();task_pair!=pb.begin_after_begin.end();++task_pair) {
-	IntVar min0(this,0,pb.max_duration), min1(this,0,pb.max_duration);
-	min(this, tasks[task_pair->first], min0);
-	min(this, tasks[task_pair->second], min1);
+    for(alloc_iter task_pair=pb.begin_after_begin.begin();
+	task_pair!=pb.begin_after_begin.end();++task_pair) {
+	int p0=task_pair->first;
+	int p1=task_pair->second;
+	IntVar min0(this,pb.task_low[p0],pb.task_high[p0]);
+	IntVar min1(this,pb.task_low[p1],pb.task_high[p1]);
+	if (pb.durations[p0])
+	    min(this, real_tasks[p0], min0);
+	else
+	    eq(this, min0, milestones[pb.milestones[p0]]);
+	if (pb.durations[p1])
+	    min(this, real_tasks[p1], min1);
+	else
+	    eq(this, min1, milestones[pb.milestones[p1]]);
 	rel(this, min0, IRT_LQ, min1);
     }
+    // end_after_end
+    for(alloc_iter task_pair=pb.end_after_end.begin();
+	task_pair!=pb.end_after_end.end();++task_pair) {
+	int p0=task_pair->first;
+	int p1=task_pair->second;
+	IntVar max0(this,pb.task_low[p0],pb.task_high[p0]);
+	IntVar max1(this,pb.task_low[p1],pb.task_high[p1]);
+	if (pb.durations[p0])
+	    max(this, real_tasks[p0], max0);
+	else
+	    eq(this, max0, milestones[pb.milestones[p0]]);
+	if (pb.durations[p1])
+	    max(this, real_tasks[p1], max1);
+	else
+	    eq(this, max1, milestones[pb.milestones[p1]]);
+	rel(this, max0, IRT_LQ, max1);
+    }
     
-	
-    branch(this, tasks, SETBVAR_NONE, SETBVAL_MIN);
+    cout << "Current Res" << endl;
+    debug(pb, "Pseudo tasks", tasks);
+    cout << "------------------" << endl;
+
+    int st=0;
+    unsigned long pn=0;
+    st = status( pn );
+    cout << "Propagation status="<<st<<" pn="<<pn<<endl;
+
+    cout << "After first propagation" << endl;
+    debug(pb, "Pseudo tasks", tasks);
+    cout << "------------------" << endl;
+    debug(pb, "Real tasks", real_tasks);
+    debug(pb, "Cvx tasks", task_plus_nw_cvx);
+
+    cout << "ALL DAYS:" << all_days << endl;
+
+    branch(this, tasks, SETBVAR_MIN_CARD, SETBVAL_MIN);
+    branch(this, milestones, BVAR_NONE, BVAL_MIN);
 }
 
+
+void ProjmanSolver::debug(const ProjmanProblem& pb, std::string s, SetVarArray& _tasks)
+{
+    for(int i=0;i<_tasks.size();++i) {
+//	int real_task_id = pb.allocations[i].first;
+//	int res_id = pb.allocations[i].second;
+	cout << s <<  setw(2) << i << "  ";
+//	cout << "(" << _tasks[i].glbSize() << "/" << _tasks[i].lubSize() << ") ";
+//	cout << "(" << _tasks[i].cardMin() << "/" << _tasks[i].cardMax() << ") ";
+	cout << _tasks[i] << endl;
+    }
+}
+	
 
 /// Print solution
 void ProjmanSolver::print(const ProjmanProblem& pb)
 { 
     cout << "Planning:" << pb.max_duration << endl;
-      
+    
+    cout << "            ";
+    for(int i=0;i<pb.max_duration;++i) {
+	cout << i/100;
+    }
+    cout << endl << "            ";
+    for(int i=0;i<pb.max_duration;++i) {
+	cout << (i/10)%10;
+    }
+    cout << endl << "            ";
+    for(int i=0;i<pb.max_duration;++i) {
+	cout << i%10;
+    }
+    cout << endl;
+
     for(int i=0;i<pb.allocations.size();++i) {
 	int real_task_id = pb.allocations[i].first;
 	int res_id = pb.allocations[i].second;
 	const vector<int>& not_working = pb.not_working[res_id];
 
-	cout << "Task " <<  real_task_id << "/" << res_id << "  ";
+	cout << "Task " <<  setw(2) << real_task_id << "/" << setw(2) << res_id << "  ";
 	
 	
 	for(int j=0;j<pb.max_duration;++j) {
@@ -138,6 +303,17 @@ void ProjmanSolver::print(const ProjmanProblem& pb)
 	}
 	cout << endl;
     }
+    for(int i=0;i<milestones.size();++i) {
+	cout << "Milestone " << i << " : " ;
+	IntVarValues vl(milestones[i]);
+	while ( vl() ) {
+	    cout << vl.val() << ", ";
+	    ++vl;
+	}
+	cout << endl;
+    }
+
+    debug(pb, "Task sol", tasks);
 }
 
 
@@ -208,13 +384,18 @@ template void ProjmanSolver::run<BAB>(const ProjmanProblem& pb);
 
 void ProjmanSolver::constrain(Space* s)
 {
-    dom(this, last_day, 0, static_cast<ProjmanSolver*>(s)->last_day.val()-1 );
+    IntVar& v = static_cast<ProjmanSolver*>(s)->last_day;
+    dom(this, last_day, 0, v.val()-1 );
+    for(int i=0;i<tasks.size();++i) {
+	dom(this,tasks[i],SRT_SUB,0,v.val()-1);
+    }
 }
 
 ProjmanSolver::ProjmanSolver(bool share, ProjmanSolver& s) : Space(share,s)
 {
     tasks.update(this, share, s.tasks);
     last_day.update(this, share, s.last_day);
+    milestones.update(this, share, s.milestones);
 }
 
 Space* ProjmanSolver::copy(bool share)
