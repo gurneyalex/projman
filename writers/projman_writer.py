@@ -155,7 +155,7 @@ def schedule_as_dom(project):
     doc = Document('schedule')
     root = doc.documentElement
     for task in project.root_task.leaves():
-        element = doc.createElementNS(NO_NS, task.TYPE)
+        element = doc.createElementNS(NO_NS, "task")
         element.setAttributeNS(NO_NS, 'id', task.id)
         # add date-constraints
         begin, end = project.get_task_date_range(task)
@@ -299,7 +299,7 @@ class ProjmanDOMVisitor(Visitor):
                 end = (u'').join(str(intervals_list[index][1]).split(':'))[:4]
                 i.setAttributeNS(NO_NS, 'start', start)
                 i.setAttributeNS(NO_NS, 'end', end)
-                day.appendChild(i) 
+                day.appendChild(i)
             e.appendChild(day)
             cal_element.appendChild(e)
             self._type_of_days[node.type_working_days[cal_type][0]] = cal_id

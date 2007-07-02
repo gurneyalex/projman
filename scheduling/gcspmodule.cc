@@ -9,6 +9,13 @@ using namespace boost::python;
 
 BOOST_PYTHON_MODULE(gcsp)
 {
+    class_<ProjmanSolution>("ProjmanSolution", no_init )
+	.def("get_ntasks", &ProjmanSolution::get_ntasks )
+	.def("get_duration", &ProjmanSolution::get_duration )
+	.def("get_nmilestones", &ProjmanSolution::get_nmilestones )
+	.def("get_milestone", &ProjmanSolution::get_milestone )
+	.def("isworking", &ProjmanSolution::isworking )
+	;
     class_<ProjmanProblem>("ProjmanProblem", init<int,int,int>() )
         .def("alloc", &ProjmanProblem::alloc)
 	.def("begin_after_end", &ProjmanProblem::add_begin_after_end )
@@ -21,7 +28,11 @@ BOOST_PYTHON_MODULE(gcsp)
 	.def("set_high", &ProjmanProblem::set_high )
 	.def("set_time", &ProjmanProblem::set_time )
 	.def("set_convexity", &ProjmanProblem::set_convexity )
+	.def("get_number_of_solutions", &ProjmanProblem::get_number_of_solutions )
+	.def("get_solution", &ProjmanProblem::get_solution )
+	.def("set_verbosity", &ProjmanProblem::set_verbosity )
     ;
+
 
     def("solve", &ProjmanSolver::run<BAB> );
 }
