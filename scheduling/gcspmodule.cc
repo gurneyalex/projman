@@ -1,11 +1,52 @@
 
 /* gecode/csp module for projman */
 
+#include <Python.h>
 #include <boost/python.hpp>
 
 #include "projman_gecode.hh"
+#include "timer.hh"
 
 using namespace boost::python;
+
+class FailTimeStop : public Search::Stop {
+private:
+    Search::TimeStop *ts;
+    Search::FailStop *fs;
+public:
+    FailTimeStop(int fails, int time):ts(0L),fs(0L) {
+	if (time>=0)
+	    ts = new Search::TimeStop(time);
+	if (fails>=0) {
+	    fs = new Search::FailStop(fails);
+	}
+    }
+    bool stop(const Search::Statistics& s) {
+	int sigs = PyErr_CheckSignals();
+	bool fs_stop = false;
+	bool ts_stop = false;
+	if (fs) {
+	    fs_stop = fs->stop(s);
+	}
+	if (ts) {
+	    ts_stop = ts->stop(s);
+	}
+	return sigs || fs_stop || ts_stop;
+    }
+    /// Create appropriate stop-object
+    static Search::Stop* create(int fails, int time) {
+	return new FailTimeStop(fails, time);
+    }
+};
+
+void run_solve( ProjmanProblem& pb ) {
+    FailTimeStop* stop = FailTimeStop::create(pb.fails, pb.time);
+
+    Py_BEGIN_ALLOW_THREADS; // probablement pas genial de faire PyErr_CheckSignals la dedans...
+    ProjmanSolver::run<BAB>( pb, stop );
+    Py_END_ALLOW_THREADS;
+    delete stop;
+}
 
 BOOST_PYTHON_MODULE(gcsp)
 {
@@ -34,11 +75,10 @@ BOOST_PYTHON_MODULE(gcsp)
     ;
 
 
-    def("solve", &ProjmanSolver::run<BAB> );
+    def("solve", &run_solve );
 }
 
-#if PY_VERSION_EX < 0x02050000
-#include <Python.h>
+#if PY_VERSION_HEX < 0x02050000
 
 extern "C" {
 int PyErr_WarnEx(PyObject *category, char *msg,

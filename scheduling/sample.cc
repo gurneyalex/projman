@@ -92,6 +92,26 @@ ProjmanProblem* setup( int max_duration )
     return pb;
 }
 
+class FailTimeStop : public Search::Stop {
+private:
+    Search::TimeStop *ts;
+    Search::FailStop *fs;
+    FailTimeStop(int fails, int time) {
+	ts = new Search::TimeStop(time);
+	fs = new Search::FailStop(fails);
+    }
+public:
+    bool stop(const Search::Statistics& s) {
+	return fs->stop(s) || ts->stop(s);
+    }
+    /// Create appropriate stop-object
+    static Search::Stop* create(int fails, int time) {
+	if (fails < 0 && time < 0) return NULL;
+	if (fails < 0) return new Search::TimeStop( time);
+	if (time  < 0) return new Search::FailStop(fails);
+	return new FailTimeStop(fails, time);
+    }
+};
 
 /** \brief Main-function
  *  \relates ProjmanSolver
@@ -105,7 +125,8 @@ main(int argc, char** argv) {
     cout << "Maximum duration:" << duration << endl;
 
     ProjmanProblem *pb = setup(duration);
-    ProjmanSolver::run<BAB>(*pb);
+    Search::Stop* stop = FailTimeStop::create(pb->fails, pb->time);
+    ProjmanSolver::run<BAB>(*pb, stop);
     return 0;
 }
 
