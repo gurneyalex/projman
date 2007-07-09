@@ -188,7 +188,7 @@ public:
     /// The actual problem
     ProjmanSolver(const ProjmanProblem& pb);
     template <template<class> class Engine>
-    static void run( ProjmanProblem& pb );
+    static void run( ProjmanProblem& pb, Search::Stop* stop );
     /// Additionnal constrain for Branch And Bound
     void constrain(Space* s);
     /// Constructor for cloning \a s

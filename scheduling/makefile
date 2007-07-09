@@ -1,5 +1,5 @@
 
-LDFLAGS=`pkg-config --libs gecode gecode-minimodel gecode-search`
+LDFLAGS=`pkg-config --libs gecode gecode-minimodel gecode-search` -lboost_python-st -lpython2.4
 CXXFLAGS=`pkg-config --cflags gecode gecode-minimodel gecode-search` -I/usr/include/python2.4 -fPIC -g -O0
 
 all: sample gcsp.so
@@ -9,7 +9,7 @@ sample: sample.o projman_gecode.o timer.o
 
 
 gcsp.so: projman_gecode.o timer.o gcspmodule.o
-	g++  -lpython2.4 -lboost_python --shared -o gcsp.so `pkg-config --libs --cflags gecode gecode-minimodel gecode-search` -g gcspmodule.o timer.o projman_gecode.o
+	g++  $(LDFLAGS) --shared -o gcsp.so -g gcspmodule.o timer.o projman_gecode.o
 
 clean:
 	rm *.o *.so

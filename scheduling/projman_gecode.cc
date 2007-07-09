@@ -292,29 +292,9 @@ void ProjmanSolver::print(ProjmanProblem& pb)
 }
 
 
-class FailTimeStop : public Search::Stop {
-private:
-    Search::TimeStop *ts;
-    Search::FailStop *fs;
-    FailTimeStop(int fails, int time) {
-	ts = new Search::TimeStop(time);
-	fs = new Search::FailStop(fails);
-    }
-public:
-    bool stop(const Search::Statistics& s) {
-	return fs->stop(s) || ts->stop(s);
-    }
-    /// Create appropriate stop-object
-    static Search::Stop* create(int fails, int time) {
-	if (fails < 0 && time < 0) return NULL;
-	if (fails < 0) return new Search::TimeStop( time);
-	if (time  < 0) return new Search::FailStop(fails);
-	return new FailTimeStop(fails, time);
-    }
-};
 
 template <template<class> class Engine>
-void ProjmanSolver::run( ProjmanProblem& pb )
+void ProjmanSolver::run( ProjmanProblem& pb, Search::Stop *stop )
 {
     int i = pb.solutions;
     Timer t;
@@ -326,7 +306,6 @@ void ProjmanSolver::run( ProjmanProblem& pb )
 	n_p = s->propagators();
 	n_b = s->branchings();
     }
-    Search::Stop* stop = FailTimeStop::create(pb.fails, pb.time);
     Engine<ProjmanSolver> e(s,pb.c_d,pb.a_d,stop);
     delete s;
     do {
@@ -355,7 +334,7 @@ void ProjmanSolver::run( ProjmanProblem& pb )
 }
 
 // explicit instantiation
-template void ProjmanSolver::run<BAB>(ProjmanProblem& pb);
+template void ProjmanSolver::run<BAB>(ProjmanProblem& pb, Search::Stop *stop);
 
 void ProjmanSolver::constrain(Space* s)
 {
