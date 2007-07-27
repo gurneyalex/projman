@@ -1,5 +1,5 @@
 
-LDFLAGS=`pkg-config --libs gecode gecode-minimodel gecode-search` -lboost_python-st -lpython2.4
+LDFLAGS=`pkg-config --libs gecode gecode-minimodel gecode-search` -lpython2.4 -lboost_python-st
 CXXFLAGS=`pkg-config --cflags gecode gecode-minimodel gecode-search` -I/usr/include/python2.4 -fPIC -g -O0
 
 all: sample gcsp.so

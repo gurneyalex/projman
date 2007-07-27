@@ -40,7 +40,7 @@ public:
 };
 
 void run_solve( ProjmanProblem& pb ) {
-    FailTimeStop* stop = FailTimeStop::create(pb.fails, pb.time);
+    Search::Stop* stop = FailTimeStop::create(pb.fails, pb.time);
 
     Py_BEGIN_ALLOW_THREADS; // probablement pas genial de faire PyErr_CheckSignals la dedans...
     ProjmanSolver::run<BAB>( pb, stop );
