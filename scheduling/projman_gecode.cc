@@ -53,7 +53,7 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
     }
 
     // This part expresses for each real task k:
-    // D(k) = sum size(Ti) for i such as alloc(i).task = k
+    // Duration(k) = sum size(pseudo-Task i) for i such as alloc(i).task = k
     for(int task_id=0;task_id<pb.durations.size();++task_id) {
 	int duration = pb.durations[task_id];
 	vector<int> this_task_pseudo_tasks;
@@ -169,10 +169,13 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
     // union of tasks is convex
     // and contains 0
     SetVar all_days(this);
+    //SetVar all_w_days(this);
     rel(this, SOT_UNION, task_plus_nw_cvx, all_days );
     dom(this, all_days, SRT_SUP, 0 );
     max(this, all_days, last_day);
     convex(this, all_days);
+    //rel(this, SOT_UNION, tasks, all_w_days );
+    //dom(this, all_w_days, SRT_SUP, 0 );
 
     register_order( pb, real_tasks, BEGIN_AFTER_BEGIN, pb.begin_after_begin );
     register_order( pb, real_tasks, BEGIN_AFTER_END, pb.begin_after_end );
@@ -360,9 +363,9 @@ template void ProjmanSolver::run<BAB>(ProjmanProblem& pb);
 void ProjmanSolver::constrain(Space* s)
 {
     IntVar& v = static_cast<ProjmanSolver*>(s)->last_day;
-    dom(this, last_day, 0, v.val()-1 );
+    dom(this, last_day, 0, v.val() ); // XXX -1
     for(int i=0;i<tasks.size();++i) {
-	dom(this,tasks[i],SRT_SUB,0,v.val()-1);
+	dom(this,tasks[i],SRT_SUB,0,v.val()); // XXX -1
     }
 }
 
@@ -395,6 +398,7 @@ void ProjmanSolver::register_order( const ProjmanProblem& pb, SetVarArray& real_
 	int p1=task_pair->second;
 	IntVar bound0(this,pb.task_low[p0],pb.task_high[p0]);
 	IntVar bound1(this,pb.task_low[p1],pb.task_high[p1]);
+	IntRelType rel_type = IRT_GR;
 
 	if (pb.verbosity>0) {
 	    switch(type) {
@@ -424,6 +428,7 @@ void ProjmanSolver::register_order( const ProjmanProblem& pb, SetVarArray& real_
 	    }
 	} else {
 	    eq(this, bound0, milestones[pb.milestones[p0]]);
+	    rel_type = IRT_GQ;
 	}
 
 	if (pb.durations[p1]) {
@@ -439,8 +444,9 @@ void ProjmanSolver::register_order( const ProjmanProblem& pb, SetVarArray& real_
 	    }
 	} else {
 	    eq(this, bound1, milestones[pb.milestones[p1]]);
+	    rel_type = IRT_GQ;
 	}
 
-	rel(this, bound0, IRT_GR, bound1);
+	rel(this, bound0, rel_type, bound1);
     }
 }

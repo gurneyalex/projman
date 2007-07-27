@@ -181,7 +181,7 @@ enum {
 class ProjmanSolver : public Space {
 protected:
     /// Variables
-    SetVarArray tasks;      // days the (pseudo)task is scheduled
+    SetVarArray tasks;      // days the pseudo-task is scheduled
     IntVar last_day;
     IntVarArray milestones;
 public:
