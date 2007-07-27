@@ -24,7 +24,7 @@ from logilab.common import testlib
 import projman.test
 
 from projman.storage import *
-from projman.test import DATADIR, make_project_name, XML_PROJMAN, \
+from projman.test import DATADIR, XML_PROJMAN, \
      XML_TARED_PROJMAN, XML_TASK_FILE, XML_RESOURCE_FILE, XML_ACTIVITY_FILE, \
      TAR_PROJMAN, TAR_TARED_PROJMAN, TAR_TASK_FILE, TAR_RESOURCE_FILE, \
      TAR_ACTIVITY_FILE
@@ -44,7 +44,7 @@ WRITTEN_FILES = [join(DATADIR, WRITTEN_PROJMAN),
                  join(DATADIR, WRITTEN_RESOURCE),
                  join(DATADIR, WRITTEN_TASK),
                  join(DATADIR, WRITTEN_ACTVITY)]
-WRITTEN_TAR = join(DATADIR, make_project_name(WRITTEN_PROJMAN))
+#WRITTEN_TAR = join(DATADIR, make_project_name(WRITTEN_PROJMAN))
 
 FILE_OPTIONS = [("-p", WRITTEN_TASK),
                 ("-r", WRITTEN_RESOURCE),
@@ -225,12 +225,12 @@ class FileTest(testlib.TestCase):
 class WriteTest(testlib.TestCase):
 
     def setUp(self):
-        for file_name in WRITTEN_FILES + [WRITTEN_TAR]:
+        for file_name in WRITTEN_FILES : #+ [WRITTEN_TAR]:
             if os.path.exists(file_name):
                 os.remove(file_name)
 
     def tearDown(self):
-        for file_name in WRITTEN_FILES + [WRITTEN_TAR] + DEFAULT_FILES:
+        for file_name in WRITTEN_FILES + DEFAULT_FILES: # [WRITTEN_TAR]
             if os.path.exists(file_name):
                 os.remove(file_name)
     
@@ -243,24 +243,24 @@ class WriteTest(testlib.TestCase):
                            SCHEDULE_KEY : None})
         
     def test_write_xml(self):
-        xml_to_packed_files = ProjectStorage(DATADIR, XML_PROJMAN, archive_mode=False)
+        xml_to_packed_files = ProjectStorage(DATADIR, XML_PROJMAN)
         projman = xml_to_packed_files.load()
         xml_to_packed_files.plan_projman(WRITTEN_PROJMAN)
         self.assertWrittenNames(xml_to_packed_files)
         xml_to_packed_files.save(projman)
-        self.assert_(os.path.exists(WRITTEN_TAR))
+        #self.assert_(os.path.exists(WRITTEN_TAR))
         for file_name in WRITTEN_FILES:
             self.assert_(not os.path.exists(file_name))
             
-    def test_write_tar(self):
-        xml_to_packed_files = ProjectStorage(DATADIR, XML_PROJMAN, archive_mode=True)
-        projman = xml_to_packed_files.load()
-        xml_to_packed_files.plan_projman(WRITTEN_PROJMAN)
-        self.assertWrittenNames(xml_to_packed_files)
-        xml_to_packed_files.save(projman)
-        self.assert_(not os.path.exists(join(DATADIR, "out_projman.prj")))
-        for file_name in WRITTEN_FILES:
-            self.assert_(os.path.exists(file_name))
+#     def test_write_tar(self):
+#         xml_to_packed_files = ProjectStorage(DATADIR, XML_PROJMAN, archive_mode=True)
+#         projman = xml_to_packed_files.load()
+#         xml_to_packed_files.plan_projman(WRITTEN_PROJMAN)
+#         self.assertWrittenNames(xml_to_packed_files)
+#         xml_to_packed_files.save(projman)
+#         self.assert_(not os.path.exists(join(DATADIR, "out_projman.prj")))
+#         for file_name in WRITTEN_FILES:
+#             self.assert_(os.path.exists(file_name))
 
 if __name__ == "__main__":
     testlib.unittest_main()
