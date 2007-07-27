@@ -212,7 +212,7 @@
     chacun. On pourra aussi amorcer l'application en y insérant un certain
     nombre de documents de référence, afin que les utilisateurs puissent
     consulter du contenu dès leurs premiers accès. Le déploiement sera
-    principalement effectué par le services informatiques de Bouygues. Un
+    principalement effectué par le services informatiques de Acme. Un
     support sera néanmoins effectué par Logilab afin de pallier tout
     problème et d'effectuer d'éventuelles mises au point.</description>
     <constraint-task idref="t3" type='begin-after-end'/>
@@ -230,8 +230,8 @@
     utilisateurs l'adoptent rapidement. Dans ce but, il faut qu'ils puissent
     être efficacement formés à ses principes et à son utilisation. Une première
     session de formation sera animée par Logilab pour une dizaine de
-    collaborateurs de Bouygues TP. Ces personnes se chargeront ensuite de former
-    l'ensemble des utilisateurs de la solution chez Bouygues TP par des
+    collaborateurs de Acme. Ces personnes se chargeront ensuite de former
+    l'ensemble des utilisateurs de la solution chez Acme par des
     formations internes. Une session de formation spécifique sera mise en place
     pour les administrateurs.</description>
     <constraint-task idref="deployer" type='begin-after-end'/>
