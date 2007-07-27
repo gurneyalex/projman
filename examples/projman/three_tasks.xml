@@ -13,15 +13,15 @@
     <task id="t2_12">
       <label>Validation</label>
       <duration>8</duration>
-	  <constraint-task idref="t2_11" type="begin-after-end"/>
+	  <constraint-task  type="begin-after-end" idref="t2_11"/>
     </task>
   </task>
 
   <task id="t2_2">
     <label>Conclusion</label>
     <duration>2</duration>
-	<constraint-task idref="t2_12" type="begin-after-end"/>
-	<constraint-task idref="t2_3" type="begin-after-end"/>
+	<constraint-task  type="begin-after-end" idref="t2_12"/>
+	<constraint-task  type="begin-after-end" idref="t2_3"/>
   </task>
 
   <milestone id="t2_3">
