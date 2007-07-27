@@ -3,5 +3,5 @@
   <import-tasks file="three_tasks.xml"/>
   <import-resources file="three_resources.xml"/>
   <import-activities file="three_activities.xml"/>
-  <import-schedule file="three_schedule.xml"/>
+<!--  <import-schedule file="three_schedule.xml"/>-->
 </project>

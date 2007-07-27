@@ -139,13 +139,15 @@ class CSPScheduler:
         Update the project's schedule
         Return list of errors occured during schedule
         """
+        # FIXME
+        self.max_duration *= 2
         if _VERBOSE>0:
             print "Tasks", len(self.real_tasks)
             print "Res", len(self.resources)
             print "Dur", self.max_duration
         pb = ProjmanProblem( len(self.real_tasks),
                              len(self.resources),
-                             2*int(self.max_duration) )
+                             int(self.max_duration) )
         pseudo_tasks = {}
         real_tasks_items = self.real_tasks.items()
         real_tasks_items.sort( key = lambda x:x[1][0] )
@@ -186,11 +188,14 @@ class CSPScheduler:
         _reg_csp( pb.begin_after_begin, cs.get(BEGIN_AFTER_BEGIN,[]) )
         _reg_csp( pb.end_after_begin, cs.get(END_AFTER_BEGIN,[]) )
 
+        if _VERBOSE:
+            print "occupation"
+            print "----------"
         for res_id, res_num in self.resources.items():
             res = self.project.get_resource( res_id )
             if _VERBOSE:
                 print "%02d" % res_num,
-            for d in range(self.max_duration):
+            for d in range(int(self.max_duration)):
                 dt = self.start_date + d
                 #print dt
                 if not res.work_on( dt ):
