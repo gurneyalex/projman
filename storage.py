@@ -24,7 +24,6 @@ import os, os.path as osp
 from ConfigParser import ConfigParser
 
 from logilab.common.compat import set
-from logilab.common.fileutils import mk_unique_filename
 
 from projman import LOG_CONF, extract_extension
 from projman.writers.projman_writer import as_xml_string, \
@@ -67,19 +66,15 @@ def default_writer(tree, file):
 
 def _write_trees(trees, output_name, writer=default_writer):
     """write output file"""
-    print "TREES", trees
     written_files = []
-    print "TREE", trees
     if len(trees) > 1:
         for index, tree in enumerate(trees):
             name, extension = extract_extension(output_name)
             file_name = '%s.%s.%s' % (name, index, extension)
-            file_object = open(file_name, 'w')
-            writer(tree, file_object)
+            writer(tree, open(file_name, 'w'))
             written_files.append(file_name)
     elif len(trees) == 1:
-        file_object = open(output_name, 'w')
-        writer(trees[0], file_object)
+        writer(trees[0], open(output_name, 'w'))
         written_files.append(output_name)
     #else: nothing to write
     return written_files
@@ -116,7 +111,7 @@ class ProjectFiles:
         # schedule may be None since we can generate it
         # in that case we make up a name
         if self.schedule is None:
-            fschedule = mk_unique_filename( self.repo_dir, "schedule",".xml" )
+            fschedule = osp.join(self.repo_dir, "schedule.xml" )
             self.schedule = osp.basename(fschedule)
         else:
             fschedule = osp.join( self.repo_dir, self.schedule )
@@ -129,15 +124,14 @@ class ProjectFiles:
 class ProjectStorage:
     """load and save projman project from set of file names"""
     
-    def __init__(self, repo_in, input_, output=None,
-                 virtual_task_root=None):
+    def __init__(self, repo_in, input_, output=None, virtual_task_root=None):
         """
-         repo_in: name of directory of projman file 
-         input_: name of projman file
-         output: name of output file
+        repo_in: name of directory of projman file 
+        input_: name of projman file
+        output: name of output file
          
-         input_projman: input file under projman format
-         virtual_task_root: id of a task to use as root
+        input_projman: input file under projman format
+        virtual_task_root: id of a task to use as root
         """
         # create logger
         self.logger = logging.getLogger("reader")
@@ -163,7 +157,7 @@ class ProjectStorage:
             readerklass = ProjectXMLReader
         file_in = osp.join(self.files.repo_dir, self.files.project)
         # set Projman reader by default
-        proj_reader = readerklass( self.files, self.vtask_root)
+        proj_reader = readerklass(self.files, self.vtask_root)
         # reading
         self.project = proj_reader.fromFile(file_in)
 
@@ -176,9 +170,9 @@ class ProjectStorage:
             files.copy_from_project( output, self.files )
         else:
             files = self.files
-        self._write_tasks(files)
-        self._write_resources(files)
-        self._write_activities(files)
+        _write_trees(self.project, osp.join(files.repo_dir, files.tasks))
+        _write_trees(self.project.resource_set, osp.join(files.repo_dir, files.resources))
+        write_activities_as_xml(osp.join(files.repo_dir, files.activities), self.project)
         self._write_projman(files)
         if write_schedule:
             self.write_schedule(files)
@@ -239,22 +233,3 @@ class ProjectStorage:
         output_f.close()
         self._set_written_file(PROJECT_KEY, self.to_projman())
 
-    def _write_tasks(self, files):
-        """writes tasks (after calling load)"""
-        # XXX CHECK IF WRITE IS NEEDED
-        output_name = osp.join(files.repo_dir, files.tasks)
-        written_files = _write_trees(self.project, output_name)
-
-    def _write_resources(self, files):
-        """writes resources (after calling load)"""
-        # XXX CHECK IF WRITE IS NEEDED
-        output_name = osp.join(files.repo_dir, files.resources)
-        written_files = _write_trees(
-            self.project.resource_set,
-            output_name)
-
-    def _write_activities(self, files):
-        """writes activities (after calling load)"""
-        # XXX CHECK IF WRITE IS NEEDED
-        output_name = osp.join(files.repo_dir, files.activities)
-        write_activities_as_xml(output_name, self.project)

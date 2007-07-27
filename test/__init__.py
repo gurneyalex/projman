@@ -20,10 +20,6 @@ gantt diagram, resource diagrams, etc.
 
 import os.path as osp
 from projman import extract_extension
-from projman.storage import SUFFIX
-
-def make_project_name(name):
-    return extract_extension(name)[0] + SUFFIX
 
 DATADIR = osp.abspath(osp.join(osp.dirname(__file__),'data'))
 
