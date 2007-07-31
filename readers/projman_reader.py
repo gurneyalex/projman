@@ -521,9 +521,10 @@ class ProjectXMLReader(AbstractXMLReader) :
     sax handler to process XML file and create a Project instance
     """
     
-    def __init__(self, files, virtual_task_root=None):
+    def __init__(self, files, config):
         AbstractXMLReader.__init__(self)
-        self.vtask_root = virtual_task_root
+        self.config = config
+        self.vtask_root = config.task_root
         self.project = self._factory.create_project()
         self.skip_schedule = False
         self.files = files

@@ -73,6 +73,7 @@ BOOST_PYTHON_MODULE(gcsp)
 	.def("get_solution", &ProjmanProblem::get_solution )
 	.def("set_verbosity", &ProjmanProblem::set_verbosity )
 	.def("set_name", &ProjmanProblem::set_name )
+	.def("set_first_day", &ProjmanProblem::set_first_day )
     ;
 
 

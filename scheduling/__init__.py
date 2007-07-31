@@ -38,7 +38,7 @@ class NoSolutionFound(ScheduleException):
     """unable to find a solution"""
 
 
-def schedule(proj, _type, verbose=0):
+def schedule(proj, config):
     """
     launch scheduling of a projman instance
     Uses CSPScheduler if csp is true, otherwise BasicScheduler
@@ -50,6 +50,7 @@ def schedule(proj, _type, verbose=0):
         verboselog('Scheduling not necessary, using previous results')
     else:
         proj.reset_schedule()
+        _type = config.type
         if _type == 'csp':
             from projman.scheduling.csp import CSPScheduler
             scheduler = CSPScheduler(proj)
@@ -62,8 +63,7 @@ def schedule(proj, _type, verbose=0):
         else:
             raise ValueError('bad scheduler type %s'%value)
         global_hash = proj.hash()
-        print "SCHEDULING: ", scheduler, type(scheduler)
-        errors += scheduler.schedule(verbose=verbose)
+        errors += scheduler.schedule(verbose=config.verbose)
         #print scheduler.solution
         schedule.hash_value = global_hash
     for error in errors:

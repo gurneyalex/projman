@@ -114,7 +114,8 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
 	    dom(this, milestones[pb.milestones[task_id]], pb.task_low[task_id], pb.task_high[task_id] );
 	}
 	if (this_task_pseudo_tasks.size()>=1) {
-	    int min_duration = duration/this_task_pseudo_tasks.size();
+	    int sz = this_task_pseudo_tasks.size();
+	    int min_duration = (duration+sz-1)/sz; // round to largest
 	    if (pb.verbosity>3) {
 		cout << "Duration " << task_id << ":" << min_duration << "..."<<duration<<endl;
 	    }
@@ -166,7 +167,7 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
     SetVar all_days(this);
     //SetVar all_w_days(this);
     rel(this, SOT_UNION, task_plus_nw_cvx, all_days );
-    dom(this, all_days, SRT_SUP, 0 );
+    dom(this, all_days, SRT_SUP, pb.first_day );
     max(this, all_days, last_day);
 #if 0
     // si on a des trous, ça merdoie...
@@ -202,7 +203,6 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
 
 	cout << "ALL DAYS:" << all_days << endl;
     }
-    //branch(this, real_tasks, SETBVAR_MIN_CARD, SETBVAL_MIN);
     branch(this, tasks, SETBVAR_MIN_CARD, SETBVAL_MIN);
     branch(this, milestones, BVAR_NONE, BVAL_MIN);
 }
