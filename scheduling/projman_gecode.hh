@@ -69,6 +69,7 @@ public:
     void set_convexity( bool v ) { convexity = v; }
     void set_verbosity( int level ) { verbosity = level; }
     std::vector<int> durations;  // duration of 0 means it's a milestone
+    std::vector<std::string> real_task_names;
     std::vector<int> milestones;  // task_id -> milestone_id mapping or -1 if n/a
     std::vector<int> task_low;   // starting date
     std::vector<int> task_high;  // ending date
@@ -87,6 +88,10 @@ public:
 	if (t<0 || t>=ntasks) {
 	    throw std::out_of_range("task number out of range");
 	}
+    }
+    void set_name( int t, std::string name ) {
+	check_task( t );
+	real_task_names[t] = name;
     }
 
     void set_low( int real_task_id, int low ) {
@@ -135,6 +140,7 @@ public:
     {
 	for(int i=0;i<ntasks;++i) {
 	    durations.push_back( 0 );
+	    real_task_names.push_back( std::string() );
 	    milestones.push_back( -1 );
 	    task_low.push_back( 0 );
 	    task_high.push_back( max_duration );

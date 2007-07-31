@@ -140,7 +140,7 @@ class CSPScheduler:
         Return list of errors occured during schedule
         """
         # FIXME
-        self.max_duration *= 2
+        self.max_duration = int(self.max_duration*1.5)
         if _VERBOSE>0:
             print "Tasks", len(self.real_tasks)
             print "Res", len(self.resources)
@@ -153,6 +153,7 @@ class CSPScheduler:
         real_tasks_items.sort( key = lambda x:x[1][0] )
         for tid, (num, duration, resources) in real_tasks_items:
             pb.set_duration( num, int(duration) )
+            pb.set_name( num, str(tid)[:15] )
             rnge = self.task_ranges[tid]
             if _VERBOSE>1:
                 print "Task %2d = #%2d [%4s,%4s] = '%20s'" % ((num,duration)+tuple(rnge)+(tid,))
@@ -192,21 +193,18 @@ class CSPScheduler:
             print "occupation"
             print "----------"
         for res_id, res_num in self.resources.items():
+            sched = []
             res = self.project.get_resource( res_id )
-            if _VERBOSE:
-                print "%02d" % res_num,
             for d in range(int(self.max_duration)):
                 dt = self.start_date + d
-                #print dt
                 if not res.work_on( dt ):
                     pb.add_not_working_day( res_num, d )
-                    if _VERBOSE:
-                        print "x",
+                    sched.append("x")
                 else:
-                    if _VERBOSE:
-                        print ".",
-            print
-        
+                    sched.append(".")
+            if _VERBOSE:
+                print "%02d" % res_num, "".join(sched)
+
         pb.set_convexity( True )
         pb.set_time( 100000 ) # 2 min max
         pb.set_verbosity( _VERBOSE )
@@ -215,6 +213,8 @@ class CSPScheduler:
         N = pb.get_number_of_solutions()
         if N==0:
             return []
+        if (_VERBOSE==1):
+            self.compare_solutions( pb )
         SOL = pb.get_solution( N-1 )
         duration = SOL.get_duration()
         ntasks = SOL.get_ntasks()
@@ -264,6 +264,26 @@ class CSPScheduler:
         self.project.add_schedule(activities)
         return []
 
+
+    def read_sol( self, SOL ):
+        duration = SOL.get_duration()
+        ntasks = SOL.get_ntasks()
+        tasks_days = [ [ day for day in range(duration) if SOL.isworking( task, day ) ] for task in range(ntasks) ]
+        return tasks_days
+    
+    def compare_solutions( self, pb ):
+        N = pb.get_number_of_solutions()
+        if N==0:
+            return
+        SOL0 = self.read_sol( pb.get_solution( 0 ) )
+        for i in range(1,N):
+            SOL1 = self.read_sol( pb.get_solution( i ) )
+            for id, (task0,task1) in enumerate( zip( SOL0, SOL1 ) ):
+                if task0!=task1:
+                    print id, task0
+                    print id, task1
+            print
+            SOL0 = SOL1
 
 def solution_cost(solution):
     """cost function
