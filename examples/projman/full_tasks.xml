@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <task id="LNGW">
   <constraint-resource usage="100" idref="cdp_1" type="manager"/>
-  <constraint-resource usage="100" idref="rh_1" type="administrative"/>
+<!-- <constraint-resource usage="100" idref="rh_1" type="administrative"/>-->
   <constraint-resource usage="100" idref="ing_1" type="engineer"/>
   <constraint-resource usage="100" idref="ing_2" type="engineer"/>
   <constraint-resource usage="100" idref="ing_3" type="engineer"/>
@@ -16,6 +16,7 @@
 	sur lequel sera bâtie la solution.</para></description>
     <constraint-date type="begin-at-date">2005-01-03</constraint-date>
 
+<!--
     <task id="sp1">
       <label>Suivi de projet</label>
       <description><para>Réunions de début et de fin de tranche, réunions
@@ -24,7 +25,7 @@
       <constraint-resource usage='50' idref='rh_1' type='n/a'/>
       <constraint-resource usage='100' idref='cdp_1' type='n/a'/>
     </task>
-
+-->
     <task id="model-donnees">
       <label>Modélisation des données</label>
       <description>Sur la base des informations fournies dans le cahier des
@@ -80,8 +81,7 @@
   <milestone id="end_t1">
       <label>Fin du premier Lot: état d'avancement</label>
       <constraint-date type='begin-at-date'>2005-02-03</constraint-date>
-      <constraint-task idref="interface" type='begin-after-end'/>
-      <constraint-task idref="config-lingway" type='begin-after-end'/>
+      <constraint-task type='begin-after-end' idref="t1"/>
   </milestone>
 
   <task id="t2">
@@ -91,6 +91,7 @@
     (voir détails des tâches ci-dessous).</description>
     <constraint-task idref="end_t1" type='begin-after-end'/>
 
+<!--
     <task id="sp2">
       <label>Suivi de projet</label>
       <description>Réunions de début et de fin de tranche, réunions
@@ -99,6 +100,7 @@
       <constraint-resource usage='50' idref='rh_1' type='n/a'/>
       <constraint-resource usage='100' idref='cdp_1' type='n/a'/>
     </task>
+-->
     
     <task id="proc-droits">
       <label>Processus et droits</label>
@@ -132,6 +134,7 @@
       <constraint-task idref="proc-droits" type='begin-after-end'/>
       <constraint-date type='begin-at-date'>2005-02-17</constraint-date>
       <constraint-date type='end-before-date'>2005-03-03</constraint-date>
+
     </task>
   </task>
   
@@ -141,9 +144,10 @@
     <description>Mise en place des processus et des droits, personnalisation de
     l'interface, lien vers des applications externes, interface d'administration
     (voir détails des tâches ci-dessous).</description>
-    <constraint-task idref="t2" type='begin-after-end'/>
-    <constraint-date type='end-at-date'>2005-04-03</constraint-date>
+    <constraint-task type='begin-after-end' idref="t2"/>
+    <constraint-date type='end-at-date'>2005-04-15</constraint-date>
 
+<!--
     <task id="sp3">
       <label>Suivi de projet</label>
       <description>Réunions de début et de fin de tranche, réunions
@@ -152,6 +156,7 @@
       <constraint-resource usage='50' idref='rh_1' type='n/a'/>
       <constraint-resource usage='100' idref='cdp_1' type='n/a'/>
     </task>
+-->
 
     <task id="windows">
       <label>Intégration dans le bureau Windows</label>
@@ -173,7 +178,7 @@
       des statistiques décrites dans le cahier des charges.</description>
       <duration>8</duration>
       <constraint-resource usage='100' idref='ing_1' type='n/a'/>
-      <constraint-task idref="appli-externes" type='begin-after-end'/>
+      <constraint-task type='begin-after-end' idref="appli-externes"/>
     </task>
 
     <task id="adaptation-lingway">
@@ -185,6 +190,8 @@
       compte.</description>
       <duration>6</duration>
       <constraint-resource usage='100' idref='ing_2' type='n/a'/>
+      <constraint-date type='begin-after-date'>2005-03-15</constraint-date>
+      <constraint-date type='end-before-date'>2005-03-22</constraint-date>
     </task>
 
     <task id="interface3">
@@ -219,7 +226,9 @@
 
     <duration>7</duration>
     <constraint-resource usage='29' idref='ing_1' type='n/a'/>
+<!--
     <constraint-resource usage='100' idref='rh_1' type='n/a'/>
+-->
   </task>
 
 
@@ -234,7 +243,7 @@
     l'ensemble des utilisateurs de la solution chez Bouygues TP par des
     formations internes. Une session de formation spécifique sera mise en place
     pour les administrateurs.</description>
-    <constraint-task idref="deployer" type='begin-after-end'/>
+    <constraint-task type='begin-after-end' idref="deployer"/>
 
     <task id="support-utilis">
       <label>Support de formation utilisateur</label>
@@ -256,6 +265,8 @@
       de travail pour deux personnes seront nécessaires.</description>
       <duration>1</duration>
       <constraint-resource usage='100' idref='ing_1' type='n/a'/>
+      <constraint-task type='begin-after-end' idref="support-utilis"/>
+      <constraint-task type='begin-after-end' idref="cours-admin"/>
     </task>
 
     <task id="support-admin">
@@ -265,6 +276,7 @@
       nécessaires.</description>
       <duration>4</duration>
       <constraint-resource usage='100' idref='ing_1' type='n/a'/>
+      <constraint-task type='begin-after-end' idref="support-utilis"/>
     </task>
 
     <task id="cours-admin">
@@ -274,6 +286,7 @@
       seront nécessaires.</description>
       <duration>2</duration>
       <constraint-resource usage='100' idref='ing_1' type='n/a'/>
+      <constraint-task type='begin-after-end' idref="support-admin"/>
     </task>
   </task>
 
