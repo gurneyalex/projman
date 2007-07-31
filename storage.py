@@ -67,9 +67,7 @@ def default_writer(tree, file):
 
 def _write_trees(trees, output_name, writer=default_writer):
     """write output file"""
-    print "TREES", trees
     written_files = []
-    print "TREE", trees
     if len(trees) > 1:
         for index, tree in enumerate(trees):
             name, extension = extract_extension(output_name)
@@ -129,30 +127,30 @@ class ProjectFiles:
 class ProjectStorage:
     """load and save projman project from set of file names"""
     
-    def __init__(self, repo_in, input_, output=None,
-                 virtual_task_root=None):
+    def __init__(self, config, repo_dir=None ):
         """
-         repo_in: name of directory of projman file 
-         input_: name of projman file
-         output: name of output file
-         
-         input_projman: input file under projman format
-         virtual_task_root: id of a task to use as root
+         config: the config/command line options
+         repo_dir: if set override the default project_file dir
+                   (mainly for tests)
         """
+        if repo_dir is None:
+            repo_dir, input_ = osp.split(osp.abspath(config.project_file))
+        else:
+            input_ = config.project_file
+
         # create logger
         self.logger = logging.getLogger("reader")
         try:
             logging.config.fileConfig(LOG_CONF)
         except Exception :
             logging.basicConfig()
-        # set options
-        self.vtask_root = virtual_task_root
 
         # manages the file names of the input project
         self.files = ProjectFiles()
-        self.files.repo_dir = repo_in
+        self.files.repo_dir = repo_dir
         self.files.project = input_
         self.project = None
+        self.config = config  # keep it around for when we create the project
 
     def __str__(self):
         return self._input
@@ -163,12 +161,13 @@ class ProjectStorage:
             readerklass = ProjectXMLReader
         file_in = osp.join(self.files.repo_dir, self.files.project)
         # set Projman reader by default
-        proj_reader = readerklass( self.files, self.vtask_root)
+        proj_reader = readerklass(self.files, self.config)
         # reading
         self.project = proj_reader.fromFile(file_in)
 
     # WRITERS
     #########
+    # XXX: DEAD
     def save(self, output=None, write_schedule=False, include_reference=False):
         """write all files of projects"""
         if output is not None:
@@ -191,6 +190,7 @@ class ProjectStorage:
         output_name = files.get_schedule()
         write_schedule_as_xml(output_name, self.project)
 
+    # XXX: DEAD
     def write_schedule_reference(self, files):
         """modify projman file"""
         # XXX moyen-bof comme methode...
@@ -206,6 +206,7 @@ class ProjectStorage:
         file_obj.writelines(lines)
         file_obj.close()
 
+    # XXX: DEAD
     def _write_projman(self, files):
         """write projman, pointing out the other files"""
         output_f = open(files.get_project(), 'w')

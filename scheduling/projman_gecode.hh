@@ -57,6 +57,7 @@ public:
     int max_duration;
     int n_milestones;
     int verbosity;
+    int first_day; // the first worked day (usually 0)
     bool convexity;
     std::vector<ProjmanSolution> projman_solutions;
     int get_number_of_solutions() const {
@@ -88,6 +89,12 @@ public:
 	if (t<0 || t>=ntasks) {
 	    throw std::out_of_range("task number out of range");
 	}
+    }
+    void set_first_day( int d ) {
+	if (d<0 || d>=max_duration) {
+	    throw std::out_of_range("Day number out of range");
+	}
+	first_day = d;
     }
     void set_name( int t, std::string name ) {
 	check_task( t );
@@ -136,7 +143,8 @@ public:
 	max_duration(_maxdur),
 	n_milestones(0),
 	verbosity(0),
-	convexity(false)
+	convexity(false),
+	first_day(0)
     {
 	for(int i=0;i<ntasks;++i) {
 	    durations.push_back( 0 );

@@ -27,13 +27,6 @@ from projman.views import document
 
 
 
-VIRTUAL_ROOT_OPTION = ('task-root',
-                       {'short': 'R',
-                        'type' : 'string', 'metavar': '<virtual task root>',
-                        'default': None,
-                        'help': 'identifier of a task to use as root',
-                        })
-
 
 class ProjmanCommand(Command):
     """base class providing common behaviour for projman commands"""
@@ -49,17 +42,22 @@ class ProjmanCommand(Command):
           }
          ),
         ('verbose',
-         {'type' : 'yn', 'metavar': '<y or n>',
-          'default': False,
+         {'type' : 'int', 'metavar': '<0..3>',
+          'default': 0,
           'help': 'display additional information during execution of projman',
           }
          ),
+        ('task-root',
+         {'short': 'R',
+          'type' : 'string', 'metavar': '<virtual task root>',
+          'default': None,
+          'help': 'identifier of a task to use as root',
+          }),
         )
 
     def run(self, args):
         """run the command with its specific arguments"""
-        repo_in, input = osp.split(osp.abspath(self.config.project_file))
-        self.storage = ProjectStorage(repo_in, input, virtual_task_root=getattr(self.config, 'task_root', None))
+        self.storage = ProjectStorage(self.config)
         self.storage.load()
         self._run(args)
 
@@ -76,13 +74,6 @@ class ScheduleCommand(ProjmanCommand):
     arguments = ''
 
     options = ProjmanCommand.options + (
-        ('output',
-         {'short': 'o',
-          'type' : 'string', 'metavar': '<output xml file>',
-          'default': 'schedule.xml',
-          'help': 'specific output file to use',
-          }
-         ),
         ('type',
          {'type' : 'choice', 'metavar': '<schedule type>',
           'choices': ('dumb', 'simple', 'csp'),
@@ -90,20 +81,11 @@ class ScheduleCommand(ProjmanCommand):
           'help': 'scheduling method',
           }
          ),
-        ('include-reference',
-         {'short': 'I',
-          'type' : 'yn', 'metavar': '<y or n>',
-          'default': True,
-          'help': 'input file will be modified to include reference to '
-                  'produced schedule file',
-          }
-         ),
         )
 
     def _run(self, views):
         from projman.scheduling import schedule
-        schedule(self.storage.project, self.config.type)
-        # IGNORE -o mais ca marchait pas avant non plus
+        schedule(self.storage.project, self.config)
         self.storage.write_schedule( self.storage.files )
 
 
@@ -133,7 +115,6 @@ class ViewCommand(ProjmanCommand):
         #  'help': 'identifier of a task to use as root',
         #  }
         # ),
-        VIRTUAL_ROOT_OPTION,
         ('display-dates',
          {'type' : 'yn', 'metavar': '<y or n>',
           'default': True,
@@ -171,7 +152,6 @@ class DiagramCommand(ProjmanCommand):
           'help': 'specific output file to use when a single diagram is generated',
           }
          ),
-        VIRTUAL_ROOT_OPTION,
         ('selected-resource',
          {'type' : 'string', 'metavar': '<resource identifier>',
           'default': None,
@@ -189,7 +169,7 @@ class DiagramCommand(ProjmanCommand):
         ('depth',
          {'type' : 'int', 'metavar': '<level>',
           'default': 0,
-          'help': 'specifies the depth to visualisate for diagrams, default to '
+          'help': 'specifies the depth to visualize for diagrams, default to '
                   '0 which means all the tree',
           }
          ),
@@ -310,9 +290,7 @@ class ConvertCommand(ProjmanCommand):
         """run the command with its specific arguments"""
         from projman.readers import PlannerXMLReader, ProjectXMLReader
         output = args[0]
-        repo_in, input = osp.split(osp.abspath(self.config.project_file))
-        self.storage = ProjectStorage(repo_in, input,
-                                      virtual_task_root=getattr(self.config, 'task_root', None))
+        self.storage = ProjectStorage(self.config)
         if self.config.input_format == 'planner':
             reader = PlannerXMLReader
         else: # default, plus option parser doesn't allow anything else

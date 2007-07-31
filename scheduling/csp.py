@@ -65,8 +65,9 @@ class CSPScheduler:
                 self.start_date = min(ends)
             else:
                 self.start_date = today()
-        # advance start date to the first working day
+        # find the first working day
         d = self.start_date
+        self.first_day = 0
         while True:
             for res_id in self.project.get_resources():
                 res = self.project.get_resource(res_id)
@@ -74,9 +75,9 @@ class CSPScheduler:
                     break
             else:
                 d = d + 1
+                self.first_day += 1
                 continue
             break
-        self.start_date = d
         if ends and begins:
             other_length = (max(ends) - min(begins)).days +1
         else:
@@ -100,6 +101,8 @@ class CSPScheduler:
         for c_type, date in node.get_date_constraints():
             days = (date-self.start_date).days
             if days<0:
+                print "Date:", date
+                print "Start date", self.start_date
                 raaaah
             if c_type == BEGIN_AFTER_DATE :
                 rnge[0] = days
@@ -139,7 +142,7 @@ class CSPScheduler:
         Update the project's schedule
         Return list of errors occured during schedule
         """
-        # FIXME
+        _VERBOSE = verbose
         self.max_duration = int(self.max_duration*1.5)
         if _VERBOSE>0:
             print "Tasks", len(self.real_tasks)
@@ -151,6 +154,7 @@ class CSPScheduler:
         pseudo_tasks = {}
         real_tasks_items = self.real_tasks.items()
         real_tasks_items.sort( key = lambda x:x[1][0] )
+        pb.set_first_day( self.first_day )
         for tid, (num, duration, resources) in real_tasks_items:
             pb.set_duration( num, int(duration) )
             pb.set_name( num, str(tid)[:15] )
@@ -206,7 +210,7 @@ class CSPScheduler:
                 print "%02d" % res_num, "".join(sched)
 
         pb.set_convexity( True )
-        pb.set_time( 100000 ) # 2 min max
+        pb.set_time( 400000 ) # 2 min max
         pb.set_verbosity( _VERBOSE )
         solve( pb )
 
