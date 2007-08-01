@@ -24,3 +24,4 @@ from gantt import GanttRenderer
 from resource import ResourcesRenderer
 from ganttresource import GanttResourcesRenderer
 from pil import PILHandler
+#from svg import SVGHandler as PILHandler

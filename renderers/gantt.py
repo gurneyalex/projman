@@ -112,6 +112,7 @@ class GanttRenderer(AbstractRenderer) :
                 
         begin, end = project.get_task_date_range(task)
         
+        self.drawer.task_timeline_bg()
         for day in self.drawer._timeline_days:
             self.drawer.task_timeline(task, True, task.children, '', day,
                                       begin, end, project)
@@ -218,45 +219,51 @@ class GanttDrawer(AbstractDrawer) :
                                 True, # ??
                                 day == last_day,
                                 day)
-        
+
+    def task_timeline_bg( self ):
+        """Draw the background of a timeline"""
+        first_day = self._timeline_days[0]
+        last_day = self._timeline_days[-1]+self._timestep
+        rnge = list( date_range( first_day, last_day ) )
+        daywidth = self._daywidth
+        self._handler.draw_rect(self._x, self._y+1, daywidth*len(rnge),
+                                ROW_HEIGHT-2, fillcolor=self._color_set['WEEKDAY'])
+        # draw week-end days-
+        for n, day in enumerate(rnge):
+            if day.date == TODAY.date :
+                bgcolor = self._color_set['TODAY']
+            elif day.day_of_week in (5, 6):
+                bgcolor = self._color_set['WEEKEND']
+            else:
+                continue
+            self._handler.draw_rect(self._x+n*daywidth, self._y+1, daywidth,
+                                    ROW_HEIGHT-2, fillcolor=bgcolor)
+
+
     def _task_timeline(self, worked, is_container, first, last, begin, end, day):
         """
         write a day for a task
         """
-        # background color
-        if day.date == TODAY.date :
-            bgcolor = self._color_set['TODAY']
-        elif day.day_of_week in (5, 6):
-            bgcolor = self._color_set['WEEKEND']
-        else:
-            bgcolor = self._color_set['WEEKDAY']
-        # foreground color
-        if worked:
-            color = self._color
-            coords = self._tasks_slots.setdefault(self._ctask, [])
-            coords.append( (self._x, self._y) )
-        else:
-            color = bgcolor
-        # dx, dy, dw, dh
-        if begin and end:
-            dx, dy, dw, dh = 0, 0, 0, 0
-        elif begin:
-            dx, dy, dw, dh = 1, 1, -1, -2
-        elif end:
-            dx, dy, dw, dh = 0, 1, -1, -2
-        else:
-            dx, dy, dw, dh = 0, 1, 0, -2
+        OFFSETS = {
+            (True,True)  : (0, 0, 0, 0),
+            (True,False) : (1, 1, -1, -2),
+            (False,True) : (0, 1, -1, -2),
+            (False,False): (0, 1, 0, -2), }
+        dx, dy, dw, dh = OFFSETS[ (begin,end) ]
+
+        color = self._color
+        coords = self._tasks_slots.setdefault(self._ctask, [])
+        coords.append( (self._x, self._y) )
+
         # draw bg and fg rectangles
         width = self._daywidth
-        self._handler.draw_rect(self._x+dx, self._y+dy, max(width+dw, 0),
-                                ROW_HEIGHT+dh, fillcolor=bgcolor)
-        if not is_container:
+        if worked and not is_container:
             self._handler.draw_rect(self._x+dx,
                                     self._y+dy+ROW_HEIGHT*0.125,
                                     max(width+dw, 0),
                                     ROW_HEIGHT*0.75+dh, fillcolor=color)
         # draw... what?
-        if worked and is_container:
+        elif worked and is_container:
             x = self._x
             line_width = round(ROW_HEIGHT/12.)
             y = self._y+5*line_width
@@ -279,7 +286,7 @@ class GanttDrawer(AbstractDrawer) :
                 r_width -= 5
             self._handler.draw_rect(r_x, y, max(r_width, 0),
                                     ROW_HEIGHT-10*line_width, fillcolor=color)
-            
+
         # record position
         self._x += width
 
