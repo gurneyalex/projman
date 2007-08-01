@@ -191,3 +191,6 @@ class PILHandler:
             else:
                 self._font = self._default_font
         return attrs
+
+    def get_output(self, fname):
+        return open(fname, "w")
