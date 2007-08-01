@@ -226,7 +226,7 @@ class DiagramCommand(ProjmanCommand):
             except KeyError:
                 raise BadCommandUsage('unknown diagram %s' % diagram)
             output = self.config.output or '%s.%s' % (diagram, self.config.format)
-            stream = open(output, 'w')
+            stream = handler.get_output(output)
             #if self.options.is_image_renderer():
             renderer.render(self.storage.project, stream)
             #else:
