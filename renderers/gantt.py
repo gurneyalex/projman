@@ -183,13 +183,14 @@ class GanttDrawer(AbstractDrawer) :
             width *= 2
         if self.options.showids :
             width += FIELD_COLUMN_WIDTH
-        if self.options.detail > 1 :
+        if 0 and self.options.detail > 1 :
             width += FIELD_COLUMN_WIDTH*2
-        if self.options.detail > 0 :
+        if 0 and self.options.detail > 0 :
             width += FIELD_COLUMN_WIDTH*4
         width += len(self._timeline_days)*self._timestepwidth
         #calculate height
         height = ROW_HEIGHT * (5 + project.get_nb_tasks())
+        
         return (width, height)
     
     # project table head/tail #################################################

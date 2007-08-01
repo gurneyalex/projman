@@ -23,5 +23,13 @@ from abstract import AbstractRenderer, AbstractDrawer
 from gantt import GanttRenderer
 from resource import ResourcesRenderer
 from ganttresource import GanttResourcesRenderer
-from pil import PILHandler
-#from svg import SVGHandler as PILHandler
+from pil import PILHandler, FORMATS as PIL_FORMATS
+from svg import SVGHandler
+
+def HandlerFactory(format):
+    format = format.upper()
+    if format in PIL_FORMATS:
+        return PILHandler(format)
+    if format=='SVG':
+        return SVGHandler(format)
+    raise NotImplementedError("Format '%s' not supported" % format )
