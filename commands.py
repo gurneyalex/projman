@@ -161,7 +161,7 @@ class DiagramCommand(ProjmanCommand):
          ),
         ('format',
          {'type' : 'choice', 'metavar': '<format>',
-          'choices': ('png', 'gif', 'jpeg', 'tiff'), # 'html'
+          'choices': ('png', 'gif', 'jpeg', 'tiff', 'svg'), # 'html'
           'default': 'png',
           'help': 'specifies the output format for diagrams',
           }
@@ -213,8 +213,8 @@ class DiagramCommand(ProjmanCommand):
         #    renderer = ResourcesHTMLRenderer(self.options.get_render_options())
         #else:
         from projman.renderers import ResourcesRenderer, GanttRenderer, \
-             GanttResourcesRenderer, PILHandler
-        handler = PILHandler(self.config.format)
+             GanttResourcesRenderer, HandlerFactory
+        handler = HandlerFactory(self.config.format)
         known_diagrams = {
             'gantt': GanttRenderer,
             'resources': ResourcesRenderer,
