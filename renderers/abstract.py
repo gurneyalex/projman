@@ -121,22 +121,23 @@ class AbstractRenderer :
     DEFAULT_OPTIONS = {'timestep' : 1,
                        'detail' : 2,
                        'depth' : 0,
-                       'view-begin' : None,
-                       'view-end' : None,
+                       'view_begin' : None,
+                       'view_end' : None,
                        'showids' : False,
                        'rappel' : False
                        }
     
-    def __init__(self, option_container) :
+    def __init__(self, options) :
         """
         Initialise all fields and tools needed for rendering,
         BUT the Concrete Renderer still needs to define its drawer.
         """
         self.drawer = None
-        self.option_container = option_container
-        self.options = copy.copy(self.DEFAULT_OPTIONS)
-        self.options.update(option_container.get_render_options())
-        
+        self.options = options
+        for k, v in self.DEFAULT_OPTIONS.items():
+            if not hasattr( options, k ):
+                setattr( options, k, v )
+
     def write(self, string) :
         """
         write a content part to the output buffer
@@ -162,12 +163,12 @@ class AbstractRenderer :
         self._i = 0 # row num
         # set borders
         begin, end = project.get_task_date_range(project.root_task)
-        if self.options['view-begin']:
-            view_begin =  self.options['view-begin']
+        if self.options.view_begin:
+            view_begin =  self.options.view_begin
         else:
             view_begin = begin
-        if self.options['view-end']:
-            view_end = self.options['view-end']
+        if self.options.view_end:
+            view_end = self.options.view_end
         else:
             view_end = end
         if not view_begin:
@@ -186,7 +187,7 @@ class AbstractRenderer :
         # print table tail 
         self.drawer.open_line()
         self.drawer.main_title("Generated on %s" % (
-            now().strftime("%Y/%m/%d %H:%M:%S")))       
+            now().strftime("%Y/%m/%d %H:%M:%S")))
         self.drawer.draw_timeline()
         self.drawer.close_line()
         self.drawer.close_table()
@@ -217,7 +218,7 @@ class AbstractDrawer :
         self.options = options
         self._handler = handler
         self._timeline_days = []
-        self._timestep = self.options['timestep']
+        self._timestep = self.options.timestep
         # x and y coordinate for current element location
         self._x = 0
         self._y = 0        

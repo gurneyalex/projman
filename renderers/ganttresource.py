@@ -23,10 +23,10 @@ from projman.renderers.abstract import AbstractRenderer, AbstractDrawer, ROW_HEI
 
 class GanttResourcesRenderer(ResourcesRenderer, GanttRenderer):
     
-    def __init__(self, option_container, handler, colors_file=None, colors_stream=None):
-        AbstractRenderer.__init__(self, option_container)
-        self.drawer = GanttResourcesDrawer(option_container.get_render_options(),
-                                           handler, colors_file, colors_stream)
+    def __init__(self, options, handler, colors_file=None, colors_stream=None):
+        AbstractRenderer.__init__(self, options)
+        self.drawer = GanttResourcesDrawer(options, handler, colors_file,
+                                           colors_stream)
         self._draw_resources = {}
         
     def render(self, project, stream):
@@ -47,14 +47,13 @@ class GanttResourcesRenderer(ResourcesRenderer, GanttRenderer):
         self.drawer.set_color_set(self._i)
         self._i += 1
         self.render_total_occupation(project, resource)
-                            
-class GanttResourcesDrawer(ResourcesDrawer, GanttDrawer) :
-            
+
+class GanttResourcesDrawer(ResourcesDrawer, GanttDrawer):
     def _init_table(self):
         """ initialize fields needed by the table"""
         GanttDrawer._init_table(self) 
         ResourcesDrawer._init_table(self)
-        
+
     def _get_table_dimension(self, project):
         """ calculate dimension of the table"""
         #retreive attributes from mother classes

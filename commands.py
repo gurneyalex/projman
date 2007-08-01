@@ -122,7 +122,7 @@ class ViewCommand(ProjmanCommand):
           }
          ),
         )
-    
+
     def _run(self, views):
         from projman.views import ALL_VIEWS
         root = document("dr:root")
@@ -142,7 +142,7 @@ class DiagramCommand(ProjmanCommand):
     """generate diagrams from a project file (resources, gantt, etc.)"""
     name = 'diagram'
     min_args = 1
-    arguments = '<diagram name>...'    
+    arguments = '<diagram name>...'
 
     options = ProjmanCommand.options + (
         ('output',
@@ -205,9 +205,8 @@ class DiagramCommand(ProjmanCommand):
                   'worked during given period',
           }
          ),
-        
         )
-    
+
     def _run(self, diagrams):
         #if self.config.renderer == 'html':
         #    from projman.renderers.HTMLRenderer import ResourcesHTMLRenderer
@@ -223,7 +222,7 @@ class DiagramCommand(ProjmanCommand):
             }
         for diagram in diagrams:
             try:
-                renderer = known_diagrams[diagram](ConfigAdapter(self.config), handler)
+                renderer = known_diagrams[diagram](self.config, handler)
             except KeyError:
                 raise BadCommandUsage('unknown diagram %s' % diagram)
             output = self.config.output or '%s.%s' % (diagram, self.config.format)
@@ -242,24 +241,6 @@ class DiagramCommand(ProjmanCommand):
             #    self.renderer.render(self.project, output_f)
             #    output_f.write("</body></html>")
 
-class ConfigAdapter:
-    """XXX temporaly needed since renderer expecte an old option manager object"""
-    def __init__(self, config):
-        self._config = config
-        self.delete_ended = config.del_ended
-        self.delete_empty = config.del_empty
-        
-    def get_render_options(self):
-        """return dictionary readable by renderers & drawers"""
-        return {'timestep' : self._config.timestep,
-                'detail' : 2,
-                'depth' : self._config.depth,
-                'view-begin' : self._config.view_begin,
-                'view-end' : self._config.view_end,
-                'showids' : False,
-                'rappel' : False,
-                'selected-resource' : self._config.selected_resource,
-                }
 
 
 class ConvertCommand(ProjmanCommand):

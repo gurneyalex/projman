@@ -31,10 +31,9 @@ class GanttRenderer(AbstractRenderer) :
     Render a Gantt diagram
     """
     
-    def __init__(self, option_container, handler, colors_file=None, colors_stream=None) :
-        AbstractRenderer.__init__(self, option_container)
-        self.drawer = GanttDrawer(option_container.get_render_options(),
-                                  handler, colors_file, colors_stream)
+    def __init__(self, options, handler, colors_file=None, colors_stream=None) :
+        AbstractRenderer.__init__(self, options)
+        self.drawer = GanttDrawer(options, handler, colors_file, colors_stream)
         
     def render(self, task, stream):
         """
@@ -74,7 +73,7 @@ class GanttRenderer(AbstractRenderer) :
         else:
             self.render_task(node, project)
         # hide task under the depth limit
-        if self.options['depth'] and node.depth() >= self.options['depth'] :
+        if self.options.depth and node.depth() >= self.options.depth :
             return
         
         # hide task out of the time line
@@ -93,7 +92,7 @@ class GanttRenderer(AbstractRenderer) :
         generate event for a given task 
         """
         verbose("drawing task", task.id)
-        if self.option_container.delete_ended and task.is_finished():
+        if self.options.del_ended and task.is_finished():
             verbose(task.id, "  finished, thus ignored")
             return
         self.drawer.set_color_set(self._i)
@@ -108,7 +107,7 @@ class GanttRenderer(AbstractRenderer) :
         self.drawer.main_content(task.title or task.id,
                                  project, task.depth(), task)
         
-        if self.options['showids'] :
+        if self.options.showids :
             self.drawer.simple_content(task.title)
                 
         begin, end = project.get_task_date_range(task)
@@ -118,7 +117,7 @@ class GanttRenderer(AbstractRenderer) :
                                       begin, end, project)
         self.drawer.close_timeline()
 
-        if self.options['rappel']:
+        if self.options.rappel:
             self.drawer.main_content(task.title or task.id,
                                      project, task.depth(), task)
         # close table row
@@ -141,7 +140,7 @@ class GanttRenderer(AbstractRenderer) :
         self.drawer.main_content(milestone.title or milestone.id,
                                  project, depth, milestone)
         
-        if self.options['showids'] :
+        if self.options.showids :
             self.drawer.simple_content(milestone.title)
 
         
@@ -150,7 +149,7 @@ class GanttRenderer(AbstractRenderer) :
             self.drawer.milestone_timeline(d, milestone, project)
         self.drawer.close_timeline()
 
-        if self.options['rappel']:
+        if self.options.rappel:
             self.drawer.main_content(milestone.title or milestone.id,
                                      project, depth, milestone)
         # close table row
@@ -179,13 +178,13 @@ class GanttDrawer(AbstractDrawer) :
         """
         #calculate width
         width = TITLE_COLUMN_WIDTH
-        if self.options['rappel']:
+        if self.options.rappel:
             width *= 2
-        if self.options['showids'] :
+        if self.options.showids :
             width += FIELD_COLUMN_WIDTH
-        if self.options['detail'] > 1 :
+        if self.options.detail > 1 :
             width += FIELD_COLUMN_WIDTH*2
-        if self.options['detail'] > 0 :
+        if self.options.detail > 0 :
             width += FIELD_COLUMN_WIDTH*4
         width += len(self._timeline_days)*self._timestepwidth
         #calculate height
@@ -289,7 +288,7 @@ class GanttDrawer(AbstractDrawer) :
         Iterate over each day to draw corresponding milestone
         """
         self._ctask = milestone
-        last_day = day + self.options['timestep']
+        last_day = day + self.options.timestep
         begin, end = project.get_task_date_range(milestone)
         assert begin == end
         

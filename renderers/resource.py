@@ -31,14 +31,14 @@ class ResourcesRenderer(AbstractRenderer) :
 
     AbstractRenderer.DEFAULT_OPTIONS.update({'selected-resource' : None})
     
-    def __init__(self, option_container, handler,
+    def __init__(self, options, handler,
                  colors_file=None, colors_stream=None):
         """
         Creates concrete renderer with a matching associate drawer:
         ResourceDrawer
         """
-        AbstractRenderer.__init__(self, option_container)
-        self.drawer = ResourcesDrawer(option_container.get_render_options(),
+        AbstractRenderer.__init__(self, options)
+        self.drawer = ResourcesDrawer(options,
                                       handler, colors_file, colors_stream)
         self._draw_resources = {}
        
@@ -62,9 +62,9 @@ class ResourcesRenderer(AbstractRenderer) :
         # print the resources informations
         resources = [resource for resource in project.resource_set.children 
                      if resource.TYPE == 'resource']
-        if self.options['selected-resource']:
+        if self.options.selected_resource:
             resources = [resource for resource in resources
-                         if resource.id == self.options['selected-resource']]
+                         if resource.id == self.options.selected_resource]
         for resource in resources:
             self.render_resource(resource, project)
         
@@ -93,11 +93,11 @@ class ResourcesRenderer(AbstractRenderer) :
         """
         generate event for a resource activity
         """
-        if self.option_container.delete_ended and task.is_finished():
+        if self.options.del_ended and task.is_finished():
             verbose("  ignoring task", task.id, "for it's finished ",
                     " and using option --del-ended (or -D)")
             return
-        if self.option_container.delete_empty:
+        if self.options.del_empty:
             begin = self.drawer._timeline_days[0]
             end = self.drawer._timeline_days[-1] + 1
             for a_begin, a_end, _, _, _, _ in activities:
@@ -141,13 +141,13 @@ class ResourcesDrawer(AbstractDrawer) :
         """
         # calculate width
         width = TITLE_COLUMN_WIDTH
-        if self.options['rappel']:
+        if self.options.rappel:
             width *= 2
-        if self.options['showids'] :
+        if self.options.showids :
             width += FIELD_COLUMN_WIDTH
-        if self.options['detail'] > 1 :
+        if self.options.detail > 1 :
             width += FIELD_COLUMN_WIDTH*2
-        if self.options['detail'] > 0 :
+        if self.options.detail > 0 :
             width += FIELD_COLUMN_WIDTH*4
         width += len(self._timeline_days)*self._timestepwidth
         # calculate height
@@ -221,7 +221,7 @@ class ResourcesDrawer(AbstractDrawer) :
                                     fillcolor=color)
         if not available:
             self._handler.draw_line(self._x, self._y + ROW_HEIGHT/2, 
-                                    self._x + FIELD_COLUMN_WIDTH/self.options['timestep'],
+                                    self._x + FIELD_COLUMN_WIDTH/self.options.timestep,
                                     self._y + ROW_HEIGHT/2, 
                                     color=self._colors['CONSTRAINT'])
         # update abscisse
@@ -276,7 +276,7 @@ class ResourcesDrawer(AbstractDrawer) :
                                     fillcolor=color)
         if not available:
             self._handler.draw_line(self._x, self._y + ROW_HEIGHT/2, 
-                                    self._x + FIELD_COLUMN_WIDTH/self.options['timestep'],
+                                    self._x + FIELD_COLUMN_WIDTH/self.options.timestep,
                                     self._y + ROW_HEIGHT/2, 
                                     color=self._colors['CONSTRAINT'])
         # update abscisse
