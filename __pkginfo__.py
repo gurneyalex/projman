@@ -60,8 +60,16 @@ data_files = [['share/projman',
                 'fonts/Arial_12_72.pbm',
                 'fonts/Arial Bold_12_72.pbm',
                 'fonts/Arial Italic_12_72.pbm',
-                'fonts/Arial Bold Italic_12_72.pbm']]
+                'fonts/Arial Bold Italic_12_72.pbm'],
+               ['share/projman/examples',
+                ['scheduling/sample.cc',
+                 'scheduling/projman_gecode.cc',
+                 'scheduling/makefile',
+                 'scheduling/projman_gecode.hh',
+                ]
+               ] 
               ]
+             ]
 
 debian_name = 'projman'
 debian_maintainer = 'Alexandre Fayolle ' 
@@ -70,4 +78,17 @@ pyversions = ["2.3"]
  
 from os.path import join
 include_dirs = [join('test', 'data')]
+
+from distutils.core import Extension
+ext_modules = [Extension('projman.scheduling.gcsp',
+                         sources = ['scheduling/gcspmodule.cc',
+                          'scheduling/projman_gecode.cc',
+                         ],
+                         libraries=['boost_python-st', 'gecodeint', 'gecodeset',
+                                    'gecodeminimodel', 'gecodekernel', 'gecodesearch'],
+                         depends=['scheduling/projman_gecode.hh',],
+                         language='c++',
+                        )
+             ]
+
 

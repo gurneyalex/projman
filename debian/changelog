@@ -1,8 +1,10 @@
-projman (0.12-1) unstable; urgency=low
+projman (0.12.0-1) unstable; urgency=low
 
-  * xxx
-
- --
+  * new upstream release
+    - svg output support
+    - gecode based csp solver
+    - lots of stuff...
+ -- Ludovic Aubry <ludovic.aubry@logilab.fr>  Thu, 02 Aug 2007 16:55:06 +0200
 
 projman (0.11.1-1) unstable; urgency=low
 
