@@ -5,74 +5,71 @@
 # adapted by Logilab for automatic generation by debianize
 # (part of the devtools project, http://www.logilab.org/projects/devtools)
 #
-# Copyright (c) 2003-2005 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2007 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-export DH_COMPAT=5
+PYVERS=$(shell pyversions -vr debian/control)
 
 build: build-stamp
 build-stamp: 
 	dh_testdir
-	python setup.py -q build
-	touch build-stamp
+	for v in $(PYVERS); do \
+	    python$$v setup.py -q build; \
+	done
+	touch $@
 
 clean: 
 	dh_testdir
 	dh_testroot
-	rm -f build-stamp configure-stamp
+	rm -f build-stamp install-stamp
 	rm -rf build
 	find . -name "*.pyc" | xargs rm -f
 	rm -f changelog.gz
 	dh_clean
 
-
-install: build
+install: install-stamp
+install-stamp: build
 	dh_testdir
 	dh_testroot
 	dh_clean -k
 	dh_installdirs
-	python setup.py -q install --no-compile --prefix=debian/projman/usr/
-	# scripts
-	if head -1 debian/projman/usr/bin/projman | grep "^#! */usr/bin" | grep "python" >/dev/null ; then \
-		sed -i "s@^#! */usr/bin/env \+python\$$@#!/usr/bin/python@" debian/projman/usr/bin/projman; \
-	fi
-	chmod a+x debian/projman/usr/bin/projman
-	if head -1 debian/projman/usr/bin/projman_convert_format.sh | grep "^#! */usr/bin" | grep "python" >/dev/null ; then \
-		sed -i "s@^#! */usr/bin/env \+python\$$@#!/usr/bin/python@" debian/projman/usr/bin/projman_convert_format.sh; \
-	fi
-	chmod a+x debian/projman/usr/bin/projman_convert_format.sh
+
+
+	for v in $(PYVERS); do \
+		python$$v setup.py -q install --no-compile --prefix=debian/projman/usr/ ; \
+	done
 	# remove test directory (installed in a separated package)
 	rm -rf debian/projman/usr/lib/site-python/projman/test
+
 	# install tests
 	(cd test && find . -type f -not \( -path '*/CVS/*' -or -name '*.pyc' \) -exec install -D --mode=644 {} ../debian/projman/usr/share/doc/projman/test/{} \;)
+	touch install-stamp
 
 
-# Build architecture-independent files here.
-binary-indep: build install
-	dh_testdir 
-	dh_testroot 
-	dh_install -i
-	dh_pycentral -i
-	dh_python -i
+# Build architecture-dependent files here.
+binary-arch: install
+	dh_testdir -a
+	dh_testroot -a
+	dh_install -a
+	dh_installman -a
+	dh_pycentral -p projman
 	gzip -9 -c ChangeLog > changelog.gz
-	dh_installchangelogs -i
-	dh_installexamples -i
-	dh_installdocs -i README TODO changelog.gz
-	dh_installman -i
-	dh_link -i
-	dh_compress -i -X.py -X.ini -X.xml -Xtest
-	dh_fixperms -i
-	dh_installdeb -i
-	dh_gencontrol -i 
-	dh_md5sums -i
-	dh_builddeb -i
+	dh_installdocs -a -A README TODO changelog.gz 
+	dh_installchangelogs -a
+	dh_strip -a
+	dh_link -a
+	dh_compress -a -X.py -X.ini -X.xml -Xtest
+	dh_fixperms -a
+	dh_installdeb -a
+	dh_shlibdeps -a
+	dh_gencontrol -a
+	dh_md5sums -a
+	dh_builddeb -a
 
-binary-arch:
-
-binary: binary-indep
-.PHONY: build clean binary binary-indep binary-arch
+binary: binary-arch
+.PHONY: build clean binary binary-arch
 
 

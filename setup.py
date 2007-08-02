@@ -29,35 +29,17 @@ from os.path import isdir, exists, join, walk
 from __pkginfo__ import modname, version, license, short_desc, long_desc, \
      web, author, author_email
 # import optional features
-try:
-    from __pkginfo__ import distname
-except ImportError:
-    distname = modname
-try:
-    from __pkginfo__ import scripts
-except ImportError:
-    scripts = []
-try:
-    from __pkginfo__ import data_files
-except ImportError:
-    data_files = None
-try:
-    from __pkginfo__ import subpackage_of
-except ImportError:
-    subpackage_of = None
-try:
-    from __pkginfo__ import include_dirs
-except ImportError:
-    include_dirs = []
-try:
-    from __pkginfo__ import ext_modules
-except ImportError:
-    ext_modules = None
+import __pkginfo__
+distname = getattr( __pkginfo__, 'distname', modname )
+scripts = getattr( __pkginfo__, 'scripts', [] )
+data_files = getattr( __pkginfo__, 'data_files', None )
+subpackage_of = getattr( __pkginfo__, 'subpackage_of', None )
+include_dirs = getattr( __pkginfo__, 'include_dirs', [] )
+ext_modules = getattr( __pkginfo__, 'ext_modules', None )
 
 BASE_BLACKLIST = ('CVS', 'debian', 'dist', 'build', '__buildlog')
 IGNORED_EXTENSIONS = ('.pyc', '.pyo', '.elc')
     
-
 def ensure_scripts(linuxScripts):
     """
     Creates the proper script names required for each platform
