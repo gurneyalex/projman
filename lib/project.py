@@ -80,16 +80,6 @@ class Project:
 
     root_task = property(get_root_task, set_root_task)
         
-    def hash(self):
-        """
-        we don't use the HashMixin implementation
-        """
-        #hash_seq = [self.resource_set.hash(), self.activities.hash()]
-        #hash_seq_str = ''.join([str(each_hash) for each_hash in hash_seq])
-        hash_seq_str = str(self)
-        md5_str = md5.new(hash_seq_str).hexdigest()
-        return int(md5_str[:8], 16)
-
     def check_consistency(self):
         errors = []
         errors += self.root_task.check_consistency()

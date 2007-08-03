@@ -44,28 +44,21 @@ def schedule(proj, config):
     Uses CSPScheduler if csp is true, otherwise BasicScheduler
     """
     errors = []
-    hash_value = proj.hash()
-    # FIXME: deal with hash
-    if 0 and hash_value == proj.schedule.hash_value:
-        verboselog('Scheduling not necessary, using previous results')
+    proj.reset_schedule()
+    _type = config.type
+    if _type == 'csp':
+        from projman.scheduling.csp import CSPScheduler
+        scheduler = CSPScheduler(proj)
+    elif _type == 'dumb':
+        from projman.scheduling.dumb import DumbScheduler
+        scheduler = DumbScheduler(proj)
+    elif _type == 'simple':
+        from projman.scheduling.simple import SimpleScheduler
+        scheduler = SimpleScheduler(proj)
     else:
-        proj.reset_schedule()
-        _type = config.type
-        if _type == 'csp':
-            from projman.scheduling.csp import CSPScheduler
-            scheduler = CSPScheduler(proj)
-        elif _type == 'dumb':
-            from projman.scheduling.dumb import DumbScheduler
-            scheduler = DumbScheduler(proj)
-        elif _type == 'simple':
-            from projman.scheduling.simple import SimpleScheduler
-            scheduler = SimpleScheduler(proj)
-        else:
-            raise ValueError('bad scheduler type %s'%value)
-        global_hash = proj.hash()
-        errors += scheduler.schedule(verbose=config.verbose)
-        #print scheduler.solution
-        schedule.hash_value = global_hash
+        raise ValueError('bad scheduler type %s'%value)
+    errors += scheduler.schedule(verbose=config.verbose)
+    #print scheduler.solution
     for error in errors:
         sys.stderr.write("ERROR : %s\n" % str(error))
     if errors:

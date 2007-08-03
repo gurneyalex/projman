@@ -28,7 +28,6 @@ This code is released under the GNU Public Licence v2. See www.gnu.org.
 __revision__ = "$Id: resource.py,v 1.4 2005-09-06 17:07:00 nico Exp $"
 
 from logilab.common.tree import VNode 
-from hash_md5 import HashMixin
 from projman.lib.calendar import Calendar
 
 class Resource(VNode):
@@ -85,7 +84,7 @@ class Resource(VNode):
         else:
             return 0
 
-class ResourcesSet(VNode, HashMixin):
+class ResourcesSet(VNode):
 
     TYPE = 'resourcesset'
 
