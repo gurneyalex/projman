@@ -32,12 +32,11 @@ from logilab.common.compat import set
 
 from mx.DateTime import now
 from projman.lib.constants import *
-from projman.lib.hash_md5 import HashMixin
 
 
 __all__ = ['MileStone', 'Task']
 
-class TaskNode(VNode, HashMixin):
+class TaskNode(VNode):
     """base node for Task and MileStone objects
 
     Attributes:
