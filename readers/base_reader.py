@@ -103,14 +103,14 @@ class AbstractXMLReader(ContentHandler):
         # buffer of formatting errors
         self._errors = []
        
-    def fromFile(self, file, root_project=None):
+    def fromFile(self, file):
         """ 
         import and return a project from a xml file
         """
-        return self.fromStream(open(file), root_project,
+        return self.fromStream(open(file),
                                file, dirname(abspath(file)))
         
-    def fromStream(self, stream, root_project=None,
+    def fromStream(self, stream,
                    filename="input_stream", base_uri=''):
         """ 
         import and return a project from a xml stream
@@ -121,9 +121,7 @@ class AbstractXMLReader(ContentHandler):
         p.setFeature(feature_namespaces, 0)
         p.setContentHandler(self)
         p.reset()
-        #
-        if root_project is not None:
-            self.path.append(root_project)
+
         # parse file
         self._base_uris.append(base_uri)
         self._files.append(filename)
