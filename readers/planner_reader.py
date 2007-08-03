@@ -53,7 +53,6 @@ class PlannerXMLReader(AbstractXMLReader) :
         # sequence that store all the tasks that need re_evaluating
         # (generally those with fixed-work scheduling and not fixed-duration)
         self.re_evaluate = []
-        self.path = []
 
     def _start_element(self, tag, attr) : 
         """ See SAX's ContentHandler interface """
@@ -276,7 +275,6 @@ class PlannerXMLReader(AbstractXMLReader) :
             self.resource_path.pop()
         elif tag in ('task'):
             task = self.project_path.pop()
-        self.path = self.resource_path + self.project_path
 
     def endDocument(self):
         """
