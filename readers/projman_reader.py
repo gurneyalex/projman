@@ -101,7 +101,6 @@ class ProjectXMLReader(AbstractXMLReader) :
         schedule = ET.parse( fname )
         checker = ScheduleChecker()
         checker.validate( schedule, fname )
-
         activities = Table(default_value=None,
                            col_names=['begin', 'end', 'resource', 'task',
                                       'usage', 'src'])
@@ -134,6 +133,14 @@ class ProjectXMLReader(AbstractXMLReader) :
                                              float(report.get('usage')) ) )
             for cost in task.findall("costs_list/cost"):
                 costs.append_row( (t_id, cost.attrib['idref'],float(cost.text),None) )
+
+        for milestone in schedule.findall("milestone"):
+            t_id = milestone.get('id')
+            tasks.create_row( t_id )
+            cd = milestone.find("constraint-date")
+            date = iso_date( cd.text )
+            tasks.set_cell_by_ids( t_id, 'begin', date )
+            tasks.set_cell_by_ids( t_id, 'end', date )
 
         self.project.add_schedule(activities)
         self.project.tasks = tasks
@@ -178,7 +185,7 @@ class ProjectXMLReader(AbstractXMLReader) :
         return m
 
     def task_milestone_common(self, t, task):
-        t.title = task.find("label").text
+        t.title = unicode(task.find("label").text)
         for cd in task.findall("constraint-date"):
             t.add_date_constraint( cd.get("type"), iso_date( cd.text ) )
         for ct in task.findall("constraint-task"):
@@ -187,9 +194,9 @@ class ProjectXMLReader(AbstractXMLReader) :
             t.add_resource_constraint( cr.get("type"), cr.get("idref"), float(cr.get("usage")) )
         desc = task.find("description")
         if desc is None:
-            txt = ""
+            txt = u""
         else:
-            txt = desc.text
+            txt = desc.text or u""
             for n in desc:
                 txt+=ET.tostring(n)
                 if n.tail:
@@ -311,5 +318,5 @@ class ProjectXMLReader(AbstractXMLReader) :
                 begin = iso_date( report.get('from') )
                 end = iso_date( report.get('to') )
                 usage = float( report.get('usage') )
-                self.activities.append( (begin, end, res_id, task_id, usage) )
+                activities.append( (begin, end, res_id, task_id, usage) )
         self.project.add_activities( activities )

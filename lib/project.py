@@ -69,7 +69,6 @@ class Project:
         #  (here, 'cost' represents the resource's cost for the task)
         self.costs = Table(default_value=None,
                            col_names=['task', 'resource', 'cost', 'unit'])
-
     
     def get_root_task(self):
         return self._root_task
@@ -215,8 +214,16 @@ class Project:
 
     def get_task_date_range(self, task):
         begins, ends = [], []
+
+        if task.TYPE=="milestone":
+            try:
+                begin, end, _, _, _ = self.tasks.get_row_by_id(task.id)
+            except KeyError:
+                raise ValueError('Task %s has no begin' % task.id)
+            return begin, end
+
         for leaf in task.leaves():
-            for begin, end, resource, task, usage, src \
+            for begin, end, __resource, __task, __usage, __src \
                     in self.activities.select('task', leaf.id):
                 begins.append(begin)
                 ends.append(end)

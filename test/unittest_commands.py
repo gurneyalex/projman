@@ -58,11 +58,11 @@ class ScheduleTest(AbstractCommandTest):
     def test_default(self):
         # schedule xml and wrap into prj
         cmd_run('schedule', '--type', 'csp', '-f', self.projman_path,
-                '-o', self.sched, '-In')
+                '-o', self.sched)
         self.assert_(osp.exists(self.sched))
         # schedule prj and unwrap
         cmd_run('schedule', '--type', 'csp', '-f', self.projman_path,
-                '-o', self.sched, '-Xy', '-In')
+                '-o', self.sched)
         #files = OptionManager([("-X", None)], [make_project_name(self.projman_path)]).storage
         #self.assertEquals(files.file_names[SCHEDULE_KEY], SCHEDULE_NAME)
         self.assert_(osp.exists(self.sched))
