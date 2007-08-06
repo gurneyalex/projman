@@ -27,7 +27,7 @@
   </resource>
 
   <calendar id="typic_cal">
-    <label>Calendrier Francais</label>
+    <label>Calendrier Français</label>
 
     <!-- define types -->
     <day-types>
