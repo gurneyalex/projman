@@ -67,7 +67,7 @@ class ProjectXMLReader(AbstractXMLReader) :
         fname = node.get("file",default)
         setattr(self.files, ftype, fname)
         if not isabs(fname):
-            sched = join(self._base_uris[-1], fname)
+            fname = join(self._base_uris[-1], fname)
         return fname
 
     def fromTree(self, tree,
