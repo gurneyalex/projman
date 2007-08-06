@@ -24,7 +24,6 @@ from projman import extract_extension
 DATADIR = osp.abspath(osp.join(osp.dirname(__file__),'data'))
 
 PYGANTT_PROJECT = osp.join(DATADIR, "pygantt_planif.xml")
-PLANNER_PROJECT = osp.join(DATADIR, "example.mrproject")
 
 TAR_TARED_PROJMAN = "projman.prj"
 TAR_TARED_SCHEDULED_PROJMAN = "scheduled_projman.prj"

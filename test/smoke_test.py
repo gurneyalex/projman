@@ -43,12 +43,6 @@ def SmokeTC(TestCase):
         if r.lower() in ('n', 'no') :
             sys.exit()
 
-    def test_conversion(self):
-        "conversion pygantt / planner...",
-        os.system(CMD + ' --convert -i pygantt -o planner ../'+ FILE +' toto.xml')
-        os.system('planner toto.xml')
-        self.ask_ok()
-
     def test_conversion2(self):
         "conversion pygantt / projman..."
         os.system(CMD+' --convert -i pygantt ../'+ FILE +' proj.xml')
@@ -110,19 +104,6 @@ def SmokeTC(TestCase):
         os.system('mkdoc --target=pdf --stylesheet=standard tasks_dates.xml')
         os.system('xpdf tasks_dates.pdf')
 
-
-    def test_conversion3(self):
-        "conversion projman assemblé/ planner...",
-        os.system(CMD + ' --convert -i projman -o planner ../'+ FILE_ASSEMBLAGE +' toto_a.xml')
-        os.system('planner toto_a.0.xml')
-        os.system('planner toto_a.1.xml')
-        self.ask_ok()
-
-        os.system('cp ../'+FILE_ASSEMBLAGE+' proj.xml')
-        os.system('cp ../projman/sub_project.xml sub_project.xml')
-        os.system('cp ../projman/example_proj.xml example_proj.xml')
-        os.system('cp ../projman/example_res.xml example_res.xml')
-        os.system('cp ../projman/example_act.xml example_act.xml')
 
     def test_gantt4(self):
         "diagramme gantt..."

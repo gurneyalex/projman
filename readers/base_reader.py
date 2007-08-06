@@ -15,7 +15,7 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 """
-reader generate a model from xml file (see dtd/project.dtd), from planner interface or not
+reader generate a model from xml file (see dtd/project.dtd)
 """
 __revision__ = "$Id: base_reader.py,v 1.2 2005-11-09 16:47:35 arthur Exp $"
 

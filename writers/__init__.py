@@ -15,5 +15,4 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """Projman - (c)2005 Logilab - All rights reserved."""
 
-from projman.writers.planner_export import PlannerDOMVisitor
 from projman.writers.projman_writer import ProjmanDOMVisitor
