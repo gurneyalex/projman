@@ -87,6 +87,7 @@ def format_monetary(str_number, nb_decimal=2, space_gap=3):
 
 def extract_extension(name):
     """returns a couple (file_name, ext) from file_name.ext"""
+    # XXX is this different from os.path.basename ??
     splitted = name.split('.', 1)
     if len(splitted) == 2:
         return tuple(splitted)
