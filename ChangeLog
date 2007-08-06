@@ -2,10 +2,11 @@ ChangeLog for Projman
 =====================
 
 	--
-
+	
     * simple scheduling: correctly handles resource usage and task
       prioritites
     * calendar: correctly handles start and stop tags
+    * remove references to planner
 	
 2006-07-31 -- 0.11.1
 

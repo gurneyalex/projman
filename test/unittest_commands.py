@@ -24,12 +24,10 @@ from logilab.common.clcommands import cmd_run
 # load commands
 from projman import commands
 
-from projman.test import DATADIR, \
-     PLANNER_PROJECT, XML_PROJMAN, XML_SCHEDULED_PROJMAN, \
+from projman.test import DATADIR, XML_PROJMAN, XML_SCHEDULED_PROJMAN, \
      XML_SCHEDULED_PROJMAN_FULL, TAR_PROJMAN
 
 
-DEFAULT_PROJMAN_EXPORT = osp.join(DATADIR, 'pmfromplanner.xml')
 XML_PROJMAN = osp.join(DATADIR, XML_PROJMAN)
 XML_SCHEDULED_PROJMAN = osp.join(DATADIR, XML_SCHEDULED_PROJMAN)
 XML_SCHEDULED_PROJMAN_FULL = osp.join(DATADIR, XML_SCHEDULED_PROJMAN_FULL)
