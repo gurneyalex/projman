@@ -49,7 +49,7 @@
       <report usage='100.0' to='2005-07-18' idref='ing_1' from='2005-07-18'/>
     </report-list>
   </task>
-  <task id='config-lingway'>
+  <task id='config-acme'>
     <constraint-date type='begin-at-date'>2005-01-17</constraint-date>
     <constraint-date type='end-at-date'>2005-02-07</constraint-date>
     <priority>5</priority>
@@ -90,7 +90,7 @@
       <report usage='35.5' to='2005-09-12' idref='ing_1' from='2005-09-12'/>
     </report-list>
   </task>
-  <task id='adaptation-lingway'>
+  <task id='adaptation-acme'>
     <constraint-date type='begin-at-date'>2005-07-18</constraint-date>
     <constraint-date type='end-at-date'>2005-07-25</constraint-date>
     <priority>5</priority>
@@ -405,7 +405,7 @@
     <constraint-date type='end-at-date'>2005-09-12</constraint-date>
     <priority>5</priority>
   </task>
-  <task id='lkm-erudi'>
+  <task id='comix-strip'>
     <constraint-date type='begin-at-date'>2005-01-04</constraint-date>
     <constraint-date type='end-at-date'>2005-01-17</constraint-date>
     <priority>5</priority>

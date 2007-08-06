@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<task id="LNGW">
+<task id="ACME">
   <constraint-resource usage="100" idref="cdp_1" type="manager"/>
 <!-- <constraint-resource usage="100" idref="rh_1" type="administrative"/>-->
   <constraint-resource usage="100" idref="ing_1" type="engineer"/>
   <constraint-resource usage="100" idref="ing_2" type="engineer"/>
   <constraint-resource usage="100" idref="ing_3" type="engineer"/>
-  <label>Projet C@P-TP</label>
+  <label>Projet ComicStrip</label>
 
   <task id="t1">
     <label>Première tranche</label>
     <description>Modélisation des données, adaptation et configuration de
-      Lingway KM, intégration de Lingway KM et <classname>ÉRUDI</classname> (voir détails des tâches
+      Comix, intégration de Comix et <classname>Strip</classname> (voir détails des tâches
     ci-dessous). <para>Cette première tranche a une durée de huit semaines. Elle est
     plus longue que les suivantes car elle nécessite la mise en oeuvre du socle
 	sur lequel sera bâtie la solution.</para></description>
@@ -38,17 +38,17 @@
       <constraint-resource usage='100' idref='ing_1' type='n/a'/>
     </task>
 
-    <task id="lkm-erudi">
-      <label>Intégration de Lingway KM et ÉRUDI</label>
+    <task id="comix-strip">
+      <label>Intégration de Comix et Strip</label>
       <description>Les deux logiciels sont actuellement ouverts et capables
 	d'échanger des informations avec d'autres applications, mais leur
 	intégration n'a pas encore été effectuée. Elle consistera à s'assurer
 	<itemizedlist>
 	  <listitem>d'une part que les documents ajoutés au système sont immédiatement indexés
-	    par Lingway KM </listitem>
+	    par Comix </listitem>
 	  <listitem>et d'autre part que la recherche et l'affichage des
 	    résultats sont transparents pour l'utilisateur, bien qu'il interagisse
-	    avec ÉRUDI et non Lingway KM.</listitem>
+	    avec Strip et non Comix.</listitem>
       </itemizedlist></description>
       <duration>15</duration>
       <constraint-resource usage='100' idref='ing_1' type='n/a'/>
@@ -67,14 +67,14 @@
       <constraint-task idref="model-donnees" type='begin-after-end'/>
     </task>
 
-    <task id="config-lingway">
-      <label>Configuration de Lingway KM</label>
-      <description>Configuration de Lingway KM, adaptation des bases et
-      des interfaces de communication pour l'interaction avec ERUDI.
+    <task id="config-acme">
+      <label>Configuration de Comix</label>
+      <description>Configuration de Comix, adaptation des bases et
+      des interfaces de communication pour l'interaction avec Strip.
       </description>
       <duration>15</duration>
       <constraint-resource usage='100' idref='ing_2' type='n/a'/>
-      <constraint-task idref="lkm-erudi" type='begin-after-end'/>
+      <constraint-task idref="comix-strip" type='begin-after-end'/>
     </task>
   </task>
 
@@ -181,11 +181,11 @@
       <constraint-task type='begin-after-end' idref="appli-externes"/>
     </task>
 
-    <task id="adaptation-lingway">
-      <label>Adaptation de Lingway KM</label>
+    <task id="adaptation-acme">
+      <label>Adaptation de Comix</label>
       <description>Il sera très probablement nécessaire, après les tests par un
       éventail d'utilisateurs finaux, d'adapter les lexiques et autres données
-      nécessaires au fonctionnement de Lingway KM afin que les particularités du
+      nécessaires au fonctionnement de Comix afin que les particularités du
       domaine qui n'avaient pas été prévues soient prises en
       compte.</description>
       <duration>6</duration>
@@ -219,7 +219,7 @@
     chacun. On pourra aussi amorcer l'application en y insérant un certain
     nombre de documents de référence, afin que les utilisateurs puissent
     consulter du contenu dès leurs premiers accès. Le déploiement sera
-    principalement effectué par le services informatiques de Bouygues. Un
+    principalement effectué par le services informatiques de Acme. Un
     support sera néanmoins effectué par Logilab afin de pallier tout
     problème et d'effectuer d'éventuelles mises au point.</description>
     <constraint-task idref="t3" type='begin-after-end'/>
@@ -239,8 +239,8 @@
     utilisateurs l'adoptent rapidement. Dans ce but, il faut qu'ils puissent
     être efficacement formés à ses principes et à son utilisation. Une première
     session de formation sera animée par Logilab pour une dizaine de
-    collaborateurs de Bouygues TP. Ces personnes se chargeront ensuite de former
-    l'ensemble des utilisateurs de la solution chez Bouygues TP par des
+    collaborateurs de Acme. Ces personnes se chargeront ensuite de former
+    l'ensemble des utilisateurs de la solution chez Acme par des
     formations internes. Une session de formation spécifique sera mise en place
     pour les administrateurs.</description>
     <constraint-task type='begin-after-end' idref="deployer"/>
@@ -249,8 +249,7 @@
       <label>Support de formation utilisateur</label>
       <description>Un support de formation sur-mesure sera rédigé pour les
       utilisateurs. Il comprendra la description des principes de la gestion de
-      connaissance, l'utilisation d'ÉRUDI et la recherche avec Lingway
-      KM.</description>
+      connaissance, l'utilisation de Strip et la recherche avec Comix.</description>
       <duration>2</duration>
       <constraint-resource usage='100' idref='ing_1' type='n/a'/>
     </task>

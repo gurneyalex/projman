@@ -224,7 +224,7 @@
     </section>
     <section id='deployer'>
       <title>Déploiement et mise au point</title>
-      <para>À l'issue du développement et des tests par un éventail    d'utilisateurs finaux, on procédera au déploiement de    l'application sur l'ensemble des postes et une montée en charge    progressive. Compte tenu de la nature de l'application, il suffira de créer    des comptes utilisateurs et de s'assurer que les logiciels nécessaires sont    installés sur les postes clients, puis de configurer les droits et rôles de    chacun. On pourra aussi amorcer l'application en y insérant un certain    nombre de documents de référence, afin que les utilisateurs puissent    consulter du contenu dès leurs premiers accès. Le déploiement sera    principalement effectué par le services informatiques de Bouygues. Un    support sera néanmoins effectué par Logilab afin de pallier tout    problème et d'effectuer d'éventuelles mises au point.</para>
+      <para>À l'issue du développement et des tests par un éventail    d'utilisateurs finaux, on procédera au déploiement de    l'application sur l'ensemble des postes et une montée en charge    progressive. Compte tenu de la nature de l'application, il suffira de créer    des comptes utilisateurs et de s'assurer que les logiciels nécessaires sont    installés sur les postes clients, puis de configurer les droits et rôles de    chacun. On pourra aussi amorcer l'application en y insérant un certain    nombre de documents de référence, afin que les utilisateurs puissent    consulter du contenu dès leurs premiers accès. Le déploiement sera    principalement effectué par le services informatiques de Acme. Un    support sera néanmoins effectué par Logilab afin de pallier tout    problème et d'effectuer d'éventuelles mises au point.</para>
       <formalpara>
         <title>Dates</title>
         <para>du 2005-09-15 au 2005-09-23</para>
@@ -240,7 +240,7 @@
     </section>
     <section id='formation'>
       <title>Formation</title>
-      <para>Afin de pérenniser l'investissement consenti dans le    développement et la déploiement du système, il est indispensable que les    utilisateurs l'adoptent rapidement. Dans ce but, il faut qu'ils puissent    être efficacement formés à ses principes et à son utilisation. Une première    session de formation sera animée par Logilab pour une dizaine de    collaborateurs de Bouygues TP. Ces personnes se chargeront ensuite de former    l'ensemble des utilisateurs de la solution chez Bouygues TP par des    formations internes. Une session de formation spécifique sera mise en place    pour les administrateurs.</para>
+      <para>Afin de pérenniser l'investissement consenti dans le    développement et la déploiement du système, il est indispensable que les    utilisateurs l'adoptent rapidement. Dans ce but, il faut qu'ils puissent    être efficacement formés à ses principes et à son utilisation. Une première    session de formation sera animée par Logilab pour une dizaine de    collaborateurs de Acme. Ces personnes se chargeront ensuite de former    l'ensemble des utilisateurs de la solution chez Acme par des    formations internes. Une session de formation spécifique sera mise en place    pour les administrateurs.</para>
       <formalpara>
         <title>Dates</title>
         <para>du 2005-09-22 au 2005-10-05</para>

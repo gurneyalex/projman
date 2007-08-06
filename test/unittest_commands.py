@@ -23,17 +23,11 @@ from logilab.common.clcommands import cmd_run
 
 # load commands
 from projman import commands
-from projman.storage import SUFFIX, \
-     RESOURCES_NAME, TASKS_NAME, ACTIVITIES_NAME, SCHEDULE_NAME, SCHEDULE_KEY
 
 from projman.test import DATADIR, \
      PLANNER_PROJECT, XML_PROJMAN, XML_SCHEDULED_PROJMAN, \
-     XML_SCHEDULED_PROJMAN_FULL, TAR_PROJMAN, make_project_name
+     XML_SCHEDULED_PROJMAN_FULL, TAR_PROJMAN
 
-
-XML_FILE_NAMES =  [osp.join(DATADIR, RESOURCES_NAME),
-                   osp.join(DATADIR, TASKS_NAME),
-                   osp.join(DATADIR, ACTIVITIES_NAME)]
 
 DEFAULT_PROJMAN_EXPORT = osp.join(DATADIR, 'pmfromplanner.xml')
 XML_PROJMAN = osp.join(DATADIR, XML_PROJMAN)
@@ -48,19 +42,7 @@ class AbstractCommandTest(testlib.TestCase):
         self.tmpdir = tempfile.mkdtemp()
     
     def tearDown(self):
-        shutil.rmtree(self.tmpdir)
-
-class ConvertTest(AbstractCommandTest):
-    """testing """
-    
-    def test_planner(self):
-        cmd_run('convert', '--input-format', 'planner', '-Xy',
-                '-f', PLANNER_PROJECT, DEFAULT_PROJMAN_EXPORT)
-        self.assert_(not osp.exists(make_project_name(DEFAULT_PROJMAN_EXPORT)))
-        self.assert_(osp.exists(DEFAULT_PROJMAN_EXPORT))
-        for file_name in XML_FILE_NAMES:
-            self.assert_(osp.exists(file_name))
- 
+        shutil.rmtree(self.tmpdir) 
     
 class ScheduleTest(AbstractCommandTest):
     """testing """
