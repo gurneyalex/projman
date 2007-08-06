@@ -17,5 +17,4 @@
 
 ## from projman.readers.projman_reader import ProjectXMLReader, TaskXMLReader, \
 ##                                            ResourcesXMLReader, ScheduleXMLReader
-from projman.readers.planner_reader import PlannerXMLReader
 from projman.readers.projman_reader import ProjectXMLReader

@@ -243,40 +243,4 @@ class DiagramCommand(ProjmanCommand):
 
 
 
-class ConvertCommand(ProjmanCommand):
-    """convert planner file to the projman format"""
-    name = 'convert'
-    min_args = 1
-    max_args = 1
-    arguments = '<output file>'
-
-    options = ProjmanCommand.options + (
-        ('input-format',
-         {'type' : 'choice', 'metavar': '<format>',
-          'choices': ('planner', 'projman'),
-          'default': 'planner',
-          'help': 'format of the input file (projman or planner)',
-          }
-         ),
-        #('output-format',
-        # {'type' : 'choice', 'metavar': '<format>',
-        #  'choices': ('planner', 'projman'),
-        #  'default': 'projman',
-        #  'help': 'format of the output file (projman or planner)',
-        #  }
-        # ),
-        )
-
-    def run(self, args):
-        """run the command with its specific arguments"""
-        from projman.readers import PlannerXMLReader, ProjectXMLReader
-        output = args[0]
-        self.storage = ProjectStorage(self.config)
-        if self.config.input_format == 'planner':
-            reader = PlannerXMLReader
-        else: # default, plus option parser doesn't allow anything else
-            reader = ProjectXMLReader
-        self.storage.load(reader)
-        self.storage.save(ouput=output) # XXX
-
-register_commands((ScheduleCommand, ViewCommand, DiagramCommand, ConvertCommand))
+register_commands((ScheduleCommand, ViewCommand, DiagramCommand))
