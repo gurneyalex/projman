@@ -150,14 +150,14 @@ class TaskXMLReader(AbstractXMLReader) :
             self.assert_child_of(['task', 'milestone'])
         else :
             raise ProjectValidationError(UNKNOWN_TAG)
-        
+
     def _end_element(self, tag) :
         """
         See SAX's ContentHandler interface
         """
         if not self.inside_root:
             return
-        if self.inside_description: 
+        if self.inside_description:
             self.process_not_parsed(tag)
         else:
             t = self.stack[-1]
@@ -200,7 +200,7 @@ class TaskXMLReader(AbstractXMLReader) :
                 self.stack[-1].description = publish_string(desc,
                                                             settings_overrides={'output_encoding': 'unicode'},
                                                             writer=docbook_writer,
-                                                            source_path=self._files[-1] + "<%s>"%self.stack[-1].id) 
+                                                            source_path=self._files[-1] + "<%s>"%self.stack[-1].id)
             else:
                 self.stack[-1].description = desc
             assert isinstance(self.stack[-1].description, unicode), self.stack[-1].description
@@ -276,16 +276,12 @@ class ResourcesXMLReader(AbstractXMLReader) :
             self.assert_has_attrs(['start','end'])
             from_time = _extract_time(attr['start'])
             to_time = _extract_time(attr['end'])
+            interval = (from_time, to_time)
             c = self.stack[-1]
             self._id_nonworking_remove.add(self._day_type_id)
             if self._day_type_id not in c.type_working_days:
-                c.type_working_days[self._day_type_id] = []
-                type_name = self._day_type_name
-                c.type_working_days[self._day_type_id].insert(0, type_name)
-                interval = [(from_time, to_time)]
-                c.type_working_days[self._day_type_id].insert(1, interval)
+                c.type_working_days[self._day_type_id] = [self._day_type_name, [interval]]
             else:
-                interval = (from_time, to_time)
                 c.type_working_days[self._day_type_id][1].append(interval)
         elif tag == 'day':
             self.assert_has_attrs(['type'])
@@ -573,6 +569,7 @@ class ProjectXMLReader(AbstractXMLReader) :
             if not self._imported.has_key(filename):
                 p = ResourcesXMLReader()
                 rs = p.fromFile(filename)
+                plop
                 self.project.add_resource_set(rs)
                 self._imported[filename] = 1
         # activities imported
