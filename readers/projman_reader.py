@@ -19,636 +19,297 @@
 reader generate a model from xml file (see dtd/project.dtd)
 """
 
-__revision__ = "$Id: projman_reader.py,v 1.8 2006-02-19 14:51:06 nico Exp $"
-
-import sys
-import os.path
-from os.path import isabs, join
-
-from docutils.core import publish_string
-from mx.DateTime import DateTime, Time, now
-from mx.DateTime.Parser import DateFromString
-from logilab.common.textutils import colorize_ansi
-from logilab.common.table import Table
-from logilab.common.compat import set
-from logilab.doctools.rest_docbook import FragmentWriter
-
-from projman import LOG_CONF
-from projman.lib._exceptions import ProjectValidationError
-from projman.lib.constants import DATE_CONSTRAINTS, BEGIN_AT_DATE, END_AT_DATE
 from projman.readers.base_reader import AbstractXMLReader
+from projman.readers.projman_checkers import ProjectChecker, ScheduleChecker, ResourcesChecker
+from projman.readers.projman_checkers import TasksChecker
+from projman.readers.projman_checkers import iso_date, iso_time
+from os.path import dirname, abspath, isabs, join
+from logilab.common.table import Table
+from docutils.core import publish_string
+from logilab.doctools.rest_docbook import FragmentWriter
+from logilab.common.textutils import colorize_ansi
 
 docbook_writer = FragmentWriter()
 
-UNKNOWN_TAG = 'file %s line %s : Unknown tag %s'
+try:
+    import xml.etree.ElementTree as ET
+except ImportError:
+    import elementtree.ElementTree as ET
 
-# TaskXMLReader #############################################################
-
-class TaskXMLReader(AbstractXMLReader) :
-    """
-    sax handler to process XML file and create Project and Task objects for the
-    projman model
-    """
-
-    def __init__(self, virtual_task_root=None):
-        AbstractXMLReader.__init__(self)
-        self._main_project = True
-        self.vtask_root = virtual_task_root
-        self.inside_description = False
-        self.inside_root = self.vtask_root is None
-        self.stack.append([])
-
-    def _start_element(self, tag, attr):
-        """See SAX's ContentHandler interface.
-        Calls _parsing_element or _copying_element depending on
-        'self.inside_description' mode
-        """
-        if self.inside_description:
-            self._copy_element(tag, attr)
-        else:
-            self._parse_element(tag, attr)
-        
-    def _copy_element(self, tag, attr) :
-        """new element found in description: importing it as raw text
-        """
-        attr_desc = u""
-        for attr, value in attr.items():
-            attr_desc += u" %s='%s'" % (attr, value)
-        self.characters(u"<%s%s>"% (tag, attr_desc))
-
-    def _parse_element(self, tag, attr) :
-        """new element found, parse it
-        """
-        if not self.inside_root:
-            if tag == 'task' and attr['id'] == self.vtask_root:
-                self.inside_root = True
-            else:
-                return
-        if tag == 'description':
-            self.assert_child_of(['task'])
-            self.inside_description = True
-            if attr.get('format') == 'rest':
-                self.rest_description = True
-            else:
-                self.rest_description = False
-        elif tag == 'import-project':
-            self.assert_child_of(['task'])
-            self.assert_has_attrs(['file'])
-            file = attr['file']
-            if not isabs(file):
-                file = join(self._base_uris[-1], file)
-            if not self._imported.has_key(file):
-                p = ProjectXMLReader(self.vtask_root)
-                proj = p.fromFile(file)
-                self.stack[-1].append(proj)
-                self.stack.append(proj)
-                self._imported[file] = 1
-        elif tag == 'task' :
-            self.assert_child_of([None, 'task'])
-            self.assert_has_attrs(['id'])
-            t_id = self._factory.create_task(attr['id'])
-            self.stack[-1].append(t_id)
-            self.stack.append(t_id)
-        elif tag == 'milestone' :
-            self.assert_child_of(['task'])
-            self.assert_has_attrs(['id'])
-            m = self._factory.create_milestone(attr['id'])
-            self.stack[-1].append(m)
-            self.stack.append(m)
-        elif tag == 'constraint-date':
-            self.assert_child_of(['task', 'milestone'])
-            self.assert_has_attrs(['type'])
-            self.constraint_type = attr['type']
-        elif tag == 'constraint-task' :
-            self.assert_child_of(['task', 'milestone'])
-            self.assert_has_attrs(['type', 'idref'])
-            type = attr['type']
-            idref = attr['idref']
-            if self.stack[-1].id == idref:
-                raise Exception('task %s has constraint pointing to itself' % idref)
-            self.stack[-1].add_task_constraint(type, idref)
-        elif tag == 'constraint-resource' :
-            self.assert_child_of(['task'])
-            self.assert_has_attrs(['type', 'idref', 'usage'])
-            usage = float(attr['usage'])
-            type = attr['type']
-            r_id = attr['idref']
-            assert self.stack[-1].TYPE == 'task', 'Should have task, got %s' % (
-                self.stack[-1].TYPE)
-            self.stack[-1].add_resource_constraint(type, r_id, usage)
-        elif tag == 'resource' :
-            self.assert_child_of(['task'])
-            self.assert_has_attrs(['idref'])
-            self.stack[-1].resources.append(attr['idref'])
-        elif tag == 'label':
-            self.assert_child_of(['task', 'milestone'])
-        elif tag == 'duration':
-            self.assert_child_of(['task'])
-        elif tag == 'progress':
-            self.assert_child_of(['task'])
-        elif tag == 'priority':
-            self.assert_child_of(['task', 'milestone'])
-        else :
-            raise ProjectValidationError(UNKNOWN_TAG)
-
-    def _end_element(self, tag) :
-        """
-        See SAX's ContentHandler interface
-        """
-        if not self.inside_root:
-            return
-        if self.inside_description:
-            self.process_not_parsed(tag)
-        else:
-            t = self.stack[-1]
-            if tag in ('task', 'milestone'):
-                popped = self.stack.pop()
-                try:
-                    if self.vtask_root == popped.id:
-                        self.inside_root = False
-                except AttributeError:
-                    pass
-            elif tag in ('project', 'import-tasks'):
-                if self._main_project:
-                    self._main_project = 0
-                else:
-                    self.stack.pop()
-            elif tag in ('label', 'duration', 'progress', 'priority', 'constraint-date'):
-                chars = self.get_characters()
-                if not chars:
-                    raise ProjectValidationError('file %%s line %%s : %s tag not supposed to be empty %%s'%(tag))
-                elif tag == 'label':
-                    t.title = chars
-                elif tag == 'duration':
-                    t.duration = float(chars)
-                elif tag == 'progress':
-                    t.progress = float(chars)
-                elif tag == "priority":
-                    t.priority = int(chars)
-                elif tag =='constraint-date':
-                    date = _extract_date(chars)
-                    t.add_date_constraint(self.constraint_type, date)
-                    self.constraint_type = None
-            else:
-                if self.get_characters():
-                    raise ProjectValidationError('file %%s line %%s : %s tag supposed to be empty %%s'%(tag))
-
-    def process_not_parsed(self, tag):
-        if tag == 'description':
-            desc = self.get_characters(strip=False)
-            if self.rest_description:
-                self.stack[-1].description = publish_string(desc,
-                                                            settings_overrides={'output_encoding': 'unicode'},
-                                                            writer=docbook_writer,
-                                                            source_path=self._files[-1] + "<%s>"%self.stack[-1].id)
-            else:
-                self.stack[-1].description = desc
-            assert isinstance(self.stack[-1].description, unicode), self.stack[-1].description
-            self.inside_description = False
-        else:
-            self.characters(u"</%s>"% tag)
-
-    def _custom_return(self):
-        return self.stack[0][0]
-
-    def characters(self, data):
-        if not self.inside_root:
-            return
-        AbstractXMLReader.characters(self, data)
-        
-# ResourceXMLReader ##########################################################
-
-class ResourcesXMLReader(AbstractXMLReader) :
-    """
-    sax handler to process XML file and create Resource Set object for projman model
-    """
-    
-    def __init__(self, projman=None, activities=None):
-        AbstractXMLReader.__init__(self)
-        # used to link all day-type information for calendar
-        self._day_type = False
-        self._day_type_id = u''
-        self._day_type_name = u''
-        self._id_nonworking_remove = set()
-        self._dict_days_types = {}
-
-    def _start_element(self, tag, attr):
-        """
-        See SAX's ContentHandler interface
-        """
-        if tag == 'resources-list':
-            self.assert_child_of([None])
-            rs = self._factory.create_resourcesset('all_resources')
-            self.stack.append(rs)
-        elif tag == 'resource':
-            self.assert_child_of(['resources-list'])
-            self.assert_has_attrs(['type','id'])
-            r_type = attr['type']
-            r = self._factory.create_resource(attr['id'], u'', r_type, u'')
-            self.stack[-1].append(r)
-            self.stack.append(r)
-        elif tag == 'hourly-rate':
-            self.assert_child_of(['resource'])
-            self.stack[-1].hourly_rate[1] = attr.get('unit', 'euros')
-        elif tag == 'use-calendar':
-            self.assert_child_of(['resource'])
-            self.assert_has_attrs(['idref'])
-            c_ref = attr['idref']
-            self.stack[-1].calendar = c_ref
-        elif tag == 'calendar':
-            self.assert_child_of(['resources-list', 'calendar'])
-            self.assert_has_attrs(['id'])
-            c = self._factory.create_calendar(attr['id'])
-            c.type_working_days = {}
-            c.type_nonworking_days = {}
-            self.stack[-1].append(c)
-            self.stack.append(c)
-        elif tag == 'day-types':
-            self.assert_child_of(['calendar'])
-        elif tag == 'day-type':
-            self.assert_child_of(['day-types'])
-            self.assert_has_attrs(['id'])
-            self._day_type = True
-            self._id = attr['id']
-            self._dict_days_types[attr['id']] = u''
-        elif tag == 'interval':
-            self.assert_child_of(['day-type'])
-            self.assert_has_attrs(['start','end'])
-            from_time = _extract_time(attr['start'])
-            to_time = _extract_time(attr['end'])
-            interval = (from_time, to_time)
-            c = self.stack[-1]
-            self._id_nonworking_remove.add(self._day_type_id)
-            if self._day_type_id not in c.type_working_days:
-                c.type_working_days[self._day_type_id] = [self._day_type_name, [interval]]
-            else:
-                c.type_working_days[self._day_type_id][1].append(interval)
-        elif tag == 'day':
-            self.assert_has_attrs(['type'])
-            self._day_type_name = self._dict_days_types[attr['type']]
-        elif tag == 'default-working':
-            self.assert_child_of(['calendar'])
-            self.assert_has_attrs(['idref'])
-            id = u''
-            type_name = self._dict_days_types[attr['idref']]
-            for t_id in self.stack[-1].type_working_days:
-                if self.stack[-1].type_working_days[t_id][0] == type_name:
-                    id = t_id
-            self.stack[-1].default_working = id
-        elif tag == 'default-nonworking':
-            self.assert_child_of(['calendar'])
-            self.assert_has_attrs(['idref'])
-            id = u''
-            type_name = self._dict_days_types[attr['idref']]
-            for t_id in self.stack[-1].type_nonworking_days:
-                if self.stack[-1].type_nonworking_days[t_id] == type_name:
-                    id = t_id
-            self.stack[-1].default_nonworking = id
-        elif tag == 'timeperiod':
-            self.assert_child_of(['calendar'])
-            self.assert_has_attrs(['from','to','type'])
-            from_date = _extract_date(attr['from'])
-            to_date = _extract_date(attr['to'])
-            type_name = self._dict_days_types[attr['type']]
-            self.stack[-1].add_timeperiod(from_date, to_date, type_name)
-        elif tag == 'start-on':
-	    pass
-#            for id in self._id_nonworking_remove:
-#                if id in self.stack[-1].type_nonworking_days:
-#                    del self.stack[-1].type_nonworking_days[id]
-#                else:
-#                    print 'warning: day cannot be removed...', id # XXX
-        elif tag == 'stop-on':
-            pass
-        elif tag == 'label' :
-            self.assert_child_of(['resource', 'day-type', 'calendar'])
-            if self._day_type:
-                self._day_type = False
-        else :
-            raise ProjectValidationError(UNKNOWN_TAG)
-        
-    def _end_element(self, tag) :
-        """
-        See SAX's ContentHandler interface
-        """
-        res = self.stack[-1]
-        if tag in ('resource', 'calendar'):
-            self.stack.pop()
-            self.current_tag = None
-        elif tag in ('label', 'hourly-rate', 'start-on', 'stop-on', 'day'):
-            data = self.get_characters()
-            if not data:
-                raise ProjectValidationError('file %%s line %%s : %s tag not supposed to be empty %%s'%(tag))
-            if tag == 'label':
-                if self._tags[-2] == "day-type":
-                    self._day_type_name = data
-                    self._dict_days_types[self._id] = data
-                    self._day_type_id = len(res.type_nonworking_days)+1
-                    res.type_nonworking_days[len(res.type_nonworking_days)+1] = data
-                elif self._tags[-2] == "calendar":
-                    res.name = data
-                elif self._tags[-2] == "resource":
-                    res.name = data
-                else:
-                    raise ProjectValidationError('%%s %%s %%s %s'%self._tags)
-            elif tag == 'hourly-rate':
-                res.hourly_rate[0] = float(data)
-            elif tag == 'start-on':
-                res.start_on = _extract_date(data)
-            elif tag == 'stop-on':
-                res.stop_on = _extract_date(data)
-            elif tag == 'day':
-                if data in ('mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'):
-                    res.weekday[data] = self._day_type_name
-                elif len(data) < 8:
-                    res.national_days.append(tuple([int(item) for item in data.split('-')]))
-                else:
-                    date = _extract_date(data)
-                    res.add_timeperiod(date, date, self._day_type_name)
-
-    def _custom_return(self):
-        return self.stack[0]
-
-
-# ActivitiesXMLReader ##########################################################
-
-class ActivitiesXMLReader(AbstractXMLReader) :
-    """
-    sax handler to process XML file and create Resource Set object for projman model
-    """
-    
-    def __init__(self):
-        AbstractXMLReader.__init__(self)
-        self._t_id = None
-        self.activities = []
-
-    def _start_element(self, tag, attr):
-        """
-        See SAX's ContentHandler interface
-        """
-        if tag == 'activities' :
-            self.assert_child_of([None])
-        elif tag == 'reports-list':
-            self.assert_child_of(['activities'])
-            self.assert_has_attrs(['task-id'])
-            self._t_id = attr['task-id']
-        # set the reports activity
-        elif tag == 'report':
-            self.assert_child_of(['reports-list'])
-            self.assert_has_attrs(['idref','from','to','usage'])
-            resource_id = attr['idref']
-            begin = _extract_date(attr['from'])
-            end = _extract_date(attr['to'])
-            usage =  float(attr['usage'])
-            task_id = self._t_id
-            self.activities.append((begin, end, resource_id, task_id, usage))
-        else:
-            raise ProjectValidationError(UNKNOWN_TAG)
-         
-    def _custom_return(self):
-        return self.activities
-
-# ScheduleXMLReader ##########################################################
-
-class ScheduleXMLReader(AbstractXMLReader) :
-    """
-    sax handler to process XML file and create Schedule object to generate
-    diagrams
-    """
-    
-    def __init__(self):
-        AbstractXMLReader.__init__(self)
-        # use only to remember the resource id for task cost by resource
-        self.r_id = u''
-        self.task_id = None
-        self.constraint_type = None
-        self.activities = Table(default_value=None,
-                                col_names=['begin', 'end', 'resource', 'task',
-                                           'usage', 'src'])
-        self.tasks = Table(default_value=None,
-                           col_names=['begin', 'end', 'status', 'cost', 'unit'])
-        self.costs = Table(default_value=None,
-                           col_names=['task', 'resource', 'cost', 'unit'])
-
-    def _start_element(self, tag, attr):
-        """
-        See SAX's ContentHandler interface
-        """
-        if tag == 'schedule' :
-            self.assert_child_of([None])
-        elif tag == 'task' :
-            self.assert_child_of([None, 'schedule','task'])
-            self.assert_has_attrs(['id'])
-            self.task_id = attr['id']
-            self.tasks.create_row(attr['id'])
-            self.stack.append(attr['id'])
-        elif tag == 'milestone' :
-            self.assert_child_of(['task'])
-            self.assert_has_attrs(['id'])
-            self.stack.append(attr['id'])
-        elif tag == 'status' :
-            self.assert_child_of(['task'])
-        elif tag == 'report-list':
-            self.assert_child_of(['task'])
-        elif tag == 'report':
-            self.assert_child_of(['report-list'])
-            self.assert_has_attrs(['idref', 'from', 'to', 'usage'])
-            resource_id = attr['idref']
-            begin = _extract_date(attr['from'])
-            end = _extract_date(attr['to'])
-            usage =  float(attr['usage'])
-            self.activities.append_row((begin, end, resource_id, self.task_id, usage))
-        elif tag == 'constraint-date':
-            self.assert_child_of(['task'])
-            self.assert_has_attrs(['type'])
-            self.constraint_type = attr['type']
-        elif tag == 'constraint-task':
-            self.assert_child_of(['task'])
-            # FIXME: raise NotImplementedError()
-            pass
-        elif tag == 'global-cost':
-            self.assert_child_of(['task'])
-            self.assert_has_attrs(['unit'])
-            self.tasks.set_cell_by_ids(self.task_id, 'unit', attr['unit'])
-        elif tag == 'costs_list':
-            self.assert_child_of(['task'])
-        elif tag == 'cost':
-            self.assert_child_of(['costs_list'])
-            self.assert_has_attrs(['idref'])
-            self.r_id = attr['idref']
-        elif tag == 'priority':
-            pass # ignore for now XXX
-        else:
-            raise ProjectValidationError(UNKNOWN_TAG)
-            
-        
-    def _end_element(self, tag):
-        """
-        See SAX's ContentHandler interface
-        """
-        t_id = self.task_id
-        data = u''.join(self._buffer).strip()
-        if tag == 'constraint-date':
-            date = _extract_date(data)
-            if self.constraint_type == BEGIN_AT_DATE:
-                self.tasks.set_cell_by_ids(self.task_id, 'begin', date)
-            elif self.constraint_type == END_AT_DATE:
-                self.tasks.set_cell_by_ids(self.task_id, 'end', date)
-        elif tag == 'status':
-            self.tasks.set_cell_by_ids(self.task_id, 'status', data)
-        elif tag == 'global-cost':
-            self.tasks.set_cell_by_ids(self.task_id, 'cost', float(data))
-        elif tag == 'cost':
-            self.costs.append_row( (t_id, self.r_id, float(data), None) )
-        elif tag == 'error':
-            self.schedule.errors.append(data)
-        #elif tag in ('task', 'milestone'):
-        #    self.task_id = self.stack.pop()
-        self._buffer = []
-
-    def _custom_return(self):
-        return self.activities, self.tasks, self.costs
-
-
-# ProjectXMLReader #############################################################
 
 class ProjectXMLReader(AbstractXMLReader) :
-    """
-    sax handler to process XML file and create a Project instance
-    """
-    
+
     def __init__(self, files, config):
         AbstractXMLReader.__init__(self)
         self.config = config
-        self.vtask_root = config.task_root
         self.project = self._factory.create_project()
         self.skip_schedule = False
         self.files = files
 
-    def _start_element(self, tag, attr) :
+    def fromFile(self, fname):
         """
-        See SAX's ContentHandler interface
+        import and return a project from a xml file
         """
-        # FIXME: remove code duplication in this method
-        # schedules imported
-        if tag == 'project':
-            self.assert_child_of([None])
-        elif tag == 'import-schedule':
-            self.assert_child_of(['project'])
-            self.assert_has_attrs(['file'])
+        return self.fromStream( file(fname), fname, dirname(abspath(fname)) )
+
+    def fromStream(self, stream,
+                   filename="input_stream", base_uri=''):
+        """
+        import and return a project from a xml stream
+        """
+        tree = ET.parse( stream )
+        return self.fromTree( tree, filename, base_uri )
+
+    def get_file(self, tree, ftype, default=None):
+        node = tree.find("import-"+ftype)
+        if node is None:
+            return default
+        fname = node.get("file",default)
+        setattr(self.files, ftype, fname)
+        if not isabs(fname):
+            sched = join(self._base_uris[-1], fname)
+        return fname
+
+    def fromTree(self, tree,
+                 filename="input_stream",
+                 base_uri=''):
+        self._base_uris.append(base_uri)
+        checker = ProjectChecker()
+        checker.validate( tree, filename )
+
+        sched = self.get_file(tree, "schedule")
+        rsrc = self.get_file(tree, "resources")
+        act = self.get_file(tree, "activities")
+        tasks = self.get_file(tree, "tasks")
+        self.read_tasks( tasks )
+        self.read_resources( rsrc )
+        self.read_activities( act )
+        if sched:
             try:
-                filename = attr['file']
-                self.files.schedule = filename
-                if not isabs(filename):
-                    filename = join(self._base_uris[-1], filename)
-                if not self._imported.has_key(filename):
-                    p = ScheduleXMLReader()
-                    activities, tasks, costs = p.fromFile(filename)
-                    self.project.add_schedule(activities)
-                    self.project.tasks = tasks
-                    self.project.costs = costs
-                    self._imported[filename] = 1
+                file(sched,"r")
             except IOError:
-                #TODO: lancer une exception au niveau le plus haut
-                #qui lancerait une commande spéciale de 'recovery'
-                #puis une commande de schedule puis la commande
-                #initiale
                 self.skip_schedule = True
                 print colorize_ansi("WATCH OUT!", "red"), \
                       "schedule file '%s' declared in project file but is missing. " \
                       "Command completed without scheduling information."% filename, \
                       colorize_ansi("Please, remove reference in projman file", "red")
-        # resources imported
-        elif tag == 'import-resources' :
-            self.assert_child_of(['project'])
-            self.assert_has_attrs(['file'])
-            filename = attr['file']
-            self.files.resources.append(filename)
-            if not isabs(filename):
-                filename = join(self._base_uris[-1], filename)
-            if not self._imported.has_key(filename):
-                p = ResourcesXMLReader()
-                rs = p.fromFile(filename)
-                plop
-                self.project.add_resource_set(rs)
-                self._imported[filename] = 1
-        # activities imported
-        elif tag == 'import-activities' :
-            self.assert_child_of(['project'])
-            self.assert_has_attrs(['file'])
-            filename = attr['file']
-            self.files.activities.append(filename)
-            if not isabs(filename):
-                filename = join(self._base_uris[-1], filename)
-            if not self._imported.has_key(filename):
-                p = ActivitiesXMLReader()
-                a = p.fromFile(filename)
-                self.project.add_activities(a)
-                self._imported[filename] = 1
-        # projects imported
-        elif tag == 'import-tasks' :
-            self.assert_child_of(['project'])
-            self.assert_has_attrs(['file'])
-            filename = attr['file']
-            self.files.tasks.append(filename)
-            if not isabs(filename):
-                filename = join(self._base_uris[-1], filename)
-            if not self._imported.has_key(filename):
-                p = TaskXMLReader(self.vtask_root)
-                task = p.fromFile(filename)
-                self.project.root_task = task
-                self._imported[filename] = 1
-        elif tag == 'import-project' :
-            sys.stderr.write('import-project deprecated in favor of import-tasks\n')
-            raise ProjectValidationError(UNKNOWN_TAG)
-        elif tag == 'projman' :
-            sys.stderr.write('projman deprecated in favor of project\n')
-            raise ProjectValidationError(UNKNOWN_TAG)
-        else :
-            raise ProjectValidationError(UNKNOWN_TAG)
-        
-
-    def _custom_return(self):
-        """ custom return in path """
+            else:
+                self.read_schedule( sched )
         return self.project
-        
-    def characters(self, data) :
-        """
-        See SAX's ContentHandler interface
-        """
-        if not self.skip_schedule:
-            AbstractXMLReader.characters(self, data)
+
+    def read_schedule( self, fname ):
+        schedule = ET.parse( fname )
+        checker = ScheduleChecker()
+        checker.validate( schedule, fname )
+
+        activities = Table(default_value=None,
+                           col_names=['begin', 'end', 'resource', 'task',
+                                      'usage', 'src'])
+        tasks = Table(default_value=None,
+                      col_names=['begin', 'end', 'status', 'cost', 'unit'])
+        costs = Table(default_value=None,
+                      col_names=['task', 'resource', 'cost', 'unit'])
+
+        for task in schedule.findall("task"):
+            t_id = task.get('id')
+            tasks.create_row( t_id )
+            global_cost = task.find("global-cost")
+            tasks.set_cell_by_ids(t_id, 'unit', global_cost.get('unit'))
+            tasks.set_cell_by_ids(t_id, 'cost', float(global_cost.text) )
+            tasks.set_cell_by_ids(t_id, 'status', task.find('status').text )
+            for cd in task.findall("contraint-date"):
+                date = iso_date( cd.text )
+                if cd.get('type') == 'begin-at-date':
+                    tasks.set_cell_by_ids( t_id, 'begin', date )
+                elif cd.get('type') == 'end-at-date':
+                    tasks.set_cell_by_ids( t_id, 'end', date )
+            for ct in task.findall("constraint-task"):
+                pass
+                #raise NotImplementedError("constraint-task not implemented in schedule")
+            for report in task.findall("report-list/report"):
+                activities.append_row( (iso_date(report.get('from')),
+                                             iso_date(report.get('to')),
+                                             report.get('res_id'),
+                                             t_id,
+                                             float(report.get('usage')) ) )
+            for cost in task.findall("costs_list/cost"):
+                costs.append_row( (t_id, cost.attrib['idref'],float(cost.text),None) )
+
+        self.project.add_schedule(activities)
+        self.project.tasks = tasks
+        self.project.costs = costs
+
+    def read_tasks(self, fname):
+        tasks = ET.parse( fname )
+        checker = TasksChecker()
+        checker.validate( tasks, fname )
+        self.tasks_file = fname
+        rt = tasks.getroot()
+        root_id = self.config.task_root
+        if root_id:
+            if rt.get("id")!=root_id:
+                for t in rt.findall(".//task"):
+                    if t.get("id")==root_id:
+                        rt = t
+                        break
+                else:
+                    raise RuntimeError("Task root %s not found" % root_id)
+        self.project.root_task = self.read_task(tasks.getroot())
+
+    def read_task(self, task):
+        t = self._factory.create_task( task.get("id") )
+        self.task_milestone_common( t, task )
+        for child in task:
+            if child.tag == "duration":
+                t.duration = float(child.text)
+            elif child.tag == "progress":
+                t.progress = float(child.text)
+            elif child.tag == "priority":
+                t.priority = int(child.text)
+            elif child.tag == "task":
+                t.append( self.read_task( child ))
+            elif child.tag == "milestone":
+                t.append( self.read_milestone(child) )
+        return t
+
+    def read_milestone(self, mstone):
+        m = self._factory.create_milestone( mstone.get("id") )
+        self.task_milestone_common( m, mstone )
+        return m
+
+    def task_milestone_common(self, t, task):
+        t.title = task.find("label").text
+        for cd in task.findall("constraint-date"):
+            t.add_date_constraint( cd.get("type"), iso_date( cd.text ) )
+        for ct in task.findall("constraint-task"):
+            t.add_task_constraint( ct.get("type"), ct.get("idref") )
+        for cr in task.findall("constraint-resource"):
+            t.add_resource_constraint( cr.get("type"), cr.get("idref"), float(cr.get("usage")) )
+        desc = task.find("description")
+        if desc is None:
+            txt = ""
         else:
-            print >> sys.stderr, "skip '%s'" % data
-        
-    def _end_element(self, tag) :
-        """
-        See SAX's ContentHandler interface
-        """
-        if tag == 'import-schedule' and self.skip_schedule:
-            self.skip_schedule = False
-        
-
-def _extract_date(date):
-    """
-    Extract DateTime object from string
-    """
-    # FIXME: use Parser.FromString()
-    return DateTime(int(date[:4]), int(date[5:7]), int(date[8:]))
+            txt = desc.text
+            for n in desc:
+                txt+=ET.tostring(n)
+                if n.tail:
+                    txt+=n.tail
+            if desc.get("format")=="rest":
+                txt = publish_string(txt,
+                                     settings_overrides={'output_encoding': 'unicode'},
+                                     writer=docbook_writer,
+                                     source_path=self.tasks_file + "<%s>"%t.id)
+        t.description = txt
 
 
-def _extract_time(time):
-    """
-    Extract DeltaTime object from string
-    """
-    # FIXME: use Parser.FromString()
-    return Time(float(time[0:2]), float(time[2:-1]))
+    def read_resource_definition(self, res_node):
+        res = self._factory.create_resource( res_node.get('id'), u'',
+                                             res_node.get('type'), u'' )
+        for n in res_node:
+            if n.tag == 'label':
+                res.name = n.text
+            elif n.tag == 'hourly-rate':
+                res.hourly_rate[0] = float(n.text)
+                res.hourly_rate[1] = n.get('unit','euros')
+            elif n.tag == 'use-calendar':
+                res.calendar = n.get('idref')
+        return res
 
-            
-def guess_format(txt):
-    """ really trivial function to determine if input string has xml in or not """
-    if '<' in txt:
-        return 'xml'
-    else:
-        return 'rest'
 
+    def read_calendar_definition(self, cal_node):
+        _dict_days_types = {}
+        cal = self._factory.create_calendar( cal_node.get('id') )
+        cal.type_working_days = {}
+        cal.type_nonworking_days = {}
+        for n in cal_node:
+            if n.tag == "label":
+                cal.name = n.text
+            elif n.tag == "day-types":
+                # --------------------------
+                # Read day-types
+                # --------------------------
+                for day_type in n.findall('day-type'):
+                    day_id = day_type.get('id')
+                    day_type_name = unicode(day_type.find('label').text)
+                    _dict_days_types[day_id] = day_type_name
+                    cal.type_nonworking_days[day_id] = day_type_name
+                    intervals = [day_type_name,[]]
+                    for interval in day_type.findall('interval'):
+                        from_time = iso_time( interval.get('start') )
+                        to_time = iso_time( interval.get('end') )
+                        intervals[1].append( (from_time, to_time) )
+                    if intervals[1]: # only add it if we have intervals
+                        cal.type_working_days[day_id] = intervals
+            elif n.tag == "default-working":
+                # -----------------------------
+                # Read defaults working day ids
+                # -----------------------------
+                # XXX: BUG? ou simple connerie? : on compare day_type[default-workin.idref]
+                # avec w_type[0] (le label de day-type) au lieu de comparer juste les id ?
+                _id = u''
+                type_name = _dict_days_types[n.get('idref')]
+                for t_id, w_type in cal.type_working_days.items():
+                    if w_type[0] == type_name:
+                        _id = t_id
+                cal.default_working = _id
+            elif n.tag == "default-nonworking":
+                # -----------------------------
+                # Read defaults working day ids
+                # -----------------------------
+                _id = u''
+                type_name = _dict_days_types[n.get('idref')]
+                for t_id, w_type in cal.type_nonworking_days.items():
+                    if w_type == type_name:
+                        _id = t_id
+                cal.default_nonworking = _id
+            elif n.tag == "day":
+                day_type_name = _dict_days_types[ n.get('type') ]
+                data = n.text
+                if data in ('mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'):
+                    cal.weekday[data] = day_type_name
+                elif len(data) < 8:
+                    cal.national_days.append(tuple([int(item) for item in data.split('-')]))
+                else:
+                    date = iso_date(data)
+                    cal.add_timeperiod(date, date, day_type_name)
+            elif n.tag == "timeperiod":
+                from_date = iso_date( n.get('from') )
+                to_date = iso_date( n.get('to') )
+                type_name = _dict_days_types[ n.get('type') ]
+                cal.add_timeperiod( from_date, to_date, type_name )
+            elif n.tag == 'start-on':
+                print "TODO: Unhandled element start-on"
+            elif n.tag == 'start-on':
+                print "TODO: Unhandled element start-on"
+            elif n.tag == 'calendar':
+                subcal = self.read_calendar_definition( n )
+                cal.append(subcal)
+        return cal
+
+    def read_resources(self, fname):
+        tree = ET.parse(fname)
+        checker = ResourcesChecker()
+        checker.validate( tree, fname )
+        root_node = tree.getroot()
+        res_set = self._factory.create_resourcesset('all_resources')
+        for res_node in root_node.findall('resource'):
+            res = self.read_resource_definition( res_node )
+            res_set.append(res)
+        for cal_node in root_node.findall('calendar'):
+            cal = self.read_calendar_definition( cal_node )
+            res_set.append(cal)
+        self.project.resource_set = res_set
+
+    def read_activities(self, fname):
+        tree = ET.parse(fname)
+        root_node = tree.getroot()
+        activities = []
+        for reports in root_node.findall('reports-list'):
+            task_id = reports.get('task-id')
+            for report in reports.findall('report'):
+                res_id = report.get('idref')
+                begin = iso_date( report.get('from') )
+                end = iso_date( report.get('to') )
+                usage = float( report.get('usage') )
+                self.activities.append( (begin, end, res_id, task_id, usage) )
+        self.project.add_activities( activities )
