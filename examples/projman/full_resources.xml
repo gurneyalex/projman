@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources-list id="rss_2">
   <resource type="manager" id="cdp_1">
-    <label>Nicolas Chauvat</label>
+    <label>Jean Dupuit</label>
     <use-calendar idref="typic_cal"/>
-    <hourly-rate unit="euros">100</hourly-rate>
+    <hourly-rate unit="euros">10</hourly-rate>
   </resource>
   <resource type="administrative" id="rh_1">
-    <label>Olivier Cayrol</label>
+    <label>Marie Madeleine</label>
     <use-calendar idref="typic_cal"/>
-    <hourly-rate unit="euros">90</hourly-rate>
+    <hourly-rate unit="euros">10</hourly-rate>
   </resource>
   <resource type="engineer" id="ing_1">
-    <label>Emmanuel Breton</label>
+    <label>Pierre Dupont</label>
     <use-calendar idref="typic_cal"/>
-    <hourly-rate unit="euros">80</hourly-rate>
+    <hourly-rate unit="euros">10</hourly-rate>
   </resource>
   <resource type="engineer" id="ing_2">
-    <label>Arthur Lutz</label>
+    <label>Jeanne Croissant</label>
     <use-calendar idref="typic_cal"/>
-    <hourly-rate unit="euros">80</hourly-rate>
+    <hourly-rate unit="euros">10</hourly-rate>
   </resource>
   <resource type="engineer" id="ing_3">
-    <label>Sandrine Ribeau</label>
+    <label>Paul Dubois</label>
     <use-calendar idref="typic_cal"/>
-    <hourly-rate unit="euros">80</hourly-rate>
+    <hourly-rate unit="euros">10</hourly-rate>
   </resource>
 
   <calendar id="typic_cal">

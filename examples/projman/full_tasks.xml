@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<task id="LNGW">
+<task id="ACME">
   <constraint-resource usage="100" idref="cdp_1" type="manager"/>
   <constraint-resource usage="100" idref="rh_1" type="administrative"/>
   <constraint-resource usage="100" idref="ing_1" type="engineer"/>
   <constraint-resource usage="100" idref="ing_2" type="engineer"/>
   <constraint-resource usage="100" idref="ing_3" type="engineer"/>
-  <label>Projet C@P-TP</label>
+  <label>Projet ComicStrip</label>
 
   <task id="t1">
     <label>Première tranche</label>
     <description>Modélisation des données, adaptation et configuration de
-      Lingway KM, intégration de Lingway KM et <classname>ÉRUDI</classname> (voir détails des tâches
+      Comix, intégration de Comix et <classname>Strip</classname> (voir détails des tâches
     ci-dessous). <para>Cette première tranche a une durée de huit semaines. Elle est
     plus longue que les suivantes car elle nécessite la mise en oeuvre du socle
 	sur lequel sera bâtie la solution.</para></description>
@@ -37,17 +37,17 @@
       <constraint-resource usage='100' idref='ing_1' type='n/a'/>
     </task>
 
-    <task id="lkm-erudi">
-      <label>Intégration de Lingway KM et ÉRUDI</label>
+    <task id="comix-strip">
+      <label>Intégration de Comix et Strip</label>
       <description>Les deux logiciels sont actuellement ouverts et capables
 	d'échanger des informations avec d'autres applications, mais leur
 	intégration n'a pas encore été effectuée. Elle consistera à s'assurer
 	<itemizedlist>
 	  <listitem>d'une part que les documents ajoutés au système sont immédiatement indexés
-	    par Lingway KM </listitem>
+	    par Comix </listitem>
 	  <listitem>et d'autre part que la recherche et l'affichage des
 	    résultats sont transparents pour l'utilisateur, bien qu'il interagisse
-	    avec ÉRUDI et non Lingway KM.</listitem>
+	    avec Strip et non Comix.</listitem>
       </itemizedlist></description>
       <duration>15</duration>
       <constraint-resource usage='100' idref='ing_1' type='n/a'/>
@@ -66,14 +66,14 @@
       <constraint-task idref="model-donnees" type='begin-after-end'/>
     </task>
 
-    <task id="config-lingway">
-      <label>Configuration de Lingway KM</label>
-      <description>Configuration de Lingway KM, adaptation des bases et
-      des interfaces de communication pour l'interaction avec ERUDI.
+    <task id="config-acme">
+      <label>Configuration de Comix</label>
+      <description>Configuration de Comix, adaptation des bases et
+      des interfaces de communication pour l'interaction avec Strip.
       </description>
       <duration>15</duration>
       <constraint-resource usage='100' idref='ing_2' type='n/a'/>
-      <constraint-task idref="lkm-erudi" type='begin-after-end'/>
+      <constraint-task idref="comix-strip" type='begin-after-end'/>
     </task>
   </task>
 
@@ -81,7 +81,7 @@
       <label>Fin du premier Lot: état d'avancement</label>
       <constraint-date type='begin-at-date'>2005-02-03</constraint-date>
       <constraint-task idref="interface" type='begin-after-end'/>
-      <constraint-task idref="config-lingway" type='begin-after-end'/>
+      <constraint-task idref="config-acme" type='begin-after-end'/>
   </milestone>
 
   <task id="t2">
@@ -176,11 +176,11 @@
       <constraint-task idref="appli-externes" type='begin-after-end'/>
     </task>
 
-    <task id="adaptation-lingway">
-      <label>Adaptation de Lingway KM</label>
+    <task id="adaptation-acme">
+      <label>Adaptation de Comix</label>
       <description>Il sera très probablement nécessaire, après les tests par un
       éventail d'utilisateurs finaux, d'adapter les lexiques et autres données
-      nécessaires au fonctionnement de Lingway KM afin que les particularités du
+      nécessaires au fonctionnement de Comix afin que les particularités du
       domaine qui n'avaient pas été prévues soient prises en
       compte.</description>
       <duration>6</duration>
@@ -240,8 +240,7 @@
       <label>Support de formation utilisateur</label>
       <description>Un support de formation sur-mesure sera rédigé pour les
       utilisateurs. Il comprendra la description des principes de la gestion de
-      connaissance, l'utilisation d'ÉRUDI et la recherche avec Lingway
-      KM.</description>
+      connaissance, l'utilisation de Strip et la recherche avec Comix.</description>
       <duration>2</duration>
       <constraint-resource usage='100' idref='ing_1' type='n/a'/>
     </task>
