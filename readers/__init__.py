@@ -15,6 +15,7 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """ external access point to readers base classes """
 
-from projman.readers.projman_reader import ProjectXMLReader, TaskXMLReader, \
-                                           ResourcesXMLReader, ScheduleXMLReader
+## from projman.readers.projman_reader import ProjectXMLReader, TaskXMLReader, \
+##                                            ResourcesXMLReader, ScheduleXMLReader
 from projman.readers.planner_reader import PlannerXMLReader
+from projman.readers.projman_reader import ProjectXMLReader
