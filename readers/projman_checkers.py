@@ -25,13 +25,18 @@ Validate projman XML formats
 # ------------------------------------------------------------
 
 import mx.DateTime
+try:
+    import xml.etree.ElementTree as ET
+except ImportError:
+    import elementtree.ElementTree as ET
+
 
 def any(attrib, attr):
     return ""
 
 def not_empty(attrib, attr):
     if not attrib[attr]:
-        return "%s must not be the empty string"
+        return "%s must not be the empty string" % attr
     return ""
 
 def iso_date(dt):
@@ -174,6 +179,11 @@ class BaseEtreeChecker(object):
             if name not in attrs:
                 self._error("unknown attribute '%s'" % name)
 
+    def _parent_node(self):
+        if len(self.stack)<=1:
+            return ET.Element("")
+        return self.stack[-2][1]
+
     def _children(self, *types):
         pos, node = self.stack[-1]
         children = {}
@@ -257,16 +267,23 @@ class ScheduleChecker(BaseEtreeChecker):
     def check_schedule(self):
         self._isroot()
         self._noattr()
-        self._children( "task+" )
+        self._children( "task+", "milestone*" )
+
     def check_task(self):
         self._is_child_of("schedule")
         self._attributes( {"id": not_empty} )
+        pos, node = self.stack[-1]
         self._children("costs_list", "report-list",
-                           "global-cost", "constraint-date*",
-                           "status", "constraint-task*")
+                       "global-cost", "constraint-date*",
+                       "status", "constraint-task*")
+
     def check_constraint_date(self):
+        self._is_child_of("task","milestone")
         self._children()
-        self._attributes( {"type" : one_of(*DATE_CONSTRAINT)} )
+        if self._parent_node().tag == "milestone":
+            self._attributes( {"type" : one_of("at-date") } )
+        else:
+            self._attributes( {"type" : one_of(*DATE_CONSTRAINT)} )
         self._content( iso_date )
     def check_constraint_task(self):
         self._empty()
@@ -291,7 +308,7 @@ class ScheduleChecker(BaseEtreeChecker):
     def check_global_cost(self):
         self._children()
         self._content( float )
-        self._attributes( {"unit": not_empty} )
+        self._attributes( {"unit": any} )
     def check_priority(self):
         self._error("TODO")
     def check_costs_list(self):
@@ -302,7 +319,11 @@ class ScheduleChecker(BaseEtreeChecker):
         self._empty()
         self._noattr()
         self._children( "report+" )
-
+    def check_milestone(self):
+        self._is_child_of('schedule')
+        self._empty()
+        self._attributes({"id": not_empty})
+        self._children('constraint-date')
 
 class ResourcesChecker(BaseEtreeChecker):
     def check_resources_list(self):
