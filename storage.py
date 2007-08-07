@@ -19,7 +19,6 @@ __revision__ ="$Id: file_manager.py,v 1.16 2005-09-06 17:06:43 nico Exp $"
 
 import sys
 import tarfile
-import logging, logging.config
 import os, os.path as osp
 from ConfigParser import ConfigParser
 
@@ -134,15 +133,6 @@ class ProjectStorage:
             repo_dir, input_ = osp.split(osp.abspath(config.project_file))
         else:
             input_ = config.project_file
-
-        # create logger
-        self.logger = logging.getLogger("reader")
-        logging.basicConfig()
-        # XXX: revive me!
-##         try:
-##             logging.config.fileConfig(LOG_CONF)
-##         except Exception :
-##             logging.basicConfig()
 
         # manages the file names of the input project
         self.files = ProjectFiles()

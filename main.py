@@ -29,8 +29,9 @@ def run(args):
     from projman import commands
     # create & init logger
     logger = getLogger("main")
-    try:
-        config.fileConfig(LOG_CONF)
-    except Exception:
-        basicConfig()
+    basicConfig()
+##     try:
+##         config.fileConfig(LOG_CONF)
+##     except Exception:
+##         basicConfig()
     main_run(args, __doc__)

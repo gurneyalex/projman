@@ -17,7 +17,7 @@
 
 __revision__ = "$Id: projman_writer.py,v 1.17 2005-11-11 15:53:21 nico Exp $"
 
-import logging, logging.config
+import logging
 from projman import LOG_CONF
 from xml.dom.ext import PrettyPrint, Print
 from xml.dom.minidom import DOMImplementation
@@ -26,13 +26,15 @@ from logilab.common.tree import PrefixedDepthFirstIterator as _Iterator
 from projman.lib.constants import BEGIN_AT_DATE, END_AT_DATE
 #from xml.dom.DOMImplementation import DOMImplementation
 
+log = logging.getLogger("writer") # in case we use it one day
+
 class PrefixedDepthFirstIterator(_Iterator):
     """overrides the original one because it doesn't
     use the iter protocol
     """
     def __iter__(self):
         return self
-    
+
     def next(self):
         value = _Iterator.next(self)
         if value is None:
@@ -46,7 +48,7 @@ import sys
 # xml exportation methods ######################################################
 
 def as_xml_dom(node):
-    """ 
+    """
     return the tasks tree as a DOM tree
     """
     return ProjmanDOMVisitor().visit(node)
@@ -221,13 +223,7 @@ class ProjmanDOMVisitor(Visitor):
     def __init__(self):
         Visitor.__init__(self, PrefixedDepthFirstIterator)
         self._type_of_days = {}
-        # create & init logger
-        #self.logger = logging.getLogger("writer")
-        try:
-            logging.config.fileConfig(LOG_CONF)
-        except Exception :
-            logging.basicConfig()
-        
+
     def _visit(self, node):
         """ override Visitor._visit """
         done = {}
