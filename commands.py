@@ -24,9 +24,15 @@ from logilab.common.clcommands import BadCommandUsage, Command, \
 from projman.__pkginfo__ import version
 from projman.storage import ProjectStorage
 from projman.views import document
+import logging
 
-
-
+# verbosity to logging level mapping
+LEVELS = {
+    0 : logging.ERROR,
+    1 : logging.WARN,
+    2 : logging.INFO,
+    3 : logging.DEBUG,
+    }
 
 class ProjmanCommand(Command):
     """base class providing common behaviour for projman commands"""
@@ -57,6 +63,8 @@ class ProjmanCommand(Command):
 
     def run(self, args):
         """run the command with its specific arguments"""
+        loglevel = LEVELS.get(self.config.verbose, logging.WARN)
+        logging.basicConfig(level=loglevel)
         self.storage = ProjectStorage(self.config)
         self.storage.load()
         self._run(args)

@@ -19,19 +19,9 @@
 Projman's command line tool. 
 %s"""
 
-from logging import config, getLogger, basicConfig
-
 from projman import LOG_CONF
-
 
 def run(args):
     from logilab.common.clcommands import main_run
     from projman import commands
-    # create & init logger
-    logger = getLogger("main")
-    basicConfig()
-##     try:
-##         config.fileConfig(LOG_CONF)
-##     except Exception:
-##         basicConfig()
     main_run(args, __doc__)

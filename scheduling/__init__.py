@@ -18,7 +18,9 @@
 __revision__ = "$Id: __init__.py,v 1.22 2005-09-07 23:51:01 nico Exp $"
 
 import sys
-from projman import verbose as verboselog, LOG_CONF
+from logging import getLogger
+
+log = getLogger("schedule")
 
 class ScheduleException(Exception):
     """base of scheduling exceptions"""
@@ -50,8 +52,5 @@ def schedule(proj, config):
     else:
         raise ValueError('bad scheduler type %s'%value)
     errors += scheduler.schedule(verbose=config.verbose)
-    #print scheduler.solution
     for error in errors:
-        sys.stderr.write("ERROR : %s\n" % str(error))
-    if errors:
-        sys.stderr.write("WARNING : %s errors\n" % len(errors))
+        log.error(str(error))
