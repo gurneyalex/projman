@@ -22,31 +22,28 @@ import tempfile, shutil
 
 from logilab.common import testlib
 from projman.renderers import PILHandler, GanttRenderer, ResourcesRenderer
-from projman.storage import ProjectStorage
 
 from projman.test import DATADIR
+from projman.readers import ProjectXMLReader
+
+CONFIG = testlib.AttrObject(del_ended=False, del_empty=False,
+                            timestep=1, depth=0, selected_resource=None,
+                            view_begin=None, view_end=None,
+                            project_file=osp.join(DATADIR,"full_scheduled_projman.xml"),
+                            task_root=None,
+                            )
 
 class RenderTest(testlib.TestCase):
 
     def setUp(self):
-        self.config = testlib.AttrObject(del_ended=False, del_empty=False,
-                                    timestep=1, depth=0, selected_resource=None,
-                                    view_begin=None, view_end=None,
-                                    project_file=osp.join(DATADIR,"full_scheduled_projman.xml"),
-                                    task_root=None,
-                                    )
-        storage = ProjectStorage(self.config)
-        storage.load()
-        self.project = storage.project
-        self.config2 = testlib.AttrObject(del_ended=False, del_empty=False,
-                                    timestep=1, depth=0, selected_resource=None,
-                                    view_begin=None, view_end=None,
-                                    project_file=osp.join(DATADIR,"trivial_scheduled_projman.xml"),
-                                    task_root=None,
-                                    )
-        storage = ProjectStorage(self.config2)
-        storage.load()
-        self.project2 = storage.project
+        project_file = osp.join(DATADIR,"full_scheduled_projman.xml")
+        reader = ProjectXMLReader(project_file)
+        self.project, files = reader.read()
+        
+        project_file2 = osp.join(DATADIR,"trivial_scheduled_projman.xml")
+        reader = ProjectXMLReader(project_file2)
+        self.project2, files = reader.read()
+
         self.tmpdir = tempfile.mkdtemp()
         self.file = file(osp.join(self.tmpdir, 'render_test.png'), 'w')
 
@@ -55,22 +52,22 @@ class RenderTest(testlib.TestCase):
 
     def test_gantt_diagram(self):
         handler = PILHandler('png')
-        renderer = GanttRenderer(self.config, handler)
+        renderer = GanttRenderer(CONFIG, handler)
         renderer.render(self.project, self.file)
 
     def test_resource_diagram(self):
         handler = PILHandler('png')
-        renderer = ResourcesRenderer(self.config, handler)
+        renderer = ResourcesRenderer(CONFIG, handler)
         renderer.render(self.project, self.file)
 
     def test_gantt_diagram2(self):
         handler = PILHandler('png')
-        renderer = GanttRenderer(self.config2, handler)
+        renderer = GanttRenderer(CONFIG, handler)
         renderer.render(self.project2, self.file)
 
     def test_resource_diagram2(self):
         handler = PILHandler('png')
-        renderer = ResourcesRenderer(self.config2, handler)
+        renderer = ResourcesRenderer(CONFIG, handler)
         renderer.render(self.project2, self.file)
 
 

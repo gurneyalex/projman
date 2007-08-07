@@ -3,4 +3,5 @@
   <import-tasks file="error_dtd_project.xml"/>
   <import-resources file="single_resourced_list.xml"/>
   <import-activities file="single_activity.xml"/>
+  <import-schedule file="empty_schedule.xml"/>
 </project>

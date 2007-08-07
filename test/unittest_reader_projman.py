@@ -15,7 +15,6 @@ import os.path as osp
 from logilab.common.testlib import TestCase, unittest_main
 
 from projman.readers import ProjectXMLReader
-from projman.storage import ProjectStorage, ProjectFiles
 from projman.lib._exceptions import DuplicatedTaskId, MalformedProjectFile
 from projman.test import DATADIR
 
@@ -26,7 +25,7 @@ class DummyConfig:
 class TaskXMLReaderTest(TestCase):
 
     def setUp(self):
-        self.reader = ProjectXMLReader(ProjectFiles(),DummyConfig())
+        self.reader = ProjectXMLReader(None)
         self.reader.read_tasks(osp.join(DATADIR, 'multiline_tasked_project.xml'))
         self.root = self.reader.project.root_task
 
@@ -55,8 +54,7 @@ class TaskXMLReaderTest(TestCase):
 
 class TaskXMLReaderVirtualRootTest(TestCase):
     def setUp(self):
-        self.reader = ProjectXMLReader(ProjectFiles(),DummyConfig())
-        self.reader.config.task_root = 't1_1'
+        self.reader = ProjectXMLReader(None, task_root='t1_1')
         self.reader.read_tasks(osp.join(DATADIR, 'multiline_tasked_project.xml'))
         self.root = self.reader.project.root_task
 
@@ -72,7 +70,7 @@ class TaskXMLReaderVirtualRootTest(TestCase):
 
 class ResourcesXMLReaderTest(TestCase):
     def setUp(self):
-        self.reader = ProjectXMLReader(ProjectFiles(),DummyConfig())
+        self.reader = ProjectXMLReader(None)
         self.reader.read_resources(osp.join(DATADIR, 'three_resourced_list.xml'))
         self.resources = self.reader.project.resource_set
 
@@ -122,7 +120,7 @@ class ResourcesXMLReaderTest(TestCase):
 
 class ErrorXMLReaderTest(TestCase):
     def setUp(self):
-        self.reader = ProjectXMLReader(ProjectFiles(),DummyConfig())
+        self.reader = ProjectXMLReader(None)
     
     def test_error_project(self):
         self.assertRaises(Exception, self.reader.read_resources, osp.join(DATADIR, 'error_project.xml'))
@@ -135,10 +133,8 @@ class ErrorXMLReaderTest(TestCase):
       
     def test_error_dtd_project(self):
         self.assertRaises(MalformedProjectFile, self.reader.read_tasks, osp.join(DATADIR, 'error_dtd_project.xml'))
-        config = DummyConfig()
-        config.project_file =  osp.join(DATADIR, 'error_dtd_projman.xml')
-        storage = ProjectStorage(config, DATADIR)
-        self.assertRaises(SystemExit, storage.load)
+        reader = ProjectXMLReader(osp.join(DATADIR, 'error_dtd_projman.xml'))
+        self.assertRaises(MalformedProjectFile, reader.read)
 
 
     def test_error_dtd_project_multi(self):
