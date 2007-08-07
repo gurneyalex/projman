@@ -52,3 +52,13 @@
  - voir si on peut virer ProjectStorage ou le simplifier...
  
  - investiguer le pb de logging et sys.exit lié à logging.config.fileConfig("logging.conf")
+
+ - relacher les contraintes de date dans csp.
+ 
+ - idées :
+
+   - chercher cycles dans graphes des contraintes
+ 
+   - détecter les taches qui ne sont pas dans le graphe
+
+   - faire un mode qui ajoute une contrainte de date après chaque nvlle solution
