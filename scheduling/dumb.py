@@ -1,4 +1,4 @@
-# -*- coding: ISO-8859-1 -*-
+# -*- coding: iso-8859-1 -*-
 # Copyright (c) 2000-2005 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
@@ -48,6 +48,9 @@ class DumbScheduler:
         activities = []
         resources = [self.project.get_resource(r_id)
                      for r_type, r_id, usage in node.get_resource_constraints()]
+        if node.TYPE=="milestone":
+            self.project.milestones[node.id] = begin
+            return []
         if not resources:
             print "WARNING: task %s has no resource and will not be scheduled"%node.id
         days = {}
@@ -60,10 +63,10 @@ class DumbScheduler:
                     date = days[resource]
                     while not resource.work_on(date):
                         date += 1
-                    # usage = 1 
+                    # usage = 1
                     activities.append( (date, date, resource.id, node.id, 1) )
                     days[resource] = date + 1
-                duration -= 1                
+                duration -= 1
         else:
             for resource in resources:
                 days[resource] = end
@@ -72,7 +75,7 @@ class DumbScheduler:
                     date = days[resource]
                     while not resource.work_on(date):
                         date -= 1
-                    # usage = 1 
+                    # usage = 1
                     activities.append( (date, date, resource.id, node.id, 1) )
                     days[resource] = date - 1
                 duration -= 1
