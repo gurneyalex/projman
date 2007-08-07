@@ -243,38 +243,20 @@ class CSPScheduler:
                 break
             d = SOL.get_milestone( milestone )
             date = self.start_date + d
-            print "MILESTONE", tid, date
-            for res in self.project.get_resources():
-                activities.append( (date, date, res, tid, 1.) )
+            if (_VERBOSE>=2):
+                print "MILESTONE", tid, date
+            self.project.milestones[tid] = date
             milestone += 1
 
         self.project.add_schedule(activities)
         return []
-
-        
-        # FIXME: start date !
-        # start_date, end_date = self.project.get_task_date_range(project.root_task)
-        start_date = self.start_date
-        for task_id, interval in self.solution.items():
-            task_start = start_date + interval._start
-            task_end = start_date + max(interval._start,interval._end-1)
-            task = self.project.root_task.get_task(task_id)
-            for r_type, r_id, usage in task.get_resource_constraints():
-                activities.append((task_start, task_end, r_id, task_id, 1.))
-            if task.TYPE=='milestone':
-                for res in self.project.get_resources():
-                    activities.append((task_start, task_end, res, task_id, 1.))
-
-        self.project.add_schedule(activities)
-        return []
-
 
     def read_sol( self, SOL ):
         duration = SOL.get_duration()
         ntasks = SOL.get_ntasks()
         tasks_days = [ [ day for day in range(duration) if SOL.isworking( task, day ) ] for task in range(ntasks) ]
         return tasks_days
-    
+
     def compare_solutions( self, pb ):
         N = pb.get_number_of_solutions()
         if N==0:

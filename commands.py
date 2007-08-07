@@ -227,20 +227,6 @@ class DiagramCommand(ProjmanCommand):
                 raise BadCommandUsage('unknown diagram %s' % diagram)
             output = self.config.output or '%s.%s' % (diagram, self.config.format)
             stream = handler.get_output(output)
-            #if self.options.is_image_renderer():
             renderer.render(self.storage.project, stream)
-            #else:
-            #    title = 'Resources'.encode(ENCODING)
-            #    output_f.write("""<html>
-            #    <head><title>%s</title></head>
-            #    <body><h1 align='center'>Resources %s</h1>
-            #    <h3>begin on %s, possible end to %s</h3>\n"""% (
-            #        title,
-            #        dom_objects.schedules[0].get_view_begin().date,
-            #        dom_objects.schedules[0].get_view_end().date))
-            #    self.renderer.render(self.project, output_f)
-            #    output_f.write("</body></html>")
-
-
 
 register_commands((ScheduleCommand, ViewCommand, DiagramCommand))

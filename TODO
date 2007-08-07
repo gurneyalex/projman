@@ -1,3 +1,54 @@
 28/06/04
 --------
-	implementer la contrainte synchronized
+
+ - implementer la contrainte synchronized
+
+07/08/07
+--------
+
+ - virer l'option -f
+ 
+ - taper sur calendar.py
+
+ - taper sur les milestones pour les gerer correctement
+   get_task_date_range foireux
+
+ - gerer les multiples solutions de csp
+
+ - option d'optimisation pour csp : <= ou < pour la taille des taches
+
+ - gerer les taches (res_1 XOR res_2) : card(T_rid) in (0, duration)
+
+ - ne pas charger schedule.xml si c'est pour faire un schedule ...
+
+ - dans activités -> ajouter a faire: ->
+   pour la planification :
+   1 - lire les taches
+   2 - lire les activites
+   3 - lire date du jour
+   4 - utiliser nombre de jours a faire pour la planification.
+   5 - re-planifier à partir de date du jour
+
+
+ - dans activities.xml :
+   * mettre <task><report-list><report> comme dans schedule.xml
+   * inclure <task><reste-a-faire>
+   * virer 'progress' de tasks.xml pour le mettre ici sous forme reste-a-faire
+
+ - dans schedule.xml changer <constraint-date> en <begin> et <end>
+
+ - table cost : faire difference entre 'fait' et 'a faire' ou y faire attention
+
+ - gérer la priorité : ??? cout d'optimisation ?
+
+   durée totale <= last_solution
+
+   durée ponderee par priorité < last_solution ???
+
+ - option pour la date de debut du scheduling (defaut=today ou default=derniere activitee)
+
+ - utiliser l'option verbose pour configurer le module logging et utiliser ce module partout
+
+ - voir si on peut virer ProjectStorage ou le simplifier...
+ 
+ - investiguer le pb de logging et sys.exit lié à logging.config.fileConfig("logging.conf")

@@ -14,6 +14,7 @@
       <label>Validation</label>
       <duration>8</duration>
       <constraint-resource usage="1." idref="ing_2" type="engineer"/>
+      <constraint-task type="begin-after-end" idref="t2_11"/>
     </task>
   </task>
 
@@ -25,5 +26,6 @@
 
   <milestone id="t2_3">
     <label>Recette</label>
+    <constraint-task type="begin-after-end" idref="t2_2"/>
   </milestone>
 </task>

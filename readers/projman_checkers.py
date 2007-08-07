@@ -110,7 +110,10 @@ class BaseEtreeChecker(object):
         return self._ignore_children_flag
 
     def _error(self, msg):
-        path = "/".join( [ n.tag+"(%s)"%p for p,n in self.stack ] )
+        pos = [ p for p,n in self.stack ]
+        pos = [0]+pos[:-1]
+        tag = [ n.tag for p,n in self.stack]
+        path = "/".join( [ t+"[%s]"%p for t,p in zip(tag,pos) ] )
         self._errors.append( "%s:%s" % (path,msg) )
 
     def __str__(self):
@@ -136,8 +139,6 @@ class BaseEtreeChecker(object):
                 continue
             # we finished all children
             self.stack.pop(-1)
-        if self._errors:
-            print self
 
     # various helpers
     def _isroot(self):

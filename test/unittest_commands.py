@@ -44,39 +44,29 @@ class AbstractCommandTest(testlib.TestCase):
     
 class ScheduleTest(AbstractCommandTest):
     """testing """
-    
+
     def setUp(self):
         AbstractCommandTest.setUp(self)
         self.projman_path =  osp.join(DATADIR, "tmp_projman.xml")
         shutil.copyfile(XML_PROJMAN, self.projman_path)
-        self.sched = osp.join(self.tmpdir, 'schedule.xml')
-        
+        self.sched = osp.join(DATADIR, 'schedule.xml')
+
     def tearDown(self):
         shutil.rmtree(self.tmpdir)
         os.remove(self.projman_path)
-    
+
     def test_default(self):
-        # schedule xml and wrap into prj
-        cmd_run('schedule', '--type', 'csp', '-f', self.projman_path,
-                '-o', self.sched)
+        """Check if a schedule file is created and can be read again"""
+        try:
+            os.remove(self.sched)
+        except OSError, e:
+            print "ERROR:", self.sched, e
+            pass
+        print "PROJECT FILE:", self.projman_path
+        cmd_run('schedule', '--type', 'csp', '-f', self.projman_path)
         self.assert_(osp.exists(self.sched))
-        # schedule prj and unwrap
-        cmd_run('schedule', '--type', 'csp', '-f', self.projman_path,
-                '-o', self.sched)
-        #files = OptionManager([("-X", None)], [make_project_name(self.projman_path)]).storage
-        #self.assertEquals(files.file_names[SCHEDULE_KEY], SCHEDULE_NAME)
-        self.assert_(osp.exists(self.sched))
-    
-    def test_include(self):
-        # schedule xml and wrap into prj
-        cmd_run('schedule', '--type', 'csp', '-f', self.projman_path,
-                '-o', self.sched, '-Xn', '-Iy')
-        self.assert_(not osp.exists(self.sched))
-        # schedule prj and unwrap
-        cmd_run('schedule', '--type', 'csp', '-f', self.projman_path,
-                '-o', self.sched, '-Xy', '-Iy')
-        #files = OptionManager([("-X", None)], [make_project_name(self.projman_path)]).storage
-        #self.assertEquals(files.file_names[self.sched_KEY], self.sched)
+        # try reschedule
+        cmd_run('schedule', '--type', 'csp', '-f', self.projman_path)
         self.assert_(osp.exists(self.sched))
 
 class DiagramTest(AbstractCommandTest):
@@ -141,19 +131,19 @@ class XmlTest(AbstractCommandTest):
         self.assert_(osp.exists(out))
 
     def test_cost_para(self):
-        out = osp.join(self.tmpdir, 'out_duration.xml')        
+        out = osp.join(self.tmpdir, 'out_duration.xml')
         cmd_run('view', '-f', XML_SCHEDULED_PROJMAN, '-o', out, 'cost-para')
         self.assert_(osp.exists(out))
 
     def test_cost_table(self):
-        out = osp.join(self.tmpdir, 'out_duration.xml')        
+        out = osp.join(self.tmpdir, 'out_duration.xml')
         cmd_run('view', '-f', XML_SCHEDULED_PROJMAN, '-o', out, 'cost-table')
         self.assert_(osp.exists(out))
 
     def test_rates_section(self):
-        out = osp.join(self.tmpdir, 'out_duration.xml')        
+        out = osp.join(self.tmpdir, 'out_duration.xml')
         cmd_run('view', '-f', XML_SCHEDULED_PROJMAN, '-o', out, 'rates-section')
         self.assert_(osp.exists(out))
-    
+
 if __name__ == '__main__':
     testlib.unittest_main()
