@@ -44,40 +44,46 @@ def js(txt):
 
 class ProjectXMLReader(AbstractXMLReader) :
 
-    def __init__(self, files, config):
+    def __init__(self, src, task_root=None, skip_schedule=False):
         AbstractXMLReader.__init__(self)
-        self.config = config
+        self.source = src
+        self.task_root = task_root
+        self.skip_schedule = skip_schedule
         self.project = self._factory.create_project()
-        self.skip_schedule = False
-        self.files = files
+        self.files = {'tasks': None,
+                      'schedule': None,
+                      'resources': None,
+                      'activities': None,
+                      }
 
-    def fromFile(self, fname):
-        """
-        import and return a project from a xml file
-        """
-        return self.fromStream( file(fname), fname, dirname(abspath(fname)) )
-
-    def fromStream(self, stream,
-                   filename="input_stream", base_uri=''):
-        """
-        import and return a project from a xml stream
-        """
-        tree = ET.parse( stream )
-        return self.fromTree( tree, filename, base_uri )
-
+    def read(self):
+        if isinstance(self.source, str):
+            tree = ET.parse( file(self.source) )
+            filename = self.source
+            base_uri = dirname(abspath(filename))
+        elif isinstance(self.source, file):
+            tree = ET.parse( stream )
+            filename = 'input_stream'
+            base_uri = ''
+        elif isinstance(self.source, ET.ElementTree):
+            tree = self.source
+            filename = 'input_tree'
+            base_uri = ''
+        else:
+            raise ValueError('unknown source %s' % self.source)
+        return self.fromTree(tree, filename, base_uri), self.files
+        
     def get_file(self, tree, ftype, default=None):
         node = tree.find("import-"+ftype)
         if node is None:
             return default
         fname = node.get("file",default)
-        setattr(self.files, ftype, fname)
+        self.files[ftype] = fname
         if not isabs(fname):
             fname = join(self._base_uris[-1], fname)
         return fname
 
-    def fromTree(self, tree,
-                 filename="input_stream",
-                 base_uri=''):
+    def fromTree(self, tree, filename="input_stream", base_uri=''):
         self._base_uris.append(base_uri)
         checker = ProjectChecker()
         checker.validate( tree, filename )
@@ -91,20 +97,18 @@ class ProjectXMLReader(AbstractXMLReader) :
         self.read_tasks( tasks )
         self.read_resources( rsrc )
         self.read_activities( act )
-        if sched:
+        if sched and not self.skip_schedule:
             try:
                 file(sched,"r")
             except IOError:
-                self.skip_schedule = True
                 print colorize_ansi("WATCH OUT!", "red"), \
                       "schedule file '%s' declared in project file but is missing. " \
-                      "Command completed without scheduling information."% filename, \
-                      colorize_ansi("Please, remove reference in projman file", "red")
+                      "Command completed without scheduling information."% filename
             else:
                 self.read_schedule( sched )
         return self.project
 
-    def read_schedule( self, fname ):
+    def read_schedule(self, fname):
         schedule = ET.parse( fname )
         checker = ScheduleChecker()
         checker.validate( schedule, fname )
@@ -159,15 +163,14 @@ class ProjectXMLReader(AbstractXMLReader) :
             raise MalformedProjectFile( "\n".join(checker._errors) )
         self.tasks_file = fname
         rt = tasks.getroot()
-        root_id = self.config.task_root
-        if root_id:
-            if rt.get("id")!=root_id:
+        if self.task_root:
+            if rt.get("id")!=self.task_root:
                 for t in rt.findall(".//task"):
-                    if t.get("id")==root_id:
+                    if t.get("id")==self.task_root:
                         rt = t
                         break
                 else:
-                    raise RuntimeError("Task root %s not found" % root_id)
+                    raise RuntimeError("Task root %s not found" % self.task_root)
         self.project.root_task = self.read_task(rt)
 
     def read_task(self, task):

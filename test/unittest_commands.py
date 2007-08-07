@@ -23,6 +23,7 @@ from logilab.common.clcommands import cmd_run
 
 # load commands
 from projman import commands
+from projman.readers import ProjectXMLReader
 
 from projman.test import DATADIR, XML_PROJMAN, XML_SCHEDULED_PROJMAN, \
      XML_SCHEDULED_PROJMAN_FULL, TAR_PROJMAN

@@ -15,16 +15,17 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """provide classes for projman commands."""
 
-import os, os.path as osp
+import logging, os
+import os.path as osp
 from xml.dom.ext import PrettyPrint
 
 from logilab.common.clcommands import BadCommandUsage, Command, \
      pop_arg, register_commands
 
 from projman.__pkginfo__ import version
-from projman.storage import ProjectStorage
 from projman.views import document
-import logging
+from projman.readers import ProjectXMLReader
+from projman.writers.projman_writer import write_schedule_as_xml
 
 # verbosity to logging level mapping
 LEVELS = {
@@ -65,15 +66,14 @@ class ProjmanCommand(Command):
         """run the command with its specific arguments"""
         loglevel = LEVELS.get(self.config.verbose, logging.WARN)
         logging.basicConfig(level=loglevel)
-        self.storage = ProjectStorage(self.config)
-        self.storage.load()
+        reader = ProjectXMLReader(self.config.project_file, self.config.task_root)
+        self.project, self.files = reader.read()
         self._run(args)
 
     def _run(self, args):
         raise NotImplementedError
 
 # Concrete commands ###########################################################
-
 
 class ScheduleCommand(ProjmanCommand):
     """schedule a project"""
@@ -93,9 +93,8 @@ class ScheduleCommand(ProjmanCommand):
 
     def _run(self, views):
         from projman.scheduling import schedule
-        schedule(self.storage.project, self.config)
-        self.storage.write_schedule( self.storage.files )
-
+        schedule(self.project, self.config)
+        write_schedule_as_xml(self.files['schedule'], self.project)
 
 
 class ViewCommand(ProjmanCommand):
@@ -140,7 +139,7 @@ class ViewCommand(ProjmanCommand):
             except KeyError:
                 raise BadCommandUsage('unknown view %s' % viewname)
             view = viewklass(self.config)
-            view.generate(root, self.storage.project)
+            view.generate(root, self.project)
         output = file(self.config.output, 'w')
         PrettyPrint(root, stream=output)
         output.close()
@@ -235,6 +234,6 @@ class DiagramCommand(ProjmanCommand):
                 raise BadCommandUsage('unknown diagram %s' % diagram)
             output = self.config.output or '%s.%s' % (diagram, self.config.format)
             stream = handler.get_output(output)
-            renderer.render(self.storage.project, stream)
+            renderer.render(self.project, stream)
 
 register_commands((ScheduleCommand, ViewCommand, DiagramCommand))
