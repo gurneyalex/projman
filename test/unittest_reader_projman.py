@@ -26,8 +26,8 @@ class TaskXMLReaderTest(TestCase):
 
     def setUp(self):
         self.reader = ProjectXMLReader(None)
-        self.reader.read_tasks(osp.join(DATADIR, 'multiline_tasked_project.xml'))
-        self.root = self.reader.project.root_task
+        self.root = self.reader.read_tasks(osp.join(DATADIR, 'multiline_tasked_project.xml'))
+        #self.reader.project.root_task = self.root
 
     def test_multiline_project_label(self):
         expected_title = "Simplest Project with a multiline label, gosh can you believe it"
@@ -55,8 +55,8 @@ class TaskXMLReaderTest(TestCase):
 class TaskXMLReaderVirtualRootTest(TestCase):
     def setUp(self):
         self.reader = ProjectXMLReader(None, task_root='t1_1')
-        self.reader.read_tasks(osp.join(DATADIR, 'multiline_tasked_project.xml'))
-        self.root = self.reader.project.root_task
+        self.root = self.reader.read_tasks(osp.join(DATADIR, 'multiline_tasked_project.xml'))
+        #self.reader.project.root_task = self.root
 
     def test_virtual_root(self):
         task = self.root
@@ -71,8 +71,8 @@ class TaskXMLReaderVirtualRootTest(TestCase):
 class ResourcesXMLReaderTest(TestCase):
     def setUp(self):
         self.reader = ProjectXMLReader(None)
-        self.reader.read_resources(osp.join(DATADIR, 'three_resourced_list.xml'))
-        self.resources = self.reader.project.resource_set
+        self.resources = self.reader.read_resources(osp.join(DATADIR, 'three_resourced_list.xml'))
+        #self.reader.project.resource_set = self.resource
 
     def test_number_of_resources(self):
         self.assertEquals(len(self.resources.children), 4)
@@ -126,8 +126,7 @@ class ErrorXMLReaderTest(TestCase):
         self.assertRaises(Exception, self.reader.read_resources, osp.join(DATADIR, 'error_project.xml'))
 
     def test_error_doubletask(self):
-        self.reader.read_tasks(osp.join(DATADIR, 'error_doubletask.xml'))
-        root = self.reader.project.root_task
+        root = self.reader.read_tasks(osp.join(DATADIR, 'error_doubletask.xml'))
         self.assertEquals(root.check_consistency(), ['Duplicate task id: double_t1_1'])
 
       

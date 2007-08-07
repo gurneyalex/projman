@@ -122,7 +122,6 @@ class BaseEtreeChecker(object):
     def validate(self, tree, filename=''):
         """Validate the source file format"""
         self.stack = [ [-1,tree.getroot()] ]
-        errors = []
         # Do a DFS exploration so that we always have
         # the stack match the path of the element
         while self.stack:
@@ -139,6 +138,10 @@ class BaseEtreeChecker(object):
                 continue
             # we finished all children
             self.stack.pop(-1)
+        if self._errors:
+            return False
+        else:
+            return True
 
     # various helpers
     def _isroot(self):

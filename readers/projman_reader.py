@@ -86,17 +86,16 @@ class ProjectXMLReader(AbstractXMLReader) :
     def fromTree(self, tree, filename="input_stream", base_uri=''):
         self._base_uris.append(base_uri)
         checker = ProjectChecker()
-        checker.validate( tree, filename )
-        if checker._errors:
-            raise MalformedProjectFile("\n".join(checker._errors))
+        if not checker.validate(tree, filename):
+            raise MalformedProjectFile(str(checker))
 
         sched = self.get_file(tree, "schedule")
         rsrc = self.get_file(tree, "resources")
         act = self.get_file(tree, "activities")
         tasks = self.get_file(tree, "tasks")
-        self.read_tasks( tasks )
-        self.read_resources( rsrc )
-        self.read_activities( act )
+        self.project.root_task = self.read_tasks(tasks)
+        self.project.resource_set = self.read_resources(rsrc)
+        self.project.add_activities( self.read_activities(act) )
         if sched and not self.skip_schedule:
             try:
                 file(sched,"r")
@@ -111,7 +110,9 @@ class ProjectXMLReader(AbstractXMLReader) :
     def read_schedule(self, fname):
         schedule = ET.parse( fname )
         checker = ScheduleChecker()
-        checker.validate( schedule, fname )
+        if not checker.validate(schedule, fname):
+            raise MalformedProjectFile(str(checker))
+        
         activities = Table(default_value=None,
                            col_names=['begin', 'end', 'resource', 'task',
                                       'usage', 'src'])
@@ -158,20 +159,18 @@ class ProjectXMLReader(AbstractXMLReader) :
     def read_tasks(self, fname):
         tasks = ET.parse( fname )
         checker = TasksChecker()
-        checker.validate( tasks, fname )
-        if checker._errors:
-            raise MalformedProjectFile( "\n".join(checker._errors) )
+        if not checker.validate(tasks, fname):
+            raise MalformedProjectFile(str(checker))
         self.tasks_file = fname
         rt = tasks.getroot()
-        if self.task_root:
-            if rt.get("id")!=self.task_root:
-                for t in rt.findall(".//task"):
-                    if t.get("id")==self.task_root:
-                        rt = t
-                        break
-                else:
-                    raise RuntimeError("Task root %s not found" % self.task_root)
-        self.project.root_task = self.read_task(rt)
+        if self.task_root and rt.get("id") != self.task_root:
+            for t in rt.findall(".//task"):
+                if t.get("id") == self.task_root:
+                    rt = t
+                    break
+            else:
+                raise RuntimeError("Task root %s not found" % self.task_root)
+        return self.read_task(rt)
 
     def read_task(self, task):
         t = self._factory.create_task( task.get("id") )
@@ -304,9 +303,8 @@ class ProjectXMLReader(AbstractXMLReader) :
     def read_resources(self, fname):
         tree = ET.parse(fname)
         checker = ResourcesChecker()
-        checker.validate( tree, fname )
-        if checker._errors:
-            raise MalformedProjectFile( "\n".join(checker._errors) )
+        if not checker.validate(tree, fname):
+            raise MalformedProjectFile(str(checker))
         root_node = tree.getroot()
         res_set = self._factory.create_resourcesset('all_resources')
         for res_node in root_node.findall('resource'):
@@ -315,8 +313,8 @@ class ProjectXMLReader(AbstractXMLReader) :
         for cal_node in root_node.findall('calendar'):
             cal = self.read_calendar_definition( cal_node )
             res_set.append(cal)
-        self.project.resource_set = res_set
-
+        return res_set
+    
     def read_activities(self, fname):
         tree = ET.parse(fname)
         root_node = tree.getroot()
@@ -329,4 +327,4 @@ class ProjectXMLReader(AbstractXMLReader) :
                 end = iso_date( report.get('to') )
                 usage = float( report.get('usage') )
                 activities.append( (begin, end, res_id, task_id, usage) )
-        self.project.add_activities( activities )
+        return activities
