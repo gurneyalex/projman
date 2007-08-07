@@ -2,4 +2,6 @@
 <project>
 	<import-tasks file='csp_scheduling_tasks.xml'/>
 	<import-resources file='csp_scheduling_resources.xml'/>
+	<import-schedule file='csp_scheduling_schedule.xml'/>
+	<import-activities file='csp_scheduling_activities.xml'/>
 </project>

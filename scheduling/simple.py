@@ -1,4 +1,4 @@
-# -*- coding: ISO-8859-1 -*-
+# -*- coding: iso-8859-1 -*-
 # Copyright (c) 2000-2005 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
@@ -19,11 +19,12 @@ schedule project without caring about resource conflicts
 """
 
 from mx.DateTime import today
-
 from projman.lib.constants import *
-import logging 
 
-def cmp_tasks(task_a, task_b):    
+import logging
+log = logging.getLogger("simple")
+
+def cmp_tasks(task_a, task_b):
     """
     a < b return -1
     a == b return 0
@@ -61,14 +62,13 @@ def cmp_tasks(task_a, task_b):
             res = -1
         else:
             res = cmp(task_a.priority, task_b.priority)
-    logging.debug('%s %s %s'%(task_a, {-1:'<',0:'=',1:'>'}[res], task_b))
+    log.debug('%s %s %s'%(task_a, {-1:'<',0:'=',1:'>'}[res], task_b))
     return res
 
 class SimpleScheduler:
     """
     schedule simple projects by ordering tasks and splitting resources
     """
-    
     def __init__(self, project):
         self.project = project
         self.date_res = {}
@@ -97,7 +97,7 @@ class SimpleScheduler:
         resources = [(self.project.get_resource(r_id), usage/100)
                      for r_type, r_id, usage in node.get_resource_constraints()]
         if not resources:
-            logging.warning("task %s has no resource and will not be scheduled",node.id)
+            log.warning("task %s has no resource and will not be scheduled",node.id)
             return
         self.date_res = {}
         for res, usage in resources :
@@ -105,7 +105,7 @@ class SimpleScheduler:
         load = node.duration*(1-node.progress)
         date = begin
         if load == 0 and begin == today():
-            logging.warning("task %s is complete but was never worked on"%node.id)
+            log.warning("task %s is complete but was never worked on"%node.id)
         while load > 0 and resources :
             for resource, usage in resources:
                 if self.date_res[resource.id] < date and resource.work_on(date) \
@@ -117,7 +117,7 @@ class SimpleScheduler:
                         break
             date += 1
         self.project.add_schedule(activities)
-                
+
     def get_ordered_buckets(self):
         tasks = self.project.root_task.leaves()
         tasks.sort(cmp_tasks)
@@ -143,4 +143,4 @@ class SimpleScheduler:
             for leaf in bucket:
                 self._process_node(leaf)
         return []
-        
+
