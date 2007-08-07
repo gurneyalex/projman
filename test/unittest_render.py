@@ -24,46 +24,55 @@ from logilab.common import testlib
 from projman.renderers import PILHandler, GanttRenderer, ResourcesRenderer
 from projman.storage import ProjectStorage
 
-from projman.commands import ConfigAdapter
 from projman.test import DATADIR
-
-config = ConfigAdapter(testlib.AttrObject(del_ended=False, del_empty=False,
-                                          timestep=1, depth=0, selected_resource=None,
-                                          view_begin=None, view_end=None))
 
 class RenderTest(testlib.TestCase):
 
     def setUp(self):
-        self.project = ProjectStorage(DATADIR, "full_scheduled_projman.xml",
-                                      archive_mode=False).load()
-        self.project2 = ProjectStorage(DATADIR, "trivial_scheduled_projman.xml",
-                                       archive_mode=False).load()
+        self.config = testlib.AttrObject(del_ended=False, del_empty=False,
+                                    timestep=1, depth=0, selected_resource=None,
+                                    view_begin=None, view_end=None,
+                                    project_file=osp.join(DATADIR,"full_scheduled_projman.xml"),
+                                    task_root=None,
+                                    )
+        storage = ProjectStorage(self.config)
+        storage.load()
+        self.project = storage.project
+        self.config2 = testlib.AttrObject(del_ended=False, del_empty=False,
+                                    timestep=1, depth=0, selected_resource=None,
+                                    view_begin=None, view_end=None,
+                                    project_file=osp.join(DATADIR,"trivial_scheduled_projman.xml"),
+                                    task_root=None,
+                                    )
+        storage = ProjectStorage(self.config2)
+        storage.load()
+        self.project2 = storage.project
         self.tmpdir = tempfile.mkdtemp()
         self.file = file(osp.join(self.tmpdir, 'render_test.png'), 'w')
 
     def tearDown(self):
         shutil.rmtree(self.tmpdir)
-        
+
     def test_gantt_diagram(self):
         handler = PILHandler('png')
-        renderer = GanttRenderer(config, handler)
+        renderer = GanttRenderer(self.config, handler)
         renderer.render(self.project, self.file)
 
     def test_resource_diagram(self):
         handler = PILHandler('png')
-        renderer = ResourcesRenderer(config, handler)
+        renderer = ResourcesRenderer(self.config, handler)
         renderer.render(self.project, self.file)
 
     def test_gantt_diagram2(self):
         handler = PILHandler('png')
-        renderer = GanttRenderer(config, handler)
+        renderer = GanttRenderer(self.config2, handler)
         renderer.render(self.project2, self.file)
 
     def test_resource_diagram2(self):
         handler = PILHandler('png')
-        renderer = ResourcesRenderer(config, handler)
+        renderer = ResourcesRenderer(self.config2, handler)
         renderer.render(self.project2, self.file)
-    
-    
+
+
 if __name__ == '__main__':
     testlib.unittest_main()

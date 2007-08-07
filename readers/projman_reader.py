@@ -28,6 +28,7 @@ from logilab.common.table import Table
 from docutils.core import publish_string
 from logilab.doctools.rest_docbook import FragmentWriter
 from logilab.common.textutils import colorize_ansi
+from projman.lib._exceptions import ProjectValidationError, MalformedProjectFile
 
 docbook_writer = FragmentWriter()
 
@@ -35,6 +36,10 @@ try:
     import xml.etree.ElementTree as ET
 except ImportError:
     import elementtree.ElementTree as ET
+
+def js(txt):
+    """join and split"""
+    return u' '.join(txt.split())
 
 
 class ProjectXMLReader(AbstractXMLReader) :
@@ -76,6 +81,8 @@ class ProjectXMLReader(AbstractXMLReader) :
         self._base_uris.append(base_uri)
         checker = ProjectChecker()
         checker.validate( tree, filename )
+        if checker._errors:
+            raise MalformedProjectFile("\n".join(checker._errors))
 
         sched = self.get_file(tree, "schedule")
         rsrc = self.get_file(tree, "resources")
@@ -128,7 +135,7 @@ class ProjectXMLReader(AbstractXMLReader) :
             for report in task.findall("report-list/report"):
                 activities.append_row( (iso_date(report.get('from')),
                                              iso_date(report.get('to')),
-                                             report.get('res_id'),
+                                             report.get('idref'),
                                              t_id,
                                              float(report.get('usage')) ) )
             for cost in task.findall("costs_list/cost"):
@@ -136,11 +143,9 @@ class ProjectXMLReader(AbstractXMLReader) :
 
         for milestone in schedule.findall("milestone"):
             t_id = milestone.get('id')
-            tasks.create_row( t_id )
             cd = milestone.find("constraint-date")
             date = iso_date( cd.text )
-            tasks.set_cell_by_ids( t_id, 'begin', date )
-            tasks.set_cell_by_ids( t_id, 'end', date )
+            self.project.milestones[t_id] = date
 
         self.project.add_schedule(activities)
         self.project.tasks = tasks
@@ -150,6 +155,8 @@ class ProjectXMLReader(AbstractXMLReader) :
         tasks = ET.parse( fname )
         checker = TasksChecker()
         checker.validate( tasks, fname )
+        if checker._errors:
+            raise MalformedProjectFile( "\n".join(checker._errors) )
         self.tasks_file = fname
         rt = tasks.getroot()
         root_id = self.config.task_root
@@ -161,7 +168,7 @@ class ProjectXMLReader(AbstractXMLReader) :
                         break
                 else:
                     raise RuntimeError("Task root %s not found" % root_id)
-        self.project.root_task = self.read_task(tasks.getroot())
+        self.project.root_task = self.read_task(rt)
 
     def read_task(self, task):
         t = self._factory.create_task( task.get("id") )
@@ -185,7 +192,7 @@ class ProjectXMLReader(AbstractXMLReader) :
         return m
 
     def task_milestone_common(self, t, task):
-        t.title = unicode(task.find("label").text)
+        t.title = js(unicode(task.find("label").text))
         for cd in task.findall("constraint-date"):
             t.add_date_constraint( cd.get("type"), iso_date( cd.text ) )
         for ct in task.findall("constraint-task"):
@@ -196,11 +203,9 @@ class ProjectXMLReader(AbstractXMLReader) :
         if desc is None:
             txt = u""
         else:
-            txt = desc.text or u""
+            txt = unicode(desc.text) or u""
             for n in desc:
-                txt+=ET.tostring(n)
-                if n.tail:
-                    txt+=n.tail
+                txt+=unicode(ET.tostring(n,"utf-8"),"utf-8")
             if desc.get("format")=="rest":
                 txt = publish_string(txt,
                                      settings_overrides={'output_encoding': 'unicode'},
@@ -214,7 +219,7 @@ class ProjectXMLReader(AbstractXMLReader) :
                                              res_node.get('type'), u'' )
         for n in res_node:
             if n.tag == 'label':
-                res.name = n.text
+                res.name = unicode(n.text)
             elif n.tag == 'hourly-rate':
                 res.hourly_rate[0] = float(n.text)
                 res.hourly_rate[1] = n.get('unit','euros')
@@ -230,7 +235,7 @@ class ProjectXMLReader(AbstractXMLReader) :
         cal.type_nonworking_days = {}
         for n in cal_node:
             if n.tag == "label":
-                cal.name = n.text
+                cal.name = unicode(n.text)
             elif n.tag == "day-types":
                 # --------------------------
                 # Read day-types
@@ -297,6 +302,8 @@ class ProjectXMLReader(AbstractXMLReader) :
         tree = ET.parse(fname)
         checker = ResourcesChecker()
         checker.validate( tree, fname )
+        if checker._errors:
+            raise MalformedProjectFile( "\n".join(checker._errors) )
         root_node = tree.getroot()
         res_set = self._factory.create_resourcesset('all_resources')
         for res_node in root_node.findall('resource'):

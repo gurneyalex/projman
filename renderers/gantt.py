@@ -126,9 +126,9 @@ class GanttRenderer(AbstractRenderer) :
 
     def render_milestone(self, milestone, project):
         """
-        generate event for a given task 
+        generate event for a given task
         """
-        verbose("drawing task", milestone.id)
+        verbose("drawing milestone", milestone.id)
         self.drawer.set_color_set(self._i)
         self._i += 1
         self._visible_tasks[milestone] = 1
@@ -140,11 +140,10 @@ class GanttRenderer(AbstractRenderer) :
         self.drawer.open_line()
         self.drawer.main_content(milestone.title or milestone.id,
                                  project, depth, milestone)
-        
+
         if self.options.showids :
             self.drawer.simple_content(milestone.title)
 
-        
         # print task calendar
         for d in self.drawer._timeline_days:
             self.drawer.milestone_timeline(d, milestone, project)

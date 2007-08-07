@@ -137,10 +137,12 @@ class ProjectStorage:
 
         # create logger
         self.logger = logging.getLogger("reader")
-        try:
-            logging.config.fileConfig(LOG_CONF)
-        except Exception :
-            logging.basicConfig()
+        logging.basicConfig()
+        # XXX: revive me!
+##         try:
+##             logging.config.fileConfig(LOG_CONF)
+##         except Exception :
+##             logging.basicConfig()
 
         # manages the file names of the input project
         self.files = ProjectFiles()
@@ -160,7 +162,12 @@ class ProjectStorage:
         # set Projman reader by default
         proj_reader = readerklass(self.files, self.config)
         # reading
-        self.project = proj_reader.fromFile(file_in)
+        try:
+            self.project = proj_reader.fromFile(file_in)
+        except MalformedProjectFile, e:
+            print "Project file is incorrect:"
+            print e
+            sys.exit(1)
 
     # WRITERS
     #########

@@ -29,7 +29,7 @@ __revision__ = "$Id: project.py,v 1.6 2005-11-10 11:34:20 arthur Exp $"
 
 import md5
 from warnings import warn
-
+from pprint import pprint
 from mx.DateTime import today
 
 from logilab.common.compat import set
@@ -51,7 +51,7 @@ class Project:
     :attr activities: task information
     :attr schedule: Schedule() instance (planned activities)
     """
-    
+
     TYPE = 'project'
 
     def __init__(self):
@@ -69,7 +69,8 @@ class Project:
         #  (here, 'cost' represents the resource's cost for the task)
         self.costs = Table(default_value=None,
                            col_names=['task', 'resource', 'cost', 'unit'])
-    
+        self.milestones = {}
+
     def get_root_task(self):
         return self._root_task
 
@@ -78,7 +79,7 @@ class Project:
         self._root_task = value
 
     root_task = property(get_root_task, set_root_task)
-        
+
     def check_consistency(self):
         errors = []
         errors += self.root_task.check_consistency()
@@ -93,7 +94,7 @@ class Project:
             self.activities.append_row((begin, end, resource, task,
                                         usage, 'plan'))
         self.update_caches()
-        
+
     def reset_schedule(self):
         self._is_scheduled = False
         self.activities.remove('src', 'plan')
@@ -116,7 +117,7 @@ class Project:
                 status = 'problem'
                 break
         return status
-        
+
     def update_caches(self):
         """updates self.tasks and self.costs"""
         #print 'updating cache'
@@ -133,16 +134,17 @@ class Project:
                 self.tasks.append_row((begin, end, status, cost, 'XXX'),
                                       row_name=task.id)
             except ValueError, exc:
-                print 'while building cache, ignoring', exc
-            print '.',
+                #print 'while building cache, ignoring', exc
+                print 'x',
+            else:
+                print '.',
                 
         grouped = self.activities.groupby('task', 'resource')
         for task_id, resources in grouped.iteritems():
             for res_id, rows in resources.iteritems():
                 cost = sum([row[4] for row in rows])
                 self.costs.append_row((task_id, res_id, cost, 'XXX'))
-        
-        
+
     # resources methods #######################################################
 
     def add_resource_set(self, res_set):
@@ -150,7 +152,7 @@ class Project:
              DeprecationWarning, stacklevel=2)
         #self.resource_set.merge(res_set)
         self.resource_set = res_set
-    
+
     def has_resource(self, res_id):
         """tests if resource <res_id> is used"""
         return res_id in self.get_resources()
@@ -161,13 +163,13 @@ class Project:
 
     def get_resource(self, resource_id):
         return self.resource_set.get_resource(resource_id)
-        
+
     # tasks methods ###########################################################
 
     def get_task(self, task_id):
         """return the task asociated to id"""
         return self.root_task.get_node_by_id(task_id)
-        
+
     def get_nb_tasks(self):
         """returns number of task/milestone in project plus one
         (project itself)"""
@@ -185,7 +187,7 @@ class Project:
     def set_task_property(self, task_id, attr, value):
         assert self._is_scheduled, "Project not scheduled"
         self.tasks.set_cell_by_ids(task_id, attr, value)
- 
+
     def get_task_status(self, task):
         """
         return the status computed during the scheduling
@@ -196,16 +198,16 @@ class Project:
         status_list = []
         for leaf in task.leaves():
             # as leaf.id is int, self.tasks[leaf.id] will mistake it
-            _, _, status, _, _ = self.tasks.get_row_by_id(leaf.id) 
+            _, _, status, _, _ = self.tasks.get_row_by_id(leaf.id)
             status_list.append(status)
         for status in ordered_status:
             if status in status_list:
                 return status
         return 'todo'
-        
+
     def task_has_info(self, task_id):
         """
-        indicates if the task_id has any info stored in the object 
+        indicates if the task_id has any info stored in the object
         useful for example when writing xml for object
         """
         assert self._is_scheduled, "Project not scheduled"
@@ -216,11 +218,8 @@ class Project:
         begins, ends = [], []
 
         if task.TYPE=="milestone":
-            try:
-                begin, end, _, _, _ = self.tasks.get_row_by_id(task.id)
-            except KeyError:
-                raise ValueError('Task %s has no begin' % task.id)
-            return begin, end
+            date = self.milestones.get(task.id)
+            return date, date
 
         for leaf in task.leaves():
             for begin, end, __resource, __task, __usage, __src \
