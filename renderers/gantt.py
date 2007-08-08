@@ -19,7 +19,6 @@ base classes for rendering
 
 __revision__ = "$Id: gantt.py,v 1.2 2005-09-08 14:26:06 nico Exp $"
 
-from projman import verbose
 from projman.lib import date_range
 from projman.renderers.abstract import \
      AbstractRenderer, AbstractDrawer, TODAY, \
@@ -91,9 +90,7 @@ class GanttRenderer(AbstractRenderer) :
         """
         generate event for a given task 
         """
-        verbose("drawing task", task.id)
         if self.options.del_ended and task.is_finished():
-            verbose(task.id, "  finished, thus ignored")
             return
         self.drawer.set_color_set(self._i)
         self._i += 1
@@ -128,7 +125,6 @@ class GanttRenderer(AbstractRenderer) :
         """
         generate event for a given task
         """
-        verbose("drawing milestone", milestone.id)
         self.drawer.set_color_set(self._i)
         self._i += 1
         self._visible_tasks[milestone] = 1

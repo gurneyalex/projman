@@ -19,9 +19,11 @@ rendering resources diagrams
 
 __revision__ = "$Id: resource.py,v 1.4 2006-04-13 13:07:27 nico Exp $"
 
+import logging
+log = logging.getLogger()
+
 from logilab.common.tree import NodeNotFound
 
-from projman import verbose
 from projman.lib import date_range
 from projman.renderers.abstract import \
      AbstractRenderer, AbstractDrawer, TODAY, \
@@ -94,8 +96,8 @@ class ResourcesRenderer(AbstractRenderer) :
         generate event for a resource activity
         """
         if self.options.del_ended and task.is_finished():
-            verbose("  ignoring task", task.id, "for it's finished ",
-                    " and using option --del-ended (or -D)")
+            log.info("  ignoring task", task.id, "for it's finished ",
+                     " and using option --del-ended (or -D)")
             return
         if self.options.del_empty:
             begin = self.drawer._timeline_days[0]
@@ -104,9 +106,9 @@ class ResourcesRenderer(AbstractRenderer) :
                 if (begin <= a_begin <= end) or (begin <= a_end <= end) :
                     break
             else :
-                verbose("  ignoring task", task.id,
-                    "for it has no activity within diagram bounds",
-                    "and using option --del-empty (or -D)")
+                log.info("  ignoring task", task.id,
+                         "for it has no activity within diagram bounds",
+                         "and using option --del-empty (or -D)")
                 return
         #else: option --keep-empty set. Draw all
         self.drawer.set_color_set(self._i)
@@ -121,7 +123,7 @@ class ResourcesRenderer(AbstractRenderer) :
         """
         generate event for global activity
         """
-        verbose("Drawing occupation for", resource.name)
+        log.info("Drawing occupation for", resource.name)
         self.drawer.set_color_set(self._i)
         self._i += 1
         self.drawer.open_line()
@@ -191,7 +193,7 @@ class ResourcesDrawer(AbstractDrawer) :
             usage = project.get_total_usage(resource.id, day)
             self._occupation_timeline(resource.work_on(day), usage, day)
             if usage > 1:
-                verbose(" Warning! usage", usage, "for", resource.id, "on", day)
+                log.info(" Warning! usage", usage, "for", resource.id, "on", day)
 
     def _occupation_timeline(self, available, usage, day):
         """
@@ -233,9 +235,9 @@ class ResourcesDrawer(AbstractDrawer) :
             for begin, end, _, _, usage, _ in activities:
                 if begin <= day <= end:
                     if usage > 1:
-                        verbose("    ", activity, "usage", usage,
-                                "for", resource.id,
-                                "on", day)
+                        log.info("    ", activity, "usage", usage,
+                                 "for", resource.id,
+                                 "on", day)
                     break
             else:
                 usage = 0
