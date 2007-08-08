@@ -20,7 +20,6 @@ Description: tool for project management
   * Gantt diagrams generation
   * resources' usage diagrams generation
   * generation of xml doc (under docbook dtd) to list tasks, evaluate costs
-  * conversion from/to planner/pygantt format
  .
  All different format and output are XML files.
  .

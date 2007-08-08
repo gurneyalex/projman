@@ -3,8 +3,8 @@ GENERATED=generated/
 
 # GENERIC
 html: options.html cost.html date.html list.html
-xml: options.xml cost.xml date.xml list.xml pygantt.xml
-out: options.out cost.out date.out list.out pygantt.out
+xml: options.xml cost.xml date.xml list.xml 
+out: options.out cost.out date.out list.out 
 all: xml html
 
 # REF
@@ -25,11 +25,6 @@ list.out:
 	projman -x -v list ${DATA}simplest_projman.xml  ${DATA}out_simplest_list.xml
 	projman -x -v list ${DATA}trivial_projman.xml  ${DATA}out_trivial_list.xml
 	projman -x -v list ${DATA}full_projman.xml  ${DATA}out_full_list.xml
-
-pygantt.out:
-	projman -c -i projman -o pygantt ${DATA}simplest_projman.xml ${DATA}out_simplest_pygantt.xml
-	projman -c -i projman -o pygantt ${DATA}trivial_projman.xml ${DATA}out_trivial_pygantt.xml
-	projman -c -i projman -o pygantt ${DATA}full_projman.xml ${DATA}out_full_pygantt.xml
 
 schedule:
 #	simplest
@@ -57,9 +52,6 @@ cost.xml: unittest_writer_costs.py
 
 list.xml: unittest_writer_list.py
 	python unittest_writer_list.py
-
-pygantt.xml: unittest_writer_pygantt.py
-	python unittest_writer_pygantt.py
 
 #HTML
 options.html: out_options.html
@@ -110,6 +102,3 @@ out_full_list.html: ${DATA}out_full_list.xml
 	mkdoc --target=html --stylesheet=single-file ${DATA}out_full_list.xml
 	mv out_full_list.html ${GENERATED}
 
-out_simplest_pygantt.html: ${DATA}out_simplest_pygantt.xml
-	mkdoc --target=html --stylesheet=single-file ${DATA}out_simplest_pygantt.xml
-	mv out_simplest_pygantt.html ${GENERATED}

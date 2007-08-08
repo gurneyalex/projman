@@ -26,9 +26,6 @@ The list of the functionalities is printed by calling 'projman'
 without arguments.
 
 .SH COMMANDS
-  projman -c (--convert)
-    to convert files from one type to another
-    ex: projman -c -i pygantt -o projman input.xml output.xml
 
   projman -d (--diagram)
     to generate diagrams (resources, gantt, etc.)
@@ -49,34 +46,6 @@ without arguments.
     to get more help
 
 .SH OPTIONS
-.SS Convert
-.SP
-  -i; --in-format
-    specifies the format of the input.
-    * planner
-    * pygantt
-    * projman
-
-  -o; --out-format
-    specifies the output format.
-    * [projman]
-    * planner
-    * pygantt
-
-  -p; --project
-    specifies the dest file path for the description of the project
-
-  -r; --resources
-    specifies the dest file path for the description the resources
-
-  -a; --activity
-    specifies the dest file path for the description of the activities
-
-   if --project, --resources and --activities options are omitted:
-   projman generates project_activities.(i).xml,
-   project_resources.(i).xml and project_tasks.(i).xml (i is
-   the index of each element in projman object)
-
 .SS Diagram
 .SP
   --diagram-type
