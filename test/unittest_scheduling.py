@@ -34,7 +34,7 @@ class RawSchedulingTC(TestCase):
         domains = {}
         constraints = []
         for i in range(2):
-            name = 't%02d'%i
+            name = 't%02d' % i
             variables.append(name)
             domains[name] = SchedulingDomain(0, 2, 2)
 
@@ -51,7 +51,7 @@ class RawSchedulingTC(TestCase):
         domains = {}
         constraints = []
         for i in range(2):
-            name = 't%02d'%i
+            name = 't%02d' % i
             variables.append(name)
             domains[name] = SchedulingDomain(0, 4, 2)
 
@@ -69,7 +69,7 @@ class RawSchedulingTC(TestCase):
         domains = {}
         constraints = []
         for i in range(2):
-            name = 't%02d'%i
+            name = 't%02d' % i
             variables.append(name)
             domains[name] = SchedulingDomain(0, 4, 2)
         variables.append("t02")
@@ -119,7 +119,7 @@ class CmpTasksTC(TestCase):
         t1.add_task_constraint('begin-after-end', '0')
         self.assertEquals( cmp_tasks(t0,t1),  -1)
 
-    def test_cmp(self):
+    def test_cmp2(self):
         t0 = Task('0')
         t1 = Task('1')
         self.assertEquals( cmp_tasks(t0,None),  1)

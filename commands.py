@@ -15,12 +15,11 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """provide classes for projman commands."""
 
-import logging, os
-import os.path as osp
+import logging
 from xml.dom.ext import PrettyPrint
 
 from logilab.common.clcommands import BadCommandUsage, Command, \
-     pop_arg, register_commands
+     register_commands
 
 from projman.__pkginfo__ import version
 from projman.views import document

@@ -63,7 +63,7 @@ class ProjectXMLReader(AbstractXMLReader) :
             filename = self.source
             base_uri = dirname(abspath(filename))
         elif isinstance(self.source, file):
-            tree = ET.parse( stream )
+            tree = ET.parse(self.source)
             filename = 'input_stream'
             base_uri = ''
         elif isinstance(self.source, ET.ElementTree):
@@ -78,7 +78,7 @@ class ProjectXMLReader(AbstractXMLReader) :
         node = tree.find("import-"+ftype)
         if node is None:
             return default
-        fname = node.get("file",default)
+        fname = node.get("file", default)
         self.files[ftype] = fname
         if not isabs(fname):
             fname = join(self._base_uris[-1], fname)
@@ -102,7 +102,7 @@ class ProjectXMLReader(AbstractXMLReader) :
                 file(sched,"r")
             except IOError:
                 print colorize_ansi("WARNING!", "red"), \
-                      " schedule file '%s' declared in project file but is missing. " \
+                      " schedule file '%s' declared in project but file is missing. " \
                       "Command completed without scheduling information."% filename
             else:
                 self.read_schedule( sched )

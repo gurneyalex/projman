@@ -16,7 +16,7 @@ from mx.DateTime import Time
 from logilab.common.testlib import TestCase, unittest_main
 
 from projman.readers import ProjectXMLReader
-from projman.lib._exceptions import DuplicatedTaskId, MalformedProjectFile
+from projman.lib._exceptions import MalformedProjectFile
 from projman.test import DATADIR
 
 class DummyConfig:

@@ -215,12 +215,11 @@ class Project:
         return False
 
     def get_task_date_range(self, task):
-        begins, ends = [], []
-
-        if task.TYPE=="milestone":
+        if task.TYPE == "milestone":
             date = self.milestones.get(task.id)
             return date, date
 
+        begins, ends = [], []
         for leaf in task.leaves():
             for begin, end, __resource, __task, __usage, __src \
                     in self.activities.select('task', leaf.id):

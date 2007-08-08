@@ -103,7 +103,7 @@ class CSPScheduler:
             if days<0:
                 print "Date:", date
                 print "Start date", self.start_date
-                raaaah
+                raise Exception('WTF?')
             if c_type == BEGIN_AFTER_DATE :
                 rnge[0] = days
                 if _VERBOSE>1:
@@ -125,7 +125,7 @@ class CSPScheduler:
         """
         transform priorities as BEGIN_AFTER_END constraints
         """
-        return # XXXX
+        return # XXXX FIXME
         lbp = {}
         for task in self.project.root_task.leaves():
             lbp.setdefault(task.priority, []).append(task)

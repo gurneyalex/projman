@@ -1,11 +1,10 @@
 # -*- coding: iso-8859-1 -*-
 
 import os, sys
-import os.path as osp
 
-from logilab.common.testlib import unittest_main, TestCase
+from logilab.common import testlib 
 
-def SmokeTC(TestCase):
+def SmokeTC(testlib.TestCase):
     CMD = 'projman'
 
     ## RESULT_DIR contiendra tous les fichiers et images générés lors des tests
@@ -133,4 +132,4 @@ def SmokeTC(TestCase):
 
 
 if __name__ == '__main__':
-    unittest_main()
+    testlib.unittest_main()
