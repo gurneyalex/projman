@@ -106,7 +106,7 @@ class BaseEtreeChecker(object):
         if checker:
             checker()
         else:
-            self._error("Unknown tag %s" % tag)
+            self._error("Unknown tag %s" % node.tag)
         return self._ignore_children_flag
 
     def _error(self, msg):
@@ -362,11 +362,12 @@ class ResourcesChecker(BaseEtreeChecker):
         self._attributes( {"unit?": one_of("euros")} )
 
     def check_calendar(self):
-        self._is_child_of( "resources-list" )
+        self._is_child_of( "calendar", "resources-list" )
         self._empty()
         self._attributes( {"id": not_empty} )
-        self._children("label","day-types","default-working",
-                           "default-nonworking","day*","timeperiod*")
+        self._children("calendar*", "label","day-types?","default-working?",
+                       "default-nonworking?","day*","timeperiod*",
+                       "start-on?", "stop-on?")
 
     def check_day_types(self):
         self._is_child_of("calendar")
@@ -409,6 +410,18 @@ class ResourcesChecker(BaseEtreeChecker):
                            "from": convertible(iso_date),
                            "type": not_empty} )
 
+    def check_start_on(self):
+        self._is_child_of("calendar")
+        self._content(iso_date)
+        self._children()
+        self._noattr()
+
+    def check_stop_on(self):
+        self._is_child_of("calendar")
+        self._content(iso_date)
+        self._children()
+        self._noattr()
+    
 class TasksChecker(BaseEtreeChecker):
     def check_task(self):
         self._is_child_of("task",None)
