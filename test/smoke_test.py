@@ -11,11 +11,6 @@ def SmokeTC(TestCase):
     ## RESULT_DIR contiendra tous les fichiers et images générés lors des tests
     RESULT_DIR = 'smoke_result'
 
-    ## FILE est l'input à utiliser pour le cas simple
-    FILE = 'pygantt/ginco_planif.xml'
-    #FILE = 'pygantt/pygantt_planif.xml'
-    #FILE = 'pygantt/projman_planif.xml'
-
     ## FILE_ASSEMBLAGE est un input utlisant l'assemblage de projets
     FILE_ASSEMBLAGE = 'projman/example.xml'
 
@@ -24,7 +19,7 @@ def SmokeTC(TestCase):
         dir = os.path.abspath(sys.argv[1])
         os.chdir(dir)
         list_dirs = os.listdir('.')
-        if 'pygantt' not in list_dirs or 'projman' not in list_dirs:
+        if 'projman' not in list_dirs:
             print "ERROR:"
             print "You must specify as parameter the root directory of all examples."
             print "Tipically, ~/cvs/public/soft/projman/examples"
@@ -42,11 +37,6 @@ def SmokeTC(TestCase):
         r = raw_input('ok [Y]/No ?')
         if r.lower() in ('n', 'no') :
             sys.exit()
-
-    def test_conversion2(self):
-        "conversion pygantt / projman..."
-        os.system(CMD+' --convert -i pygantt ../'+ FILE +' proj.xml')
-        self.ask_ok()
 
     def test_gantt(self):
         "diagramme gantt..."

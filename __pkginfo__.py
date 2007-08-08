@@ -38,7 +38,6 @@ It includes lots of functionnalties as
 * Gantt diagrams generation
 * Resources'usage diagrams generation
 * generation of xml doc (under docbook dtd) to list tasks, evaluate costs
-* conversion from/to planner/pygantt format
 
 All different format and output are XML files.
 """

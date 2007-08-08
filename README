@@ -18,9 +18,6 @@ OVERVIEW
     passed with out argument prints an help page providing details
     with the options of this command.  
 
-    projman -c (--convert) 
-        to convert files from one type to another
-
     projman -d (--diagram)
         to generate diagrams (resources, gantt, etc.)
 
@@ -41,21 +38,6 @@ OVERVIEW
 
 At each funtionnality of projman cooresponds a mode and specific
 options we will describe now.
-
-CONVERSION
-----------
-
-  Use projman --convert (or projman -c) for a list of supported
-  options for conversion action.
-
-  This functionnality is related to others programs as MrProject
-  (http://mrproject.codefactory.se) and Pygantt
-  (http://www.logilab.org/projects/pygantt).
-
-  Indeed, the format conversion takes place between those softs.  This
-  allows us to export data from Projman to MrProject and Pygantt and
-  from MrProject and Pyganntt to Projman.  You can find the DTD of
-  each soft respectively in its package.
 
 PLANNING
 --------
