@@ -365,15 +365,14 @@ class ResourcesChecker(BaseEtreeChecker):
         self._is_child_of( "calendar", "resources-list" )
         self._empty()
         self._attributes( {"id": not_empty} )
-        self._children("calendar*", "label","day-types?","default-working?",
-                       "default-nonworking?","day*","timeperiod*",
-                       "start-on?", "stop-on?")
+        self._children("calendar*", "label","day-types?","day*",
+                       "timeperiod*", "start-on?", "stop-on?")
 
     def check_day_types(self):
         self._is_child_of("calendar")
         self._empty()
         self._children( "day-type+" )
-        self._noattr()
+        self._attributes( {"default": not_empty})
 
     def check_day_type(self):
         self._is_child_of("day-types")
@@ -387,14 +386,6 @@ class ResourcesChecker(BaseEtreeChecker):
         self._children()
         self._attributes( {"start": convertible(iso_time),
                            "end": convertible(iso_time)} )
-
-    def check_default_working(self):
-        self._is_child_of("calendar")
-        self._empty()
-        self._children()
-        self._attributes( {"idref": not_empty} )
-
-    check_default_nonworking = check_default_working
 
     def check_day(self):
         self._is_child_of("calendar")
