@@ -81,10 +81,10 @@ class ResourceTest(TestCase):
         """
         return the total number of seconds of work at datetime
         """
-        self.assertEqual(self.r1.get_duration_of_work(self.date_next_week), 21600)
-        self.assertEqual(self.r2.get_duration_of_work(self.date_next_week), 0)
-        self.assertEqual(self.r2.get_duration_of_work(self.date_tomorrow), 21600)
-        self.assertEqual(self.r2.get_duration_of_work(self.date_today), 28800)
+        self.assertEqual(self.r1.get_worktime(self.date_next_week).hours, 6)
+        self.assertEqual(self.r2.get_worktime(self.date_next_week).hours, 0)
+        self.assertEqual(self.r2.get_worktime(self.date_tomorrow).hours, 6)
+        self.assertEqual(self.r2.get_worktime(self.date_today).hours, 8)
 
 if __name__ == '__main__':
     unittest_main()

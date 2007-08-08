@@ -71,7 +71,7 @@ class CSPScheduler:
         while True:
             for res_id in self.project.get_resources():
                 res = self.project.get_resource(res_id)
-                if res.work_on( d ):
+                if res.is_available( d ):
                     break
             else:
                 d = d + 1
@@ -201,7 +201,7 @@ class CSPScheduler:
             res = self.project.get_resource( res_id )
             for d in range(int(self.max_duration)):
                 dt = self.start_date + d
-                if not res.work_on( dt ):
+                if not res.is_available( dt ):
                     pb.add_not_working_day( res_num, d )
                     sched.append("x")
                 else:

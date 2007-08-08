@@ -61,7 +61,7 @@ class DumbScheduler:
             while duration and resources:
                 for resource in resources:
                     date = days[resource]
-                    while not resource.work_on(date):
+                    while not resource.is_available(date):
                         date += 1
                     # usage = 1
                     activities.append( (date, date, resource.id, node.id, 1) )
@@ -73,7 +73,7 @@ class DumbScheduler:
             while duration and resources:
                 for resource in resources:
                     date = days[resource]
-                    while not resource.work_on(date):
+                    while not resource.is_available(date):
                         date -= 1
                     # usage = 1
                     activities.append( (date, date, resource.id, node.id, 1) )

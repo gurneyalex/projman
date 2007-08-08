@@ -238,12 +238,11 @@ class RatesSectionView(XMLView):
         list_items = self.dbh.list_node()
         for resource in resources:
             item = self.dbh.list_item_node()
-            r_calendar = resource.get_node_by_id(resource.calendar)
-            nb_hours_per_day = float(r_calendar.get_default_worktime() / 3600)
+            nb_hours_per_day = resource.get_default_wt_in_hours()
             cost_per_day = resource.hourly_rate[0] * nb_hours_per_day
-            r_info = resource.id+' : '+resource.name+' ('+\
-                     format_monetary(cost_per_day)+' '\
-                     +resource.hourly_rate[1]+')'
+            r_info = '%s : %s (%s %s)' % (resource.id, resource.name,
+                                          format_monetary(cost_per_day),
+                                          resource.hourly_rate[1])
             para = self.dbh.para_node(r_info)
             item.appendChild(para)
             list_items.appendChild(item)

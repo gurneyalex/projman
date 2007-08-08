@@ -11,7 +11,10 @@
 A FAIRE
 -------
 
- 
+ - dans resource.xml, on a des idref (et autres) qui pointent vers des
+   id et il faudrait vérifier que ces id existent au moment où on
+   vérifie la cohérence des données en entrée
+
  - taper sur calendar.py
 
  - gerer les multiples solutions de csp
