@@ -18,7 +18,6 @@
 __revision__ = "$Id: projman_writer.py,v 1.17 2005-11-11 15:53:21 nico Exp $"
 
 import logging
-from projman import LOG_CONF
 from xml.dom.ext import PrettyPrint, Print
 from xml.dom.minidom import DOMImplementation
 from logilab.common.visitor import Visitor

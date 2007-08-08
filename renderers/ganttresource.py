@@ -19,7 +19,7 @@ __revision__ = "$Id: ganttresource.py,v 1.1 2005-09-06 17:07:24 nico Exp $"
 
 from projman.renderers.resource import ResourcesRenderer, ResourcesDrawer
 from projman.renderers.gantt import GanttRenderer, GanttDrawer
-from projman.renderers.abstract import AbstractRenderer, AbstractDrawer, ROW_HEIGHT
+from projman.renderers.abstract import AbstractRenderer, ROW_HEIGHT
 
 class GanttResourcesRenderer(ResourcesRenderer, GanttRenderer):
     

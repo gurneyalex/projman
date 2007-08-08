@@ -93,7 +93,7 @@ class BasicScheduler(Visitor):
         self._root = None
         self.errors = []
         self.project = project
-        self._past_activities = Activities()
+        self._past_activities = Table()
         self._current_schedule = None
 
     def schedule(self, verbose=1):
@@ -185,7 +185,7 @@ class BasicScheduler(Visitor):
             if global_cost != 0:
                 self._current_schedule.tasks_global_cost[node.id] = [global_cost, unit]
         else:
-            #FIXME: need currency converter if unit != global_unit
+            #FIXME need currency converter if unit != global_unit
             assert self._current_schedule.tasks_global_cost[node.id][1] == unit, \
                    "Panic: we don't support different units yet"
             self._current_schedule.tasks_global_cost[node.id][0] += global_cost
@@ -223,7 +223,7 @@ class BasicScheduler(Visitor):
                         self.errors += v.errors
         date, date_strict = self.get_possible_begin(node)
         self._current_schedule.tasks_timeslot[node.id] = [date, date]
-        # FIXME : is activity really necessary? check usage by renderer
+        # FIXME is activity really necessary? check usage by renderer
         self._current_schedule.planned_activities.add_activity(node.id, '',
                                                                Activity(100, date, date))
     

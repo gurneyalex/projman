@@ -70,7 +70,7 @@ def delta_color(color, x):
         return (eval('0x%s'% color[1:3])+x,
                 eval('0x%s'% color[3:5])+x,
                 eval('0x%s'% color[5:7])+x)
-    if len(color) == 3 and type(color[0]) == type(0):
+    if len(color) == 3 and isinstance(color[0],int):
         one, two, three = color
         return (one+x, two+x, three+x)
     one, two, three = COLORS[color]

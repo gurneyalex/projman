@@ -235,9 +235,8 @@ class ResourcesDrawer(AbstractDrawer) :
             for begin, end, _, _, usage, _ in activities:
                 if begin <= day <= end:
                     if usage > 1:
-                        log.info("    ", activity, "usage", usage,
-                                 "for", resource.id,
-                                 "on", day)
+                        log.info("    usage", usage,
+                                 "for", resource.id, "on", day)
                     break
             else:
                 usage = 0

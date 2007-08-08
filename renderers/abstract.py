@@ -17,9 +17,6 @@
 
 __revision__ = "$Id: abstract.py,v 1.1 2005-09-06 17:07:22 nico Exp $"
 
-import copy
-import cStringIO
-
 from mx.DateTime import now
 from projman import ENCODING
 from projman.lib import date_range
@@ -352,7 +349,7 @@ class AbstractDrawer :
         """ write a main cell's content """
         self._draw_rect(TITLE_COLUMN_WIDTH, ROW_HEIGHT,
                         fillcolor=self._color_set['TITLE'])
-        if task is not None and task.TYPE!="milestone":
+        if task is not None and task.TYPE != "milestone":
             try:
                 status = project.get_task_status(task)
                 color = self._colors['TASK_SET'][status]

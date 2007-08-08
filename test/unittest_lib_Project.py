@@ -8,9 +8,10 @@ Home: http://www.logilab.org/projman
 This code is released under the GNU Public Licence v2. See www.gnu.org.
 """
 
+from mx.DateTime import now
+
 from logilab.common import testlib
-import sys
-from mx.DateTime import now, DateTime
+
 from projman.lib import MileStone, Task, Project, ResourcesSet, \
      Resource
 
@@ -107,9 +108,6 @@ class ProjectTC(testlib.TestCase):
         pass
     
     def _test_duration_worked_for(self):
-        pass
-
-    def _test_task_date_range(self):
         pass
 
     def _test_task_cost(self):

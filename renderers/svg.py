@@ -76,8 +76,8 @@ class SVGHandler:
         gc = self._rend.new_gc()
         col = color or fillcolor
         if not col and delta_color:
-            col = _delta_color(delta_color, int(value))
-        gc.set_foreground( _color( col ) )
+            col = _delta_color(delta_color, int(value)) # FIXME value ??
+            gc.set_foreground( _color( col ) )
         return gc
 
     def get_prop(self,

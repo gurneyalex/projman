@@ -19,11 +19,9 @@ reader generate a model from xml file (see dtd/project.dtd)
 """
 __revision__ = "$Id: base_reader.py,v 1.2 2005-11-09 16:47:35 arthur Exp $"
 
-from os.path import dirname, abspath, isabs
+from os.path import dirname, abspath
 from xml.sax import make_parser, ContentHandler
 from xml.sax.handler import feature_namespaces
-
-from logilab.common.tree import NodeNotFound
 
 from projman.lib.project import Project
 from projman.lib.task import Task, MileStone

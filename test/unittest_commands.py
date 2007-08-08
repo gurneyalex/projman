@@ -21,9 +21,7 @@ import os.path as osp
 from logilab.common import testlib
 from logilab.common.clcommands import cmd_run
 
-# load commands
-from projman import commands
-from projman.readers import ProjectXMLReader
+from projman import commands # load commands
 
 from projman.test import DATADIR, XML_PROJMAN, XML_SCHEDULED_PROJMAN, \
      XML_SCHEDULED_PROJMAN_FULL, TAR_PROJMAN

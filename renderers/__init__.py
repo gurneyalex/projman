@@ -30,6 +30,6 @@ def HandlerFactory(format):
     format = format.upper()
     if format in PIL_FORMATS:
         return PILHandler(format)
-    if format=='SVG':
+    if format == 'SVG':
         return SVGHandler(format)
     raise NotImplementedError("Format '%s' not supported" % format )
