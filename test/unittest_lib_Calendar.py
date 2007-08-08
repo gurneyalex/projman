@@ -97,9 +97,9 @@ class CalendarTC(testlib.TestCase):
         self.assertEqual(self.c2.availability(DateTime(2004, 05, 07)), [])
 
     def test_get_total_intervals(self):
-        self.assertEqual(self.c1.get_worktime(DateTime(2004, 05, 07)).seconds, 0)
-        self.assertEqual(self.c1.get_worktime(DateTime(2004, 05, 05)).seconds, 28800)
-        self.assertEqual(self.c2.get_worktime(DateTime(2004, 06, 07)).seconds, 21600)
+        self.assertEqual(self.c1.get_worktime('nonworking').hours, 0)
+        self.assertEqual(self.c1.get_worktime('working').hours, 8)
+        self.assertEqual(self.c2.get_worktime('halfday').hours, 6)
 
     def test_is_a_national_day(self):
         self.assertEqual(self.c1.is_a_national_day(DateTime(2012, 01, 01)), True)

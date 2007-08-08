@@ -27,6 +27,7 @@ This code is released under the GNU Public Licence v2. See www.gnu.org.
 
 __revision__ = "$Id: resource.py,v 1.4 2005-09-06 17:07:00 nico Exp $"
 
+from mx.DateTime import Time
 from logilab.common.deprecation import deprecated_function
 
 from logilab.common.tree import VNode 
@@ -81,13 +82,14 @@ class Resource(VNode):
         return the number of seconds of availability on a given day
         """
         if not self.is_available(datetime):
-            return 0
+            return Time(0)
         if self.calendar:
             cal = self.get_node_by_id(self.calendar)
-            return cal.get_total_intervals(datetime)
+            daytype = cal.get_daytype(datetime)
+            return cal.get_worktime(daytype)
         else:
             # if no calendar use default value of 8 hours work
-            return 8*60*60
+            return Time(8)
 
 class ResourcesSet(VNode):
 

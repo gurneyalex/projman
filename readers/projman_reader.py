@@ -101,8 +101,8 @@ class ProjectXMLReader(AbstractXMLReader) :
             try:
                 file(sched,"r")
             except IOError:
-                print colorize_ansi("WATCH OUT!", "red"), \
-                      "schedule file '%s' declared in project file but is missing. " \
+                print colorize_ansi("WARNING!", "red"), \
+                      " schedule file '%s' declared in project file but is missing. " \
                       "Command completed without scheduling information."% filename
             else:
                 self.read_schedule( sched )
@@ -232,7 +232,6 @@ class ProjectXMLReader(AbstractXMLReader) :
 
 
     def read_calendar_definition(self, cal_node, parent_cal=None):
-        _dict_days_types = {}
         cal = self._factory.create_calendar( cal_node.get('id') )
         cal.type_working_days = {}
         cal.type_nonworking_days = {}
@@ -240,35 +239,31 @@ class ProjectXMLReader(AbstractXMLReader) :
             if n.tag == "label":
                 cal.name = unicode(n.text)
             elif n.tag == "day-types":
-                cal.default_day_type = n.get('idref')
+                cal.default_day_type = n.get('default')
                 for day_type in n.findall('day-type'):
                     day_id = day_type.get('id')
-                    day_type_name = unicode(day_type.find('label').text)
-                    # FIXME
-                    _dict_days_types[day_id] = day_type_name
-                    cal.type_nonworking_days[day_id] = day_type_name
-                    intervals = [day_type_name,[]]
+                    day_type_label = unicode(day_type.find('label').text)
+                    intervals = []
                     for interval in day_type.findall('interval'):
                         from_time = iso_time( interval.get('start') )
                         to_time = iso_time( interval.get('end') )
-                        intervals[1].append( (from_time, to_time) )
-                    if intervals[1]: # only add it if we have intervals
-                        cal.type_working_days[day_id] = intervals
+                        intervals.append( (from_time, to_time) )
+                    cal.day_types[day_id] = [day_type_label, intervals]
             elif n.tag == "day":
-                day_type_name = _dict_days_types[ n.get('type') ]
+                day_type = n.get('type')
                 data = n.text
                 if data in DAY_WEEK:
-                    cal.weekday[data] = day_type_name
+                    cal.weekday[data] = day_type
                 elif len(data) < 8:
                     cal.national_days.append(tuple([int(item) for item in data.split('-')]))
                 else:
                     date = iso_date(data)
-                    cal.add_timeperiod(date, date, day_type_name)
+                    cal.add_timeperiod(date, date, day_type)
             elif n.tag == "timeperiod":
                 from_date = iso_date( n.get('from') )
                 to_date = iso_date( n.get('to') )
-                type_name = _dict_days_types[ n.get('type') ]
-                cal.add_timeperiod( from_date, to_date, type_name )
+                type_name = n.get('type')
+                cal.add_timeperiod(from_date, to_date, type_name)
             elif n.tag == 'start-on':
                 cal.start_on = iso_date(n.text)
             elif n.tag == 'stop-on':

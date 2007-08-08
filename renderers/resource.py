@@ -191,7 +191,7 @@ class ResourcesDrawer(AbstractDrawer) :
         """
         for day in date_range(self.view_begin, self.view_end):
             usage = project.get_total_usage(resource.id, day)
-            self._occupation_timeline(resource.work_on(day), usage, day)
+            self._occupation_timeline(resource.is_available(day), usage, day)
             if usage > 1:
                 log.info(" Warning! usage", usage, "for", resource.id, "on", day)
 
@@ -241,7 +241,7 @@ class ResourcesDrawer(AbstractDrawer) :
                     break
             else:
                 usage = 0
-            available = resource.work_on(day)
+            available = resource.is_available(day)
             self._activity_timeline(available, usage, day)
 
     def _activity_timeline(self, available, usage, day):

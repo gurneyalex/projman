@@ -66,7 +66,7 @@ def split_to_fit_disponibility(activity, resource, a_seq=None):
     date = begin
     end = activity.end
     while date <= end :
-        if resource.work_on(date): 
+        if resource.is_available(date): 
             date += 1
         else: 
             if date != activity.begin:
@@ -167,7 +167,7 @@ class BasicScheduler(Visitor):
                     # FIXME XXX infiniteloop BUG prevention
                     if loop_count == 100:
                         break
-                    if worked_hours == 0 and r.work_on(d):
+                    if worked_hours == 0 and r.is_available(d):
                         break
                     hours += worked_hours
                     d += worked_hours/hours_per_day

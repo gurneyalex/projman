@@ -11,6 +11,7 @@ This code is released under the GNU Public Licence v2. See www.gnu.org.
 """
 
 import os.path as osp
+from mx.DateTime import Time
 
 from logilab.common.testlib import TestCase, unittest_main
 
@@ -56,7 +57,6 @@ class TaskXMLReaderVirtualRootTest(TestCase):
     def setUp(self):
         self.reader = ProjectXMLReader(None, task_root='t1_1')
         self.root = self.reader.read_tasks(osp.join(DATADIR, 'multiline_tasked_project.xml'))
-        #self.reader.project.root_task = self.root
 
     def test_virtual_root(self):
         task = self.root
@@ -72,7 +72,6 @@ class ResourcesXMLReaderTest(TestCase):
     def setUp(self):
         self.reader = ProjectXMLReader(None)
         self.resources = self.reader.read_resources(osp.join(DATADIR, 'three_resourced_list.xml'))
-        #self.reader.project.resource_set = self.resource
 
     def test_number_of_resources(self):
         self.assertEquals(len(self.resources.children), 4)
@@ -89,22 +88,18 @@ class ResourcesXMLReaderTest(TestCase):
     def test_calendar_content(self):
         cal = self.resources.children[-1]
         self.assertEquals(cal.name, "Calendrier Francais")
-        for day in (u'mon', u'tue', u'wed', u'thu', u'fri'):
-            self.assertEquals(cal.weekday[day], u'Standard work day')
-        for day in (u'sat', u'sun'):
-            self.assertEquals(cal.weekday[day], u'Week-end day')
+        self.assertEquals(cal.weekday, {'sat': 'non_working', 'sun':'non_working'} )
         self.assertEquals(cal.national_days,
                           [(1,1), (5,1), (5,8), (7,14),
                            (8,15), (11,1), (11,11), (12,25)])
         self.assertEquals(cal.start_on, None)
         self.assertEquals(cal.stop_on, None)
-        self.assertEquals(cal.type_nonworking_days,
-                          {'working': u'Standard work day',
-                           'non_working': u'Week-end day',
-                           'holiday': u'Day Off'})
-        
-        self.assertEquals(cal.default_nonworking, 'non_working')
-        self.assertEquals(cal.default_working, 'working')
+        self.assertEquals(cal.day_types,
+                          {'working': [u'Standard work day', [(Time(8), Time(12)),
+                                                             (Time(13), Time(17,24))]],
+                           'non_working': [u'Week-end day', []],
+                           'holiday': [u'Day Off',[]],})
+        self.assertEquals(cal.default_day_type, 'working')
         dates = [("2002-12-31","2002-12-26"),
                  ("2003-03-14","2003-03-10"),
                  ("2003-08-18","2003-08-14"),
@@ -112,9 +107,9 @@ class ResourcesXMLReaderTest(TestCase):
         for (expected_end, expected_start), (start, end, working) in zip(dates, cal.timeperiods):
             start = str(start).split()[0]
             end = str(end).split()[0]
-            self.assertEquals(expected_start, start)
-            self.assertEquals(expected_end, end)
-            self.assertEquals(u'Day Off', working)
+            self.assertEquals(start, expected_start)
+            self.assertEquals(end, expected_end)
+            self.assertEquals(working, 'holiday')
 
 
 

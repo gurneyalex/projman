@@ -108,7 +108,7 @@ class SimpleScheduler:
             log.warning("task %s is complete but was never worked on"%node.id)
         while load > 0 and resources :
             for resource, usage in resources:
-                if self.date_res[resource.id] < date and resource.work_on(date) \
+                if self.date_res[resource.id] < date and resource.is_available(date) \
                    and self.project.get_total_usage(resource.id, date) <= 1-usage :
                     activities.append( (date, date, resource.id, node.id, usage) )
                     self.date_res[resource.id] = date

@@ -43,7 +43,8 @@ def iso_date(dt):
     return mx.DateTime.strptime( dt, "%F" )
 
 def iso_time(tm):
-    return mx.DateTime.strptime( tm, "%H%M" )
+    date = mx.DateTime.strptime( tm, "%H%M" )
+    return mx.DateTime.Time(date.hour, date.minute)
 
 class attribute_checker(object):
     def __call__(self, attrib, attr):
@@ -289,11 +290,13 @@ class ScheduleChecker(BaseEtreeChecker):
         else:
             self._attributes( {"type" : one_of(*DATE_CONSTRAINT)} )
         self._content( iso_date )
+        
     def check_constraint_task(self):
         self._empty()
         self._children()
         self._attributes( {"type": one_of(*TASK_CONSTRAINT),
                            "idref": not_empty} )
+
     def check_status(self):
         self._content( str )
         self._children()
