@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<schedule hash='817592835'>
+<schedule>
 <task id='project1'>
   <constraint-date type='begin-at-date'>2005-07-11</constraint-date>
   <constraint-date type='end-at-date'>2005-08-16</constraint-date>

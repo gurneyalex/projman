@@ -28,8 +28,7 @@ This code is released under the GNU Public Licence v2. See www.gnu.org.
 from logilab.common.tree import VNode 
 from mx.DateTime import Time, TimeDelta
 
-# FIXME: day_week probably exists in DateTime
-day_week = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
+from projman import DAY_WEEK
 
 class Calendar(VNode):
     """
@@ -43,22 +42,17 @@ class Calendar(VNode):
     def __init__(self, id, name=u''):
         VNode.__init__(self, id)
         self.name = name
-        self.type_working_days = {'0':
-                                  ['DefaultWorking',
-                                   [(Time(8.0, 0.0, 0.0), Time(12.0, 0.0, 0.0)),
-                                    (Time(13.0, 0.0, 0.0), Time(17.0, 0.0, 0.0))
-                                    ]
-                                   ]
-                                  }
-        # type of days of non work
-        self.type_nonworking_days = {'0': 'DefaultNonworking'}
-        # default working type
-        self.default_working = u''
-        # default non working type
-        self.default_nonworking = u''
+        self.day_types = {}
+        # example:
+        #  {'working': ['DefaultWorking', [(Time(8), Time(12)),
+        #                                  (Time(13), Time(17))]
+        #              ],
+        #  'nonworking': ['DefaultNonworking', []],
+        # }
+        self.default_day_type = None
         # day type in a usual week
-        # ex : {day_of_week:type, ...} and day_of_week 
-        #in {mon, tue, wed, thu, fri, sat, sun}
+        # ex : {day_of_week:type, ...} and day_of_week
+        # in {mon, tue, wed, thu, fri, sat, sun}
         self.weekday = {}
         # list of periods associated to its type 
         #ex: [(from_date, to_date, type), ...]
@@ -144,60 +138,22 @@ class Calendar(VNode):
 
         self.timeperiods = new_timeperiods
                     
-                
-    def is_available(self, datetime):
-        """
-        return True if <datetime> is a working type of day for the calendar
-        according to inheriting properties
-        else return False
-        """
-        examined = False
-        cal = self
-        last = self
-        c_spec = self
-        day_type = u''
 
+    def availability(self, datetime):
+        """
+        return work intervals on that datetime.
+        """
         if not self.after_start(datetime):
-	    return False
+	    return []
 
 	if not self.before_stop(datetime):
-	    return False
+	    return []
 
         if self.is_a_national_day(datetime):
-            return False
+            return []
 
-        # case of root calendar
-        if cal.is_specified(datetime):
-            examined = True
-            c_spec = self
-            day_type = c_spec.get_type(datetime)
-            
-        while not examined and cal.TYPE == 'calendar' :
-            examined = cal.is_specified(datetime)
-            if examined:
-                c_spec = cal
-                day_type = cal.get_type(datetime)
-                last = cal
-            cal = cal.parent
-        if examined:
-            return c_spec.is_a_working_type(day_type)
-        else:
-            return last.is_a_working_type(last.get_weekday_type(datetime))
-
-# Useful methods for calendar manipulation ##############################
-
-    def is_a_working_type(self, t_name):
-        """
-        test if t_name is a working type in the calendar 
-        according to inherited properties
-        """
-        cal = self
-        while cal.TYPE == 'calendar':
-            for item in cal.type_working_days.values():
-                if item[0] == t_name:
-                    return True
-            cal = cal.parent
-        return False
+        daytype = self.get_daytype(datetime)
+        return self._get_intervals(daytype)
 
     def is_a_national_day(self, datetime):
         """
@@ -232,126 +188,56 @@ class Calendar(VNode):
             cal = cal.parent
         return True 
  
+    def _get_intervals(self, daytype):
+        cal = self
+        while cal.TYPE == 'calendar':
+            if daytype in cal.day_types:
+                return cal.day_types[daytype][1]
+            cal = cal.parent
+        raise ValueError('Unknown day type %s' % daytype)
 
-    def get_weekday_type(self, date):
+    def get_daytype(self, datetime):
+        """
+        compute then return day type (a key in self.day_types) for date datetime.
+        """
+        daytype = self._get_daytype_timeperiods(datetime)
+        if daytype is None:
+            daytype = self._get_daytype_weekday(datetime)
+        if daytype is None:
+            daytype = self.default_day_type
+        return daytype
+    
+    def _get_daytype_timeperiods(self, datetime):
+        cal = self
+        while cal.TYPE == 'calendar':
+            for from_date, to_date, _type in cal.timeperiods:
+                if from_date <= datetime <= to_date:
+                    return _type
+            cal = cal.parent
+        return None
+
+    def _get_daytype_weekday(self, datetime):
         """
         return the type of date acording to the day of the week
         and to the inheriting properties
         """
-        day = day_week[date.day_of_week]
-        if day in self.weekday and self.weekday[day] != 'Use base':
-            return self.weekday[day]
-        else:
-            return self.parent.get_weekday_type(date)
-
-    def is_specified(self, date):
-        """
-        test if date is in timeperiods
-        """
-        for from_date, to_date, _type in self.timeperiods:
-            if from_date <= date <= to_date:
-                return True
-        return False
-
-    def get_type(self, date):
-        """
-        return the type associated to date in calendar, according to
-        timeperiods
-        if date is not in timeperiods return empty string
-        """
-        for from_date, to_date, _type in self.timeperiods:
-            if from_date <= date <= to_date:
-                return _type
-        return u''
-
-    def get_type_id(self, type):
-        """
-        return the tuple (type_id, cal_ref_id) associated to type name
-        """
-        examined = False
+        day = DAY_WEEK[datetime.day_of_week]
         cal = self
         while cal.TYPE == 'calendar':
-            for t_d in cal.type_working_days:
-                if cal.type_working_days[t_d][0] == type:
-                    examined = True
-                    return (t_d, cal.id)
-            for t_d in cal.type_nonworking_days:
-                if cal.type_nonworking_days[t_d] == type:
-                    examined = True
-                    return (t_d, cal.id)
+            if day in self.weekday:
+                return self.weekday[day]
             cal = cal.parent
-        if not examined:
-            raise Exception('Unknown type of days')
+        return None
 
-    def get_default_worktime(self):
+    def get_worktime(self, daytype):
         """
-        return the number of seconds of work for a default day of work
-        """
-        cal = self
-        while cal.TYPE == 'calendar':
-            if cal.TYPE == 'calendar' and cal.default_working != u'':
-                intervals =  cal.type_working_days[cal.default_working][1]
-                return cal.get_total_seconds(intervals)
-            cal = cal.parent
-        raise ValueError("no default worktime found")
-
-    def get_default_wt_in_hours(self):
-        """
-        return the number of hours of work for a default day of work
-        """
-        return  self.get_default_worktime() / 3600
-        
-    def get_total_intervals(self, datetime):
-        """
-        return the number of seconds ok work for datetime
-        """
-        intervals = self.get_intervals(datetime)
-        if intervals:
-            return self.get_total_seconds(intervals)
-        return 0
-
-    def get_total_seconds(self, intervals):
-        """
-        return the seconds corresponding to intervals
+        return a TimeDelta representing the amount of work time on datetime.
         """
         res = TimeDelta(0)
+        intervals = self._get_intervals(daytype)
         for from_time, to_time in intervals:
             res += to_time - from_time
-        return res.seconds # XXX avant (res.hours * 60 * 60) + (res.minute * 60)
+        return res
 
-    def get_intervals(self, datetime):
-        """
-        return the intervals of work associated to datetime
-        """
-        cal = self
-        examined = False
-        if cal.is_specified(datetime):
-            examined = True
-            c_spec = self
-            type = c_spec.get_type(datetime)
-            id_t = c_spec.get_type_id(type)[0]
-            
-        while not examined and cal.TYPE == 'calendar' :
-            examined = cal.is_specified(datetime)
-            if examined:
-                c_spec = cal
-                type = cal.get_type(datetime)
-                id_t = cal.get_type_id(type)[0]
-            cal = cal.parent
-        if examined:
-            if c_spec.is_a_working_type(type):
-                return c_spec.type_working_days[id_t][1]
-            else:
-                return None
-        else:
-            day = day_week[datetime.day_of_week]
-            cal = self
-            while cal.TYPE == 'calendar':
-                if day in cal.weekday and \
-                       cal.is_a_working_type(cal.weekday[day]):
-                    type = cal.weekday[day]
-                    id_t = cal.get_type_id(type)[0]
-                    cal_ref_id = cal.get_type_id(type)[1]
-                    return self.get_node_by_id(cal_ref_id).type_working_days[id_t][1]
-                cal = cal.parent
-        return None
+
+

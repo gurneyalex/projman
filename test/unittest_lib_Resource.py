@@ -37,42 +37,20 @@ class ResourceTest(TestCase):
         self.date_next_score = DateTime(2004, 10, 26)
         # set up calendar 1      
         self.c1 = Calendar('c_1', 'Defaut')
-        type_working_days_c1 = {0:['Working', [(Time(8., 0.), Time(12., 0.)),
-                                               (Time(13., 0.), Time(17., 0.))]],
-                                1:['HalfDay', [(Time(9., 0., 0.), Time(15., 0., 0.))]]}
-        type_nonworking_days_c1 = {0:'Use base',
-                                   1:'Nonworking'} 
-        self.c1.type_working_days = type_working_days_c1
-        self.c1.type_nonworking_days = type_nonworking_days_c1
-        self.c1.default_working = 0
-        self.c1.default_nonworking = 1
-        self.c1.add_timeperiod(self.date_last_week, self.date_last_week, 'Nonworking')
-        self.c1.add_timeperiod(self.date_today, self.date_today, 'Working')
-        self.c1.add_timeperiod(self.date_tomorrow, self.date_next_week, 'HalfDay')
-        self.c1.weekday['mon'] = 'Working'
-        self.c1.weekday['tue'] = 'Working'
-        self.c1.weekday['wed'] = 'Working'
-        self.c1.weekday['thu'] = 'Working'
-        self.c1.weekday['fri'] = 'Working'
-        self.c1.weekday['sat'] = 'Nonworking'
-        self.c1.weekday['sun'] = 'Nonworking'
+        self.c1.day_types = {'working':['Working', [(Time(8), Time(12)),
+                                                    (Time(13), Time(17))]],
+                             'halfday':['HalfDay', [(Time(9), Time(15))]],
+                             'nonworking': ['Nonworking', []],
+                             } 
+        self.c1.default_day_type = 'working'
+        self.c1.add_timeperiod(self.date_last_week, self.date_last_week, 'nonworking')
+        self.c1.add_timeperiod(self.date_today, self.date_today, 'working')
+        self.c1.add_timeperiod(self.date_tomorrow, self.date_next_week, 'halfday')
+        self.c1.weekday['sat'] = 'nonworking'
+        self.c1.weekday['sun'] = 'nonworking'
         # set up calendar 2        
-        type_working_days_c2 = {}
-        type_nonworking_days_c2 = {0:'Use base',
-                                   1:'Nonworking'}
         self.c2 = Calendar('c_2', u'Année 2')
-        self.c2.type_working_days = type_working_days_c2
-        self.c2.type_nonworking_days = type_nonworking_days_c2
-        self.c2.default_working = None
-        self.c2.default_nonworking = 1
-        self.c2.add_timeperiod(self.date_next_week, self.date_next_score, 'Nonworking')
-        self.c2.weekday['mon'] = 'Use base'
-        self.c2.weekday['tue'] = 'Use base'
-        self.c2.weekday['wed'] = 'Use base'
-        self.c2.weekday['thu'] = 'Use base'
-        self.c2.weekday['fri'] = 'Use base'
-        self.c2.weekday['sat'] = 'Use base'
-        self.c2.weekday['sun'] = 'Use base'
+        self.c2.add_timeperiod(self.date_next_week, self.date_next_score, 'nonworking')
         # build tree
         self.c1.append(self.c2)
         self.rss = ResourcesSet('all_resources')
@@ -83,25 +61,25 @@ class ResourceTest(TestCase):
     def test_get_default_wt_in_hours(self):
         self.assertEqual(self.r1.get_default_wt_in_hours(), 8)
         
-    def test_work_on(self):
+    def test_is_available(self):
         """
         tests if a resource is available on datetime according to its calendar
         """
         # test r_1
-        self.assertEqual(self.r1.work_on(self.date_last_week), False)
-        self.assertEqual(self.r1.work_on(self.date_today), True)
-        self.assertEqual(self.r1.work_on(self.date_tomorrow), True)
-        self.assertEqual(self.r1.work_on(self.date_next_week), True)
+        self.assertEqual(self.r1.is_available(self.date_last_week), False)
+        self.assertEqual(self.r1.is_available(self.date_today), True)
+        self.assertEqual(self.r1.is_available(self.date_tomorrow), True)
+        self.assertEqual(self.r1.is_available(self.date_next_week), True)
         # test r_2
-        self.assertEqual(self.r2.work_on(self.date_last_week), False)
-        self.assertEqual(self.r2.work_on(self.date_today), True)
-        self.assertEqual(self.r2.work_on(self.date_tomorrow), True)
-        self.assertEqual(self.r2.work_on(self.date_next_week), False)
-        self.assertEqual(self.r2.work_on(self.date_next_score), False)
+        self.assertEqual(self.r2.is_available(self.date_last_week), False)
+        self.assertEqual(self.r2.is_available(self.date_today), True)
+        self.assertEqual(self.r2.is_available(self.date_tomorrow), True)
+        self.assertEqual(self.r2.is_available(self.date_next_week), False)
+        self.assertEqual(self.r2.is_available(self.date_next_score), False)
         
     def test_get_duration_of_work(self):
         """
-        return the total nimber of seconds of work at datetime
+        return the total number of seconds of work at datetime
         """
         self.assertEqual(self.r1.get_duration_of_work(self.date_next_week), 21600)
         self.assertEqual(self.r2.get_duration_of_work(self.date_next_week), 0)

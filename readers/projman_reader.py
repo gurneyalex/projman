@@ -29,6 +29,7 @@ from docutils.core import publish_string
 from logilab.doctools.rest_docbook import FragmentWriter
 from logilab.common.textutils import colorize_ansi
 from projman.lib._exceptions import ProjectValidationError, MalformedProjectFile
+from projman import DAY_WEEK
 
 docbook_writer = FragmentWriter()
 
@@ -230,7 +231,7 @@ class ProjectXMLReader(AbstractXMLReader) :
         return res
 
 
-    def read_calendar_definition(self, cal_node):
+    def read_calendar_definition(self, cal_node, parent_cal=None):
         _dict_days_types = {}
         cal = self._factory.create_calendar( cal_node.get('id') )
         cal.type_working_days = {}
@@ -239,12 +240,11 @@ class ProjectXMLReader(AbstractXMLReader) :
             if n.tag == "label":
                 cal.name = unicode(n.text)
             elif n.tag == "day-types":
-                # --------------------------
-                # Read day-types
-                # --------------------------
+                cal.default_day_type = n.get('idref')
                 for day_type in n.findall('day-type'):
                     day_id = day_type.get('id')
                     day_type_name = unicode(day_type.find('label').text)
+                    # FIXME
                     _dict_days_types[day_id] = day_type_name
                     cal.type_nonworking_days[day_id] = day_type_name
                     intervals = [day_type_name,[]]
@@ -254,32 +254,10 @@ class ProjectXMLReader(AbstractXMLReader) :
                         intervals[1].append( (from_time, to_time) )
                     if intervals[1]: # only add it if we have intervals
                         cal.type_working_days[day_id] = intervals
-            elif n.tag == "default-working":
-                # -----------------------------
-                # Read defaults working day ids
-                # -----------------------------
-                # XXX: BUG? ou simple connerie? : on compare day_type[default-workin.idref]
-                # avec w_type[0] (le label de day-type) au lieu de comparer juste les id ?
-                _id = u''
-                type_name = _dict_days_types[n.get('idref')]
-                for t_id, w_type in cal.type_working_days.items():
-                    if w_type[0] == type_name:
-                        _id = t_id
-                cal.default_working = _id
-            elif n.tag == "default-nonworking":
-                # -----------------------------
-                # Read defaults working day ids
-                # -----------------------------
-                _id = u''
-                type_name = _dict_days_types[n.get('idref')]
-                for t_id, w_type in cal.type_nonworking_days.items():
-                    if w_type == type_name:
-                        _id = t_id
-                cal.default_nonworking = _id
             elif n.tag == "day":
                 day_type_name = _dict_days_types[ n.get('type') ]
                 data = n.text
-                if data in ('mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'):
+                if data in DAY_WEEK:
                     cal.weekday[data] = day_type_name
                 elif len(data) < 8:
                     cal.national_days.append(tuple([int(item) for item in data.split('-')]))
@@ -292,11 +270,11 @@ class ProjectXMLReader(AbstractXMLReader) :
                 type_name = _dict_days_types[ n.get('type') ]
                 cal.add_timeperiod( from_date, to_date, type_name )
             elif n.tag == 'start-on':
-                print "TODO: Unhandled element start-on"
-            elif n.tag == 'start-on':
-                print "TODO: Unhandled element start-on"
+                cal.start_on = iso_date(n.text)
+            elif n.tag == 'stop-on':
+                cal.stop_on = iso_date(n.text)
             elif n.tag == 'calendar':
-                subcal = self.read_calendar_definition( n )
+                subcal = self.read_calendar_definition(n, parent_cal=cal)
                 cal.append(subcal)
         return cal
 

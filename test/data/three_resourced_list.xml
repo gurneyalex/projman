@@ -19,7 +19,7 @@
   <calendar id="typic_cal">
     <label>Calendrier Francais</label>
     <!-- define types -->
-    <day-types>
+    <day-types default='working'>
       <day-type id="working">
         <label>Standard work day</label>
         <interval start="0800" end="1200"/>
@@ -32,9 +32,6 @@
         <label>Day Off</label>
       </day-type>
     </day-types>
-    <!-- define defaults -->
-    <default-working idref="working"/>
-    <default-nonworking idref="non_working"/>
     <!-- constructs calendar -->
     <!-- week -->
     <day type="working">mon</day>
