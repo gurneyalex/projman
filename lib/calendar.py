@@ -204,7 +204,7 @@ class Calendar(VNode):
         if daytype is None:
             daytype = self._get_daytype_weekday(datetime)
         if daytype is None:
-            daytype = self.default_day_type
+            daytype = self.get_default_daytype()
         if daytype is None:
             raise Exception('Unable to compute daytype for %s' % datetime)
         return daytype
@@ -228,6 +228,14 @@ class Calendar(VNode):
         while cal.TYPE == 'calendar':
             if day in self.weekday:
                 return self.weekday[day]
+            cal = cal.parent
+        return None
+
+    def get_default_daytype(self):
+        cal = self
+        while cal.TYPE == 'calendar':
+            if cal.default_day_type is not None:
+                return cal.default_day_type
             cal = cal.parent
         return None
 
