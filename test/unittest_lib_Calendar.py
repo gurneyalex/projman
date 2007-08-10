@@ -105,6 +105,7 @@ class CalendarTC(testlib.TestCase):
         self.assertEqual(self.c1.is_a_national_day(DateTime(2012, 01, 01)), True)
         self.assertEqual(self.c1.is_a_national_day(DateTime(2012, 04, 01)), False)
         self.assertEqual(self.c2.is_a_national_day(DateTime(2012, 01, 01)), True)
+        self.assertEqual(self.c2.is_a_national_day(DateTime(2012, 02, 02)), False)
 
     def test_get_daytype(self):
         self.assertEquals(self.c1.get_default_daytype(), 'working')

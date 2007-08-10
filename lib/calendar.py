@@ -160,7 +160,7 @@ class Calendar(VNode):
         test if datetime is a national day off
         """
         cal = self
-        while cal.TYPE == 'calendar':
+        while isinstance(cal, Calendar):
             if (datetime.month, datetime.day) in cal.national_days:
                 return True
             cal = cal.parent
@@ -168,7 +168,7 @@ class Calendar(VNode):
     
     def after_start(self, datetime):
         cal = self
-        while cal.TYPE == 'calendar':
+        while isinstance(cal, Calendar):
             if cal.start_on:
 	        if cal.start_on <= datetime:
 		    return True
@@ -179,7 +179,7 @@ class Calendar(VNode):
 
     def before_stop(self, datetime):
         cal = self
-        while cal.TYPE == 'calendar':
+        while isinstance(cal, Calendar):
             if cal.stop_on:
 	        if datetime <= cal.stop_on:
 		    return True
@@ -190,7 +190,7 @@ class Calendar(VNode):
  
     def _get_intervals(self, daytype):
         cal = self
-        while cal.TYPE == 'calendar':
+        while isinstance(cal, Calendar):
             if daytype in cal.day_types:
                 return cal.day_types[daytype][1]
             cal = cal.parent
@@ -211,7 +211,7 @@ class Calendar(VNode):
     
     def _get_daytype_timeperiods(self, datetime):
         cal = self
-        while cal.TYPE == 'calendar':
+        while isinstance(cal, Calendar):
             for from_date, to_date, _type in cal.timeperiods:
                 if from_date <= datetime <= to_date:
                     return _type
@@ -225,7 +225,7 @@ class Calendar(VNode):
         """
         day = DAY_WEEK[datetime.day_of_week]
         cal = self
-        while cal.TYPE == 'calendar':
+        while isinstance(cal, Calendar):
             if day in self.weekday:
                 return self.weekday[day]
             cal = cal.parent
@@ -233,7 +233,7 @@ class Calendar(VNode):
 
     def get_default_daytype(self):
         cal = self
-        while cal.TYPE == 'calendar':
+        while isinstance(cal, Calendar):
             if cal.default_day_type is not None:
                 return cal.default_day_type
             cal = cal.parent
