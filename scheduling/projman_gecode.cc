@@ -1,5 +1,6 @@
 /* */
 
+#include "projman_problem.hh"
 #include "projman_gecode.hh"
 #include "timer.hh"
 #include <iostream>
@@ -13,7 +14,8 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
       last_day(this,0,pb.max_duration),
       milestones(this,pb.n_milestones,0,pb.max_duration-1)
 {
-    int i,j,k;
+    int k;
+    unsigned int i,j;
     SetVarArray real_tasks(this, pb.ntasks, IntSet::empty,0,pb.max_duration-1);
     SetVarArray hull(this, pb.allocations.size(), IntSet::empty,0,pb.max_duration-1);
     SetVarArray task_plus_nw_cvx(this, pb.allocations.size(),
@@ -176,11 +178,7 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
     //rel(this, SOT_UNION, tasks, all_w_days );
     //dom(this, all_w_days, SRT_SUP, 0 );
 
-    register_order( pb, real_tasks, BEGIN_AFTER_BEGIN, pb.begin_after_begin );
-    register_order( pb, real_tasks, BEGIN_AFTER_END, pb.begin_after_end );
-    register_order( pb, real_tasks, END_AFTER_BEGIN, pb.end_after_begin );
-    register_order( pb, real_tasks, END_AFTER_END, pb.end_after_end );
-
+    register_order( pb, real_tasks );
     
     if (pb.verbosity>1) {
 	if (pb.verbosity>3) {
@@ -374,11 +372,14 @@ IntSet ProjmanProblem::get_not_working( int res ) const
 //    return ret;
 }
 
-void ProjmanSolver::register_order( const ProjmanProblem& pb, SetVarArray& real_tasks, int type, const std::vector< int_pair_t >& pairs )
+void ProjmanSolver::register_order( const ProjmanProblem& pb,
+				    SetVarArray& real_tasks )
 {
-    for(alloc_iter task_pair=pairs.begin();task_pair!=pairs.end();++task_pair) {
-	int p0=task_pair->first;
-	int p1=task_pair->second;
+    const_constraint_iter it;
+    for(it=pb.task_constraints.begin();it!=pb.task_constraints.end();++it) {
+	int p0=it->task0;
+	int p1=it->task1;
+	constraint_type_t type=it->type;
 	IntVar bound0(this,pb.task_low[p0],pb.task_high[p0]);
 	IntVar bound1(this,pb.task_low[p1],pb.task_high[p1]);
 	IntRelType rel_type = IRT_GR;
