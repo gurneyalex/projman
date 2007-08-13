@@ -3,4 +3,5 @@
   <import-tasks file="single_task.xml"/>
   <import-resources file="single_resource.xml"/>
   <import-activities file="single_activity.xml"/>
+  <import-schedule file="single_schedule.xml"/>
 </project>
