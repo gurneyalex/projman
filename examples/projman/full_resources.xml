@@ -30,7 +30,7 @@
     <label>Calendrier Français</label>
 
     <!-- define types -->
-    <day-types>
+    <day-types default="working">
       <day-type id="working">
         <label>DefautWorking</label>
         <interval start="0800" end="1200"/>
@@ -41,17 +41,8 @@
       </day-type>
     </day-types>
 
-    <!-- define defaults -->
-    <default-working idref="working"/>
-    <default-nonworking idref="non_working"/>
-
     <!-- constructs calendar -->
     <!-- week -->
-    <day type="working">mon</day>
-    <day type="working">tue</day>
-    <day type="working">wed</day>
-    <day type="working">thu</day>
-    <day type="working">fri</day>
     <day type="non_working">sat</day>
     <day type="non_working">sun</day>
     <!-- feast days -->
