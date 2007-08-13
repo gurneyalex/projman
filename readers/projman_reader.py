@@ -30,7 +30,7 @@ from logilab.doctools.rest_docbook import FragmentWriter
 from logilab.common.textutils import colorize_ansi
 from projman.lib._exceptions import ProjectValidationError, MalformedProjectFile
 from projman import DAY_WEEK
-
+from projman.lib.constants import LOAD_TYPE_MAP, TASK_MILESTONE
 docbook_writer = FragmentWriter()
 
 try:
@@ -196,6 +196,10 @@ class ProjectXMLReader(AbstractXMLReader) :
 
     def task_milestone_common(self, t, task):
         t.title = js(unicode(task.find("label").text))
+        load_type = LOAD_TYPE_MAP[ task.get("load-type", "shared").lower() ]
+        if task.tag=="milestone":
+            load_type = TASK_MILESTONE
+        t.load_type = load_type
         for cd in task.findall("constraint-date"):
             t.add_date_constraint( cd.get("type"), iso_date( cd.text ) )
         for ct in task.findall("constraint-task"):

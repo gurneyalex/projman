@@ -92,8 +92,9 @@ class CSPScheduler:
 
     def _process_node(self, node):
         max_duration = self.max_duration
-        _, _, task_resources = self.real_tasks.setdefault( node.id,
+        _, _, _, task_resources = self.real_tasks.setdefault( node.id,
                                                            [len(self.real_tasks),
+                                                            node.load_type,
                                                             node.duration, []] )
         rnge = self.task_ranges.setdefault( node.id, [None,None] )
 
@@ -179,11 +180,9 @@ class CSPScheduler:
 
 
         pseudo_tasks = []
-        for tid, (num, duration, resources) in real_tasks_items:
-            TYPE = load_types.TASK_SHARED
-            if duration==0:
-                TYPE = load_types.TASK_MILESTONE
-            task_num = pb.add_task( tid, TYPE, int(duration) )
+        for tid, (num, _type, duration, resources) in real_tasks_items:
+            print "TASK", num, _type, duration, resources
+            task_num = pb.add_task( tid, _type, int(duration) )
             low, high = self.task_ranges[tid]
             if _VERBOSE>1:
                 print "Task %2d = #%2d [%4s,%4s] = '%20s'" % ((task_num,duration,low,high,tid,))
@@ -192,7 +191,7 @@ class CSPScheduler:
             if high is None:
                 high = self.max_duration
             pb.set_task_range( task_num, int(low), int(high), 0, 0 ) # XXX: cmp_type unused
-            if TYPE == load_types.TASK_MILESTONE:
+            if _type == load_types.TASK_MILESTONE:
                 continue
             for res_id, usage in sorted(resources):
                 res_num = resources_map[res_id]
@@ -202,8 +201,8 @@ class CSPScheduler:
         # register constraints
         for type, pairs in self.constraints.items():
             for t1, t2 in pairs:
-                n1, _, _ = self.real_tasks[t1]
-                n2, _, _ = self.real_tasks[t2]
+                n1, _, _, _ = self.real_tasks[t1]
+                n2, _, _, _ = self.real_tasks[t2]
                 pb.add_task_constraint( GCSPMAP[type], n1, n2 )
                 if _VERBOSE>1:
                     print "%s %s(%s), %s(%s)" %(type, t1, n1, t2, n2)
@@ -233,7 +232,7 @@ class CSPScheduler:
 
         milestone = 0
         nmilestones = SOL.get_nmilestones()
-        for tid, (num, duration, resources) in self.real_tasks.items():
+        for tid, (num, _type, duration, resources) in self.real_tasks.items():
             if duration!=0:
                 continue
             if milestone>=nmilestones:

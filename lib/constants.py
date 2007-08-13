@@ -44,3 +44,27 @@ __all__ = ['FLOAT_ZERO', 'BEGIN_AFTER_END', 'BEGIN_AFTER_BEGIN',
            'BEGIN_AFTER_DATE', 'BEGIN_AT_DATE', 'BEGIN_BEFORE_DATE',
            'END_AFTER_DATE', 'END_AT_DATE', 'END_BEFORE_DATE',
            'DATE_CONSTRAINTS', ]
+
+
+try:
+    from projman.scheduling.gcsp import load_types
+    TASK_SHARED = load_types.TASK_SHARED
+    TASK_ONEOF = load_types.TASK_ONEOF
+    TASK_SAMEFORALL = load_types.TASK_SAMEFORALL
+    TASK_SPREAD = load_types.TASK_SPREAD
+    TASK_MILESTONE = load_types.TASK_MILESTONE
+except ImportError:
+    TASK_SHARED = 0
+    TASK_ONEOF = 1
+    TASK_SAMEFORALL = 2
+    TASK_SPREAD = 3
+    TASK_MILESTONE = 4
+    # for now just stop since we don't handle task types out of gcsp
+    raise
+LOAD_TYPE_MAP = {
+    "shared" : TASK_SHARED,
+    "oneof" : TASK_ONEOF,
+    "sameforall" : TASK_SAMEFORALL,
+    "spread" : TASK_SPREAD,
+    "milestone" : TASK_MILESTONE,
+}

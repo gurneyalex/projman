@@ -10,7 +10,7 @@
       <label>Realisation</label>
       <duration>15</duration>
     </task>
-    <task id="t2_12">
+    <task id="t2_12" load-type="oneof">
       <label>Validation</label>
       <duration>8</duration>
 	  <constraint-task  type="begin-after-end" idref="t2_11"/>

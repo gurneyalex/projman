@@ -83,16 +83,28 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
 		the_tasks_nw[j] = task_plus_nw_cvx[pseudo_id];
 	    }
 	    linear(this, res_tasks_duration, IRT_EQ, load);
+	    if (task.load_type==TASK_SHARED) {
+		// compute the allowable range for duration of the real task
+		int sz = task.resources.size();
+		int min_duration = (load+sz-1)/sz; // round to largest
+		if (pb.verbosity>3) {
+		    cout << ") duration=" << min_duration << "..."<<load;
+		}
+		cardinality(this, real_tasks[task_id], min_duration, load);
+	    } else if (task.load_type==TASK_ONEOF) {
+		cardinality(this, real_tasks[task_id], load, load);
+		if (pb.verbosity>3) {
+		    cout << ") duration=" <<load;
+		}
+		int load_set_values[2] = { 0, load };
+		IntSet load_set( load_set_values, 2);
+		for(j=0;j<task.resources.size();++j) {
+		    dom(this, res_tasks_duration[j], load_set );
+		}
+	    }
 
 	    rel(this,SOT_UNION,the_tasks,real_tasks[task_id]);
 
-	    // compute the allowable range for duration of the real task
-	    int sz = task.resources.size();
-	    int min_duration = (load+sz-1)/sz; // round to largest
-	    if (pb.verbosity>3) {
-		cout << ") duration=" << min_duration << "..."<<load;
-	    }
-	    cardinality(this, real_tasks[task_id], min_duration, load);
 	    if (task.convex) {
 		// make sure the task isn't interrupted
 		SetVar task_total(this);

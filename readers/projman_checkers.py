@@ -419,7 +419,9 @@ class ResourcesChecker(BaseEtreeChecker):
 class TasksChecker(BaseEtreeChecker):
     def check_task(self):
         self._is_child_of("task",None)
-        self._attributes( {"id":not_empty} )
+        self._attributes( {"id":not_empty,
+                           "load-type?":one_of("oneof","shared","sameforall","spread"),
+                           } )
         self._empty()
         pos, node = self.stack[-1]
         if node.findall("task") or node.findall("milestone"):
