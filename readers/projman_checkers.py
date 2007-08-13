@@ -330,7 +330,7 @@ class ScheduleChecker(BaseEtreeChecker):
         self._is_child_of('schedule')
         self._empty()
         self._attributes({"id": not_empty})
-        self._children('constraint-date')
+        self._children('constraint-date', 'constraint-task*')
 
 class ResourcesChecker(BaseEtreeChecker):
     def check_resources_list(self):

@@ -35,6 +35,7 @@ BEGIN_BEFORE_DATE = 'begin-before-date'
 END_AFTER_DATE = 'end-after-date'
 END_AT_DATE = 'end-at-date'
 END_BEFORE_DATE = 'end-before-date'
+AT_DATE = 'at-date'
 DATE_CONSTRAINTS = [BEGIN_AFTER_DATE, BEGIN_AT_DATE, BEGIN_BEFORE_DATE,
                     END_AFTER_DATE, END_AT_DATE, END_BEFORE_DATE]
 

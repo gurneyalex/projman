@@ -22,7 +22,8 @@ from xml.dom.ext import PrettyPrint, Print
 from xml.dom.minidom import DOMImplementation
 from logilab.common.visitor import Visitor
 from logilab.common.tree import PrefixedDepthFirstIterator as _Iterator
-from projman.lib.constants import BEGIN_AT_DATE, END_AT_DATE
+from projman.lib.constants import BEGIN_AT_DATE, END_AT_DATE, AT_DATE
+from projman.lib.task import MileStone
 #from xml.dom.DOMImplementation import DOMImplementation
 
 log = logging.getLogger("writer") # in case we use it one day
@@ -156,25 +157,40 @@ def schedule_as_dom(project):
     doc = Document('schedule')
     root = doc.documentElement
     for task in project.root_task.leaves():
-        element = doc.createElementNS(NO_NS, "task")
+        tagtype="task"
+        if isinstance(task, MileStone):
+            tagtype="milestone"
+        element = doc.createElementNS(NO_NS, tagtype)
+
         element.setAttributeNS(NO_NS, 'id', task.id)
         # add date-constraints
         begin, end = project.get_task_date_range(task)
-        constraint = constraint_as_dom(doc, BEGIN_AT_DATE,
-                                       begin.date, 'date')
-        element.appendChild(constraint)
-        constraint = constraint_as_dom(doc, END_AT_DATE, end.date, 'date')
-        element.appendChild(constraint)
-        # priorities
-        if task.priority is not None:
-            element.appendChild(text_node(doc, 'priority', str(task.priority)))
-        # status
-        element.appendChild(text_node(doc, 'status',
-                                      project.get_task_status(task)))
+        if tagtype=="task":
+            constraint = constraint_as_dom(doc, BEGIN_AT_DATE,
+                                           begin.date, 'date')
+            element.appendChild(constraint)
+            constraint = constraint_as_dom(doc, END_AT_DATE, end.date, 'date')
+            element.appendChild(constraint)
+            # priorities
+            if task.priority is not None:
+                element.appendChild(text_node(doc, 'priority', str(task.priority)))
+            # status
+            element.appendChild(text_node(doc, 'status',
+                                          project.get_task_status(task)))
+        else:
+            constraint = constraint_as_dom(doc, AT_DATE,
+                                           begin.date, 'date')
+            element.appendChild(constraint)
+
+
         # task_constraints
         for ctype, ctask_id in task.task_constraints:
             dic =  {'type' : ctype, 'idref' : ctask_id}
             element.appendChild(constraint_as_empty_dom(doc, dic, 'task'))
+
+        if tagtype=="milestone":
+            root.appendChild(element)
+            continue
         # global cost
         costs = project.get_task_costs(task.id)[0]
         global_cost = text_node(doc, 'global-cost', '%.1f' % (sum(costs.values())))
