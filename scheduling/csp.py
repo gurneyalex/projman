@@ -22,7 +22,7 @@ from mx.DateTime import today
 
 from logilab.common.compat import set
 import projman.lib.constants as CST
-from gcsp import ProjmanProblem, solve, constraint_types as GCSP_CST
+from gcsp import ProjmanProblem, solve, constraint_types as GCSP_CST, load_types
 
 GCSPMAP = {}
 for t in CST.TASK_CONSTRAINTS:
@@ -46,7 +46,7 @@ class CSPScheduler:
         self.real_tasks = {}  # task_id -> (task_number,duration,list_of_resources)
         self.constraints = {} # Constraint Type -> list of task pairs
         self.task_ranges = {} # task_id -> date range or (None,None)
-        self.resources = {}   # res_id -> res_number
+        self.resources = set()   # res_id -> res_number
         for leaf in project.root_task.leaves():
             self._process_node(leaf)
            
@@ -92,9 +92,9 @@ class CSPScheduler:
 
     def _process_node(self, node):
         max_duration = self.max_duration
-        task_num, _, task_resources = self.real_tasks.setdefault( node.id,
-                                                                  (len(self.real_tasks),
-                                                                   node.duration, []) )
+        _, _, task_resources = self.real_tasks.setdefault( node.id,
+                                                           [len(self.real_tasks),
+                                                            node.duration, []] )
         rnge = self.task_ranges.setdefault( node.id, [None,None] )
 
         # collect task constraints
@@ -122,8 +122,8 @@ class CSPScheduler:
             # keep usage around in case we use it one day
             if _VERBOSE>1:
                 print "Resource", r_type, r_id, usage
-            r_num = self.resources.setdefault( r_id, len(self.resources) )
-            task_resources.append( (r_num, usage) ) 
+            self.resources.add( r_id )
+            task_resources.append( (r_id, usage) ) 
             
             
     def add_priorities_as_constraints(self):
@@ -153,31 +153,51 @@ class CSPScheduler:
             print "Tasks", len(self.real_tasks)
             print "Res", len(self.resources)
             print "Dur", self.max_duration
-        pb = ProjmanProblem( len(self.real_tasks),
-                             len(self.resources),
-                             int(self.max_duration) )
-        pseudo_tasks = {}
+        pb = ProjmanProblem( int(self.max_duration) )
+        pb.set_first_day( self.first_day )
         real_tasks_items = self.real_tasks.items()
         real_tasks_items.sort( key = lambda x:x[1][0] )
-        pb.set_first_day( self.first_day )
-        for tid, (num, duration, resources) in real_tasks_items:
-            pb.set_duration( num, int(duration) )
-            pb.set_name( num, str(tid)[:15] )
-            rnge = self.task_ranges[tid]
-            if _VERBOSE>1:
-                print "Task %2d = #%2d [%4s,%4s] = '%20s'" % ((num,duration)+tuple(rnge)+(tid,))
-            if rnge[0] is not None:
-                pb.set_low( num, int(rnge[0]) )
-            if rnge[1] is not None:
-                pb.set_high( num, int(rnge[1]) )
 
+        if _VERBOSE:
+            print "occupation"
+            print "----------"
+        resources_map = {}
+        for res_id in self.resources:
+            sched = []
+            res = self.project.get_resource( res_id )
+            res_num = pb.add_worker( res_id )
+            resources_map[res_id] = res_num
+            for d in range(int(self.max_duration)):
+                dt = self.start_date + d
+                if not res.is_available( dt ):
+                    pb.add_not_working_day( res_num, d )
+                    sched.append("x")
+                else:
+                    sched.append(".")
+            if _VERBOSE:
+                print "%02d" % res_num, "".join(sched)
+
+
+        pseudo_tasks = []
+        for tid, (num, duration, resources) in real_tasks_items:
+            TYPE = load_types.TASK_SHARED
             if duration==0:
+                TYPE = load_types.TASK_MILESTONE
+            task_num = pb.add_task( tid, TYPE, int(duration) )
+            low, high = self.task_ranges[tid]
+            if _VERBOSE>1:
+                print "Task %2d = #%2d [%4s,%4s] = '%20s'" % ((task_num,duration,low,high,tid,))
+            if low is None:
+                low = 0
+            if high is None:
+                high = self.max_duration
+            pb.set_task_range( task_num, int(low), int(high), 0, 0 ) # XXX: cmp_type unused
+            if TYPE == load_types.TASK_MILESTONE:
                 continue
-            for res,usage in resources:
-                pid = pb.alloc(num, res)
-                if _VERBOSE>1:
-                    print "     Pseudo Task % 2d (%2d/%2d)" % (pid, num, res)
-                pseudo_tasks[ pid ] = ( num, res, tid )
+            for res_id, usage in sorted(resources):
+                res_num = resources_map[res_id]
+                pseudo_id = pb.add_resource_to_task( task_num, res_num )
+                pseudo_tasks.append( (pseudo_id, tid, res_id) )
 
         # register constraints
         for type, pairs in self.constraints.items():
@@ -189,21 +209,6 @@ class CSPScheduler:
                     print "%s %s(%s), %s(%s)" %(type, t1, n1, t2, n2)
 
 
-        if _VERBOSE:
-            print "occupation"
-            print "----------"
-        for res_id, res_num in self.resources.items():
-            sched = []
-            res = self.project.get_resource( res_id )
-            for d in range(int(self.max_duration)):
-                dt = self.start_date + d
-                if not res.is_available( dt ):
-                    pb.add_not_working_day( res_num, d )
-                    sched.append("x")
-                else:
-                    sched.append(".")
-            if _VERBOSE:
-                print "%02d" % res_num, "".join(sched)
 
         pb.set_convexity( True )
         pb.set_time( 400000 ) # 2 min max
@@ -220,12 +225,8 @@ class CSPScheduler:
         ntasks = SOL.get_ntasks()
         tasks_days = [ [ day for day in range(duration) if SOL.isworking( task, day ) ] for task in range(ntasks) ]
         activities = []
-        rev_resources = [""]*len(self.resources)
-        for res_id, res in self.resources.items():
-            rev_resources[res] = res_id
         for pid, days in enumerate( tasks_days ):
-            num, res, tid = pseudo_tasks[pid]
-            res_id = rev_resources[res]
+            num, tid, res_id = pseudo_tasks[pid]
             for d in days:
                 date = self.start_date + d
                 activities.append( (date, date, res_id, tid, 1.) )

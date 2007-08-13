@@ -21,7 +21,7 @@ class ProjmanProblem;
 class ProjmanSolver : public Space {
 protected:
     /// Variables
-    SetVarArray tasks;      // days the pseudo-task is scheduled
+    SetVarArray res_tasks;      // days a resource is scheduled for a given task
     IntVar last_day;
     IntVarArray milestones;
 public:
