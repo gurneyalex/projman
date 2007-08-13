@@ -31,8 +31,8 @@ struct task_constraint_t {
     task_constraint_t( constraint_type_t t, int ti, int tj):
 	type(t), task0(ti), task1(tj) {}
     constraint_type_t  type;
-    int   task0;
-    int   task1;
+    uint_t   task0;
+    uint_t   task1;
 };
 typedef std::vector<task_constraint_t>::const_iterator const_constraint_iter;
 
@@ -56,15 +56,18 @@ struct task_t {
     bool        convex;
     
     std::vector<uint_t> resources; // resources allocated to this task
+    std::vector<uint_t> res_tasks_id; // res_tasks id associated with the resource
+    uint_t milestone; // id of the milestone *if* this task is a milestone otherwise undefined
 };
 
 struct resource_t {
     resource_t( std::string res_id );
     std::string rid;
-    std::vector<int> not_working; // not working days for this resource
+    std::vector<uint_t> not_working; // not working days for this resource
     
     // bookeeping : tasks this resource is working on
     std::vector<uint_t> tasks;
+    std::vector<uint_t> res_tasks_id; // res_tasks id associated with the task
 };
 
 class ProjmanSolution {
@@ -114,59 +117,41 @@ public:
     unsigned int solutions;  ///< how many solutions (0 == all)
     int          fails;      ///< number of fails before stopping search
     int          time;       ///< allowed time before stopping search
+    int verbosity;
     
     // problem definition
-    uint_t ntasks;  // real tasks
-    uint_t nallocations;
-    uint_t max_resources;
     uint_t max_duration;
-    uint_t n_milestones;
-    int verbosity;
-    int first_day; // the first worked day (usually 0)
+    uint_t first_day; // the first worked day (usually 0)
     bool convexity;
-
-    std::vector<int> durations;  // duration of 0 means it's a milestone
-    std::vector<std::string> real_task_names;
-    std::vector<int> milestones;  // task_id -> milestone_id mapping or -1 if n/a
-    std::vector<int> task_low;   // starting date
-    std::vector<int> task_high;  // ending date
-    std::vector<int_pair_t> allocations;  // task / res pairs
-    
-    std::vector<task_constraint_t> task_constraints;
-    std::vector< std::vector<int> > not_working; // not working days per resources
 
     // solutions
     std::vector<ProjmanSolution> projman_solutions;
 
     // accessors
-    ProjmanProblem(int _ntasks, int _nres, int _maxdur);
-    IntSet get_not_working( int res ) const;
+    ProjmanProblem(uint_t _maxdur);
+    IntSet get_not_working( uint_t res ) const;
     int get_number_of_solutions() const;
     ProjmanSolution get_solution( int k ) const;
     void set_convexity( bool v );
     void set_verbosity( int level );
-    void check_task( int t );
-    void set_first_day( int d );
-    void set_name( int t, std::string name );
-    void set_low( int real_task_id, int low );
-    void set_high( int real_task_id, int high );
+    void set_first_day( uint_t d );
     void set_time( int _time );
-    void add_not_working_days( int res, int days[], int ndays );
-    void add_not_working_day( int res, int day );
-    void set_duration( int real_task_id, int dur );
-    int alloc( int task, int res );
-    void add_task_constraint( constraint_type_t t, int ti, int tj );
 
     // new interface:
     std::vector< task_t > tasks;
     std::vector< resource_t > resources;
+    std::vector<task_constraint_t> task_constraints;
+    std::vector< int_pair_t > res_tasks; //bookeeping only
+    std::vector< uint_t > milestones; // mapping milestone to task_id
 
-    uint_t add_task( std::string task_id, load_type_t load_type, int load );
+    uint_t add_task( std::string task_name, load_type_t load_type, int load );
     void set_task_range( uint_t task_id, uint_t range_low, uint_t range_high,
 			 int cmp_type_low, int cmp_type_high );
-    uint_t add_worker( std::string worker_id );
-    void append_not_working_day( uint_t worker, uint_t day );
+    uint_t add_worker( std::string worker_name );
+    void add_not_working_day( uint_t worker, uint_t day );
     int add_resource_to_task( uint_t task_id, uint_t res_id );
+    void add_task_constraint( constraint_type_t t, uint_t ti, uint_t tj );
+
 };
 
 

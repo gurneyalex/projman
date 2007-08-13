@@ -3,69 +3,24 @@
 
 
 
-ProjmanProblem::ProjmanProblem(int _ntasks, int _nres, int _maxdur):
+ProjmanProblem::ProjmanProblem(uint_t _maxdur):
     icl(ICL_DEF),
     c_d(Search::Config::c_d),
     a_d(Search::Config::a_d),
-    time(100),
-    fails(-1),
     solutions(2000),
-    ntasks(_ntasks),
-    max_resources(_nres),
-    max_duration(_maxdur),
-    n_milestones(0),
+    fails(-1),
+    time(100),
     verbosity(0),
-    convexity(false),
-    first_day(0)
+    max_duration(_maxdur),
+    first_day(0),
+    convexity(false)
 {
-    for(int i=0;i<ntasks;++i) {
-	durations.push_back( 0 );
-	real_task_names.push_back( std::string() );
-	milestones.push_back( -1 );
-	task_low.push_back( 0 );
-	task_high.push_back( max_duration );
-    }
-    for(int i=0;i<_nres;++i) {
-	not_working.push_back( std::vector<int>(0) );
-    }
 }
 
-int ProjmanProblem::alloc( int task, int res ) {
-    int k = allocations.size();
-    allocations.push_back( int_pair_t( task, res ) );
-    return k;
-}
-
-void ProjmanProblem::add_task_constraint( constraint_type_t type, int ti, int tj )
-{
-    check_task(ti);
-    check_task(tj);
-    task_constraints.push_back( task_constraint_t( type, ti, tj ) );
-}
 
 void ProjmanProblem::set_time( int _time )
 {
     time=_time;
-}
-
-void ProjmanProblem::add_not_working_days( int res, int days[], int ndays )
-{
-    not_working[res].insert( not_working[res].end(), &days[0], &days[ndays] );
-}
-
-void ProjmanProblem::add_not_working_day( int res, int day )
-{
-    not_working[res].push_back( day );
-}
-
-void ProjmanProblem::set_duration( int real_task_id, int dur )
-{
-    check_task(real_task_id);
-    durations[real_task_id] = dur;
-    if (dur==0) {
-	milestones[real_task_id] = n_milestones;
-	n_milestones++;
-    }
 }
 
 int ProjmanProblem::get_number_of_solutions() const
@@ -82,42 +37,19 @@ void ProjmanProblem::set_convexity( bool v )
 {
     convexity = v;
 }
+
 void ProjmanProblem::set_verbosity( int level )
 {
     verbosity = level;
 }
 
-void ProjmanProblem::check_task( int t )
+void ProjmanProblem::set_first_day( uint_t d )
 {
-    if (t<0 || t>=ntasks) {
-	throw std::out_of_range("task number out of range");
-    }
-}
-void ProjmanProblem::set_first_day( int d )
-{
-    if (d<0 || d>=max_duration) {
+    if (d>=max_duration) {
 	throw std::out_of_range("Day number out of range");
     }
     first_day = d;
 }
-void ProjmanProblem::set_name( int t, std::string name )
-{
-    check_task( t );
-    real_task_names[t] = name;
-}
-
-void ProjmanProblem::set_low( int real_task_id, int low )
-{
-    check_task(real_task_id);
-    task_low[real_task_id] = low;
-}
-void ProjmanProblem::set_high( int real_task_id, int high )
-{
-    check_task(real_task_id);
-    task_high[real_task_id] = high;
-}
-
-
 
 task_t::task_t( std::string task_id, load_type_t lt, int _load,
 		uint_t _range_low, uint_t _range_high ):
@@ -129,10 +61,16 @@ task_t::task_t( std::string task_id, load_type_t lt, int _load,
 }
 
 
-uint_t ProjmanProblem::add_task( std::string task_id, load_type_t load_type, int load )
+uint_t ProjmanProblem::add_task( std::string task_name, load_type_t load_type, int load )
 {
-    tasks.push_back( task_t( task_id, load_type, load, 0, max_duration ) );
-    return tasks.size()-1;
+    uint_t task_id;
+    tasks.push_back( task_t( task_name, load_type, load, 0, max_duration ) );
+    task_id = tasks.size()-1;
+    if (load_type==TASK_MILESTONE) {
+	milestones.push_back( task_id );
+	tasks[task_id].milestone = milestones.size()-1;
+    }
+    return task_id;
 }
 
 void ProjmanProblem::set_task_range( uint_t task_id, uint_t range_low, uint_t range_high,
@@ -152,13 +90,13 @@ resource_t::resource_t( std::string res_id ):rid(res_id)
 {
 }
 
-uint_t ProjmanProblem::add_worker( std::string worker_id )
+uint_t ProjmanProblem::add_worker( std::string worker_name )
 {
-    resources.push_back( resource_t( worker_id ) );
+    resources.push_back( resource_t( worker_name ) );
     return resources.size()-1;
 }
 
-void ProjmanProblem::append_not_working_day( uint_t worker, uint_t day )
+void ProjmanProblem::add_not_working_day( uint_t worker, uint_t day )
 {
     if (worker>=resources.size()) {
 	throw std::out_of_range("Resource number out of range");
@@ -175,6 +113,36 @@ int ProjmanProblem::add_resource_to_task( uint_t task_id, uint_t res_id )
     if (task_id>=tasks.size()) {
 	throw std::out_of_range("Task number out of range");
     }
+    if (tasks[task_id].load_type==TASK_MILESTONE) {
+	throw std::runtime_error("Milestones don't have resources");
+    }
+    res_tasks.push_back( int_pair_t( task_id, res_id ) );
+    uint_t pseudo_id = res_tasks.size()-1;
+    // do some bookeeping:
     tasks[task_id].resources.push_back( res_id );
+    tasks[task_id].res_tasks_id.push_back( pseudo_id );
+
     resources[res_id].tasks.push_back( task_id );
+    resources[res_id].res_tasks_id.push_back( pseudo_id );
+
+    return pseudo_id;
+}
+
+IntSet ProjmanProblem::get_not_working( uint_t res ) const
+{
+    if (res>=resources.size()) {
+	throw std::out_of_range("Resource number out of range");
+    }
+    const std::vector<uint_t>& nw = resources[res].not_working;
+    int values[nw.size()];
+    copy( nw.begin(), nw.end(), &values[0] );
+    return IntSet( values, nw.size() );
+}
+
+void ProjmanProblem::add_task_constraint( constraint_type_t type, uint_t ti, uint_t tj )
+{
+    if (ti>=tasks.size()||tj>=tasks.size()) {
+	throw std::out_of_range("Task number out of range");
+    }
+    task_constraints.push_back( task_constraint_t( type, ti, tj ) );
 }
