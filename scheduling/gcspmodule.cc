@@ -4,6 +4,7 @@
 #include <Python.h>
 #include <boost/python.hpp>
 
+#include "projman_problem.hh"
 #include "projman_gecode.hh"
 #include "timer.hh"
 
@@ -50,6 +51,19 @@ void run_solve( ProjmanProblem& pb ) {
 
 BOOST_PYTHON_MODULE(gcsp)
 {
+    enum_<constraint_type_t>("constraint_types")
+	.value("BEGIN_AFTER_BEGIN", BEGIN_AFTER_BEGIN)
+	.value("BEGIN_AFTER_END", BEGIN_AFTER_END)
+	.value("END_AFTER_END", END_AFTER_END)
+	.value("END_AFTER_BEGIN", END_AFTER_BEGIN);
+
+    enum_<load_type_t>("load_types")
+	.value("TASK_SHARED", TASK_SHARED)
+	.value("TASK_ONEOF", TASK_ONEOF)
+	.value("TASK_SAMEFORALL", TASK_SAMEFORALL)
+	.value("TASK_SPREAD", TASK_SPREAD)
+	.value("TASK_MILESTONE", TASK_MILESTONE);
+
     class_<ProjmanSolution>("ProjmanSolution", no_init )
 	.def("get_ntasks", &ProjmanSolution::get_ntasks )
 	.def("get_duration", &ProjmanSolution::get_duration )
@@ -59,10 +73,7 @@ BOOST_PYTHON_MODULE(gcsp)
 	;
     class_<ProjmanProblem>("ProjmanProblem", init<int,int,int>() )
         .def("alloc", &ProjmanProblem::alloc)
-	.def("begin_after_end", &ProjmanProblem::add_begin_after_end )
-	.def("end_after_end", &ProjmanProblem::add_end_after_end )
-	.def("begin_after_begin", &ProjmanProblem::add_begin_after_begin )
-	.def("end_after_begin", &ProjmanProblem::add_end_after_begin )
+	.def("add_task_constraint", &ProjmanProblem::add_task_constraint )
 	.def("set_duration", &ProjmanProblem::set_duration )
 	.def("add_not_working_day", &ProjmanProblem::add_not_working_day )
 	.def("set_low", &ProjmanProblem::set_low )
@@ -74,8 +85,12 @@ BOOST_PYTHON_MODULE(gcsp)
 	.def("set_verbosity", &ProjmanProblem::set_verbosity )
 	.def("set_name", &ProjmanProblem::set_name )
 	.def("set_first_day", &ProjmanProblem::set_first_day )
+// new interface
+	.def("add_task", &ProjmanProblem::add_task )
+	.def("set_task_range", &ProjmanProblem::set_task_range )
+	.def("append_not_working_day", &ProjmanProblem::append_not_working_day )
+	.def("add_resource_to_task", &ProjmanProblem::add_resource_to_task )
     ;
-
 
     def("solve", &run_solve );
 }

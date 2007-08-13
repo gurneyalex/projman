@@ -81,11 +81,14 @@ include_dirs = [join('test', 'data')]
 from distutils.core import Extension
 ext_modules = [Extension('projman.scheduling.gcsp',
                          sources = ['scheduling/gcspmodule.cc',
-                          'scheduling/projman_gecode.cc',
+                                    'scheduling/projman_gecode.cc',
+                                    'scheduling/projman_problem.cc',
                          ],
                          libraries=['boost_python-st', 'gecodeint', 'gecodeset',
                                     'gecodeminimodel', 'gecodekernel', 'gecodesearch'],
-                         depends=['scheduling/projman_gecode.hh',],
+                         depends=['scheduling/projman_gecode.hh',
+                                  'scheduling/projman_problem.hh',
+                                  ],
                          language='c++',
                         )
              ]
