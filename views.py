@@ -18,112 +18,70 @@
 """provide view classes used to generate Documentor/Docbook views of the project
 """
 
-from xml.dom.minidom import DOMImplementation, parseString
-from logilab.common.compat import set
-
 from projman import format_monetary
+try:
+    import xml.etree.ElementTree as ET
+except ImportError:
+    import elementtree.ElementTree as ET
 
 # dom utilities ################################################################
 
-DOMIMPL = DOMImplementation()
-NO_NS = None
+DR_NS = "{http://www.logilab.org/2004/Documentor}"
+ET._namespace_map[DR_NS[1:-1]] = "dr"
 
 def document(root=None):
     """return a DOM document node"""
-    return DOMIMPL.createDocument("http://www.logilab.org/2004/Documentor",
-                                  root, None)
+    root = ET.Element(DR_NS + (root or "root") )
+    return ET.ElementTree(root)
 
 class DocbookHelper:
     """a helper class to generate docboock"""
 
-    def __init__(self, doc, lang='fr'):
-        self._doc = doc
+    def __init__(self, lang='fr'):
         self.lang = lang
-    
-    def object_node(self, task_id): 	 
+
+    def object_node(self, parent, task_id):
         """create a DOM node <section> with a attribute id"""
         assert isinstance(task_id, basestring)
-        node = self._doc.createElementNS(NO_NS, 'dr:object')
-        node.setAttributeNS(NO_NS, 'id', task_id)
-        node.setAttributeNS(NO_NS, 'lang', self.lang) 
-        return node 	 
-
-    def section_node(self, task_id=None): 	 
-        """create a DOM node <section> with a attribute id""" 	 
-        node = self._doc.createElementNS(NO_NS, 'section')
-        if task_id:
-            assert isinstance(task_id, basestring)
-            node.setAttributeNS(NO_NS, 'id', task_id)
-        return node 	 
-
-    def title_node(self, title):
-        """create a DOM node <title> title </title> node"""
-        assert type(title) is unicode
-        node = self._doc.createElementNS(NO_NS, 'title')
-        node.appendChild(self._doc.createTextNode(title))
+        node = ET.SubElement( parent, DR_NS + "object", id=task_id, lang=self.lang )
         return node
 
-    def para_node(self, text):
-        """create a DOM node <para> text </para> node"""
-        assert type(text) is unicode
-        node = self._doc.createElementNS(NO_NS, 'para')
-        node.appendChild(self._doc.createTextNode(text))
-        return node
-
-    def formalpara_node(self):
-        """ create a DOM node <formalpara>"""
-        return self._doc.createElementNS(NO_NS, 'formalpara')
-
-    def table_node(self):
-        """ create a DOM node <table> """
-        return self._doc.createElementNS(NO_NS, 'table')
-
-    def table_layout_node(self, nbcols, align='left', colsep=1, rowsep=1,
+    def table_layout_node(self, parent, nbcols, align='left', colsep=1, rowsep=1,
                           colspecs=None):
-        layout = self._doc.createElementNS(NO_NS, 'tgroup')
-        layout.setAttributeNS(NO_NS, 'cols', str(nbcols))
-        layout.setAttributeNS(NO_NS, 'align', align)
-        layout.setAttributeNS(NO_NS, 'colsep', str(colsep))
-        layout.setAttributeNS(NO_NS, 'rowsep', str(rowsep))
+        layout = ET.SubElement( parent, "tgroup", cols=str(nbcols),
+                                align=align, colsep=str(colsep),
+                                rowsep=str(rowsep) )
         if colspecs:
             for i, colspec in enumerate(colspecs):
-                layout.appendChild(self.table_colspec_node("c%s"%i, colspec))
+                ET.SubElement( layout, "colspec", colname="c%s"%i, colwidth=colspec )
         return layout
 
-    def table_colspec_node(self, colname, colwidth):
-        """ create a DOM node <colspec> """
-        colspec = self._doc.createElementNS(NO_NS, 'colspec')
-        colspec.setAttributeNS(NO_NS, 'colname', colname)
-        colspec.setAttributeNS(NO_NS, 'colwidth', colwidth)
-        return colspec
-    
-    def table_head_node(self):
-        """ create a DOM node <tbody>"""
-        return self._doc.createElementNS(NO_NS, 'thead')
-
-    def table_body_node(self):
-        """ create a DOM node <tbody>"""
-        return self._doc.createElementNS(NO_NS, 'tbody')
-
-    def table_cell_node(self, align='', value=u''):
+    def table_cell_node(self, parent, align='', value=u''):
         """ create a DOM node <entry> """
-        entry = self._doc.createElementNS(NO_NS, 'entry')
+        entry = ET.SubElement(parent, 'entry')
         if align and value:
-            entry.setAttributeNS(NO_NS, 'align', align)
-            entry.appendChild(self._doc.createTextNode(value))
-        return entry
-    
-    def list_node(self):
-        """ create a DOM node <itemizedlist>"""
-        return self._doc.createElementNS(NO_NS, 'itemizedlist')
-    
-    def list_item_node(self):
-        """ create a DOM node <listitem>"""
-        return self._doc.createElementNS(NO_NS, 'listitem')
+            entry.set('align', align)
+            entry.text = value
 
-    def custom_node(self, tag, ns=NO_NS):
-        return self._doc.createElementNS(ns, tag)
+    def section(self, parent, title, id=None):
+        section = ET.SubElement(parent, "section")
+        if id:
+            section.set("id",id)
+        assert isinstance(title,unicode)
+        ET.SubElement(section,"title").text = title
+        return section
 
+    def para(self, parent, text):
+        assert isinstance(text, unicode)
+        ET.SubElement(parent, "para").text = text
+
+    def formalpara(self, parent, title, id=None):
+        para = ET.SubElement(parent,"formalpara")
+        if id:
+            para.set("id",id)
+        assert isinstance(title, unicode)
+        ET.SubElement(para,"title").text = title
+        return para
 
 # other utilities and abstract classes ########################################
 
@@ -145,7 +103,6 @@ def get_daily_labor(number):
     else:
         return TOTAL_DURATION_UNITS % number
 
-        
 class CostData:
     """handle global calculation: cost, duration, ressources' rate
     """
@@ -156,11 +113,11 @@ class CostData:
         self.project_duration = 0.0
         self._used_resources = set()
         self.compute(projman.root_task)
-        
+
     def compute(self, project):
         for task in project.children:
             self._compute(task)
-            
+
     def _compute(self, task, level=0):
         try:
             task_cost = self.projman.get_task_total_cost(task.id)
@@ -179,10 +136,10 @@ class CostData:
     def used_resources(self):
         return [self.projman.get_resource(rid) for rid in self._used_resources if rid]
 
-    
+
 class XMLView:
     name = None
-    
+
     def __init__(self, config):
         self.config = config
 
@@ -196,28 +153,27 @@ class XMLView:
     def generate(self, xmldoc, projman):
         """return a dr:object node for the rate section view"""
         self._init(projman, xmldoc)
-        n = self.dbh.object_node(self.unique_id(self.name))
-        xmldoc.documentElement.appendChild(n)
-        for content in self.content_nodes():
-            n.appendChild(content)
-        return n
+        root = xmldoc.getroot()
+        obj = self.dbh.object_node(root, self.unique_id(self.name))
+        self.add_content_nodes(obj)
+        return obj
     
     def _init(self, projman, xmldoc=None, dbh=None):
         """initialize view members necessary for content generation"""
         self.projman = projman
-        self.dbh = dbh or DocbookHelper(xmldoc)
+        self.dbh = dbh or DocbookHelper()
         try:
             self.cdata = projman.__view_cost_data
         except AttributeError:
             self.cdata = projman.__view_cost_data = CostData(projman)
-        
-    def subview_content_nodes(self, viewklass):
+
+    def subview_content_nodes(self, parent, viewklass):
         """instantiate the given view class and return its content nodes"""
         view = viewklass(self.config)
         view._init(self.projman, dbh=self.dbh)
-        return view.content_nodes()
+        view.add_content_nodes( parent )
 
-    def content_nodes(self):
+    def add_content_nodes(self, parent):
         raise NotImplementedError
 
 # actual views ################################################################
@@ -225,89 +181,76 @@ class XMLView:
 class RatesSectionView(XMLView):
     name = 'rates-section'
     
-    def content_nodes(self):
-        section = self.dbh.section_node(self.unique_id('rate-section'))
+    def add_content_nodes(self, parent):
+        section = self.dbh.section(parent, u"Tarifs journaliers", id=self.unique_id('rate-section'))
+        self.dbh.para(section, u"Coût pour une journée type de travail:")
         resources = self.cdata.used_resources()
-        section.appendChild(self.dbh.title_node(u"Tarifs journaliers"))
-        section.appendChild(self.dbh.para_node(u"Coût pour une journée type de travail:"))
-        section.appendChild(self.resources_rates(resources))
-        return section,
+        self.add_resources_rates(section, resources)
 
-    def resources_rates(self, resources):
+    def add_resources_rates(self, parent, resources):
         """ create a DOM node <itemizedlist> containing the legend of table"""
-        list_items = self.dbh.list_node()
+        list_items = ET.SubElement(parent, "itemizedlist")
         for resource in resources:
-            item = self.dbh.list_item_node()
             nb_hours_per_day = resource.get_default_wt_in_hours()
             cost_per_day = resource.hourly_rate[0] * nb_hours_per_day
             r_info = '%s : %s (%s %s)' % (resource.id, resource.name,
                                           format_monetary(cost_per_day),
                                           resource.hourly_rate[1])
-            para = self.dbh.para_node(r_info)
-            item.appendChild(para)
-            list_items.appendChild(item)
-        return list_items
+            item = ET.SubElement(list_items, "listitem")
+            self.dbh.para( item, r_info )
 
 
 class DurationSectionView(XMLView):
     name = 'duration-section'
-    
-    def content_nodes(self):
-        section = self.dbh.section_node(self.unique_id(u"duration-section"))
-        section.appendChild(self.dbh.title_node(u"Durée totale"))
-        section.appendChild(self.subview_content_nodes(DateParaView)[0])
-        section.appendChild(self.subview_content_nodes(DurationParaView)[0])
-        return section,
+
+    def add_content_nodes(self, parent):
+        section = self.dbh.section(parent, u"Durée totale", id=self.unique_id(u"duration-section"))
+        self.subview_content_nodes(section, DateParaView)
+        self.subview_content_nodes(section, DurationParaView)
 
 class DateParaView(XMLView):
     name = 'dates-para'
-    
-    def content_nodes(self):
+
+    def add_content_nodes(self, parent):
         begin, end = self.projman.get_task_date_range(self.projman.root_task)
         text = TOTAL_DATE % (begin.strftime(FULL_DATE_FORMAT),
                              end.strftime(FULL_DATE_FORMAT))
-        return self.dbh.para_node(text),
-    
+        self.dbh.para(parent, text)
+        ET.SubElement(parent,"para").text = text
+
 class DurationParaView(XMLView):
     name = 'duration-para'
-    
-    def content_nodes(self):
-        text = TOTAL_DURATION % get_daily_labor(self.projman.root_task.maximum_duration())
-        return self.dbh.para_node(text),
 
-    
+    def add_content_nodes(self, parent):
+        text = TOTAL_DURATION % get_daily_labor(self.projman.root_task.maximum_duration())
+        ET.SubElement(parent,"para").text = text
+
 class CostTableView(XMLView):
     name = 'cost-table'
     ENTETE = u"Tableau récapitulatif des coûts."
-    
-    def content_nodes(self):
+
+    def add_content_nodes(self, parent):
         """return a dr:object node for the cost table view"""
-        table = self.dbh.table_node()
-        # fill title
-        table.appendChild(self.dbh.title_node(self.ENTETE))
+        table = ET.SubElement(parent,"table")
+        ET.SubElement(table, "title").text = self.ENTETE
         # fill column information for table
-        layout = self.dbh.table_layout_node(4, colspecs=('3*', '1*', '2*', '1*'))
-        # table head
-        layout.appendChild(self.table_head())
-        table.appendChild(layout)
+        layout = self.dbh.table_layout_node(table, 4, colspecs=('3*', '1*', '2*', '1*'))
+        self.table_head( layout )
         # table body
-        tbody = self.dbh.table_body_node()
-        layout.appendChild(tbody)
+        tbody = ET.SubElement(layout, "tbody")
         for child in self.projman.root_task.children:
             self._build_task_node(tbody, child)
-        return table,
-    
-    def table_head(self):
-        """ create a DOM node <thead> """ 
-        thead = self.dbh.table_head_node()
-        row = self.dbh.custom_node('row')
-        row.appendChild(self.dbh.table_cell_node())
-        row.appendChild(self.dbh.table_cell_node('left', u'Charge (jours.homme)'))
-        row.appendChild(self.dbh.table_cell_node('left', u'Ressources'))
-        row.appendChild(self.dbh.table_cell_node('right', u'Coût (euros)'))
-        thead.appendChild(row)
+
+    def table_head(self, parent):
+        """ create a DOM node <thead> """
+        thead = ET.SubElement(parent, 'thead')
+        row = ET.SubElement(thead,'row')
+        self.dbh.table_cell_node(row)
+        self.dbh.table_cell_node(row, 'left', u'Charge (jours.homme)')
+        self.dbh.table_cell_node(row, 'left', u'Ressources')
+        self.dbh.table_cell_node(row, 'right', u'Coût (euros)')
         return thead
-    
+
     def _build_task_node(self, tbody, task, level=0):
         """format a task in as a row in the table"""
         try:
@@ -315,81 +258,67 @@ class CostTableView(XMLView):
         except KeyError:
             task_cost = 0
         if task_cost:
-            row = self.row_element(task, task_cost, level)
+            self.row_element(tbody, task, task_cost, level)
         else:
-            row = self.empty_row_element(task, level)
-        # add row
-        tbody.appendChild(row)
-        # print children
+            self.empty_row_element(tbody, task, level)
         for child in task.children:
             self._build_task_node(tbody, child, level+1)
 
-    def row_element(self, task, task_cost, level=0):
+    def row_element(self, tbody, task, task_cost, level=0):
         """ create a DOM element <row> with values in task node"""
-        row = self.dbh.custom_node('row')
+        row = ET.SubElement(tbody, 'row')
         indent = u'\xA0 '*level
         # task title
-        entry = self.dbh.table_cell_node('left', indent+task.title)
-        row.appendChild(entry)
+        self.dbh.table_cell_node(row, 'left', indent+task.title)
         # task duration
         duration = task.duration and unicode(task.duration) or u''
-        entry = self.dbh.table_cell_node('left', duration)
-        row.appendChild(entry)
+        self.dbh.table_cell_node(row, 'left', duration)
         # task cost by resources
         costs, durations = self.projman.get_task_costs(task.id)
         # FIXME = do we what number of days for each resource or monetary cost for each resource.
         r_info = ['%s(%s)' % (r_id, format_monetary(cost)) 
                   for r_id, cost in durations.items() if r_id]
-        entry = self.dbh.table_cell_node('left', ', '.join(r_info))
-        row.appendChild(entry)
+        self.dbh.table_cell_node(row, 'left', ', '.join(r_info))
         # task global cost
         # FIXME hack : a (containing) task with no resources has global cost of 1!
         if durations.keys() == [u''] and task_cost == 1.:
-            entry = self.dbh.table_cell_node('right', 0)
+            self.dbh.table_cell_node(row, 'right', 0)
         else:
-            entry = self.dbh.table_cell_node('right', format_monetary(task_cost))
-        row.appendChild(entry)
+            self.dbh.table_cell_node(row, 'right', format_monetary(task_cost))
         return row
-    
-    def empty_row_element(self, task, level=0):
+
+    def empty_row_element(self, tbody, task, level=0):
         """ create a DOM element <row> with values in task node"""
-        row = self.dbh.custom_node('row')
+        row =  ET.SubElement(tbody, 'row')
         indent = u'\xA0 '*level
         # task title
-        entry = self.dbh.table_cell_node('left', indent+task.title)
-        row.appendChild(entry)
-        row.appendChild(self.dbh.table_cell_node())
-        row.appendChild(self.dbh.table_cell_node())
-        row.appendChild(self.dbh.table_cell_node())
+        self.dbh.table_cell_node(row, 'left', indent+task.title)
+        self.dbh.table_cell_node(row)
+        self.dbh.table_cell_node(row)
+        self.dbh.table_cell_node(row)
         return row
-
-
 
 class CostParaView(XMLView):
     name = 'cost-para'
     TOTAL_COST = u"Le coût total se chiffre à %s euros HT, soit %s euros TTC en appliquant les taux actuellement en vigueur."
-        
-    def content_nodes(self):
+
+    def add_content_nodes(self, parent):
         """return a dr:object node for the cost paragraph view"""
         cost = self.cdata.project_cost
         text = self.TOTAL_COST % (format_monetary(cost),
                                   format_monetary(cost * (1+TVA/100)))
-        return self.dbh.para_node(text),
-
-
+        ET.SubElement(parent, 'para').text = text
 
 class TasksListSectionView(XMLView):
     name = 'tasks-list-section'
-    
-    def content_nodes(self):
+
+    def add_content_nodes(self, parent):
         """return a dr:object node for the tasks list section view"""
         for child in self.projman.root_task.children:
-            yield self._build_task_node(child)
-        
-    def _build_task_node(self, task):
-        section = self.dbh.section_node(task.id)
-        # fill title
-        section.appendChild(self.dbh.title_node(task.title))
+            self._build_task_node(parent, child)
+
+    def _build_task_node(self, parent, task):
+        section = self.dbh.section(parent, task.title, id=task.id)
         # fill description
         if task.description != "":
             # create xml-like string
@@ -399,33 +328,30 @@ class TasksListSectionView(XMLView):
             desc = "<?xml version='1.0' encoding='UTF-8'?><para>%s</para>" \
                    % task.description.encode('utf8')
             try:
-                description_doc = parseString(desc)
+                description_doc = ET.parse(desc)
             except Exception, exc:
                 print desc
                 raise
-            section.appendChild(description_doc.documentElement)
+            section.append( description_doc.getroot() )
         if self.config.display_dates:
             # add date-constraints
-            formal_para = self.dbh.formalpara_node()
-            section.appendChild(formal_para)
-            formal_para.appendChild(self.dbh.title_node(u"Dates"))
+            formalpara = self.dbh.formalpara(section, u"Dates")
             date_begin, date_end = self.projman.get_task_date_range(task)
             begin = date_begin or DATE_NOT_SPECIFIED
             end = date_end or DATE_NOT_SPECIFIED
-            para = self.dbh.para_node(u"du %s au %s" % (begin.Format(EXT_DATE_FORMAT),
-                                                        end.Format(EXT_DATE_FORMAT)))
-            formal_para.appendChild(para)
+            self.dbh.para(formalpara, u"du %s au %s" % (begin.Format(EXT_DATE_FORMAT),
+                                                        end.Format(EXT_DATE_FORMAT)) )
         # add resources' info
         if task.TYPE == 'task' :
             resource_dict = self.projman.get_resources_duration_per_task(task.id)
             for r_id, r_usage in resource_dict.iteritems():
-                section.appendChild(self.resource_node(task.id, r_id, r_usage))
+                self.resource_node(section, task.id, r_id, r_usage)
         # print children
         for child in task.children:
-            section.appendChild(self._build_task_node(child))
+            self._build_task_node(section, child)
         return section
-    
-    def resource_node(self, task_id, r_id, usage):
+
+    def resource_node(self, parent, task_id, r_id, usage):
         """ create a DOM node
         <formalpara id=r_id.>
           <title>resource.name</title>
@@ -433,63 +359,55 @@ class TasksListSectionView(XMLView):
         </formalpara>
         """
         resource = self.projman.get_resource(r_id)
-        para = self.dbh.formalpara_node()
-        para.setAttributeNS(NO_NS, 'id', task_id+'_'+r_id)
-        para.appendChild(self.dbh.title_node(resource.name))
-        para.appendChild(self.dbh.para_node(get_daily_labor(usage)))
+        para = self.dbh.formalpara(parent, resource.name, id=task_id+'_'+r_id)
+        self.dbh.para( para, get_daily_labor(usage) )
         return para
 
-    
+
 class DurationTableView(CostTableView):
     name = 'duration-table'
     ENTETE = u"Tableau récapitulatif des dates."
-    
-    def content_nodes(self):
+
+    def add_content_nodes(self, parent):
         """return a dr:object node for the cost table view"""
-        table = self.dbh.table_node()
-        # fill title
-        table.appendChild(self.dbh.title_node(self.ENTETE))
+        table = ET.SubElement(parent,"table")
+        ET.SubElement(table,"title").text = self.ENTETE
         # fill column information for table
-        layout = self.dbh.table_layout_node(4, colspecs=('3*', '2*', '2*', '1*'))
-        # table head
-        layout.appendChild(self.table_head())
-        table.appendChild(layout)
+        layout = self.dbh.table_layout_node(table, 4, colspecs=('3*', '2*', '2*', '1*'))
+        self.table_head(layout)
         # table body
-        tbody = self.dbh.table_body_node()
-        layout.appendChild(tbody)
+        tbody = ET.SubElement(table, "tbody")
         for child in self.projman.root_task.children:
             self._build_task_node(tbody, child)
-        return table,
-    
-    def table_head(self):
+
+    def table_head(self, table):
         """ create a DOM node <thead> """ 
-        thead = self.dbh.table_head_node()
-        row = self.dbh.custom_node('row')
-        row.appendChild(self.dbh.table_cell_node())
-        row.appendChild(self.dbh.table_cell_node('left', u'Date de début'))
-        row.appendChild(self.dbh.table_cell_node('left', u'Date de fin'))
-        row.appendChild(self.dbh.table_cell_node('center', u'Durée (jours)'))
-        thead.appendChild(row)
+        thead = ET.SubElement(table, "thead")
+        row = ET.SubElement(thead,"row")
+        self.dbh.table_cell_node(row)
+        self.dbh.table_cell_node(row, 'left', u'Date de début')
+        self.dbh.table_cell_node(row, 'left', u'Date de fin')
+        self.dbh.table_cell_node(row, 'center', u'Durée (jours)')
         return thead
-    
-    def row_element(self, task, task_cost, level=0):
+
+    def row_element(self, tbody, task, task_cost, level=0):
         """ create a DOM element <row> with values in task node"""
-        return self.empty_row_element(task, level)
+        return self.empty_row_element(tbody, task, level)
     
-    def empty_row_element(self, task, level=0):
+    def empty_row_element(self, tbody, task, level=0):
         """ create a DOM element <row> with values in task node"""
-        row = self.dbh.custom_node('row')
+        row = ET.SubElement(tbody, 'row')
         # indentation
         indent = u'\xA0 '*level
         # task title
-        row.appendChild(self.dbh.table_cell_node('left', indent+task.title))
+        self.dbh.table_cell_node(row, 'left', indent+task.title)
         # task begin & end
         date_begin, date_end = self.projman.get_task_date_range(task)
-        row.appendChild(self.dbh.table_cell_node('left', date_begin.date))
-        row.appendChild(self.dbh.table_cell_node('left', date_end.date))
+        self.dbh.table_cell_node(row, 'left', date_begin.date)
+        self.dbh.table_cell_node(row, 'left', date_end.date)
         # task length
         duration = date_end+1 - date_begin
-        row.appendChild(self.dbh.table_cell_node('left', str(duration.absvalues()[0])))
+        self.dbh.table_cell_node(row, 'left', str(duration.absvalues()[0]))
         return row
 
 

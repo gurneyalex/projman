@@ -5,9 +5,9 @@
   <constraint-resource usage="100" idref="ing_3" type="engineer"/>
   <label>Trivial Project</label>
   <task id="t2_1">
-    <label>Developpement</label>
+    <label>Développement</label>
     <task id="t2_11">
-      <label>Realisation</label>
+      <label>Réalisation</label>
       <duration>15</duration>
     </task>
     <task id="t2_12" load-type="oneof" load="8">

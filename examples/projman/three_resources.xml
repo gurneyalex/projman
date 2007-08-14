@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources-list id="rss_2">
   <resource type="engineer" id="ing_1">
-    <label>Emmanuel Breton</label>
+    <label>Alexandre Dumas</label>
     <use-calendar idref="typic_cal"/>
-    <hourly-rate unit="euros">80</hourly-rate>
+    <hourly-rate unit="euros">150</hourly-rate>
   </resource>
   <resource type="engineer" id="ing_2">
-    <label>Arthur Lutz</label>
+    <label>Victor Hugo</label>
     <use-calendar idref="typic_cal"/>
-    <hourly-rate unit="euros">80</hourly-rate>
+    <hourly-rate unit="euros">120</hourly-rate>
   </resource>
   <resource type="engineer" id="ing_3">
-    <label>Sandrine Ribeau</label>
+    <label>Cosette</label>
     <use-calendar idref="typic_cal"/>
-    <hourly-rate unit="euros">80</hourly-rate>
+    <hourly-rate unit="euros">10</hourly-rate>
   </resource>
 
   <calendar id="typic_cal">
