@@ -154,13 +154,15 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
 		}
 	    }
 	    // XXX consider using rel( SOT_DUNION )
-#if 0
+#if 1
 	    SetVarArgs  this_res_tasks_var(res.tasks.size());
 	    SetVar      this_res_overload(this);
 	    for(i=0;i<res.res_tasks_id.size();++i) {
 		this_res_tasks_var[i] = res_tasks[ res.res_tasks_id[i] ];
 	    }
 	    rel(this, SOT_UNION, this_res_tasks_var, this_res_overload );
+	    // this is a global constraint which means it's supposed to
+	    // propagate better than the n*(n-1)/2 disjoint constraints above
 	    rel(this, SOT_DUNION, this_res_tasks_var, this_res_overload );
 #endif
 	}
