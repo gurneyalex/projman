@@ -43,9 +43,9 @@ public:
 void run_solve( ProjmanProblem& pb ) {
     Search::Stop* stop = FailTimeStop::create(pb.fails, pb.time);
 
-    Py_BEGIN_ALLOW_THREADS; // probablement pas genial de faire PyErr_CheckSignals la dedans...
+    //Py_BEGIN_ALLOW_THREADS; // probablement pas genial de faire PyErr_CheckSignals la dedans...
     ProjmanSolver::run<BAB>( pb, stop );
-    Py_END_ALLOW_THREADS;
+    //Py_END_ALLOW_THREADS;
     delete stop;
 }
 
