@@ -240,6 +240,11 @@ class GanttDrawer(AbstractDrawer) :
         """
         write a day for a task
         """
+        width = self._daywidth
+        if not worked:
+            self._x += width
+            return
+
         OFFSETS = {
             (True,True)  : (0, 0, 0, 0),
             (True,False) : (1, 1, -1, -2),
@@ -252,7 +257,6 @@ class GanttDrawer(AbstractDrawer) :
         coords.append( (self._x, self._y) )
 
         # draw bg and fg rectangles
-        width = self._daywidth
         if worked and not is_container:
             self._handler.draw_rect(self._x+dx,
                                     self._y+dy+ROW_HEIGHT*0.125,
