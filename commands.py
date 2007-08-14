@@ -16,7 +16,6 @@
 """provide classes for projman commands."""
 
 import logging
-from xml.dom.ext import PrettyPrint
 
 from logilab.common.clcommands import BadCommandUsage, Command, \
      register_commands
@@ -131,6 +130,7 @@ class ViewCommand(ProjmanCommand):
 
     def _run(self, views):
         from projman.views import ALL_VIEWS
+        from xml.dom.ext import PrettyPrint
         root = document("dr:root")
         for viewname in views:
             try:
