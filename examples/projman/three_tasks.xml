@@ -17,7 +17,7 @@
     </task>
   </task>
 
-  <task id="t2_2">
+  <task id="t2_2" load-type="sameforall">
     <label>Conclusion</label>
     <duration>2</duration>
 	<constraint-task  type="begin-after-end" idref="t2_12"/>

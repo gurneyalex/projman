@@ -73,7 +73,7 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
 	    SetVarArgs the_tasks(task.resources.size());
 	    SetVarArgs the_tasks_nw(task.resources.size());
 	    for(j=0;j<task.resources.size();++j) {
-		uint_t pseudo_id = task.res_tasks_id[j];
+ 		uint_t pseudo_id = task.res_tasks_id[j];
 		cardinality(this, res_tasks[pseudo_id], 0, load);
 		cardinality(this, res_tasks[pseudo_id], res_tasks_duration[j]);
 		if (pb.verbosity>3) {
@@ -82,7 +82,6 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
 		the_tasks[j] = res_tasks[pseudo_id];
 		the_tasks_nw[j] = task_plus_nw_cvx[pseudo_id];
 	    }
-	    linear(this, res_tasks_duration, IRT_EQ, load);
 	    if (task.load_type==TASK_SHARED) {
 		// compute the allowable range for duration of the real task
 		int sz = task.resources.size();
@@ -90,6 +89,7 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
 		if (pb.verbosity>3) {
 		    cout << ") duration=" << min_duration << "..."<<load;
 		}
+		linear(this, res_tasks_duration, IRT_EQ, load);
 		cardinality(this, real_tasks[task_id], min_duration, load);
 	    } else if (task.load_type==TASK_ONEOF) {
 		cardinality(this, real_tasks[task_id], load, load);
@@ -101,6 +101,13 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
 		for(j=0;j<task.resources.size();++j) {
 		    dom(this, res_tasks_duration[j], load_set );
 		}
+		linear(this, res_tasks_duration, IRT_EQ, load);
+	    } else if (task.load_type==TASK_SAMEFORALL) {
+		for(j=0;j<task.resources.size();++j) {
+		    uint_t pseudo_id = task.res_tasks_id[j];
+		    cardinality(this, res_tasks[pseudo_id], load, load);
+		}
+		cardinality(this, real_tasks[task_id], load, load);
 	    }
 
 	    rel(this,SOT_UNION,the_tasks,real_tasks[task_id]);
