@@ -23,7 +23,8 @@ from logilab.common.clcommands import BadCommandUsage, Command, \
 from projman.__pkginfo__ import version
 from projman.views import document
 from projman.readers import ProjectXMLReader
-from projman.writers.projman_writer import write_schedule_as_xml
+from projman.writers.projman_writer import write_schedule_as_xml, indent
+from projman.views import ALL_VIEWS
 
 # verbosity to logging level mapping
 LEVELS = {
@@ -101,7 +102,7 @@ class ViewCommand(ProjmanCommand):
     """
     name = 'view'
     min_args = 1
-    arguments = '<view name>...'
+    arguments = "|".join(ALL_VIEWS.keys())
 
     options = ProjmanCommand.options + (
         ('output',
@@ -129,18 +130,19 @@ class ViewCommand(ProjmanCommand):
         )
 
     def _run(self, views):
-        from projman.views import ALL_VIEWS
-        from xml.dom.ext import PrettyPrint
-        root = document("dr:root")
+        tree = document("root")
+        if list(views) == ["all",]:
+            views = ALL_VIEWS.keys()
         for viewname in views:
             try:
                 viewklass = ALL_VIEWS[viewname]
             except KeyError:
                 raise BadCommandUsage('unknown view %s' % viewname)
             view = viewklass(self.config)
-            view.generate(root, self.project)
+            view.generate(tree, self.project)
         output = file(self.config.output, 'w')
-        PrettyPrint(root, stream=output)
+        indent(tree.getroot())
+        tree.write( output, encoding="utf-8" )
         output.close()
 
 
