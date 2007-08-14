@@ -6,9 +6,8 @@
   <label>Trivial Project</label>
   <task id="t2_1">
     <label>Développement</label>
-    <task id="t2_11">
+    <task id="t2_11" load-type="shared" load="15">
       <label>Réalisation</label>
-      <duration>15</duration>
     </task>
     <task id="t2_12" load-type="oneof" load="8">
       <label>Validation</label>
