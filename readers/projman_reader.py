@@ -200,6 +200,7 @@ class ProjectXMLReader(AbstractXMLReader) :
         if task.tag=="milestone":
             load_type = TASK_MILESTONE
         t.load_type = load_type
+        t.duration = float(task.get("load", "0"))
         for cd in task.findall("constraint-date"):
             t.add_date_constraint( cd.get("type"), iso_date( cd.text ) )
         for ct in task.findall("constraint-task"):

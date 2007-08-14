@@ -10,18 +10,16 @@
       <label>Realisation</label>
       <duration>15</duration>
     </task>
-    <task id="t2_12" load-type="oneof">
+    <task id="t2_12" load-type="oneof" load="8">
       <label>Validation</label>
-      <duration>8</duration>
-	  <constraint-task  type="begin-after-end" idref="t2_11"/>
+      <constraint-task  type="begin-after-end" idref="t2_11"/>
     </task>
   </task>
 
-  <task id="t2_2" load-type="sameforall">
+  <task id="t2_2" load-type="sameforall" load="2">
     <label>Conclusion</label>
-    <duration>2</duration>
-	<constraint-task  type="begin-after-end" idref="t2_12"/>
-	<constraint-task  type="begin-after-end" idref="t2_3"/>
+    <constraint-task  type="begin-after-end" idref="t2_12"/>
+    <constraint-task  type="begin-after-end" idref="t2_3"/>
   </task>
 
   <milestone id="t2_3">

@@ -68,6 +68,20 @@ class convertible(attribute_checker):
             
             return self.msg % {'attr':attr, 'val':val}
 
+class depends(object):
+    def __init__(self, *attrs):
+        self.attrs = attrs
+
+    def __call__(self, attrib, attr):
+        if attr not in attrib:
+            assert RuntimeError("Framework should make sure the attribute is present"
+                                "before calling the checker" )
+        # check for the other attributes to be present with this one
+        for a in self.attrs:
+            if a not in attrib:
+                return "%s must be specified along with : %s" % (attr, ", ".join(self.attrs))
+        return None
+
 class matches(attribute_checker):
     def __init__(self, txt):
         import re
@@ -420,7 +434,10 @@ class TasksChecker(BaseEtreeChecker):
     def check_task(self):
         self._is_child_of("task",None)
         self._attributes( {"id":not_empty,
-                           "load-type?":one_of("oneof","shared","sameforall","spread"),
+                           "load-type?":( one_of("oneof","shared","sameforall","spread"),
+                                          depends("load") ),
+                           "load?":(convertible(float),
+                                    depends("load-type")),
                            } )
         self._empty()
         pos, node = self.stack[-1]
@@ -431,8 +448,14 @@ class TasksChecker(BaseEtreeChecker):
                            "task*", "milestone*")
         else:
             # a leaf task
-            self._children("label","description?","constraint-date*",
-                           "constraint-resource*","duration","constraint-task*")
+            pos, node = self.stack[-1]
+            if "load-type" in node.attrib:
+                # we don't want duration with the new load-type descriptions
+                self._children("label","description?","constraint-date*",
+                               "constraint-resource*","constraint-task*")
+            else:
+                self._children("label","description?","constraint-date*",
+                               "constraint-resource*","duration","constraint-task*")
 
     def check_milestone(self):
         self._is_child_of( "task" )
