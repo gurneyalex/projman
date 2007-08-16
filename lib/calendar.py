@@ -206,7 +206,8 @@ class Calendar(VNode):
         if daytype is None:
             daytype = self.get_default_daytype()
         if daytype is None:
-            raise Exception('Unable to compute daytype for %s' % datetime)
+            raise Exception('Unable to compute daytype for "%s" in calendar "%s"' 
+                            % (datetime, self.name))
         return daytype
     
     def _get_daytype_timeperiods(self, datetime):
