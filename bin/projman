@@ -1,4 +1,4 @@
-#!/usr/bin/python2.5
+#!/usr/bin/python2.4
 from projman.main import run
 import sys
 run(sys.argv[1:])
