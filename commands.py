@@ -112,15 +112,6 @@ class ViewCommand(ProjmanCommand):
           'help': 'specific output file to use',
           }
          ),
-        # XXX format not actually supported
-        #('format',
-        # {'short': 'F',
-        #  'type' : 'choice', 'metavar': '<output format>',
-        #  'choices': ('docbook', 'html', 'csv'),
-        #  'default': 'docbook',
-        #  'help': 'identifier of a task to use as root',
-        #  }
-        # ),
         ('display-dates',
          {'type' : 'yn', 'metavar': '<y or n>',
           'default': True,
@@ -228,6 +219,9 @@ class DiagramCommand(ProjmanCommand):
             'resources': ResourcesRenderer,
             'gantt-resources': GanttResourcesRenderer,
             }
+        if self.config.output and len(diagrams)>1:
+            print "You specified more than one diagram with an output file name"
+            print "*** only the last one will be printed ***"
         for diagram in diagrams:
             try:
                 renderer = known_diagrams[diagram](self.config, handler)
@@ -236,5 +230,26 @@ class DiagramCommand(ProjmanCommand):
             output = self.config.output or '%s.%s' % (diagram, self.config.format)
             stream = handler.get_output(output)
             renderer.render(self.project, stream)
+
+
+
+class DiagramCommand2(ProjmanCommand):  # a test...
+    """generate diagrams from a project file (resources, gantt, etc.)"""
+    name = 'diagram2'
+    min_args = 1
+    arguments = '<diagram name>...'
+
+    options = ProjmanCommand.options
+
+    def _run(self, diagrams):
+        #if self.config.renderer == 'html':
+        #    from projman.renderers.HTMLRenderer import ResourcesHTMLRenderer
+        #    renderer = ResourcesHTMLRenderer(self.options.get_render_options())
+        #else:
+        from projman.renderers.gantt2 import GanttRenderer2
+        gantt = GanttRenderer2(self.config, self.project)
+        gantt.render("gantt2.svg")
+        gantt.save()
+
 
 register_commands((ScheduleCommand, ViewCommand, DiagramCommand))
