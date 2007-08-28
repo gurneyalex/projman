@@ -2,13 +2,13 @@ Source: projman
 Section: python
 Priority: optional
 Maintainer: Alexandre Fayolle  <alexandre.fayolle@logilab.fr>
-Build-Depends: debhelper (>= 5.0.38), libboost-python-dev (>=1.34.1), python-dev, libgecode7-dev, python-central (>= 0.5.6)
+Build-Depends: debhelper (>= 5.0.38), libboost-python-dev (>=1.34.1), python-dev, libgecode7-dev, python-central (>= 0.5.6), python
 Standards-Version: 3.7.2
-XS-Python-Version: 2.4
+XS-Python-Version: current
 
 Package: projman
 Architecture: any
-XB-Python-Version: $(python:Versions)
+XB-Python-Version: ${python:Versions}
 Depends: python, python-logilab-common (>=0.21.0), python-imaging, sgml-base, python-matplotlib, python-elementtree
 Conflicts: projman-test (<< 0.11.0)
 Description: tool for project management
