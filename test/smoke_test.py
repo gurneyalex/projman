@@ -4,7 +4,7 @@ import os, sys
 
 from logilab.common import testlib 
 
-def SmokeTC(testlib.TestCase):
+class SmokeTC(testlib.TestCase):
     CMD = 'projman'
 
     ## RESULT_DIR contiendra tous les fichiers et images générés lors des tests
