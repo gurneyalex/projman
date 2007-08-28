@@ -65,6 +65,8 @@ data_files = [['share/projman',
                  'scheduling/projman_gecode.cc',
                  'scheduling/makefile',
                  'scheduling/projman_gecode.hh',
+                 'scheduling/projman_problem.hh',
+                 'scheduling/timer.hh',
                 ]
                ] 
               ]
@@ -73,7 +75,7 @@ data_files = [['share/projman',
 debian_name = 'projman'
 debian_maintainer = 'Alexandre Fayolle ' 
 debian_maintainer_email = 'alexandre.fayolle@logilab.fr'
-pyversions = ["2.3"]
+pyversions = ["2.4"]
  
 from os.path import join
 include_dirs = [join('test', 'data')]

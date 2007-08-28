@@ -3,6 +3,7 @@ include announce.txt
 include logging.conf
 include DEPENDS
 include TODO
+include scheduling/*.hh
 
 recursive-include doc *
 recursive-include man *
