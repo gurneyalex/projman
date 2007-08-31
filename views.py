@@ -328,11 +328,11 @@ class TasksListSectionView(XMLView):
             desc = "<?xml version='1.0' encoding='UTF-8'?><para>%s</para>" \
                    % task.description.encode('utf8')
             try:
-                description_doc = ET.parse(desc)
+                description_doc = ET.fromstring(desc)
             except Exception, exc:
                 print desc
                 raise
-            section.append( description_doc.getroot() )
+            section.append( description_doc )
         if self.config.display_dates:
             # add date-constraints
             formalpara = self.dbh.formalpara(section, u"Dates")
