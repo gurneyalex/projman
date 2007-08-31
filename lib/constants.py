@@ -60,7 +60,7 @@ except ImportError:
     TASK_SPREAD = 3
     TASK_MILESTONE = 4
     # for now just stop since we don't handle task types out of gcsp
-    raise
+    #raise
 LOAD_TYPE_MAP = {
     "shared" : TASK_SHARED,
     "oneof" : TASK_ONEOF,
