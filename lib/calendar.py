@@ -227,8 +227,8 @@ class Calendar(VNode):
         day = DAY_WEEK[datetime.day_of_week]
         cal = self
         while isinstance(cal, Calendar):
-            if day in self.weekday:
-                return self.weekday[day]
+            if day in cal.weekday:
+                return cal.weekday[day]
             cal = cal.parent
         return None
 
