@@ -42,7 +42,7 @@ install-stamp: build
 		python$$v setup.py -q install --no-compile --prefix=debian/projman/usr/ ; \
 	done
 	# remove test directory (installed in a separated package)
-	rm -rf debian/projman/usr/lib/site-python/projman/test
+	rm -rf debian/projman/usr/lib/python-*/site-packages/projman/test
 
 	# install tests
 	(cd test && find . -type f -not \( -path '*/CVS/*' -or -name '*.pyc' \) -exec install -D --mode=644 {} ../debian/projman/usr/share/doc/projman/test/{} \;)
