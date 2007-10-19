@@ -105,7 +105,7 @@ void ProjmanProblem::add_not_working_day( uint_t worker, uint_t day )
     res.not_working.push_back( day );
 }
 
-int ProjmanProblem::add_resource_to_task( uint_t task_id, uint_t res_id )
+int ProjmanProblem::add_resource_to_task( uint_t task_id, uint_t res_id, int usage )
 {
     if (res_id>=resources.size()) {
 	throw std::out_of_range("Resource number out of range");
@@ -116,7 +116,7 @@ int ProjmanProblem::add_resource_to_task( uint_t task_id, uint_t res_id )
     if (tasks[task_id].load_type==TASK_MILESTONE) {
 	throw std::runtime_error("Milestones don't have resources");
     }
-    res_tasks.push_back( int_pair_t( task_id, res_id ) );
+    res_tasks.push_back( res_task_t( task_id, res_id, usage ) );
     uint_t pseudo_id = res_tasks.size()-1;
     // do some bookeeping:
     tasks[task_id].resources.push_back( res_id );
