@@ -31,7 +31,7 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
 	cout << "Initializing..."<< endl;
 
     for(i=0;i<pb.res_tasks.size();++i) {
-	uint_t res_id = pb.res_tasks[i].second;
+	uint_t res_id = pb.res_tasks[i].res_id;
 	SetVar task_plus_nw(this);
 
 	convexHull(this, res_tasks[i], hull[i]);
@@ -103,11 +103,17 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
 		}
 		linear(this, res_tasks_duration, IRT_EQ, load);
 	    } else if (task.load_type==TASK_SAMEFORALL) {
+		int tmax = 0;
 		for(j=0;j<task.resources.size();++j) {
 		    uint_t pseudo_id = task.res_tasks_id[j];
-		    cardinality(this, res_tasks[pseudo_id], load, load);
+		    int usage = pb.res_tasks[pseudo_id].usage;
+		    int real_load = (load*usage)/100;
+		    if (real_load>tmax) {
+			tmax = real_load;
+		    }
+		    cardinality(this, res_tasks[pseudo_id], real_load, real_load);
 		}
-		cardinality(this, real_tasks[task_id], load, load);
+		cardinality(this, real_tasks[task_id], tmax, tmax);
 	    }
 
 	    rel(this,SOT_UNION,the_tasks,real_tasks[task_id]);
@@ -250,9 +256,9 @@ void ProjmanSolver::print(ProjmanProblem& pb)
     ProjmanSolution S(pb.res_tasks.size(),pb.max_duration,milestones.size());
 
     for(i=0;i<pb.res_tasks.size();++i) {
-	int real_task_id = pb.res_tasks[i].first;
+	int real_task_id = pb.res_tasks[i].task_id;
 	const task_t& task = pb.tasks[real_task_id];
-	int res_id = pb.res_tasks[i].second;
+	int res_id = pb.res_tasks[i].res_id;
 	const resource_t& res = pb.resources[res_id];
 
 	if (pb.verbosity>0) {

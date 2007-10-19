@@ -194,7 +194,7 @@ class CSPScheduler:
                 continue
             for res_id, usage in sorted(resources):
                 res_num = resources_map[res_id]
-                pseudo_id = pb.add_resource_to_task( task_num, res_num )
+                pseudo_id = pb.add_resource_to_task( task_num, res_num, int(usage) )
                 pseudo_tasks.append( (pseudo_id, tid, res_id) )
 
         # register constraints

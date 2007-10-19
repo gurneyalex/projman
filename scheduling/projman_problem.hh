@@ -27,6 +27,15 @@ enum constraint_type_t {
     END_AFTER_END,
     END_AFTER_BEGIN
 };
+
+struct res_task_t {
+    res_task_t( uint_t _task_id, uint_t _res_id, int _usage ):task_id(_task_id),
+							      res_id(_res_id),
+							      usage(_usage) {}
+    uint_t task_id;
+    uint_t res_id;
+    int usage;
+};
 struct task_constraint_t {
     task_constraint_t( constraint_type_t t, int ti, int tj):
 	type(t), task0(ti), task1(tj) {}
@@ -141,7 +150,7 @@ public:
     std::vector< task_t > tasks;
     std::vector< resource_t > resources;
     std::vector<task_constraint_t> task_constraints;
-    std::vector< int_pair_t > res_tasks; //bookeeping only
+    std::vector< res_task_t > res_tasks; //bookeeping only
     std::vector< uint_t > milestones; // mapping milestone to task_id
 
     uint_t add_task( std::string task_name, load_type_t load_type, int load );
@@ -149,7 +158,7 @@ public:
 			 int cmp_type_low, int cmp_type_high );
     uint_t add_worker( std::string worker_name );
     void add_not_working_day( uint_t worker, uint_t day );
-    int add_resource_to_task( uint_t task_id, uint_t res_id );
+    int add_resource_to_task( uint_t task_id, uint_t res_id, int usage );
     void add_task_constraint( constraint_type_t t, uint_t ti, uint_t tj );
 
 };
