@@ -20,6 +20,7 @@ __revision__ = "$Id: projman_writer.py,v 1.17 2005-11-11 15:53:21 nico Exp $"
 import logging
 from logilab.common.visitor import Visitor
 from projman.lib.constants import BEGIN_AT_DATE, END_AT_DATE, AT_DATE
+from projman.lib.constants import REVERSE_LOAD_TYPE_MAP
 from projman.lib.task import MileStone
 try:
     import xml.etree.ElementTree as ET
@@ -56,6 +57,12 @@ def write_schedule_as_xml(filename, project):
     indent(root)
     tree = ET.ElementTree(root)
     tree.write(filename)
+
+def write_tasks_as_xml(filename, project):
+    root = tasks_as_dom(project)
+    indent(root)
+    tree = ET.ElementTree(root)
+    tree.write(filename, "utf-8")
 
 # dom utilities ################################################################
 
@@ -117,3 +124,64 @@ def schedule_as_dom(project):
     return doc
 
 
+
+class TasksVisitor:
+    def __init__(self):
+        self.parents = []
+
+    def visit_root(self, node):
+        elem = ET.Element('task', id=node.id)
+        self.set_common_attr( node, elem )
+        for rtype, rid, usage in node.resource_constraints:
+            ET.SubElement( elem, "constraint-resource", usage=usage,
+                           idref=rid, type=rtype )
+        
+        self.parents.append(elem)
+        for c in node.children:
+            c.accept( self )
+        return elem
+
+    def visit_task(self, node):
+        elem = ET.SubElement( self.parents[-1], 'task', id=node.id )
+        elem.set("load-type", REVERSE_LOAD_TYPE_MAP[node.load_type] )
+        elem.set("load", str(node.duration) )
+        self.set_common_attr( node, elem )
+
+        for rtype, rid, usage in node.resource_constraints:
+            ET.SubElement( elem, "constraint-resource", usage=str(usage),
+                           idref=rid, type=rtype )
+        
+        self.parents.append( elem )
+        for c in node.children:
+            c.accept( self )
+        self.parents.pop()
+
+    def visit_milestone(self, node):
+        elem = ET.SubElement( self.parents[-1], 'task', id=node.id )
+        self.set_common_attr( node, elem )
+
+    def set_common_attr(self, node, elem):
+        if node.title:
+            el = ET.SubElement( elem, "label")
+            el.text = node.title
+        if node.description_raw:
+            if node.description_format=='docbook':
+                text = u"<description format='docbook'>%s</description>" % node.description_raw
+                el = ET.fromstring(text.encode("utf-8"))
+                elem.append( el )
+            else:
+                el = ET.SubElement( elem, "description", format="rest" )
+                el.text = node.description_raw
+        for ctype, tid in node.task_constraints:
+            ET.SubElement( elem, "constraint-task", type=ctype, idref=tid )
+
+        for ctype, date in node.date_constraints:
+            el = ET.SubElement( elem, "constraint-date", type=ctype )
+            el.text = date.strftime("%F")
+
+def tasks_as_dom(project):
+    """
+    returns dom representation of project's schedule
+    """
+    visitor = TasksVisitor()
+    return visitor.visit_root( project.root_task )
