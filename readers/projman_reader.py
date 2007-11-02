@@ -208,18 +208,24 @@ class ProjectXMLReader(AbstractXMLReader) :
         for cr in task.findall("constraint-resource"):
             t.add_resource_constraint( cr.get("type"), cr.get("idref"), float(cr.get("usage")) )
         desc = task.find("description")
+        txt_fmt = "docbook"
         if desc is None:
             txt = u""
+            raw_txt = u""
         else:
             txt = unicode(desc.text) or u""
             for n in desc:
                 txt+=unicode(ET.tostring(n,"utf-8"),"utf-8")
+            raw_txt = txt
             if desc.get("format")=="rest":
+                txt_fmt = "rest"
                 txt = publish_string(txt,
                                      settings_overrides={'output_encoding': 'unicode'},
                                      writer=docbook_writer,
                                      source_path=self.tasks_file + "<%s>"%t.id)
         t.description = txt
+        t.description_raw = raw_txt
+        t.description_format = txt_fmt
 
 
     def read_resource_definition(self, res_node):
