@@ -1,4 +1,4 @@
-# -*- coding: ISO-8859-1 -*-
+# -*- coding: iso-8859-1 -*-
 # Copyright (c) 2004 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
@@ -54,9 +54,12 @@ class TaskNode(VNode):
         # list of couples ('{begin/end}-after-{begin/end}', task_id)
         self.task_constraints = set()
         self.description = u''
+        self.description_raw = u''
+        self.description_format = u'docbook'
         self._progress = None
         self._priority = None
         self.duration = 0
+        self.load_type = 0
 
     def __repr__(self):
         return "<Task id=%s at %s>" % (self.id, id(self))
