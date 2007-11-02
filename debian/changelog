@@ -1,3 +1,12 @@
+projman (0.12.2-1) unstable; urgency=low
+
+  * new upstream release
+    - minor changes to allow tasks editing/saving
+  * build against python2.4 (ie current)
+  * add missing depends on libgecode
+
+ -- Ludovic Aubry <ludovic.aubry@logilab.fr>  Fri, 02 Nov 2007 01:40:27 +0100
+
 projman (0.12.1-1) unstable; urgency=low
 
   * new upstream release
