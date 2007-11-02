@@ -61,6 +61,7 @@ except ImportError:
     TASK_MILESTONE = 4
     # for now just stop since we don't handle task types out of gcsp
     #raise
+
 LOAD_TYPE_MAP = {
     "shared" : TASK_SHARED,
     "oneof" : TASK_ONEOF,
@@ -68,3 +69,6 @@ LOAD_TYPE_MAP = {
     "spread" : TASK_SPREAD,
     "milestone" : TASK_MILESTONE,
 }
+REVERSE_LOAD_TYPE_MAP = {}
+for k,v in LOAD_TYPE_MAP.items():
+    REVERSE_LOAD_TYPE_MAP[v] = k
