@@ -2,7 +2,7 @@
 
 import gtk
 import gobject
-from projman.lib.constants import LOAD_TYPE_MAP
+from projman.lib.constants import LOAD_TYPE_MAP, TASK_CONSTRAINTS
 from projman.lib.task import Task
 from projman.readers.base_reader import MODEL_FACTORY
 import gtksourceview2
@@ -31,8 +31,11 @@ class TaskEditor(gobject.GObject):
         app.ui.signal_autoconnect(self)
         app.connect("project-changed", self.on_project_changed )
         self.w("spinbutton_duration").get_adjustment().set_all(0,0,100000,1,1,1)
-        
+
     def setup_ui(self):
+        self.constraints_type_model = gtk.ListStore(gobject.TYPE_STRING)
+        for v in TASK_CONSTRAINTS:
+            self.constraints_type_model.append( (v,) )
         self.setup_task_tree()
         self.setup_constraints_tree()
         self.setup_resources_tree()
@@ -59,6 +62,7 @@ class TaskEditor(gobject.GObject):
                                              gobject.TYPE_STRING, # id
                                              gobject.TYPE_INT,    # usage
                                              gobject.TYPE_STRING, # color
+                                             gobject.TYPE_BOOLEAN, # editable
                                              )
         col = gtk.TreeViewColumn( u"Type", gtk.CellRendererText(), text=0, foreground=3 )
         tree.append_column( col )
@@ -73,10 +77,20 @@ class TaskEditor(gobject.GObject):
         self.constraints_model = gtk.ListStore(gobject.TYPE_STRING, # type
                                                gobject.TYPE_STRING, # date or res_id
                                                gobject.TYPE_STRING, # color (inherited or not)
+                                               gobject.TYPE_BOOLEAN, # editable
                                                )
-        col = gtk.TreeViewColumn( u"Type", gtk.CellRendererText(), text=0, foreground=2 )
+        rend = gtk.CellRendererCombo()
+        rend.set_property('model', self.constraints_type_model )
+        rend.set_property('has-entry', False)
+        rend.set_property('text-column', 0)
+        rend.connect('edited', self.on_constraint_type_edited )
+        col = gtk.TreeViewColumn( u"Type", rend, text=0, foreground=2, editable=3 )
         tree.append_column( col )
-        col = gtk.TreeViewColumn( u"Arg", gtk.CellRendererText(), text=1, foreground=2 )
+        rend = gtk.CellRendererCombo()
+        rend.set_property('model', self.task_model)
+        rend.set_property('text-column', 1)
+        rend.connect('edited', self.on_constraint_arg_edited )
+        col = gtk.TreeViewColumn( u"Arg", rend, text=1, foreground=2, editable=3 )
         tree.append_column( col )
         tree.set_model( self.constraints_model )
 
@@ -96,7 +110,7 @@ class TaskEditor(gobject.GObject):
         model.clear()
         tasks = [ (self.app.project.root_task,None) ]
         while tasks:
-            task,parent = tasks.pop()
+            task,parent = tasks.pop(0)
             row = task.title, task.id
             itr = model.append( parent, row )
             for t in task.children:
@@ -148,11 +162,17 @@ class TaskEditor(gobject.GObject):
         self.w("entry_task_title").set_text( task.title )
         #buf = .get_buffer()
         buf = gtksourceview2.Buffer()
+        buf.connect("changed", self.on_textview_task_description_changed )
         self.w("textview_task_description").set_buffer( buf )
         if task.description_format == "rest":
             buf.set_language(None)
+            self.w("combobox_description_format").set_active(1)
         else:
             buf.set_language( XMLLANG )
+            self.w("combobox_description_format").set_active(0)
+        if not task.description_raw:
+            self.w("combobox_description_format").set_active(2)
+
         buf.set_text( task.description_raw )
         self.w("spinbutton_duration").get_adjustment().set_value( task.duration )
         self.w("combobox_scheduling_type").set_active( task.load_type )
@@ -162,7 +182,7 @@ class TaskEditor(gobject.GObject):
         color = "black"
         while child:
             for constraint_type, arg in child.task_constraints:
-                self.constraints_model.append( (constraint_type, arg, color ) )
+                self.constraints_model.append( (constraint_type, arg, color, color=='black' ) )
             child = child.parent
             color = "gray"
 
@@ -179,7 +199,7 @@ class TaskEditor(gobject.GObject):
         self.resources_model.clear()
         if child:
             for res_type, res_id, res_usage in child.resource_constraints:
-                self.resources_model.append( (res_type, res_id, res_usage, color) )
+                self.resources_model.append( (res_type, res_id, res_usage, color, color=='black') )
 
     def on_entry_task_title_changed(self, entry):
         itr = self.task_model.get_iter( self.current_task_path )
@@ -246,3 +266,24 @@ class TaskEditor(gobject.GObject):
         parent.remove( task )
         self.refresh_task_list(task=parent)
         
+    def on_textview_task_description_changed(self, buf):
+        _beg = buf.get_start_iter()
+        _end = buf.get_end_iter()
+        txt = buf.get_text( _beg, _end )
+        self.current_task.description_raw = txt
+
+
+    def on_constraint_type_edited(self, renderer, path, new_text):
+        itr = self.constraints_model.get_iter( path )
+        constr, value = self.constraints_model.get( itr, 0, 1 )
+        assert constr in TASK_CONSTRAINTS
+        self.current_task.task_constraints.remove( (constr, value) )
+        self.current_task.add_task_constraint( new_text, value )
+        self.constraints_model.set_value( itr, 0, new_text )
+
+    def on_constraint_arg_edited(self, renderer, path, new_text):
+        itr = self.constraints_model.get_iter( path )
+        constr, value = self.constraints_model.get( itr, 0, 1 )
+        self.current_task.task_constraints.remove( (constr, value) )
+        self.current_task.add_task_constraint( constr, new_text )
+        self.constraints_model.set_value( itr, 1, new_text )

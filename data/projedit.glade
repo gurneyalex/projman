@@ -636,7 +636,7 @@ Milestone</property>
 		      </child>
 
 		      <child>
-			<widget class="GtkComboBox" id="combobox1">
+			<widget class="GtkComboBox" id="combobox_description_format">
 			  <property name="visible">True</property>
 			  <property name="items" translatable="yes">Docbook
 Rest
