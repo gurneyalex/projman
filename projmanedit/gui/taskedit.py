@@ -93,6 +93,8 @@ class TaskEditor(gobject.GObject):
         col = gtk.TreeViewColumn( u"Arg", rend, text=1, foreground=2, editable=3 )
         tree.append_column( col )
         tree.set_model( self.constraints_model )
+        tree.enable_model_drag_dest( [ ("task", gtk.TARGET_SAME_APP, 0) ],
+                                     gtk.gdk.ACTION_COPY )
 
     def setup_task_tree(self):
         self.task_model = gtk.TreeStore(gobject.TYPE_STRING, gobject.TYPE_STRING)
@@ -104,6 +106,99 @@ class TaskEditor(gobject.GObject):
         tree.set_model( self.task_model )
         sel = tree.get_selection()
         sel.connect("changed", self.on_task_selection_changed )
+
+        # enable drag & drop
+        tree.enable_model_drag_dest( [ ("task", gtk.TARGET_SAME_APP, 0) ],
+                                     gtk.gdk.ACTION_COPY|gtk.gdk.ACTION_MOVE )
+        tree.enable_model_drag_source( gtk.gdk.BUTTON1_MASK,
+                                       [ ("task", gtk.TARGET_SAME_APP, 0) ],
+                                       gtk.gdk.ACTION_COPY|gtk.gdk.ACTION_MOVE )
+        tree.connect("drag-data-received", self.drag_task_received )
+        tree.connect("drag-data-get", self.drag_task_get )
+        tree.connect("drag-data-delete", self.drag_task_deleted )
+
+    def drag_task_received(self, treeview, context, x, y, selection, info, timestamp):
+        print "DRAG RECEIVED:", x, y, info
+        print "CTX:", context.action
+        root_task = self.app.project.root_task
+        task_src_id = selection.data
+        task_src = root_task.get_task(task_src_id)
+        if not task_src:
+            return
+        if context.action == gtk.gdk.ACTION_COPY:
+            task_new = task_src.copy() # XXX
+        elif context.action == gtk.gdk.ACTION_MOVE:
+            task_new = task_src
+
+        row = [ task_new.title, task_new.id ]
+        drop_info = treeview.get_dest_row_at_pos(x, y)
+        parent_id = None  # the parent task id
+        sibling_id = None # the closest sibling id or None (append)
+        sibling_pos = None # 1: before, 2: after
+        if drop_info:
+            # drop happened on an item
+            model = treeview.get_model()
+            path, position = drop_info
+            iter = model.get_iter(path)
+            sibling_id = model.get_value( iter, 1 )
+            parent_itr = model.iter_parent( iter )
+            parent_id = model.get_value( parent_itr, 1 )
+            parent_dest = root_task.get_task( parent_id )
+            if position == gtk.TREE_VIEW_DROP_BEFORE:
+                # insert it before the given item
+                sibling_pos = 1
+                model.insert_before(parent_itr, iter, row )
+            elif position == gtk.TREE_VIEW_DROP_INTO_OR_BEFORE:
+                # append it after the children of the given item
+                if task_src_id == sibling_id:
+                    # a task dropped on itself
+                    return
+                parent_id = sibling_id
+                sibling_id = None
+                model.append( iter, row )
+            else:
+                # insert it after the given item
+                sibling_pos = 2
+                model.insert_after(parent_itr, iter, row)
+        else:
+            # append it after the children of the root item
+            position = None
+            parent_dest = root_task
+            parent_itr = model.get_iter_first()
+            parent_id = model.get_value( parent_itr, 1 )
+            sibling_id = None
+            model.append( parent_itr, row )
+
+
+
+        if context.action == gtk.gdk.ACTION_MOVE:
+            task_src.parent.remove( task_src )
+
+        print "DROP", parent_id, task_new.id, position
+        if sibling_id is None:
+            parent_dest.append( task_new )
+        else:
+            idx = 0
+            for i,c in enumerate(parent_dest.children):
+                if c.id == sibling_id:
+                    break
+            if sibling_pos==2:
+                i+=1
+            parent_dest.insert(i,task_new)
+                
+            
+        context.finish(True, True, timestamp)
+
+    def drag_task_deleted(self, treeview, context):
+        print "DRAG DELETED:", context
+        
+    def drag_task_get(self, treeview, context, selection, target_id, etime):
+        print "DATA GET", target_id
+        treeselection = treeview.get_selection()
+        model, iter = treeselection.get_selected()
+        tid = model.get_value(iter, 1)
+        selection.set(selection.target, 8, tid)
+
 
     def refresh_task_list(self, sel_task_id=None, sel_task=None):
         model = self.task_model
@@ -150,6 +245,8 @@ class TaskEditor(gobject.GObject):
 
     def on_task_selection_changed(self, sel):
         model, itr = sel.get_selected()
+        if not itr:
+            return
         task_id = model.get_value(itr, 1)
         self.current_task = self.app.project.root_task.get_task(task_id)
         self.current_task_path = model.get_path( itr )
