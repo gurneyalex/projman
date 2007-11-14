@@ -101,8 +101,8 @@ class MainApp(gobject.GObject):
     def on_quit_cmd_activate(self, *args):
         gtk.main_quit()
 
-    def on_window_main_destroy_event(self, *args):
-        print "destroy", args
+    def on_window_main_destroy(self, *args):
+        gtk.main_quit()
 
 
 app = MainApp()
