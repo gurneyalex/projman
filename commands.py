@@ -133,7 +133,7 @@ class ViewCommand(ProjmanCommand):
             view.generate(tree, self.project)
         output = file(self.config.output, 'w')
         indent(tree.getroot())
-        tree.write( output, encoding="utf-8" )
+        tree.write( output, encoding="UTF-8" )
         output.close()
 
 
