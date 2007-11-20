@@ -239,7 +239,8 @@ class CostTableView(XMLView):
         # table body
         tbody = ET.SubElement(layout, "tbody")
         for child in self.projman.root_task.children:
-            self._build_task_node(tbody, child)
+            if child.TYPE == 'task' :
+                self._build_task_node(tbody, child)
 
     def table_head(self, parent):
         """ create a DOM node <thead> """
@@ -378,7 +379,8 @@ class DurationTableView(CostTableView):
         # table body
         tbody = ET.SubElement(table, "tbody")
         for child in self.projman.root_task.children:
-            self._build_task_node(tbody, child)
+            if child.TYPE == 'task' :
+                self._build_task_node(tbody, child)
 
     def table_head(self, table):
         """ create a DOM node <thead> """ 
