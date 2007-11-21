@@ -8,6 +8,8 @@ ChangeLog for Projman
     * calendar: correctly handles start and stop tags
     * remove references to planner
     * remove references to pygantt
+    * use gecode for scheduling
+    * lots of improvements
 	
 2006-07-31 -- 0.11.1
 
