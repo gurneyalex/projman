@@ -56,13 +56,13 @@ def write_schedule_as_xml(filename, project):
     root = schedule_as_dom(project)
     indent(root)
     tree = ET.ElementTree(root)
-    tree.write(filename)
+    tree.write(filename, encoding="UTF-8")
 
 def write_tasks_as_xml(filename, project):
     root = tasks_as_dom(project)
     indent(root)
     tree = ET.ElementTree(root)
-    tree.write(filename, "utf-8")
+    tree.write(filename, encoding="UTF-8")
 
 # dom utilities ################################################################
 
