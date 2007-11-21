@@ -130,7 +130,7 @@ class AbstractXMLReader(ContentHandler):
             self._errors.append('-'*80)
             self._errors.append('If your files are in old projman format, ' \
                                 'please use the xslt transformation \nprovided ' \
-                                'with projman : projman_convert_format.sh')
+                                'with projman : projman_convert_format')
             raise MalformedProjectFile('\n'.join(self._errors))
         return self._custom_return()
 
