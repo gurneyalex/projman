@@ -2,6 +2,7 @@ projman (0.12.2-1) unstable; urgency=low
 
   * new upstream release
     - minor changes to allow tasks editing/saving
+    - fix XML outputs
   * build against python2.4 (ie current)
   * add missing depends on libgecode
 
