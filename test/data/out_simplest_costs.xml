@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dr:root xmlns:dr='http://www.logilab.org/2004/Documentor'>
+  <dr:object lang='fr' id='project1'>
+    <table>
+      <title>Tableau récapitulatif des coûts.</title>
+      <tgroup align='left' colsep='1' cols='4' rowsep='1'>
+        <colspec colwidth='3*' colname='c0'/>
+        <colspec colwidth='1*' colname='c1'/>
+        <colspec colwidth='2*' colname='c2'/>
+        <colspec colwidth='1*' colname='c3'/>
+        <thead>
+          <row>
+            <entry/>
+            <entry align='left'>Charge (jours.homme)</entry>
+            <entry align='left'>Ressources</entry>
+            <entry align='right'>Coût (euros)</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry align='left'>Suivi de projet</entry>
+            <entry align='left'>25.0</entry>
+            <entry align='left'>cdp_1(25,00)</entry>
+            <entry align='right'>20 000,00</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </dr:object>
+</dr:root>

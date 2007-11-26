@@ -1,0 +1,298 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dr:root xmlns:dr='http://www.logilab.org/2004/Documentor'>
+  <dr:object lang='fr' id='HELLO'>
+    <section id='t1'>
+      <title>Première tranche</title>
+      <para>Modélisation des données, adaptation et configuration de      HELLO, intégration de HELLO et <classname>GOODBYE</classname> (voir détails des tâches    ci-dessous). <para>Cette première tranche a une durée de huit semaines. Elle est    plus longue que les suivantes car elle nécessite la mise en oeuvre du socle	sur lequel sera bâtie la solution.</para>
+      </para>
+      <formalpara>
+        <title>Dates</title>
+        <para>du 2005-01-03 au 2005-02-07</para>
+      </formalpara>
+      <section id='sp1'>
+        <title>Suivi de projet</title>
+        <para>
+          <para>Réunions de début et de fin de tranche, réunions	  hebdomadaires, comptes-rendus, etc.</para>
+        </para>
+        <formalpara>
+          <title>Dates</title>
+          <para>du 2005-01-03 au 2005-01-18</para>
+        </formalpara>
+        <formalpara id='sp1_rh_1'>
+          <title>Olivier Cayrol</title>
+          <para>6 jours.homme</para>
+        </formalpara>
+        <formalpara id='sp1_cdp_1'>
+          <title>Nicolas Chauvat</title>
+          <para>12 jours.homme</para>
+        </formalpara>
+      </section>
+      <section id='model-donnees'>
+        <title>Modélisation des données</title>
+        <para>Sur la base des informations fournies dans le cahier des      charges et après discussion et vérification, on procédera à la      spécification détaillée et la création du schéma des données, des droits       et des rôles associés. Ce schéma constituera la référence du modèle de      données pour l'application et tous les composants en feront donc usage.</para>
+        <formalpara>
+          <title>Dates</title>
+          <para>du 2005-01-03 au 2005-01-10</para>
+        </formalpara>
+        <formalpara id='model-donnees_ing_1'>
+          <title>Emmanuel Breton</title>
+          <para>5.5 jours.homme</para>
+        </formalpara>
+      </section>
+      <section id='lkm-goodbye'>
+        <title>Intégration de HELLO et GOODBYE</title>
+        <para>Les deux logiciels sont actuellement ouverts et capables	d'échanger des informations avec d'autres applications, mais leur	intégration n'a pas encore été effectuée. Elle consistera à s'assurer	<itemizedlist><listitem>d'une part que les documents ajoutés au système sont immédiatement indexés	    par HELLO </listitem>
+            <listitem>et d'autre part que la recherche et l'affichage des	    résultats sont transparents pour l'utilisateur, bien qu'il interagisse	    avec GOODBYE et non HELLO.</listitem>
+          </itemizedlist>
+        </para>
+        <formalpara>
+          <title>Dates</title>
+          <para>du 2005-01-04 au 2005-01-17</para>
+        </formalpara>
+        <formalpara id='lkm-goodbye_ing_1'>
+          <title>Emmanuel Breton</title>
+          <para>5.2 jours.homme</para>
+        </formalpara>
+        <formalpara id='lkm-goodbye_ing_2'>
+          <title>Arthur Lutz</title>
+          <para>9.8 jours.homme</para>
+        </formalpara>
+      </section>
+      <section id='interface'>
+        <title>Interface HTML</title>
+        <para>Sur la base du schéma de données, on commencera par générer      automatiquement des vues par défaut afin d'obtenir une première version      utilisable de l'application. De nouvelles vues seront créées et les vues      existantes seront enrichies.</para>
+        <formalpara>
+          <title>Dates</title>
+          <para>du 2005-01-10 au 2005-01-21</para>
+        </formalpara>
+        <formalpara id='interface_ing_3'>
+          <title>Sandrine Ribeau</title>
+          <para>10 jours.homme</para>
+        </formalpara>
+      </section>
+      <section id='config-hello'>
+        <title>Configuration de HELLO</title>
+        <para>Configuration de HELLO, adaptation des bases et      des interfaces de communication pour l'interaction avec GOODBYE.</para>
+        <formalpara>
+          <title>Dates</title>
+          <para>du 2005-01-17 au 2005-02-07</para>
+        </formalpara>
+        <formalpara id='config-hello_ing_2'>
+          <title>Arthur Lutz</title>
+          <para>15 jours.homme</para>
+        </formalpara>
+      </section>
+    </section>
+    <section id='end_t1'>
+      <title>Fin du premier Lot: état d'avancement</title>
+      <formalpara>
+        <title>Dates</title>
+        <para>du 2005-07-11 au 2005-07-11</para>
+      </formalpara>
+    </section>
+    <section id='t2'>
+      <title>Deuxième tranche</title>
+      <para>Mise en place des processus et des droits, personnalisation de    l'interface, lien vers des applications externes, interface d'administration    (voir détails des tâches ci-dessous).</para>
+      <formalpara>
+        <title>Dates</title>
+        <para>du 2005-07-11 au 2005-08-10</para>
+      </formalpara>
+      <section id='sp2'>
+        <title>Suivi de projet</title>
+        <para>Réunions de début et de fin de tranche, réunions      hebdomadaires, comptes-rendus, etc.</para>
+        <formalpara>
+          <title>Dates</title>
+          <para>du 2005-07-11 au 2005-07-21</para>
+        </formalpara>
+        <formalpara id='sp2_rh_1'>
+          <title>Olivier Cayrol</title>
+          <para>4 jours.homme</para>
+        </formalpara>
+        <formalpara id='sp2_cdp_1'>
+          <title>Nicolas Chauvat</title>
+          <para>8 jours.homme</para>
+        </formalpara>
+      </section>
+      <section id='proc-droits'>
+        <title>Processus et droits</title>
+        <para>Sur la base des informations fournies dans le cahier des      charges et des spécifications détaillées énoncées lors de la modélisation      des données, on créera dans le système les processus de publication et de      validation, ainsi que les rôles et les droits associés.</para>
+        <formalpara>
+          <title>Dates</title>
+          <para>du 2005-07-11 au 2005-07-18</para>
+        </formalpara>
+        <formalpara id='proc-droits_ing_1'>
+          <title>Emmanuel Breton</title>
+          <para>5 jours.homme</para>
+        </formalpara>
+      </section>
+      <section id='appli-externes'>
+        <title>Lien vers les applications externes</title>
+        <para>Mise en place des liens avec les applications      externes. Développement des connecteurs éventuellement      nécessaires.</para>
+        <formalpara>
+          <title>Dates</title>
+          <para>du 2005-07-19 au 2005-07-27</para>
+        </formalpara>
+        <formalpara id='appli-externes_ing_1'>
+          <title>Emmanuel Breton</title>
+          <para>7 jours.homme</para>
+        </formalpara>
+      </section>
+      <section id='interface2'>
+        <title>Interface HTML</title>
+        <para>On poursuivra l'adaptation et la personnalisation des vues      en modifiant les vues existantes et en ajoutant, si nécessaire, des vues      XML et PDF.</para>
+        <formalpara>
+          <title>Dates</title>
+          <para>du 2005-07-28 au 2005-08-10</para>
+        </formalpara>
+        <formalpara id='interface2_ing_1'>
+          <title>Emmanuel Breton</title>
+          <para>10 jours.homme</para>
+        </formalpara>
+      </section>
+    </section>
+    <section id='t3'>
+      <title>Troisième tranche</title>
+      <para>Mise en place des processus et des droits, personnalisation de    l'interface, lien vers des applications externes, interface d'administration    (voir détails des tâches ci-dessous).</para>
+      <formalpara>
+        <title>Dates</title>
+        <para>du 2005-08-10 au 2005-09-15</para>
+      </formalpara>
+      <section id='sp3'>
+        <title>Suivi de projet</title>
+        <para>Réunions de début et de fin de tranche, réunions      hebdomadaires, comptes-rendus, etc.</para>
+        <formalpara>
+          <title>Dates</title>
+          <para>du 2005-08-10 au 2005-08-22</para>
+        </formalpara>
+        <formalpara id='sp3_rh_1'>
+          <title>Olivier Cayrol</title>
+          <para>4 jours.homme</para>
+        </formalpara>
+        <formalpara id='sp3_cdp_1'>
+          <title>Nicolas Chauvat</title>
+          <para>8 jours.homme</para>
+        </formalpara>
+      </section>
+      <section id='windows'>
+        <title>Intégration dans le bureau Windows</title>
+        <para>Comme demandé dans le cahier des charges, on procédera aux      développements et paramétrages nécessaires pour qu'un document puisse être      publié directement depuis un clic droit sur un fichier dans le bureau ou      l'explorateur Windows®. Un soin particulier sera apporté à       l'ergonomie de cette méthode de publication, puisqu'il est à prévoir       qu'elle sera très utilisée.</para>
+        <formalpara>
+          <title>Dates</title>
+          <para>du 2005-08-11 au 2005-08-17</para>
+        </formalpara>
+        <formalpara id='windows_ing_1'>
+          <title>Emmanuel Breton</title>
+          <para>4 jours.homme</para>
+        </formalpara>
+      </section>
+      <section id='admin-stat'>
+        <title>Interface d'administration</title>
+        <para>Une interface d'administration unique unifiera les interfaces      d'administration des composants logiciels intégrés. Cette interface      comprendra l'accès à la consultation et la génération      des statistiques décrites dans le cahier des charges.</para>
+        <formalpara>
+          <title>Dates</title>
+          <para>du 2005-08-18 au 2005-08-29</para>
+        </formalpara>
+        <formalpara id='admin-stat_ing_1'>
+          <title>Emmanuel Breton</title>
+          <para>8 jours.homme</para>
+        </formalpara>
+      </section>
+      <section id='adaptation-hello'>
+        <title>Adaptation de HELLO</title>
+        <para>Il sera très probablement nécessaire, après les tests par un      éventail d'utilisateurs finaux, d'adapter les lexiques et autres données      nécessaires au fonctionnement de HELLO afin que les particularités du      domaine qui n'avaient pas été prévues soient prises en      compte.</para>
+        <formalpara>
+          <title>Dates</title>
+          <para>du 2005-08-10 au 2005-08-18</para>
+        </formalpara>
+        <formalpara id='adaptation-hello_ing_2'>
+          <title>Arthur Lutz</title>
+          <para>6 jours.homme</para>
+        </formalpara>
+      </section>
+      <section id='interface3'>
+        <title>Adaptation de l'interface HTML</title>
+        <para>L'usage de l'application lors des tests par un éventail      d'utilisateurs finaux, permettra de démontrer l'adéquation de l'interface      développée aux besoins des utilisateurs. Le cas échéant, les modifications      nécessaires seront apportées afin de garantir l'ergonomie et l'efficacité      du résultat final.</para>
+        <formalpara>
+          <title>Dates</title>
+          <para>du 2005-08-30 au 2005-09-15</para>
+        </formalpara>
+        <formalpara id='interface3_ing_1'>
+          <title>Emmanuel Breton</title>
+          <para>13 jours.homme</para>
+        </formalpara>
+      </section>
+    </section>
+    <section id='deployer'>
+      <title>Déploiement et mise au point</title>
+      <para>À l'issue du développement et des tests par un éventail    d'utilisateurs finaux, on procédera au déploiement de    l'application sur l'ensemble des postes et une montée en charge    progressive. Compte tenu de la nature de l'application, il suffira de créer    des comptes utilisateurs et de s'assurer que les logiciels nécessaires sont    installés sur les postes clients, puis de configurer les droits et rôles de    chacun. On pourra aussi amorcer l'application en y insérant un certain    nombre de documents de référence, afin que les utilisateurs puissent    consulter du contenu dès leurs premiers accès. Le déploiement sera    principalement effectué par le services informatiques de Acme. Un    support sera néanmoins effectué par Logilab afin de pallier tout    problème et d'effectuer d'éventuelles mises au point.</para>
+      <formalpara>
+        <title>Dates</title>
+        <para>du 2005-09-15 au 2005-09-23</para>
+      </formalpara>
+      <formalpara id='deployer_ing_1'>
+        <title>Emmanuel Breton</title>
+        <para>1.5 jours.homme</para>
+      </formalpara>
+      <formalpara id='deployer_rh_1'>
+        <title>Olivier Cayrol</title>
+        <para>5.5 jours.homme</para>
+      </formalpara>
+    </section>
+    <section id='formation'>
+      <title>Formation</title>
+      <para>Afin de pérenniser l'investissement consenti dans le    développement et la déploiement du système, il est indispensable que les    utilisateurs l'adoptent rapidement. Dans ce but, il faut qu'ils puissent    être efficacement formés à ses principes et à son utilisation. Une première    session de formation sera animée par Logilab pour une dizaine de    collaborateurs de Acme. Ces personnes se chargeront ensuite de former    l'ensemble des utilisateurs de la solution chez Acme par des    formations internes. Une session de formation spécifique sera mise en place    pour les administrateurs.</para>
+      <formalpara>
+        <title>Dates</title>
+        <para>du 2005-09-22 au 2005-10-05</para>
+      </formalpara>
+      <section id='support-utilis'>
+        <title>Support de formation utilisateur</title>
+        <para>Un support de formation sur-mesure sera rédigé pour les      utilisateurs. Il comprendra la description des principes de la gestion de      connaissance, l'utilisation d'GOODBYE et la recherche avec HELLO.</para>
+        <formalpara>
+          <title>Dates</title>
+          <para>du 2005-09-22 au 2005-09-26</para>
+        </formalpara>
+        <formalpara id='support-utilis_ing_1'>
+          <title>Emmanuel Breton</title>
+          <para>2 jours.homme</para>
+        </formalpara>
+      </section>
+      <section id='cours-utilis'>
+        <title>Session de formation utilisateurs</title>
+        <para>La formation des utilisateurs se fera lors d'une session      d'une journée. La taille réduite du groupe (moins de dix personnes)      permettra de garantir que tous les participants recevront l'attention      nécessaire pour assimiler les informations présentées et obtenir      immédiatement une réponse à toutes leurs questions. Au minimum, un poste      de travail pour deux personnes seront nécessaires.</para>
+        <formalpara>
+          <title>Dates</title>
+          <para>du 2005-09-26 au 2005-09-27</para>
+        </formalpara>
+        <formalpara id='cours-utilis_ing_1'>
+          <title>Emmanuel Breton</title>
+          <para>1 jour.homme</para>
+        </formalpara>
+      </section>
+      <section id='support-admin'>
+        <title>Support de formation administrateurs</title>
+        <para>Un support de formation sur-mesure sera rédigé pour les      administrateurs de la solution. Il comprendra toutes les informations      nécessaires.</para>
+        <formalpara>
+          <title>Dates</title>
+          <para>du 2005-09-27 au 2005-10-03</para>
+        </formalpara>
+        <formalpara id='support-admin_ing_1'>
+          <title>Emmanuel Breton</title>
+          <para>4 jours.homme</para>
+        </formalpara>
+      </section>
+      <section id='cours-admin'>
+        <title>Session de formation administrateurs</title>
+        <para>La formation des administrateurs se fera lors d'une session      de deux journées. Au minimum, un poste de travail pour deux personnes      seront nécessaires.</para>
+        <formalpara>
+          <title>Dates</title>
+          <para>du 2005-10-03 au 2005-10-05</para>
+        </formalpara>
+        <formalpara id='cours-admin_ing_1'>
+          <title>Emmanuel Breton</title>
+          <para>2 jours.homme</para>
+        </formalpara>
+      </section>
+    </section>
+  </dr:object>
+</dr:root>

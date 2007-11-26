@@ -1,0 +1,80 @@
+.. -*- coding: utf-8; mode: rst -*-
+
+28/06/04
+--------
+
+ - implementer la contrainte synchronized
+
+07/08/07
+--------
+
+A FAIRE
+-------
+
+ - dans resource.xml, on a des idref (et autres) qui pointent vers des
+   id et il faudrait v�rifier que ces id existent au moment o� on
+   v�rifie la coh�rence des donn�es en entr�e
+
+ - taper sur calendar.py
+
+ - gerer les multiples solutions de csp
+
+ - option d'optimisation pour csp : <= ou < pour la taille des taches
+
+ - gerer les taches (res_1 XOR res_2) : card(T_rid) in (0, duration)
+
+ - dans activités -> ajouter a faire: ->
+   pour la planification :
+   1 - lire les taches
+   2 - lire les activites
+   3 - lire date du jour
+   4 - utiliser nombre de jours a faire pour la planification.
+   5 - re-planifier à partir de date du jour
+
+ - dans activities.xml :
+   * mettre <task><report-list><report> comme dans schedule.xml
+   * inclure <task><reste-a-faire>
+   * virer 'progress' de tasks.xml pour le mettre ici sous forme reste-a-faire
+
+ - dans schedule.xml changer <constraint-date> en <begin> et <end>
+
+ - table cost : faire difference entre 'fait' et 'a faire' ou y faire attention
+
+ - gérer la priorité : ??? cout d'optimisation ?
+
+   durée totale <= last_solution
+
+   durée ponderee par priorité < last_solution ???
+
+ - option pour la date de debut du scheduling (defaut=today ou default=derniere activitee)
+
+ - utiliser l'option verbose pour configurer le module logging et utiliser ce module partout
+
+ - relacher les contraintes de date dans csp.
+ 
+ - idées :
+
+   - chercher cycles dans graphes des contraintes
+ 
+   - détecter les taches qui ne sont pas dans le graphe
+
+   - faire un mode qui ajoute une contrainte de date après chaque nvlle solution
+
+FAIT
+----
+
+ - taper sur les milestones pour les gerer correctement
+   get_task_date_range foireux
+
+ - ne pas charger schedule.xml si c'est pour faire un schedule ...
+
+ - investiguer le pb de logging et sys.exit lié à logging.config.fileConfig("logging.conf")
+
+ - voir si on peut virer ProjectStorage ou le simplifier...
+
+MAUVAISE IDEE
+-------------
+
+ - virer l'option -f
+
+   les vues et les diagrammes acceptent plusieurs arguments (vue1, vue2, ...) (diag1, diag2, ...)

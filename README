@@ -1,0 +1,104 @@
+Projman is (c) 2004-2007 Logilab and is available under the Gnu Public
+Licence.
+
+You can get information on Projman on
+http://www.logilab.org/projects/projman/
+
+OVERVIEW
+--------
+
+  Projman is a tool for project management and diagrams creation, as
+  Gantt diagram and resources activities diagram. It includes lots of
+  functionnalties as conversion format between some softs, planning of
+  project's tasks, diagrams generation and finally special views for
+  call tenders utilities.  All different format and output are XML
+  files.
+
+  Here follows a list of the functionalities of projman. Each command
+    passed with out argument prints an help page providing details
+    with the options of this command.  
+
+    projman -d (--diagram)
+        to generate diagrams (resources, gantt, etc.)
+
+    projman -s (--schedule, --plan)
+        to schedule project
+
+    projman -x (--xml-view, --xml-doc)
+        to generate xml views (task summary, cost tables, list of tasks)
+        
+    projman -V (--version)
+        to print version of installed projman
+
+    projman -H (--help)
+        to get more help
+
+  This overview may be printed anytime by calling just 'projman'
+
+
+At each funtionnality of projman cooresponds a mode and specific
+options we will describe now.
+
+PLANNING
+--------
+
+  Use projman --schedule (or projman -s) for a list of supported
+  options for planning action.
+
+  The aim of planning is to order the tasks of a projet between
+  themselves according to constraint of date or constraint between
+  tasks and to take in account in the same time of resources
+  disponibilities.  It produces a XML file containing all informations
+  necessary for diagrams creation, as begin and end date for a task,
+  and a list of planned activities for resources concerned by the
+  project.
+
+DIAGRAM
+-------
+
+  Use projman --diagram (or projman -d) for a list of supported
+  options for diagrams generation.
+
+  You can obtain tree differents types of diagram for a planned project:
+
+    - Gantt diagram: its summarizes the results of planning for a
+      project;
+
+    - Resources diagram: its summarizes the activities of each
+      resources concerned by the project and gives a global view for
+      resource disponibility;
+
+    - Gantt and Resources diagram: combines the last two diagrams with
+      just a global view for resources activities.
+  
+  For each diagram, an image is generated. The fomrat availabel are:
+  png, gif, jpeg and tiff.
+
+
+XMLDOC
+------ 
+
+  Use projman --xml-view (or projman -x) for a list of supported
+  options for XML document creation.
+
+  This is a specific use of Projman to answer call for tenders. This
+  proposes tree view (each in XML file according to DocBook DTD):
+
+    - list: its summarizes the tasks contained in the project;
+
+    - cost: its summarizes the costs for each task of the project, the
+      global cost in euros by example and the cost for each resource in
+      days;
+
+    - date: its summarizes the begin and end dates for the planned
+      tasks.
+  
+  Each view can be translated in pdf by using an appropriate
+  stylesheet and FOP.
+  
+
+If you have any questions, please mail management-projects@logilab.org
+for support.
+
+Sandrine Ribeau
+Emmanuel Bréton

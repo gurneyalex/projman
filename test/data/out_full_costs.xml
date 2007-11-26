@@ -1,0 +1,168 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dr:root xmlns:dr='http://www.logilab.org/2004/Documentor'>
+  <dr:object lang='fr' id='HELLO'>
+    <table>
+      <title>Tableau récapitulatif des coûts.</title>
+      <tgroup align='left' colsep='1' cols='4' rowsep='1'>
+        <colspec colwidth='3*' colname='c0'/>
+        <colspec colwidth='1*' colname='c1'/>
+        <colspec colwidth='2*' colname='c2'/>
+        <colspec colwidth='1*' colname='c3'/>
+        <thead>
+          <row>
+            <entry/>
+            <entry align='left'>Charge (jours.homme)</entry>
+            <entry align='left'>Ressources</entry>
+            <entry align='right'>Coût (euros)</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry align='left'>Première tranche</entry>
+            <entry/>
+            <entry/>
+            <entry/>
+          </row>
+          <row>
+            <entry align='left'>  Suivi de projet</entry>
+            <entry align='left'>18.0</entry>
+            <entry align='left'>rh_1(6,00), cdp_1(12,00)</entry>
+            <entry align='right'>13 920,00</entry>
+          </row>
+          <row>
+            <entry align='left'>  Modélisation des données</entry>
+            <entry align='left'>5.5</entry>
+            <entry align='left'>ing_1(5,50)</entry>
+            <entry align='right'>3 520,00</entry>
+          </row>
+          <row>
+            <entry align='left'>  Intégration de HELLO et GOODBYE</entry>
+            <entry align='left'>15.0</entry>
+            <entry align='left'>ing_1(5,25), ing_2(9,75)</entry>
+            <entry align='right'>9 600,00</entry>
+          </row>
+          <row>
+            <entry align='left'>  Interface HTML</entry>
+            <entry align='left'>10.0</entry>
+            <entry align='left'>ing_3(10,00)</entry>
+            <entry align='right'>6 400,00</entry>
+          </row>
+          <row>
+            <entry align='left'>  Configuration de HELLO</entry>
+            <entry align='left'>15.0</entry>
+            <entry align='left'>ing_2(15,00)</entry>
+            <entry align='right'>9 600,00</entry>
+          </row>
+          <row>
+            <entry align='left'>Fin du premier Lot: état d'avancement</entry>
+            <entry/>
+            <entry/>
+            <entry/>
+          </row>
+          <row>
+            <entry align='left'>Deuxième tranche</entry>
+            <entry/>
+            <entry/>
+            <entry/>
+          </row>
+          <row>
+            <entry align='left'>  Suivi de projet</entry>
+            <entry align='left'>12.0</entry>
+            <entry align='left'>rh_1(4,00), cdp_1(8,00)</entry>
+            <entry align='right'>9 280,00</entry>
+          </row>
+          <row>
+            <entry align='left'>  Processus et droits</entry>
+            <entry align='left'>5.0</entry>
+            <entry align='left'>ing_1(5,00)</entry>
+            <entry align='right'>3 200,00</entry>
+          </row>
+          <row>
+            <entry align='left'>  Lien vers les applications externes</entry>
+            <entry align='left'>7.0</entry>
+            <entry align='left'>ing_1(7,00)</entry>
+            <entry align='right'>4 480,00</entry>
+          </row>
+          <row>
+            <entry align='left'>  Interface HTML</entry>
+            <entry align='left'>10.0</entry>
+            <entry align='left'>ing_1(10,00)</entry>
+            <entry align='right'>6 400,00</entry>
+          </row>
+          <row>
+            <entry align='left'>Troisième tranche</entry>
+            <entry/>
+            <entry/>
+            <entry/>
+          </row>
+          <row>
+            <entry align='left'>  Suivi de projet</entry>
+            <entry align='left'>12.0</entry>
+            <entry align='left'>rh_1(4,00), cdp_1(8,00)</entry>
+            <entry align='right'>9 280,00</entry>
+          </row>
+          <row>
+            <entry align='left'>  Intégration dans le bureau Windows</entry>
+            <entry align='left'>4.0</entry>
+            <entry align='left'>ing_1(4,00)</entry>
+            <entry align='right'>2 560,00</entry>
+          </row>
+          <row>
+            <entry align='left'>  Interface d'administration</entry>
+            <entry align='left'>8.0</entry>
+            <entry align='left'>ing_1(8,00)</entry>
+            <entry align='right'>5 120,00</entry>
+          </row>
+          <row>
+            <entry align='left'>  Adaptation de HELLO</entry>
+            <entry align='left'>6.0</entry>
+            <entry align='left'>ing_2(6,00)</entry>
+            <entry align='right'>3 840,00</entry>
+          </row>
+          <row>
+            <entry align='left'>  Adaptation de l'interface HTML</entry>
+            <entry align='left'>13.0</entry>
+            <entry align='left'>ing_1(13,00)</entry>
+            <entry align='right'>8 320,00</entry>
+          </row>
+          <row>
+            <entry align='left'>Déploiement et mise au point</entry>
+            <entry align='left'>7.0</entry>
+            <entry align='left'>ing_1(1,50), rh_1(5,50)</entry>
+            <entry align='right'>4 920,00</entry>
+          </row>
+          <row>
+            <entry align='left'>Formation</entry>
+            <entry/>
+            <entry/>
+            <entry/>
+          </row>
+          <row>
+            <entry align='left'>  Support de formation utilisateur</entry>
+            <entry align='left'>2.0</entry>
+            <entry align='left'>ing_1(2,00)</entry>
+            <entry align='right'>1 280,00</entry>
+          </row>
+          <row>
+            <entry align='left'>  Session de formation utilisateurs</entry>
+            <entry align='left'>1.0</entry>
+            <entry align='left'>ing_1(1,00)</entry>
+            <entry align='right'>640,00</entry>
+          </row>
+          <row>
+            <entry align='left'>  Support de formation administrateurs</entry>
+            <entry align='left'>4.0</entry>
+            <entry align='left'>ing_1(4,00)</entry>
+            <entry align='right'>2 560,00</entry>
+          </row>
+          <row>
+            <entry align='left'>  Session de formation administrateurs</entry>
+            <entry align='left'>2.0</entry>
+            <entry align='left'>ing_1(2,00)</entry>
+            <entry align='right'>1 280,00</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </dr:object>
+</dr:root>

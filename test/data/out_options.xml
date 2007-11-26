@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dr:root xmlns:dr='http://www.logilab.org/2004/Documentor'>
+  <dr:object lang='fr' id='project1'>
+    <table>
+      <title>Tableau récapitulatif des coûts.</title>
+      <tgroup align='left' colsep='1' cols='4' rowsep='1'>
+        <colspec colwidth='3*' colname='c0'/>
+        <colspec colwidth='1*' colname='c1'/>
+        <colspec colwidth='2*' colname='c2'/>
+        <colspec colwidth='1*' colname='c3'/>
+        <thead>
+          <row>
+            <entry/>
+            <entry align='left'>Charge (jours.homme)</entry>
+            <entry align='left'>Ressources</entry>
+            <entry align='right'>Coût (euros)</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry align='left'>Suivi de projet</entry>
+            <entry align='left'>25.0</entry>
+            <entry align='left'>cdp_1(25,00)</entry>
+            <entry align='right'>20 000,00</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </dr:object>
+  <dr:object lang='fr' id='rates'>
+    <section id='rate_section'>
+      <title>Tarifs journaliers</title>
+      <para>Coût pour une journée type de travail:</para>
+      <itemizedlist>
+        <listitem>
+          <para>cdp_1 : Toto (800,00 euros)</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+  </dr:object>
+  <dr:object lang='fr' id='total-cost'>
+    <section id='cost_section'>
+      <title>Coût total</title>
+      <para>Le coût total du projet se chiffre à 20 000,00 euros HT, soit 23 920,00 euros TTC.</para>
+    </section>
+  </dr:object>
+  <dr:object lang='fr' id='total-duration'>
+    <section id='duration_section'>
+      <title>Durée totale</title>
+      <para>L'ensemble du projet se déroule entre le 11/07/2005 et le 16/08/2005.</para>
+      <para>La charge totale du projet se chiffre à 25 jours.homme.</para>
+    </section>
+  </dr:object>
+</dr:root>

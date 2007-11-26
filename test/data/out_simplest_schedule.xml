@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<schedule>
+<task id='project1'>
+  <constraint-date type='begin-at-date'>2005-07-11</constraint-date>
+  <constraint-date type='end-at-date'>2005-08-16</constraint-date>
+  <task id='t_1'/>
+  <task id='t1_1'>
+    <constraint-date type='begin-at-date'>2005-07-11</constraint-date>
+    <constraint-date type='end-at-date'>2005-08-16</constraint-date>
+    <global-cost unit=''>20000.0</global-cost>
+    <costs_list>
+      <cost idref='cdp_1'>25.0</cost>
+    </costs_list>
+    <report-list>
+      <report usage='1.0' to='2005-07-11' idref='cdp_1' from='2005-07-11'/>
+      <report usage='1.0' to='2005-07-12' idref='cdp_1' from='2005-07-12'/>
+      <report usage='1.0' to='2005-07-13' idref='cdp_1' from='2005-07-13'/>
+      <report usage='1.0' to='2005-07-15' idref='cdp_1' from='2005-07-15'/>
+      <report usage='1.0' to='2005-07-18' idref='cdp_1' from='2005-07-18'/>
+      <report usage='1.0' to='2005-07-19' idref='cdp_1' from='2005-07-19'/>
+      <report usage='1.0' to='2005-07-20' idref='cdp_1' from='2005-07-20'/>
+      <report usage='1.0' to='2005-07-21' idref='cdp_1' from='2005-07-21'/>
+      <report usage='1.0' to='2005-07-22' idref='cdp_1' from='2005-07-22'/>
+      <report usage='1.0' to='2005-07-25' idref='cdp_1' from='2005-07-25'/>
+      <report usage='1.0' to='2005-07-26' idref='cdp_1' from='2005-07-26'/>
+      <report usage='1.0' to='2005-07-27' idref='cdp_1' from='2005-07-27'/>
+      <report usage='1.0' to='2005-07-28' idref='cdp_1' from='2005-07-28'/>
+      <report usage='1.0' to='2005-07-29' idref='cdp_1' from='2005-07-29'/>
+      <report usage='1.0' to='2005-08-01' idref='cdp_1' from='2005-08-01'/>
+      <report usage='1.0' to='2005-08-02' idref='cdp_1' from='2005-08-02'/>
+      <report usage='1.0' to='2005-08-03' idref='cdp_1' from='2005-08-03'/>
+      <report usage='1.0' to='2005-08-04' idref='cdp_1' from='2005-08-04'/>
+      <report usage='1.0' to='2005-08-05' idref='cdp_1' from='2005-08-05'/>
+      <report usage='1.0' to='2005-08-08' idref='cdp_1' from='2005-08-08'/>
+      <report usage='1.0' to='2005-08-09' idref='cdp_1' from='2005-08-09'/>
+      <report usage='1.0' to='2005-08-10' idref='cdp_1' from='2005-08-10'/>
+      <report usage='1.0' to='2005-08-11' idref='cdp_1' from='2005-08-11'/>
+      <report usage='1.0' to='2005-08-12' idref='cdp_1' from='2005-08-12'/>
+      <report usage='1.0' to='2005-08-16' idref='cdp_1' from='2005-08-16'/>
+    </report-list>
+  </task>
+</task>
+</schedule>

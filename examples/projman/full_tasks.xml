@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<task id="ACME">
+  <constraint-resource usage="100" idref="cdp_1" type="manager"/>
+<!-- <constraint-resource usage="100" idref="rh_1" type="administrative"/>-->
+  <constraint-resource usage="100" idref="ing_1" type="engineer"/>
+  <constraint-resource usage="100" idref="ing_2" type="engineer"/>
+  <constraint-resource usage="100" idref="ing_3" type="engineer"/>
+  <label>Projet ComicStrip</label>
+
+  <task id="t1">
+    <label>Première tranche</label>
+    <description>Modélisation des données, adaptation et configuration de
+      Comix, intégration de Comix et <classname>Strip</classname> (voir détails des tâches
+    ci-dessous). <para>Cette première tranche a une durée de huit semaines. Elle est
+    plus longue que les suivantes car elle nécessite la mise en oeuvre du socle
+	sur lequel sera bâtie la solution.</para></description>
+    <constraint-date type="begin-at-date">2005-01-03</constraint-date>
+
+<!--
+    <task id="sp1">
+      <label>Suivi de projet</label>
+      <description><para>Réunions de début et de fin de tranche, réunions
+	  hebdomadaires, comptes-rendus, etc.</para></description>
+      <duration>18</duration>
+      <constraint-resource usage='50' idref='rh_1' type='n/a'/>
+      <constraint-resource usage='100' idref='cdp_1' type='n/a'/>
+    </task>
+-->
+    <task id="model-donnees">
+      <label>Modélisation des données</label>
+      <description>Sur la base des informations fournies dans le cahier des
+      charges et après discussion et vérification, on procédera à la
+      spécification détaillée et la création du schéma des données, des droits 
+      et des rôles associés. Ce schéma constituera la référence du modèle de
+      données pour l'application et tous les composants en feront donc usage.
+      </description>
+      <duration>5</duration>
+      <constraint-resource usage='100' idref='ing_1' type='n/a'/>
+    </task>
+
+    <task id="comix-strip">
+      <label>Intégration de Comix et Strip</label>
+      <description>Les deux logiciels sont actuellement ouverts et capables
+	d'échanger des informations avec d'autres applications, mais leur
+	intégration n'a pas encore été effectuée. Elle consistera à s'assurer
+	<itemizedlist>
+	  <listitem>d'une part que les documents ajoutés au système sont immédiatement indexés
+	    par Comix </listitem>
+	  <listitem>et d'autre part que la recherche et l'affichage des
+	    résultats sont transparents pour l'utilisateur, bien qu'il interagisse
+	    avec Strip et non Comix.</listitem>
+      </itemizedlist></description>
+      <duration>15</duration>
+      <constraint-resource usage='100' idref='ing_1' type='n/a'/>
+      <constraint-resource usage='100' idref='ing_2' type='n/a'/>
+      <constraint-task idref="model-donnees" type='begin-after-begin'/>
+    </task>
+
+    <task id="interface">
+      <label>Interface HTML</label>
+      <description>Sur la base du schéma de données, on commencera par générer
+      automatiquement des vues par défaut afin d'obtenir une première version
+      utilisable de l'application. De nouvelles vues seront créées et les vues
+      existantes seront enrichies.</description>
+      <duration>10</duration>
+      <constraint-resource usage='100' idref='ing_3' type='n/a'/>
+      <constraint-task idref="model-donnees" type='begin-after-end'/>
+    </task>
+
+    <task id="config-acme">
+      <label>Configuration de Comix</label>
+      <description>Configuration de Comix, adaptation des bases et
+      des interfaces de communication pour l'interaction avec Strip.
+      </description>
+      <duration>15</duration>
+      <constraint-resource usage='100' idref='ing_2' type='n/a'/>
+      <constraint-task idref="comix-strip" type='begin-after-end'/>
+    </task>
+  </task>
+
+  <milestone id="end_t1">
+      <label>Fin du premier Lot: état d'avancement</label>
+      <constraint-date type='begin-at-date'>2005-02-03</constraint-date>
+      <constraint-task type='begin-after-end' idref="t1"/>
+  </milestone>
+
+  <task id="t2">
+    <label>Deuxième tranche</label>
+    <description>Mise en place des processus et des droits, personnalisation de
+    l'interface, lien vers des applications externes, interface d'administration
+    (voir détails des tâches ci-dessous).</description>
+    <constraint-task idref="end_t1" type='begin-after-end'/>
+
+<!--
+    <task id="sp2">
+      <label>Suivi de projet</label>
+      <description>Réunions de début et de fin de tranche, réunions
+      hebdomadaires, comptes-rendus, etc.</description>
+      <duration>12</duration>
+      <constraint-resource usage='50' idref='rh_1' type='n/a'/>
+      <constraint-resource usage='100' idref='cdp_1' type='n/a'/>
+    </task>
+-->
+    
+    <task id="proc-droits">
+      <label>Processus et droits</label>
+      <description>Sur la base des informations fournies dans le cahier des
+      charges et des spécifications détaillées énoncées lors de la modélisation
+      des données, on créera dans le système les processus de publication et de
+      validation, ainsi que les rôles et les droits associés.</description>
+      <duration>5</duration>
+      <constraint-resource usage='100' idref='ing_1' type='n/a'/>
+      <constraint-date type='begin-after-date'>2005-02-06</constraint-date>
+    </task>
+
+    <task id="appli-externes">
+      <label>Lien vers les applications externes</label>
+      <description>Mise en place des liens avec les applications
+      externes. Développement des connecteurs éventuellement
+      nécessaires.</description>
+      <duration>7</duration>
+      <constraint-resource usage='100' idref='ing_1' type='n/a'/>
+      <constraint-date type='begin-before-date'>2005-02-12</constraint-date>
+      <constraint-task idref="proc-droits" type='end-after-end'/>
+    </task>
+
+    <task id="interface2">
+      <label>Interface HTML</label>
+      <description>On poursuivra l'adaptation et la personnalisation des vues
+      en modifiant les vues existantes et en ajoutant, si nécessaire, des vues
+      XML et PDF.</description>
+      <duration>10</duration>
+      <constraint-resource usage='100' idref='ing_1' type='n/a'/>
+      <constraint-task idref="proc-droits" type='begin-after-end'/>
+      <constraint-date type='begin-at-date'>2005-02-17</constraint-date>
+      <constraint-date type='end-before-date'>2005-03-03</constraint-date>
+
+    </task>
+  </task>
+  
+
+  <task id="t3">
+    <label>Troisième tranche</label>
+    <description>Mise en place des processus et des droits, personnalisation de
+    l'interface, lien vers des applications externes, interface d'administration
+    (voir détails des tâches ci-dessous).</description>
+    <constraint-task type='begin-after-end' idref="t2"/>
+    <constraint-date type='end-at-date'>2005-04-15</constraint-date>
+
+<!--
+    <task id="sp3">
+      <label>Suivi de projet</label>
+      <description>Réunions de début et de fin de tranche, réunions
+      hebdomadaires, comptes-rendus, etc.</description>
+      <duration>12</duration>
+      <constraint-resource usage='50' idref='rh_1' type='n/a'/>
+      <constraint-resource usage='100' idref='cdp_1' type='n/a'/>
+    </task>
+-->
+
+    <task id="windows">
+      <label>Intégration dans le bureau Windows</label>
+      <description>Comme demandé dans le cahier des charges, on procédera aux
+      développements et paramétrages nécessaires pour qu'un document puisse être
+      publié directement depuis un clic droit sur un fichier dans le bureau ou
+      l'explorateur Windows&#xAE;. Un soin particulier sera apporté à 
+      l'ergonomie de cette méthode de publication, puisqu'il est à prévoir 
+      qu'elle sera très utilisée.</description>
+      <duration>4</duration>
+      <constraint-resource usage='100' idref='ing_1' type='n/a'/>
+    </task>
+
+    <task id="admin-stat">
+      <label>Interface d'administration</label>
+      <description>Une interface d'administration unique unifiera les interfaces
+      d'administration des composants logiciels intégrés. Cette interface
+      comprendra l'accès à la consultation et la génération
+      des statistiques décrites dans le cahier des charges.</description>
+      <duration>8</duration>
+      <constraint-resource usage='100' idref='ing_1' type='n/a'/>
+      <constraint-task type='begin-after-end' idref="appli-externes"/>
+    </task>
+
+    <task id="adaptation-acme">
+      <label>Adaptation de Comix</label>
+      <description>Il sera très probablement nécessaire, après les tests par un
+      éventail d'utilisateurs finaux, d'adapter les lexiques et autres données
+      nécessaires au fonctionnement de Comix afin que les particularités du
+      domaine qui n'avaient pas été prévues soient prises en
+      compte.</description>
+      <duration>6</duration>
+      <constraint-resource usage='100' idref='ing_2' type='n/a'/>
+      <constraint-date type='begin-after-date'>2005-03-15</constraint-date>
+      <constraint-date type='end-before-date'>2005-03-22</constraint-date>
+    </task>
+
+    <task id="interface3">
+      <label>Adaptation de l'interface HTML</label>
+      <description>L'usage de l'application lors des tests par un éventail
+      d'utilisateurs finaux, permettra de démontrer l'adéquation de l'interface
+      développée aux besoins des utilisateurs. Le cas échéant, les modifications
+      nécessaires seront apportées afin de garantir l'ergonomie et l'efficacité
+      du résultat final.</description>
+      <duration>13</duration>
+      <constraint-resource usage='100' idref='ing_1' type='n/a'/>
+      <constraint-task idref="windows" type='begin-after-end'/>
+    </task>
+  </task>
+
+
+  <task id="deployer">
+    <label>Déploiement et mise au point</label>
+    <description>À l'issue du développement et des tests par un éventail
+    d'utilisateurs finaux, on procédera au déploiement de
+    l'application sur l'ensemble des postes et une montée en charge
+    progressive. Compte tenu de la nature de l'application, il suffira de créer
+    des comptes utilisateurs et de s'assurer que les logiciels nécessaires sont
+    installés sur les postes clients, puis de configurer les droits et rôles de
+    chacun. On pourra aussi amorcer l'application en y insérant un certain
+    nombre de documents de référence, afin que les utilisateurs puissent
+    consulter du contenu dès leurs premiers accès. Le déploiement sera
+    principalement effectué par le services informatiques de Acme. Un
+    support sera néanmoins effectué par Logilab afin de pallier tout
+    problème et d'effectuer d'éventuelles mises au point.</description>
+    <constraint-task idref="t3" type='begin-after-end'/>
+
+    <duration>7</duration>
+    <constraint-resource usage='29' idref='ing_1' type='n/a'/>
+<!--
+    <constraint-resource usage='100' idref='rh_1' type='n/a'/>
+-->
+  </task>
+
+
+  <task id="formation">
+    <label>Formation</label>
+    <description>Afin de pérenniser l'investissement consenti dans le
+    développement et la déploiement du système, il est indispensable que les
+    utilisateurs l'adoptent rapidement. Dans ce but, il faut qu'ils puissent
+    être efficacement formés à ses principes et à son utilisation. Une première
+    session de formation sera animée par Logilab pour une dizaine de
+    collaborateurs de Acme. Ces personnes se chargeront ensuite de former
+    l'ensemble des utilisateurs de la solution chez Acme par des
+    formations internes. Une session de formation spécifique sera mise en place
+    pour les administrateurs.</description>
+    <constraint-task type='begin-after-end' idref="deployer"/>
+
+    <task id="support-utilis">
+      <label>Support de formation utilisateur</label>
+      <description>Un support de formation sur-mesure sera rédigé pour les
+      utilisateurs. Il comprendra la description des principes de la gestion de
+      connaissance, l'utilisation de Strip et la recherche avec Comix.</description>
+      <duration>2</duration>
+      <constraint-resource usage='100' idref='ing_1' type='n/a'/>
+    </task>
+
+    <task id="cours-utilis">
+      <label>Session de formation utilisateurs</label>
+      <description>La formation des utilisateurs se fera lors d'une session
+      d'une journée. La taille réduite du groupe (moins de dix personnes)
+      permettra de garantir que tous les participants recevront l'attention
+      nécessaire pour assimiler les informations présentées et obtenir
+      immédiatement une réponse à toutes leurs questions. Au minimum, un poste
+      de travail pour deux personnes seront nécessaires.</description>
+      <duration>1</duration>
+      <constraint-resource usage='100' idref='ing_1' type='n/a'/>
+      <constraint-task type='begin-after-end' idref="support-utilis"/>
+      <constraint-task type='begin-after-end' idref="cours-admin"/>
+    </task>
+
+    <task id="support-admin">
+      <label>Support de formation administrateurs</label>
+      <description>Un support de formation sur-mesure sera rédigé pour les
+      administrateurs de la solution. Il comprendra toutes les informations
+      nécessaires.</description>
+      <duration>4</duration>
+      <constraint-resource usage='100' idref='ing_1' type='n/a'/>
+      <constraint-task type='begin-after-end' idref="support-utilis"/>
+    </task>
+
+    <task id="cours-admin">
+      <label>Session de formation administrateurs</label>
+      <description>La formation des administrateurs se fera lors d'une session
+      de deux journées. Au minimum, un poste de travail pour deux personnes
+      seront nécessaires.</description>
+      <duration>2</duration>
+      <constraint-resource usage='100' idref='ing_1' type='n/a'/>
+      <constraint-task type='begin-after-end' idref="support-admin"/>
+    </task>
+  </task>
+
+</task>

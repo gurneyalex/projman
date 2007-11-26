@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<task id="project1">
+  <constraint-resource usage="1" idref="cdp_1" type="manager"/>
+  <label>Simplest Project</label>
+  <task id="t1_1">
+    <label>self pointing task</label>
+    <description>This taks has a dependency to itself, the reader should pick it up.</description>
+    <duration>25</duration>
+    <constraint-task idref="t1_1" type='begin-after-end'/>	
+    <begin-after-date idref="wrong_tag" type='begin-after-end'/>	
+  </task>
+</task>

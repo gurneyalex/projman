@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- This DTD decribes the attributes and elements for the projman
+     object description. -->
+
+<!-- Public Identifier of this DTD is 
+     "-//LOGILAB//DTD Projman Description V1.0//EN"
+  -->
+
+
+
+<!-- Declaration of various entities for classifying the elements -->
+
+<!ENTITY % project.usage.class "import-project">
+<!ENTITY % resources.usage.class "import-resources">
+<!ENTITY % activities.usage.class "import-activities">
+<!ENTITY % schedule.usage.class "import-schedule">
+
+<!-- Declaration of various entities for classifying the attributes -->
+
+<!ENTITY % file.attribs
+            "file          CDATA                   #REQUIRED">
+
+
+<!-- Projman -->
+
+<!ELEMENT projman ((%projet.usage.class; | %resources.usage.class; |
+                    %activities.usage.class; | %schedule.usage.class;
+                    )*)>
+
+<!-- Imported projects -->
+
+<!ELEMENT import-project EMPTY>
+<!ATTLIST import-project %file.attribs; >
+
+<!-- Imported activities -->
+
+<!ELEMENT import-activities EMPTY>
+<!ATTLIST import-activities %file.attribs; >
+
+<!-- Imported schedules -->
+
+<!ELEMENT import-schedule EMPTY>
+<!ATTLIST import-schedule %file.attribs; >
+
+<!-- Imported resources -->
+
+<!ELEMENT import-resources EMPTY>
+<!ATTLIST import-resources %file.attribs; >

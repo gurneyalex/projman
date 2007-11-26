@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+	<import-tasks file='single_tasked_project.xml'/>
+	<import-resources file='single_resourced_list.xml'/>
+	<import-schedule file='out_simplest_schedule.xml'/>
+	<import-activities file='single_activity.xml'/>
+</project>
