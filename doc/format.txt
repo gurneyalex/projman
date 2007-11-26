@@ -1,0 +1,62 @@
+======
+Format
+======
+
+TODO : turn this into proper document
+
+changes : 
+
+- projman (url=)
+  - activity
+  - project
+  - resources
+  - schedule
+- project 
+  - tasks
+
+new: 
+
+- project (file=)
+  - activity
+  - tasks
+  - resources
+- task
+  -tasks
+
+before : content of progress = 0 - 100 
+now : content of progress = 0. - 1.
+
+before : attr usage = 0 - 100 
+now : attr usage = 0. - 1.
+
+s/import-project/import-tasks/
+
+More notes
+==========
+
+Description of task_file structure
+----------------------------------
+
+Root element : task
+Task can be nested
+Task attrs (all required): 
+
+* id
+
+* load-type :
+
+   * shared : load is distributed among all resources according to
+              other constraints
+
+   * oneof : the full load will be assigned to only one of the
+             resources
+
+   * sameforall : each resource will be assigned the full load (eg. a
+                  meeting)
+
+   * spread : (not working) the resource and the load will be
+              scheduled for the whole duration of the task. eg a
+              manager will work alltogether 5 days during a one month
+              period.
+
+

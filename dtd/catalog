@@ -1,0 +1,22 @@
+  -- ...................................................................... --
+  -- File projman/dtd/catalog                                               --
+  --                                                                        --
+  -- Intent:                                                                --
+  --   This is the catalog data file of Logilab defining the DTDs used by   --
+  --   projman.                                                             --
+  -- ...................................................................... --
+
+
+
+  -- ...................................................................... --
+  -- DTD of Logilab description of diagrams in projman .................... --
+
+PUBLIC "-//LOGILAB//DTD projman structure//EN" "dtd/projman.dtd"
+
+PUBLIC "-//LOGILAB//DTD projman tasks//EN" "dtd/project.dtd"
+
+PUBLIC "-//LOGILAB//DTD projman resources//EN" "dtd/resources.dtd"
+
+PUBLIC "-//LOGILAB//DTD projman past activities//EN" "dtd/activities.dtd"
+
+PUBLIC "-//LOGILAB//DTD projman result of plannification//EN" "dtd/schedule.dtd"

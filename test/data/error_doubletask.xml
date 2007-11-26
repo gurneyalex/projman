@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<task id="double_task">
+  <constraint-resource usage="1" idref="cdp_1" type="manager"/>
+  <label>Simplest Project</label>
+  <task id="double_t1_1">
+    <label>double taks with same id</label>
+    <description>.</description>
+    <duration>25</duration>
+  </task>
+  <task id="double_t1_1">
+    <label>double taks with same id</label>
+    <description>.</description>
+    <duration>33</duration>
+  </task>
+</task>

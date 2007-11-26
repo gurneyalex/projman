@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project id='project1'>
+  <label>Simplest Project</label>
+  <use-resource idref='cdp_1'/>
+  <priority>-1</priority>
+  <task id='t1_1'>
+    <label>Suivi de projet</label>
+    <priority>-1</priority>
+    <duration>25.0</duration>
+  </task>
+  <resources-list>
+    <resource type='manager' id='cdp_1' unitcost='800.0'>
+      <label>Toto</label>
+      <use-timetable idref='typic_cal'/>
+    </resource>
+    <timetable id='typic_cal'>
+      <label>Calendrier Francais</label>
+      <timeoff to='2002-12-31' from='2002-12-26'/>
+      <timeoff to='2003-03-14' from='2003-03-10'/>
+      <timeoff to='2003-08-18' from='2003-08-14'/>
+      <timeoff to='2004-05-21' from='2004-05-20'/>
+      <dayoff type='weekday'>sun</dayoff>
+      <dayoff type='weekday'>sat</dayoff>
+      <dayoff type='holiday'>01-01</dayoff>
+      <dayoff type='holiday'>05-01</dayoff>
+      <dayoff type='holiday'>05-08</dayoff>
+      <dayoff type='holiday'>07-14</dayoff>
+      <dayoff type='holiday'>08-15</dayoff>
+      <dayoff type='holiday'>11-01</dayoff>
+      <dayoff type='holiday'>11-11</dayoff>
+      <dayoff type='holiday'>12-25</dayoff>
+    </timetable>
+  </resources-list>
+</project>

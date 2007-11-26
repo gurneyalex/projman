@@ -1,0 +1,68 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dr:root xmlns:dr='http://www.logilab.org/2004/Documentor'>
+  <dr:object lang='fr' id='project2'>
+    <section id='t2_1'>
+      <title>Developpement</title>
+      <formalpara>
+        <title>Dates</title>
+        <para>du 2005-07-04 au 2005-07-26</para>
+      </formalpara>
+      <section id='t2_11'>
+        <title>Realisation</title>
+        <formalpara>
+          <title>Dates</title>
+          <para>du 2005-07-04 au 2005-07-18</para>
+        </formalpara>
+        <formalpara id='t2_11_ing_1'>
+          <title>Emmanuel Breton</title>
+          <para>6.3 jours.homme</para>
+        </formalpara>
+        <formalpara id='t2_11_ing_2'>
+          <title>Arthur Lutz</title>
+          <para>4.3 jours.homme</para>
+        </formalpara>
+        <formalpara id='t2_11_ing_3'>
+          <title>Sandrine Ribeau</title>
+          <para>4.3 jours.homme</para>
+        </formalpara>
+      </section>
+      <section id='t2_12'>
+        <title>Validation</title>
+        <formalpara>
+          <title>Dates</title>
+          <para>du 2005-07-04 au 2005-07-26</para>
+        </formalpara>
+        <formalpara id='t2_12_ing_2'>
+          <title>Arthur Lutz</title>
+          <para>8.0 jours.homme</para>
+        </formalpara>
+      </section>
+    </section>
+    <section id='t2_2'>
+      <title>Conclusion</title>
+      <formalpara>
+        <title>Dates</title>
+        <para>du 2005-07-26 au 2005-07-26</para>
+      </formalpara>
+      <formalpara id='t2_2_ing_1'>
+        <title>Emmanuel Breton</title>
+        <para>0.7 jours.homme</para>
+      </formalpara>
+      <formalpara id='t2_2_ing_2'>
+        <title>Arthur Lutz</title>
+        <para>0.7 jours.homme</para>
+      </formalpara>
+      <formalpara id='t2_2_ing_3'>
+        <title>Sandrine Ribeau</title>
+        <para>0.7 jours.homme</para>
+      </formalpara>
+    </section>
+    <section id='t2_3'>
+      <title>Recette</title>
+      <formalpara>
+        <title>Dates</title>
+        <para>du 2005-07-11 au 2005-07-11</para>
+      </formalpara>
+    </section>
+  </dr:object>
+</dr:root>

@@ -1,0 +1,168 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dr:root xmlns:dr='http://www.logilab.org/2004/Documentor'>
+  <dr:object lang='fr' id='HELLO'>
+    <table>
+      <title>Tableau récapitulatif des dates</title>
+      <tgroup align='left' colsep='1' cols='4' rowsep='1'>
+        <colspec colwidth='3*' colname='c0'/>
+        <colspec colwidth='2*' colname='c1'/>
+        <colspec colwidth='2*' colname='c2'/>
+        <colspec colwidth='1*' colname='c3'/>
+        <thead>
+          <row>
+            <entry/>
+            <entry align='left'>Date de début</entry>
+            <entry align='left'>Date de fin</entry>
+            <entry align='center'>Durée (jours)</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry align='left'>Première tranche</entry>
+            <entry align='left'>2005-01-03</entry>
+            <entry align='left'>2005-02-07</entry>
+            <entry align='left'>36</entry>
+          </row>
+          <row>
+            <entry align='left'>  Suivi de projet</entry>
+            <entry align='left'>2005-01-03</entry>
+            <entry align='left'>2005-01-18</entry>
+            <entry align='left'>16</entry>
+          </row>
+          <row>
+            <entry align='left'>  Modélisation des données</entry>
+            <entry align='left'>2005-01-03</entry>
+            <entry align='left'>2005-01-10</entry>
+            <entry align='left'>8</entry>
+          </row>
+          <row>
+            <entry align='left'>  Intégration de HELLO et GOODBYE</entry>
+            <entry align='left'>2005-01-04</entry>
+            <entry align='left'>2005-01-17</entry>
+            <entry align='left'>14</entry>
+          </row>
+          <row>
+            <entry align='left'>  Interface HTML</entry>
+            <entry align='left'>2005-01-10</entry>
+            <entry align='left'>2005-01-21</entry>
+            <entry align='left'>12</entry>
+          </row>
+          <row>
+            <entry align='left'>  Configuration de HELLO</entry>
+            <entry align='left'>2005-01-17</entry>
+            <entry align='left'>2005-02-07</entry>
+            <entry align='left'>22</entry>
+          </row>
+          <row>
+            <entry align='left'>Fin du premier Lot: état d'avancement</entry>
+            <entry align='left'>2005-07-11</entry>
+            <entry align='left'>2005-07-11</entry>
+            <entry align='left'>1</entry>
+          </row>
+          <row>
+            <entry align='left'>Deuxième tranche</entry>
+            <entry align='left'>2005-07-11</entry>
+            <entry align='left'>2005-08-10</entry>
+            <entry align='left'>31</entry>
+          </row>
+          <row>
+            <entry align='left'>  Suivi de projet</entry>
+            <entry align='left'>2005-07-11</entry>
+            <entry align='left'>2005-07-21</entry>
+            <entry align='left'>11</entry>
+          </row>
+          <row>
+            <entry align='left'>  Processus et droits</entry>
+            <entry align='left'>2005-07-11</entry>
+            <entry align='left'>2005-07-18</entry>
+            <entry align='left'>8</entry>
+          </row>
+          <row>
+            <entry align='left'>  Lien vers les applications externes</entry>
+            <entry align='left'>2005-07-19</entry>
+            <entry align='left'>2005-07-27</entry>
+            <entry align='left'>9</entry>
+          </row>
+          <row>
+            <entry align='left'>  Interface HTML</entry>
+            <entry align='left'>2005-07-28</entry>
+            <entry align='left'>2005-08-10</entry>
+            <entry align='left'>14</entry>
+          </row>
+          <row>
+            <entry align='left'>Troisième tranche</entry>
+            <entry align='left'>2005-08-10</entry>
+            <entry align='left'>2005-09-15</entry>
+            <entry align='left'>37</entry>
+          </row>
+          <row>
+            <entry align='left'>  Suivi de projet</entry>
+            <entry align='left'>2005-08-10</entry>
+            <entry align='left'>2005-08-22</entry>
+            <entry align='left'>13</entry>
+          </row>
+          <row>
+            <entry align='left'>  Intégration dans le bureau Windows</entry>
+            <entry align='left'>2005-08-11</entry>
+            <entry align='left'>2005-08-17</entry>
+            <entry align='left'>7</entry>
+          </row>
+          <row>
+            <entry align='left'>  Interface d'administration</entry>
+            <entry align='left'>2005-08-18</entry>
+            <entry align='left'>2005-08-29</entry>
+            <entry align='left'>12</entry>
+          </row>
+          <row>
+            <entry align='left'>  Adaptation de HELLO</entry>
+            <entry align='left'>2005-08-10</entry>
+            <entry align='left'>2005-08-18</entry>
+            <entry align='left'>9</entry>
+          </row>
+          <row>
+            <entry align='left'>  Adaptation de l'interface HTML</entry>
+            <entry align='left'>2005-08-30</entry>
+            <entry align='left'>2005-09-15</entry>
+            <entry align='left'>17</entry>
+          </row>
+          <row>
+            <entry align='left'>Déploiement et mise au point</entry>
+            <entry align='left'>2005-09-15</entry>
+            <entry align='left'>2005-09-23</entry>
+            <entry align='left'>9</entry>
+          </row>
+          <row>
+            <entry align='left'>Formation</entry>
+            <entry align='left'>2005-09-22</entry>
+            <entry align='left'>2005-10-05</entry>
+            <entry align='left'>14</entry>
+          </row>
+          <row>
+            <entry align='left'>  Support de formation utilisateur</entry>
+            <entry align='left'>2005-09-22</entry>
+            <entry align='left'>2005-09-26</entry>
+            <entry align='left'>5</entry>
+          </row>
+          <row>
+            <entry align='left'>  Session de formation utilisateurs</entry>
+            <entry align='left'>2005-09-26</entry>
+            <entry align='left'>2005-09-27</entry>
+            <entry align='left'>2</entry>
+          </row>
+          <row>
+            <entry align='left'>  Support de formation administrateurs</entry>
+            <entry align='left'>2005-09-27</entry>
+            <entry align='left'>2005-10-03</entry>
+            <entry align='left'>7</entry>
+          </row>
+          <row>
+            <entry align='left'>  Session de formation administrateurs</entry>
+            <entry align='left'>2005-10-03</entry>
+            <entry align='left'>2005-10-05</entry>
+            <entry align='left'>3</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </dr:object>
+</dr:root>

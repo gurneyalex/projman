@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<task id="project1">
+  <constraint-resource usage="100" idref="cdp_1" type="manager"/>
+  <label>Simplest Project</label>
+  <task id="t1_1">
+    <label>Suivi de projet</label>
+    <description>Réunions de début et de fin de tranche, réunions
+      hebdomadaires, <emphasis>comptes-rendus</emphasis>, etc.</description>
+    <duration>25</duration>
+  </task>
+</task>

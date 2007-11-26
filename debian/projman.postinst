@@ -1,0 +1,14 @@
+#! /bin/sh -e
+#
+
+# Install SGML catalog entries
+CENTRALCAT=/etc/sgml/projman.cat
+ORDCAT="projman/catalog"
+if [ "$1" = configure ] ; then
+    update-catalog --quiet --add $CENTRALCAT /usr/share/sgml/$ORDCAT
+    update-catalog --quiet --add --super $CENTRALCAT
+fi
+
+#DEBHELPER#
+
+exit 0

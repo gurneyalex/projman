@@ -1,0 +1,3 @@
+version=2
+ftp://ftp.logilab.org/pub/projman/projman-(.*)\.tar\.gz debian uupdate
+

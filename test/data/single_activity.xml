@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<activities id="project1">
+  <reports-list task-id="t_1">
+    <report idref="cdp_1" from="2004-04-01" to="2004-04-02" usage="1"/>
+  </reports-list>
+</activities>

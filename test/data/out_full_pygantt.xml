@@ -1,0 +1,207 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<task id='HELLO'>
+  <label>Projet HELLO-GOODBYE</label>
+  <use-resource idref='cdp_1'/>
+  <use-resource idref='rh_1'/>
+  <use-resource idref='ing_1'/>
+  <use-resource idref='ing_2'/>
+  <use-resource idref='ing_3'/>
+  <priority>-1</priority>
+  <task id='t1'>
+    <label>Première tranche</label>
+    <priority>-1</priority>
+    <constraint type='begin-at-date'>2005-01-01</constraint>
+    <task id='sp1'>
+      <label>Suivi de projet</label>
+      <use-resource idref='rh_1'/>
+      <use-resource idref='cdp_1'/>
+      <priority>-1</priority>
+      <duration>18.0</duration>
+    </task>
+    <task id='model-donnees'>
+      <label>Modélisation des données</label>
+      <use-resource idref='ing_1'/>
+      <priority>-1</priority>
+      <duration>5.5</duration>
+    </task>
+    <task id='lkm-goodbye'>
+      <label>Intégration de HELLO et GOODBYE</label>
+      <use-resource idref='ing_1'/>
+      <use-resource idref='ing_2'/>
+      <priority>-1</priority>
+      <duration>15.0</duration>
+      <constraint type='begin-after-begin'>model-donnees</constraint>
+    </task>
+    <task id='interface'>
+      <label>Interface HTML</label>
+      <use-resource idref='ing_3'/>
+      <priority>-1</priority>
+      <duration>10.0</duration>
+      <constraint type='begin-after-end'>model-donnees</constraint>
+    </task>
+    <task id='config-hello'>
+      <label>Configuration de HELLO</label>
+      <use-resource idref='ing_2'/>
+      <priority>-1</priority>
+      <duration>15.0</duration>
+      <constraint type='begin-after-end'>lkm-goodbye</constraint>
+    </task>
+  </task>
+  <task id='end_t1'>
+    <label>Fin du premier Lot: état d'avancement</label>
+    <constraint type='begin-at-date'>2005-02-01</constraint>
+    <constraint type='begin-after-end'>interface</constraint>
+    <constraint type='begin-after-end'>config-hello</constraint>
+  </task>
+  <task id='t2'>
+    <label>Deuxième tranche</label>
+    <priority>-1</priority>
+    <constraint type='begin-after-end'>end_t1</constraint>
+    <task id='sp2'>
+      <label>Suivi de projet</label>
+      <use-resource idref='rh_1'/>
+      <use-resource idref='cdp_1'/>
+      <priority>-1</priority>
+      <duration>12.0</duration>
+    </task>
+    <task id='proc-droits'>
+      <label>Processus et droits</label>
+      <use-resource idref='ing_1'/>
+      <priority>-1</priority>
+      <duration>5.0</duration>
+      <constraint type='begin-after-date'>2005-02-04</constraint>
+    </task>
+    <task id='appli-externes'>
+      <label>Lien vers les applications externes</label>
+      <use-resource idref='ing_1'/>
+      <priority>-1</priority>
+      <duration>7.0</duration>
+      <constraint type='begin-before-date'>2005-02-10</constraint>
+      <constraint type='end-after-end'>proc-droits</constraint>
+    </task>
+    <task id='interface2'>
+      <label>Interface HTML</label>
+      <use-resource idref='ing_1'/>
+      <priority>-1</priority>
+      <duration>10.0</duration>
+      <constraint type='begin-at-date'>2005-02-15</constraint>
+      <constraint type='end-before-date'>2005-03-01</constraint>
+      <constraint type='begin-after-end'>proc-droits</constraint>
+    </task>
+  </task>
+  <task id='t3'>
+    <label>Troisième tranche</label>
+    <priority>-1</priority>
+    <constraint type='end-at-date'>2005-03-31</constraint>
+    <constraint type='begin-after-end'>t2</constraint>
+    <task id='sp3'>
+      <label>Suivi de projet</label>
+      <use-resource idref='rh_1'/>
+      <use-resource idref='cdp_1'/>
+      <priority>-1</priority>
+      <duration>12.0</duration>
+    </task>
+    <task id='windows'>
+      <label>Intégration dans le bureau Windows</label>
+      <use-resource idref='ing_1'/>
+      <priority>-1</priority>
+      <duration>4.0</duration>
+    </task>
+    <task id='admin-stat'>
+      <label>Interface d'administration</label>
+      <use-resource idref='ing_1'/>
+      <priority>-1</priority>
+      <duration>8.0</duration>
+      <constraint type='begin-after-end'>appli-externes</constraint>
+    </task>
+    <task id='adaptation-hello'>
+      <label>Adaptation de HELLO</label>
+      <use-resource idref='ing_2'/>
+      <priority>-1</priority>
+      <duration>6.0</duration>
+    </task>
+    <task id='interface3'>
+      <label>Adaptation de l'interface HTML</label>
+      <use-resource idref='ing_1'/>
+      <priority>-1</priority>
+      <duration>13.0</duration>
+      <constraint type='begin-after-end'>windows</constraint>
+    </task>
+  </task>
+  <task id='deployer'>
+    <label>Déploiement et mise au point</label>
+    <use-resource idref='ing_1'/>
+    <use-resource idref='rh_1'/>
+    <priority>-1</priority>
+    <duration>7.0</duration>
+    <constraint type='begin-after-end'>t3</constraint>
+  </task>
+  <task id='formation'>
+    <label>Formation</label>
+    <priority>-1</priority>
+    <constraint type='begin-after-end'>deployer</constraint>
+    <task id='support-utilis'>
+      <label>Support de formation utilisateur</label>
+      <use-resource idref='ing_1'/>
+      <priority>-1</priority>
+      <duration>2.0</duration>
+    </task>
+    <task id='cours-utilis'>
+      <label>Session de formation utilisateurs</label>
+      <use-resource idref='ing_1'/>
+      <priority>-1</priority>
+      <duration>1.0</duration>
+    </task>
+    <task id='support-admin'>
+      <label>Support de formation administrateurs</label>
+      <use-resource idref='ing_1'/>
+      <priority>-1</priority>
+      <duration>4.0</duration>
+    </task>
+    <task id='cours-admin'>
+      <label>Session de formation administrateurs</label>
+      <use-resource idref='ing_1'/>
+      <priority>-1</priority>
+      <duration>2.0</duration>
+    </task>
+  </task>
+  <resources-list>
+    <resource type='manager' id='cdp_1' unitcost='800.0'>
+      <label>Nicolas Chauvat</label>
+      <use-timetable idref='typic_cal'/>
+    </resource>
+    <resource type='administrative' id='rh_1' unitcost='720.0'>
+      <label>Olivier Cayrol</label>
+      <use-timetable idref='typic_cal'/>
+    </resource>
+    <resource type='engineer' id='ing_1' unitcost='640.0'>
+      <label>Emmanuel Breton</label>
+      <use-timetable idref='typic_cal'/>
+    </resource>
+    <resource type='engineer' id='ing_2' unitcost='640.0'>
+      <label>Arthur Lutz</label>
+      <use-timetable idref='typic_cal'/>
+    </resource>
+    <resource type='engineer' id='ing_3' unitcost='640.0'>
+      <label>Sandrine Ribeau</label>
+      <use-timetable idref='typic_cal'/>
+    </resource>
+    <timetable id='typic_cal'>
+      <label>Calendrier Francais</label>
+      <timeoff to='2002-12-31' from='2002-12-26'/>
+      <timeoff to='2003-03-14' from='2003-03-10'/>
+      <timeoff to='2003-08-18' from='2003-08-14'/>
+      <timeoff to='2004-05-21' from='2004-05-20'/>
+      <dayoff type='weekday'>sun</dayoff>
+      <dayoff type='weekday'>sat</dayoff>
+      <dayoff type='holiday'>01-01</dayoff>
+      <dayoff type='holiday'>05-01</dayoff>
+      <dayoff type='holiday'>05-08</dayoff>
+      <dayoff type='holiday'>07-14</dayoff>
+      <dayoff type='holiday'>08-15</dayoff>
+      <dayoff type='holiday'>11-01</dayoff>
+      <dayoff type='holiday'>11-11</dayoff>
+      <dayoff type='holiday'>12-25</dayoff>
+    </timetable>
+  </resources-list>
+</task>

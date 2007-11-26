@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<task id="project2">
+  <constraint-resource usage="100" idref="ing_1" type="engineer"/>
+  <constraint-resource usage="100" idref="ing_2" type="engineer"/>
+  <constraint-resource usage="100" idref="ing_3" type="engineer"/>
+  <label>Trivial Project</label>
+  <task id="t2_1">
+    <label>Développement</label>
+    <task id="t2_11" load-type="shared" load="15">
+      <label>Réalisation</label>
+    </task>
+    <task id="t2_12" load-type="oneof" load="8">
+      <label>Validation</label>
+      <constraint-task  type="begin-after-end" idref="t2_11"/>
+    </task>
+  </task>
+
+  <task id="t2_2" load-type="sameforall" load="2">
+    <label>Conclusion</label>
+    <constraint-task  type="begin-after-end" idref="t2_12"/>
+    <constraint-task  type="begin-after-end" idref="t2_3"/>
+  </task>
+
+  <milestone id="t2_3">
+    <label>Recette</label>
+	<constraint-task idref="t2_12" type="begin-after-end"/>
+  </milestone>
+</task>

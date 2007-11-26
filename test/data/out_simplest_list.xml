@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dr:root xmlns:dr='http://www.logilab.org/2004/Documentor'>
+  <dr:object lang='fr' id='project1'>
+    <section id='t1_1'>
+      <title>Suivi de projet</title>
+      <para>Réunions de début et de fin de tranche, réunions      hebdomadaires, <emphasis>comptes-rendus</emphasis>, etc.</para>
+      <formalpara>
+        <title>Dates</title>
+        <para>du 2005-07-11 au 2005-08-16</para>
+      </formalpara>
+      <formalpara id='t1_1_cdp_1'>
+        <title>Toto</title>
+        <para>25 jours.homme</para>
+      </formalpara>
+    </section>
+  </dr:object>
+</dr:root>

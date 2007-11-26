@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- This DTD decribes the attributes and elements for a project description 
+     in PyGantt. -->
+
+<!-- Public Identifier of this DTD is 
+     "-//LOGILAB//DTD PyGantt Project Description V1.0//EN"
+  -->
+
+
+
+<!-- Declaration of various entities for classifying the elements -->
+<!ENTITY % label.class "label,description?">
+<!ENTITY % resources.usage.class "resource">
+<!ENTITY % task.tree.class "task|milestone|import-project">
+<!ENTITY % constraint.class "constraint-task|constraint-date|constraint-resource">
+<!ENTITY % timing.class "duration?,progress?">
+<!ENTITY % task.desc.class "priority">
+
+<!-- Declaration of local class that can be overrided by extension -->
+<!ENTITY % local.project.class "">
+<!ENTITY % local.task.class "">
+
+<!-- Declaration of various entities for classifying the attributes -->
+<!ENTITY % id.attribs 
+            "id            ID                      #REQUIRED">
+<!ENTITY % idref.attribs 
+            "idref         CDATA                   #REQUIRED">
+<!ENTITY % constraint.def.attribs
+            "type          (begin-after-date|begin-at-date
+                            |begin-before-date|end-after-date
+                            |end-at-date|end-before-date
+          		            |begin-after-end|begin-after-begin
+                            |end-after-end|end-after-begin
+                            |synchronized)         #REQUIRED">
+<!ENTITY % constraint.resource.def.attribs
+            "usage         CDATA                   #REQUIRED">
+
+<!ENTITY % resource.type.attribs
+            "type          CDATA                   #IMPLIED">
+                           <!-- usual resource types are 
+                                worker", "computer"...   -->
+
+<!-- Project -->
+
+<!ELEMENT project ((%label.class;)?,(%resources.usage.class;)*,
+                   (%constraint.class;)*,(%task.tree.class;)+,
+                   (%local.project.class;), (%task.desc.class)?) >
+<!ATTLIST project %id.attribs; >
+
+
+<!-- To import other projects -->
+
+<!ELEMENT import-project EMPTY >
+<!ATTLIST import-project %file.attribs; >
+
+
+<!-- Task -->
+<!ELEMENT task ((%label.class;)?,(%constraint.class;)*,
+                ((%timing.class;)|(%task.tree.class;)*,
+                (%task.desc.class)?)) %local.task.class;) >
+<!ATTLIST task %id.attribs; >
+
+
+<!-- Milestone -->
+<!-- FIXME: MileStone should not support ressource constraint -->
+<!ELEMENT milestone ((%label.class;)?, (%constraint.class;)*,
+                    (%task.tree.class;)*)>
+<!ATTLIST milestone %id.attribs; >
+
+<!-- label, description, duration and progress of the task -->
+
+<!ELEMENT label (#PCDATA)>
+
+<!ELEMENT description (ANY)> <!-- description may contain XML DOCBOOK -->
+
+<!ELEMENT duration (#PCDATA)>
+<!ATTLIST duration %time.unit.attribs; >
+
+<!ELEMENT progress (#PCDATA)>
+
+
+<!-- constraint on beginning and end date of tasks and between tasks. -->
+<!ELEMENT constraint-task EMPTY>
+<!ATTLIST constraint-task %idref.attribs; %constraint.def.attribs; >
+
+<!-- constraint between tasks  -->
+<!ELEMENT constraint-date (#PCDATA)>
+<!ATTLIST constraint-date %constraint.def.attribs; >
+
+<!-- constraint on resources to use for tasks -->
+<!ELEMENT constraint-resource EMPTY>
+<!ATTLIST constraint-resource %constraint.resource.def.attribs;
+%resource.type.attribs; %idref.attribs; >
+
+

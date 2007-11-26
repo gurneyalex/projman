@@ -1,0 +1,205 @@
+=========
+ projman
+=========
+
+Projman is a tool to help manage projects.
+
+TODO: add complete list of functionnalities.
+
+
+
+XML Views
+----------
+
+projman can report about a project by generating XML reports to be later
+transformed into HTML or PDF.
+
+TBD: when a task is partly done, it currently appears in tables for its full
+cost and not the remaining cost. Is this the desired behavior ?
+
+
+Projman DTD
+-----------
+
+what is a duration ? a number of days to work on a task ?
+
+
+Pygantt DTD
+-----------
+
+what is a duration ? a number of days to work on a task ?
+
+
+Pygantt conversion
+------------------
+
+if a pygantt task has two resources, it comes up in projman has
+two the original duration. is this correct ?
+
+
+Timestep
+--------
+
+what scale to use on diagrams ? days/weeks/months/quarters/semesters/year
+instead of current "timestep" ?
+
+
+========================
+ Copié de site intranet
+========================
+
+
+
+
+Modèle structure projet
+***********************
+
+Ce document présente les différents objets qui seront utilisés pour la représentation d'une structure de projet dans Pygantt et Projman.
+
+Milestone(VNode)
+----------------
+
+Cet objet décrit un type de tâche minimal, le jalon.
+
+Attributs :
+
+    * id : identifiant de la tâche
+    * title : nom de la tâche
+    * task_constraints : contraintes de tâches
+    * date_constraints : contraintes de dates
+
+Méthodes :
+
+Task(Milestone)
+---------------
+
+Cet objet décrit toutes tâches composant un projet. Les différences avec la précedente version de Pygantt se situent dans la notion de description de projet. PGTask tel qu'il est défini ci-dessous a pour fonction de décrire un projet par les tâches qui le composent et les contraintes en terme de dates, de priorités et de ressources qu'exige ce projet. La notion de ressource utilisée disparait pour être intégrée à l'objet PGResource.
+
+Attributs :
+
+    * priority : priorité de la tâche
+    * duration : durée initialement prévue pour cette tâche
+    * progress : pourcentage de progression de la tâche
+    * resource_constraints : contraintes de ressource (une liste de triplet, chaque triplet représente le type de ressource exigée, l'identifiant de la ressource affectée et le pourcentage d'usage de la ressource nécessaire pour cette tâche)
+
+Méthodes :
+
+    * is_finished(self) : boolean # teste si une tâche est terminée
+    * get_task(self, task_id) : PGTask # retourne l'objet tâche associé à task_id
+    * add_task_constraint(self, type, task_id) : # ajoute une contrainte de tâche
+    * add_date_constraint(self, type, date) : # ajoute une contrainte de date
+    * add_resource_contraint(self, type, usage) : # ajoute une contrainte de ressource
+    * relative_duration(self) : int # retourne une estimation du nombre de jours restants
+    * get_status(self): string # retourne le statut de la tâche (ready, in-progress, todo, done)
+    * priorities_as_constraints(self) : # transforme les priorités en contrainte de tâche de type begin-after-begin
+
+Project(Task)
+-------------
+
+Cet objet décrit la tâche parent dans l'arborescence d'un projet. Il permet d'accéder aux ressources que l'on peut affecter aux tâches du projet.
+
+Attributs:
+
+    * resources : dictionnaire des ressources disponibles pour le projet indexées par type
+
+Méthodes :
+
+    * get_resource(self, r_id) : PGResource # retourne la ressource ayant l'identifiant r_id
+    * get_resources(self, type) : [] # retourne la liste des ressources ayant le type exigé
+    * add_resource(self, resource) : # ajoute resource à la liste des ressources affectées au projet
+
+
+Modèle structure ressources
+***************************
+
+Ce document présente les différents objets qui seront utilisés pour la représentation d'une structure de ressources dans Pygantt et Projman.
+
+Resource
+--------
+
+Cette version propose un modèle de ressource qui intègre la notion d'occupation des ressources via l'attribut allocations qui permet de savoir à quelle tâche sont affectées les ressources et le pourcentage d'utilisation de la resource pour chaque tâche affectée.
+
+Attributs:
+
+    * id : identifiant de la ressource
+    * name : nom de la ressource
+    * type : type de la ressource
+    * timetable : calendrier associé à la ressource
+
+Méthodes :
+
+    * percent_usage_on(self) : # total du poucentage d'utilisation de la ressource
+    * tasks_number_on(self) : # nombre de tâches affectées à la ressource
+    * work_on(self, datetime) : boolean # teste si la ressource est disponible d'après son timetable
+    * is_busy(self) : boolean # retourne vrai si le ressource est utilisée à plus de 100%
+    * percent_free(self) : int # retourne le pourcentage de liberté d'une ressource
+
+TimeTable
+---------
+
+Cet objet décrit le calendrier des disponibilités.
+
+Attributs:
+
+    * id : identifiant du calendrier
+    * name : nom du calendrier
+    * inherits : identifiant du calendrier dont l'objet courant hérite
+    * onweekend : {} dictionnaire des jours de la semaine usuelle pour définir les jours de weekend et les jours de travail
+    * aholidays : [] # liste des jours fériés (date relative mm/jj)
+    * onholidays : [] # liste des périodes de vacances [(datedebut, datefin)]
+    * start_on : date de début du calendrier
+    * stop_on : date de fin du calendrier
+
+Méthodes:
+
+    * add_timeoff(self, begindate, endate) : # ajoute une période de vacances à la timetable
+    * is_available(self, datetime) : boolean # retourne vrai si datetime n'est pas un jour d'indisponibilité
+    * add_dayoff(self, type, date) : # ajoute un jour d'indisponibilité dans ce calendrier
+
+
+Modèle de structure activité
+****************************
+
+Ce modèle décrit l'ensemble des activités enregistrées, une série de rapports faits par les ressources pour résumer leurs occupations.
+
+Report
+------
+
+Cet objet décrit un rapport d'activité d'une ressource.
+
+Attributs :
+
+    * begin : date de début de l'activité enregistrée
+    * end : date de fin de début de l'activité enregistrée
+    * tasks : tâche sur laquelle l'activité est enregistrée associée au pourcentage du temps passé sur cette tâche {task_id:percentage_used}
+    * res_id : ressource qui déclare son activité
+
+Méthodes :
+
+    * contains(self, datetime) : boolean # retourne vrai si datetime est contenu dans l'intervalle de temps entre begin et end
+    * duration(self, futur=None) : int # retourne le nombre de jour pour lequels une activité a été enregistrée
+
+ReportsSet
+----------
+
+Cet objet décrit l'ensemble des activités enregistrées pour un projet.
+
+Attributs :
+
+    * reports : liste des Report associés à un PGProjet
+
+Méthodes :
+
+    * get_activities(self, res_id) : [] # retourne la liste des quadruplets (begin, end, task_id, percentage_used) enregistrés pour la ressource res_id
+    * get_used_resources(self, task_id) : [] # retourne l'ensemble des ressources qui ont été utilisées par cette tâche
+
+
+taskcoach
+
+cousin très éloigné de projman
+
+L'adresse du lien est : http://members.chello.nl/f.niessink/
+
+zepp
+
+L'adresse du lien est : http://zepp.zeomega.com/

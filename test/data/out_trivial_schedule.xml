@@ -1,0 +1,68 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<schedule>
+  <milestone id='t2_3'>
+    <constraint-date type='at-date'>2005-07-11</constraint-date>
+  </milestone>
+  <task id='t2_2'>
+    <constraint-date type='begin-at-date'>2005-07-26</constraint-date>
+    <constraint-date type='end-at-date'>2005-07-26</constraint-date>
+    <global-cost unit='euros'>1280.0</global-cost>
+    <status>todo</status>
+    <costs_list>
+      <cost idref='ing_1'>0.66666666666666663</cost>
+      <cost idref='ing_2'>0.66666666666666663</cost>
+      <cost idref='ing_3'>0.66666666666666663</cost>
+    </costs_list>
+    <report-list>
+      <report usage='0.66666666666666663' to='2005-07-26' idref='ing_1' from='2005-07-26'/>
+      <report usage='0.66666666666666663' to='2005-07-26' idref='ing_2' from='2005-07-26'/>
+      <report usage='0.66666666666666663' to='2005-07-26' idref='ing_3' from='2005-07-26'/>
+    </report-list>
+  </task>
+  <task id='t2_12'>
+    <constraint-date type='begin-at-date'>2005-07-04</constraint-date>
+    <constraint-date type='end-at-date'>2005-07-26</constraint-date>
+    <status>current</status>
+    <global-cost unit='euros'>5120.0</global-cost>
+    <costs_list>
+      <cost idref='ing_2'>8.0</cost>
+    </costs_list>
+    <report-list>
+      <report usage='0.66666666666666663' to='2005-07-18' idref='ing_2' from='2005-07-18'/>
+      <report usage='1' to='2005-07-19' idref='ing_2' from='2005-07-19'/>
+      <report usage='1' to='2005-07-20' idref='ing_2' from='2005-07-20'/>
+      <report usage='1' to='2005-07-21' idref='ing_2' from='2005-07-21'/>
+      <report usage='1' to='2005-07-22' idref='ing_2' from='2005-07-22'/>
+      <report usage='1' to='2005-07-25' idref='ing_2' from='2005-07-25'/>
+      <report usage='0.33333333333333331' to='2005-07-26' idref='ing_2' from='2005-07-26'/>
+    </report-list>
+  </task>
+  <task id='t2_11'>
+    <constraint-date type='begin-at-date'>2005-07-04</constraint-date>
+    <constraint-date type='end-at-date'>2005-07-18</constraint-date>
+    <status>current</status>
+    <global-cost unit='euros'>9600.0</global-cost>
+    <costs_list>
+      <cost idref='ing_1'>6.33333333333333331</cost>
+      <cost idref='ing_2'>4.33333333333333331</cost>
+      <cost idref='ing_3'>4.33333333333333331</cost>
+    </costs_list>
+    <report-list>
+      <report usage='1' to='2005-07-11' idref='ing_1' from='2005-07-11'/>
+      <report usage='1' to='2005-07-12' idref='ing_1' from='2005-07-12'/>
+      <report usage='1' to='2005-07-13' idref='ing_1' from='2005-07-13'/>
+      <report usage='1' to='2005-07-15' idref='ing_1' from='2005-07-15'/>
+      <report usage='0.33333333333333331' to='2005-07-18' idref='ing_1' from='2005-07-18'/>
+      <report usage='1' to='2005-07-11' idref='ing_2' from='2005-07-11'/>
+      <report usage='1' to='2005-07-12' idref='ing_2' from='2005-07-12'/>
+      <report usage='1' to='2005-07-13' idref='ing_2' from='2005-07-13'/>
+      <report usage='1' to='2005-07-15' idref='ing_2' from='2005-07-15'/>
+      <report usage='0.33333333333333331' to='2005-07-18' idref='ing_2' from='2005-07-18'/>
+      <report usage='1' to='2005-07-11' idref='ing_3' from='2005-07-11'/>
+      <report usage='1' to='2005-07-12' idref='ing_3' from='2005-07-12'/>
+      <report usage='1' to='2005-07-13' idref='ing_3' from='2005-07-13'/>
+      <report usage='1' to='2005-07-15' idref='ing_3' from='2005-07-15'/>
+      <report usage='0.33333333333333331' to='2005-07-18' idref='ing_3' from='2005-07-18'/>
+    </report-list>
+  </task>
+</schedule>

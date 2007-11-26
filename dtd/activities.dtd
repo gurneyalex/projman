@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- This DTD decribes the attributes and elements for the activities 
+     for Projman  -->
+       
+
+<!-- Public Identifier of this DTD is 
+     "-//LOGILAB//DTD Projman Activity Description V1.0//EN"
+  -->
+
+
+<!DOCTYPE activities [
+<!-- Declaration of various entities for classifying the elements -->
+<!ENTITY % label.class "label">
+<!ENTITY % activities.class "reports-list">
+<!ENTITY % timing.class "report">
+
+<!-- Declaration of local class that can be overridden by extension -->
+<!ENTITY % local.activities.class "">
+
+<!-- Declaration of various entities for classifying the attributes -->
+<!ENTITY % idref.attribs 
+            "idref         CDATA                   #REQUIRED">
+<!ENTITY % slot.def.attribs
+            "from          CDATA                   #REQUIRED
+             to            CDATA                   #REQUIRED">
+<!ENTITY % constraint.resource.def.attribs
+            "usage         CDATA                   #REQUIRED">  
+
+<!-- Reports list -->
+
+<!ELEMENT activities ((%activities.class;)*) >
+
+<!-- Activities -->
+
+<!ELEMENT reports-list (%timing.class;)+>
+<!ATTLIST task-id %idref.attribs; >
+
+<!-- begin and end date of a time slot spent working on the task for the referenced resource. YYYY/MM/DD -->
+<!ELEMENT report EMPTY>
+<!ATTLIST report %idref.attribs; %slot.def.attribs; %constraint.resource.def.attribs; >
+]>
