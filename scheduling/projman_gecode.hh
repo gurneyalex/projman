@@ -23,6 +23,8 @@ protected:
     /// Variables
     SetVarArray res_tasks;      // days a resource is scheduled for a given task
     IntVar last_day;
+    IntVar eta_cost;            // sum of the last days (idx) of all tasks used as a cost
+    IntVarArray last_days;      // the last day of each task
     IntVarArray milestones;
 public:
     /// The actual problem
