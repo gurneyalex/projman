@@ -52,19 +52,19 @@ void ProjmanProblem::set_first_day( uint_t d )
 }
 
 task_t::task_t( std::string task_id, load_type_t lt, int _load,
-		uint_t _range_low, uint_t _range_high ):
+		uint_t _range_low, uint_t _range_high, bool _can_interrupt ):
     tid(task_id), load_type(lt), load(_load),
     range_low(_range_low), cmp_type_low(0),
     range_high(_range_high), cmp_type_high(0),
-    convex(true)
+    convex(true), can_interrupt(_can_interrupt)
 {
 }
 
 
-uint_t ProjmanProblem::add_task( std::string task_name, load_type_t load_type, int load )
+uint_t ProjmanProblem::add_task( std::string task_name, load_type_t load_type, int load, bool can_interrupt )
 {
     uint_t task_id;
-    tasks.push_back( task_t( task_name, load_type, load, 0, max_duration ) );
+    tasks.push_back( task_t( task_name, load_type, load, 0, max_duration, can_interrupt ) );
     task_id = tasks.size()-1;
     if (load_type==TASK_MILESTONE) {
 	milestones.push_back( task_id );

@@ -181,7 +181,7 @@ class CSPScheduler:
 
         pseudo_tasks = []
         for tid, (num, _type, duration, resources) in real_tasks_items:
-            task_num = pb.add_task( tid, _type, int(duration) )
+            task_num = pb.add_task( tid, _type, int(duration), 0 ) # 0: for future use (interruptible flag)
             low, high = self.task_ranges[tid]
             if _VERBOSE>1:
                 print "Task %2d = #%2d [%4s,%4s] = '%20s'" % ((task_num,duration,low,high,tid,))
