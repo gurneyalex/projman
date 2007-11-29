@@ -1,0 +1,25 @@
+.. -*- coding: utf-8; mode: rst -*-
+
+
+Truc à faire dans projman-edit
+------------------------------
+
+ - finir les trucs qui ne marchent pas :
+
+   * ajout d'une contrainte par un menu contextuel ou par un clic dans une zone vide de la liste
+   * ajout/édition des ressources
+   * vue/ajout/édition des contraintes de date (j'avais pensé les mettre dans la même liste que les contraintes)
+   * réordonner les tâches par drag and drop
+
+ - faire des nouveaux trucs:
+
+   * le panneau schedule : prévu pour avoir un bouton schedule, un menu déroulant qui liste les solutions et permet
+     d'afficher les graphiques
+
+   * ajouter un bouton 'check spelling' qui souligne les mots non reconnus dans la description
+
+   * faire différents panneaux avec différentes vues des états que projman est censé pouvoir fournir
+
+   * un éditeur de calendrier...
+
+

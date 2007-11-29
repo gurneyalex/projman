@@ -1,0 +1,17 @@
+
+installation pour les développeurs
+
+dans un répertoire : faire un checkout de:
+
+top/
+
+  logilab/common
+  logilab/doctools
+  projman
+  projman-edit
+
+voila
+
+cd top/projman-edit/projmanedit
+python main.py
+
