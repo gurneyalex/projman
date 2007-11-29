@@ -53,7 +53,7 @@ enum load_type_t {
     TASK_MILESTONE
 };
 struct task_t {
-    task_t( std::string tid, load_type_t lt, int _load, uint_t _range_low, uint_t _range_high );
+    task_t( std::string tid, load_type_t lt, int _load, uint_t _range_low, uint_t _range_high, bool _can_interrupt );
     std::string tid;
     load_type_t load_type;
     int         load; // workload, whatever it means depending on load_type
@@ -63,6 +63,7 @@ struct task_t {
     int         range_high;
     int         cmp_type_high;
     bool        convex;
+    bool        can_interrupt; // Whether this task can interrupt other 'convex' tasks
     
     std::vector<uint_t> resources; // resources allocated to this task
     std::vector<uint_t> res_tasks_id; // res_tasks id associated with the resource
@@ -153,7 +154,7 @@ public:
     std::vector< res_task_t > res_tasks; //bookeeping only
     std::vector< uint_t > milestones; // mapping milestone to task_id
 
-    uint_t add_task( std::string task_name, load_type_t load_type, int load );
+    uint_t add_task( std::string task_name, load_type_t load_type, int load, bool can_interrupt );
     void set_task_range( uint_t task_id, uint_t range_low, uint_t range_high,
 			 int cmp_type_low, int cmp_type_high );
     uint_t add_worker( std::string worker_name );
