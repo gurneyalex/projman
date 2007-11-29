@@ -12,13 +12,23 @@ using namespace std;
 ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
     : res_tasks(this,pb.res_tasks.size(),IntSet::empty,0,pb.max_duration-1),
       last_day(this,0,pb.max_duration),
+      eta_cost(this,0,pb.max_duration*pb.res_tasks.size()),
+      last_days(this,pb.tasks.size(),0,pb.max_duration),
       milestones(this,pb.milestones.size(),0,pb.max_duration-1)
 {
+    /* here: real task means a task as defined by the project_task.xml
+             pseudo task is used to designate the part of a real task done by
+             a specific resource
+    */
     uint_t i,j;
+    /* real_tasks: the day-print of each real (user defined) tasks */
     SetVarArray real_tasks(this, pb.tasks.size(), IntSet::empty,0,pb.max_duration-1);
+    /* hull:  */
     SetVarArray hull(this, pb.res_tasks.size(), IntSet::empty,0,pb.max_duration-1);
+    /* task_plus_nw_cvx: the pseudo-task plus the non-working days between start and end of the task */
     SetVarArray task_plus_nw_cvx(this, pb.res_tasks.size(),
 				 IntSet::empty,0,pb.max_duration-1);
+    /* not_working_res: set of non-working days for each resource  */
     IntSet not_working_res[pb.resources.size()];
 
     for(i=0;i<pb.resources.size();++i)
@@ -187,6 +197,13 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
     rel(this, SOT_UNION, task_plus_nw_cvx, all_days );
     dom(this, all_days, SRT_SUP, pb.first_day );
     max(this, all_days, last_day);
+
+#if 1
+    for(uint_t task_id=0;task_id<pb.tasks.size();++task_id) {
+	max(this, real_tasks[task_id], last_days[task_id] );
+    }
+    linear(this, last_days, IRT_EQ, eta_cost );
+#endif
 #if 0
     // si on a des trous, ça merdoie...
     // on peut avoir des trous avec les contraintes de dates
@@ -363,18 +380,34 @@ template void ProjmanSolver::run<BAB>(ProjmanProblem& pb, Search::Stop *stop);
 
 void ProjmanSolver::constrain(Space* s)
 {
-    IntVar& v = static_cast<ProjmanSolver*>(s)->last_day;
-    uint_t day = v.val(); // XXX -1 make it an option?
+    ProjmanSolver* solver = static_cast<ProjmanSolver*>(s);
+    uint_t day = solver->last_day.val(); // XXX -1 make it an option?
+
+#if 1
+    /* constraint 1 : finish all tasks earliest */
     dom(this, last_day, 0, day );
     for(int i=0;i<res_tasks.size();++i) {
 	dom(this,res_tasks[i],SRT_SUB,0,day);
     }
+#endif
+#if 1
+    int _eta_cost=0;
+    /* constraint 2 : the sum of finish time for all tasks must be smallest */
+    for(int i=0;i<last_days.size();++i) {
+	_eta_cost+=solver->last_days[i].val();
+    }
+    cout << "ETA SUM:" << _eta_cost << "/" << day << endl;
+    /* post constraint that next sum of last days must be less than or equal to current */
+    dom(this, eta_cost,0,_eta_cost);
+#endif
 }
 
 ProjmanSolver::ProjmanSolver(bool share, ProjmanSolver& s) : Space(share,s)
 {
     res_tasks.update(this, share, s.res_tasks);
     last_day.update(this, share, s.last_day);
+    eta_cost.update(this, share, s.eta_cost);
+    last_days.update(this, share, s.last_days);
     milestones.update(this, share, s.milestones);
 }
 
