@@ -9,20 +9,24 @@ import gobject
 
 _main_module = sys.modules[__name__]
 _main_dir = osp.dirname( _main_module.__file__)
-_toplevel = osp.abspath(osp.join(_main_dir,".."))
+_toplevel = osp.abspath(osp.join(_main_dir,"..",".."))
 
 try:
-    import projmanedit
+    import projman
+    import projman.projmanedit
 except ImportError:
-    sys.path.insert(0,_toplevel) # for projmanedit
-    sys.path.insert(0,osp.join(_toplevel,"..")) # for projman
-    import projmanedit
+    if "projman" in sys.modules:
+        del sys.modules["projman"]
+    sys.path.insert(0,_toplevel) # for projman
+    print "using path=", sys.path[0]
+    import projman
+    import projman.projmanedit
 
 from projman.readers import ProjectXMLReader
 from projman.writers.projman_writer import write_tasks_as_xml
-from projmanedit.gui.taskedit import TaskEditor
+from projman.projmanedit.gui.taskedit import TaskEditor
 
-GLADE=projmanedit.GLADE
+GLADE=projman.projmanedit.GLADE
 
 XMLFILTER = gtk.FileFilter()
 XMLFILTER.set_name("XML file")
