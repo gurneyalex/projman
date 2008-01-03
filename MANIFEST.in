@@ -1,8 +1,9 @@
 include ChangeLog
 include announce.txt
 include logging.conf
-include DEPENDS
-include TODO
+include DEPENDS 
+include TODO 
+include COPYING
 include scheduling/*.hh
 
 recursive-include doc *
