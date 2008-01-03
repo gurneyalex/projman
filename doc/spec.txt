@@ -7,6 +7,8 @@ Projman is a tool to help manage projects.
 TODO: add complete list of functionnalities.
 
 
+Definitions
+***********
 
 XML Views
 ----------
@@ -42,12 +44,6 @@ Timestep
 
 what scale to use on diagrams ? days/weeks/months/quarters/semesters/year
 instead of current "timestep" ?
-
-
-========================
- Copié de site intranet
-========================
-
 
 
 
