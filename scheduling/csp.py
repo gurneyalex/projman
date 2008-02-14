@@ -142,7 +142,17 @@ class CSPScheduler:
                 for high_leaf in lbp[high]:
                     self.constraints.add(fi.StartsAfterEnd(high_leaf.id,
                                                            low_leaf.id))
-    
+
+    def activity_usage_counter_by_task(self, activities, tid):
+        """
+        count number of days already affected to the task(tid)
+        """
+        usage = 0
+        for element in activities:
+            if tid == element[3]:
+                usage = usage + element[4]
+        return usage
+
     def schedule(self, verbose=0):
         """
         Update the project's schedule
@@ -181,7 +191,11 @@ class CSPScheduler:
 
         pseudo_tasks = []
         for tid, (num, _type, duration, resources) in real_tasks_items:
-            task_num = pb.add_task( tid, _type, int(duration), 0 ) # 0: for future use (interruptible flag)
+            # gestion des charges flottantes
+            duration_ = duration
+            if duration % 1 > 0 :
+                duration_ = duration - (duration % 1) + 1
+            task_num = pb.add_task( tid, _type, int(duration_), 0 ) # 0: for future use (interruptible flag)
             low, high = self.task_ranges[tid]
             if _VERBOSE>1:
                 print "Task %2d = #%2d [%4s,%4s] = '%20s'" % ((task_num,duration,low,high,tid,))
@@ -227,7 +241,12 @@ class CSPScheduler:
             num, tid, res_id = pseudo_tasks[pid]
             for d in days:
                 date = self.start_date + d
-                activities.append( (date, date, res_id, tid, 1.) )
+                delta = self.real_tasks[tid][2] - self.activity_usage_counter_by_task( activities, tid )
+                if delta > 1:
+                    usage = 1.0
+                else:
+                    usage = delta
+                activities.append( (date, date, res_id, tid, usage) )
 
         milestone = 0
         nmilestones = SOL.get_nmilestones()
