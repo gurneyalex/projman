@@ -30,7 +30,7 @@ class TaskEditor(gobject.GObject):
         self.setup_ui()
         app.ui.signal_autoconnect(self)
         app.connect("project-changed", self.on_project_changed )
-        self.w("spinbutton_duration").get_adjustment().set_all(0,0,100000,1,1,1)
+        self.w("spinbutton_duration").get_adjustment().set_all(0,0,100000,0.1,1,1)
 
     def setup_ui(self):
         self.constraints_type_model = gtk.ListStore(gobject.TYPE_STRING)
@@ -264,10 +264,10 @@ class TaskEditor(gobject.GObject):
         if task.description_format == "rest":
             buf.set_language(None)
             self.w("combobox_description_format").set_active(1)
-        else:
+        elif task.description_format == "docbook":
             buf.set_language( XMLLANG )
             self.w("combobox_description_format").set_active(0)
-        if not task.description_raw:
+        else:
             self.w("combobox_description_format").set_active(2)
 
         buf.set_text( task.description_raw )
@@ -303,11 +303,28 @@ class TaskEditor(gobject.GObject):
         title = entry.get_text()
         self.current_task.title = title
         self.task_model.set_value( itr, 0, title )
+
+    def on_entry_task_id_changed(self, entry):
+        itr = self.task_model.get_iter( self.current_task_path )
+        task_id = entry.get_text()
+        self.current_task.id = task_id
+        self.task_model.set_value( itr, 1, task_id )
         
     def on_spinbutton_duration_changed(self, spin):
         dur = self.w("spinbutton_duration").get_adjustment().get_value()
         self.current_task.duration = dur
 
+    def on_combobox_scheduling_type_changed(self, combo):
+        model = combo.get_model()
+        iter = combo.get_active_iter()
+        load_type = model.get_value(iter, 0)
+        self.current_task.load_type = LOAD_TYPE_MAP[load_type]
+
+    def on_combobox_description_format_changed(self, combo):
+        model = combo.get_model()
+        iter = combo.get_active_iter()
+        description_format = model.get_value(iter, 0)
+        self.current_task.description_format = description_format.lower()
 
     def on_treeview_all_tasks_button_press_event(self, treeview, event):
         if event.button != 3:

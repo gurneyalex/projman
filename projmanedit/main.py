@@ -99,8 +99,24 @@ class MainApp(gobject.GObject):
         task_file = osp.join( basedir, self.files['tasks'] )
         write_tasks_as_xml( task_file, self.project )
 
+
     def on_save_as_cmd_activate(self,*args):
         print "save as", args
+        dlg = gtk.FileChooserDialog('Save as...',
+                                    None,
+                                    gtk.FILE_CHOOSER_ACTION_SAVE,
+                                    (gtk.STOCK_CANCEL,
+                                     gtk.RESPONSE_CANCEL,
+                                     gtk.STOCK_SAVE,
+                                     gtk.RESPONSE_OK))
+        dlg.add_filter( XMLFILTER )
+        dlg.add_filter( ANYFILTER )
+        res = dlg.run()
+        fname = dlg.get_filename()
+        dlg.destroy()
+        if res!=gtk.RESPONSE_OK:
+            return
+        write_tasks_as_xml( fname, self.project )
 
     def on_quit_cmd_activate(self, *args):
         gtk.main_quit()
