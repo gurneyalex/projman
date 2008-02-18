@@ -241,10 +241,10 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkButton" id="button1">
+		    <widget class="GtkButton" id="button_apply">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
-		      <property name="label" translatable="yes">button1</property>
+		      <property name="label" translatable="yes">Apply</property>
 		      <property name="use_underline">True</property>
 		      <property name="relief">GTK_RELIEF_NORMAL</property>
 		      <property name="focus_on_click">True</property>
@@ -372,6 +372,7 @@
 			  <property name="has_frame">True</property>
 			  <property name="invisible_char">●</property>
 			  <property name="activates_default">False</property>
+              <signal name="changed" handler="on_entry_task_id_changed" last_modification_time="Thu, 01 Nov 2007 16:16:34 GMT"/>
 			</widget>
 			<packing>
 			  <property name="left_attach">1</property>
@@ -386,13 +387,14 @@
 		      <child>
 			<widget class="GtkComboBox" id="combobox_scheduling_type">
 			  <property name="visible">True</property>
-			  <property name="items" translatable="yes">Shared
-One of
-Same for all
-Spread
-Milestone</property>
+			  <property name="items" translatable="yes">shared
+oneof
+sameforall
+spread
+milestone</property>
 			  <property name="add_tearoffs">False</property>
 			  <property name="focus_on_click">True</property>
+              <signal name="changed" handler="on_combobox_scheduling_type_changed" last_modification_time="Mon, 17 Feb 2008 14:37:35 GMT"/>
 			</widget>
 			<packing>
 			  <property name="left_attach">1</property>
@@ -409,13 +411,13 @@ Milestone</property>
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
 			  <property name="climb_rate">1</property>
-			  <property name="digits">0</property>
+			  <property name="digits">1</property>
 			  <property name="numeric">False</property>
 			  <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 			  <property name="snap_to_ticks">False</property>
 			  <property name="wrap">False</property>
-			  <property name="adjustment">0 0 100 1 10 10</property>
-			  <signal name="changed" handler="on_spinbutton_duration_changed" last_modification_time="Thu, 01 Nov 2007 16:23:35 GMT"/>
+			  <property name="adjustment">0 0 100 0.1 10 10</property>
+			  <signal name="value_changed" handler="on_spinbutton_duration_changed" last_modification_time="Thu, 01 Nov 2007 16:23:35 GMT"/>
 			</widget>
 			<packing>
 			  <property name="left_attach">1</property>
@@ -644,6 +646,7 @@ Rest
 None</property>
 			  <property name="add_tearoffs">False</property>
 			  <property name="focus_on_click">True</property>
+              <signal name="changed" handler="on_combobox_description_format_changed" last_modification_time="Mon, 17 Feb 2008 14:37:35 GMT"/>
 			</widget>
 			<packing>
 			  <property name="left_attach">1</property>
