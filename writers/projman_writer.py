@@ -133,7 +133,7 @@ class TasksVisitor:
         elem = ET.Element('task', id=node.id)
         self.set_common_attr( node, elem )
         for rtype, rid, usage in node.resource_constraints:
-            ET.SubElement( elem, "constraint-resource", usage=usage,
+            ET.SubElement( elem, "constraint-resource", usage=str(usage),
                            idref=rid, type=rtype )
         
         self.parents.append(elem)
@@ -169,9 +169,13 @@ class TasksVisitor:
                 text = u"<description format='docbook'>%s</description>" % node.description_raw
                 el = ET.fromstring(text.encode("utf-8"))
                 elem.append( el )
-            else:
+            elif node.description_format=='rest':
                 el = ET.SubElement( elem, "description", format="rest" )
                 el.text = node.description_raw
+            else:
+                text = u"<description>%s</description>" % node.description_raw
+                el = ET.fromstring(text.encode("utf-8"))
+                elem.append( el )
         for ctype, tid in node.task_constraints:
             ET.SubElement( elem, "constraint-task", type=ctype, idref=tid )
 

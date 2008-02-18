@@ -208,11 +208,13 @@ class ProjectXMLReader(AbstractXMLReader) :
         for cr in task.findall("constraint-resource"):
             t.add_resource_constraint( cr.get("type"), cr.get("idref"), float(cr.get("usage")) )
         desc = task.find("description")
-        txt_fmt = "docbook"
+        txt_fmt = "none"
         if desc is None:
             txt = u""
             raw_txt = u""
         else:
+            if desc.get("format")=="docbook":
+                txt_fmt = "docbook"
             txt = unicode(desc.text) or u""
             for n in desc:
                 txt+=unicode(ET.tostring(n,"utf-8"),"utf-8")
