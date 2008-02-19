@@ -40,6 +40,13 @@ class TaskEditor(gobject.GObject):
         self.setup_constraints_tree()
         self.setup_resources_tree()
 
+    def setup_project_files_path(self):
+        self.w("entry_project_tasks_file").set_text(self.app.files['tasks'])
+        self.w("entry_project_activites_file").set_text(self.app.files['activities'])
+        self.w("entry_project_resources_file").set_text(self.app.files['resources'])
+        self.w("entry_project_schedule_file").set_text(self.app.files['schedule'])
+        self.w("window_main").set_title("Projman - "+str(self.app.project_file))
+
     def build_task_tree_popup(self, task_path, del_task=True):
         task_popup = gtk.Menu()
         task = self.get_task_from_path(task_path)
@@ -244,7 +251,7 @@ class TaskEditor(gobject.GObject):
                         return retour
                 retour = self.get_task_iter_from_id_sublevels(task_id,self.task_model.iter_next(itr))
                 if retour != None:
-                        return retour
+                    return retour
 
     def get_task_iter_from_id(self, task_id):
         itr = self.task_model.get_iter_first()
@@ -259,7 +266,9 @@ class TaskEditor(gobject.GObject):
         has changed"""
         print app.project
         print app.files
+        self.setup_project_files_path()
         self.refresh_task_list()
+        
 
     def on_task_selection_changed(self, sel):
         model, itr = sel.get_selected()
@@ -481,3 +490,15 @@ class TaskEditor(gobject.GObject):
         self.current_task.task_constraints.remove( (constr, value) )
         self.current_task.add_task_constraint( constr, new_text )
         self.constraints_model.set_value( itr, 1, new_text )
+
+    def on_button_project_resources_show_button_press_event(self, button, evt):
+        self.w("notebook1").set_current_page(1)
+
+    def on_button_project_activities_show_button_press_event(self, button, evt):
+        self.w("notebook1").set_current_page(2)
+
+    def on_button_project_tasks_show_button_press_event(self, button, evt):
+        self.w("notebook1").set_current_page(3)
+
+    def on_button_project_schedule_show_button_press_event(self, button, evt):
+        self.w("notebook1").set_current_page(4)
