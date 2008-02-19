@@ -42,19 +42,27 @@ class TaskEditor(gobject.GObject):
 
     def build_task_tree_popup(self, task_path, del_task=True):
         task_popup = gtk.Menu()
-        add_item = gtk.MenuItem("Add task")
-        add_item.connect("activate", self.popup_add_task, task_path )
-        task_popup.attach(add_item, 0, 1, 0, 1 )
-        add_item = gtk.MenuItem("Add milestone")
-        add_item.connect("activate", self.popup_add_milestone, task_path )
-        task_popup.attach(add_item, 0, 1, 1, 2 )
+        task = self.get_task_from_path(task_path)
+
+        if not self.app.project is None:
+            if self.app.project.root_task and task_path and task.TYPE != "milestone":
+                add_item = gtk.MenuItem("Add task")
+                add_item.connect("activate", self.popup_add_task, task_path )
+                task_popup.attach(add_item, 0, 1, 0, 1 )
+                add_item = gtk.MenuItem("Add milestone")
+                add_item.connect("activate", self.popup_add_milestone, task_path )
+                task_popup.attach(add_item, 0, 1, 1, 2 )
+
         if del_task and task_path is not None:
-            del_item = gtk.MenuItem("Delete task")
+            if task.TYPE != "milestone":
+                del_item = gtk.MenuItem("Delete task")
+            else:
+                del_item = gtk.MenuItem("Delete milestone")
             del_item.connect("activate", self.popup_del_task, task_path )
             task_popup.attach(del_item, 0, 1, 2, 3 )
+
         task_popup.show_all()
         return task_popup
-        
 
     def setup_resources_tree(self):
         tree = self.w("treeview_task_resources")
@@ -169,8 +177,6 @@ class TaskEditor(gobject.GObject):
             sibling_id = None
             model.append( parent_itr, row )
 
-
-
         if context.action == gtk.gdk.ACTION_MOVE:
             task_src.parent.remove( task_src )
 
@@ -185,20 +191,17 @@ class TaskEditor(gobject.GObject):
             if sibling_pos==2:
                 i+=1
             parent_dest.insert(i,task_new)
-                
-            
         context.finish(True, True, timestamp)
 
     def drag_task_deleted(self, treeview, context):
         print "DRAG DELETED:", context
-        
+
     def drag_task_get(self, treeview, context, selection, target_id, etime):
         print "DATA GET", target_id
         treeselection = treeview.get_selection()
         model, iter = treeselection.get_selected()
         tid = model.get_value(iter, 1)
         selection.set(selection.target, 8, tid)
-
 
     def refresh_task_list(self, sel_task_id=None, sel_task=None):
         model = self.task_model
@@ -218,7 +221,7 @@ class TaskEditor(gobject.GObject):
             # select the task
             itr = self.get_task_iter_from_id( sel_task_id )
             tree.get_selection().select_iter( itr )
-            
+
     def get_task_from_path(self, path):
         root_task = self.app.project.root_task
         itr = self.task_model.get_iter( path )
@@ -227,15 +230,30 @@ class TaskEditor(gobject.GObject):
             return root_task.get_task( task_id )
         else:
             return None
-        
-    def get_task_iter_from_id(self, task_id):
-        itr = self.task_model.get_iter_first()
-        while itr:
+
+    def get_task_iter_from_id_sublevels(self, task_id, itr):
+        retour = None
+        if itr:
             tid = self.task_model.get_value( itr, 1 )
             if task_id == tid:
                 return itr
-            itr = self.task_model.iter_next( itr )
-            
+            else:
+                if self.task_model.iter_has_child(itr):
+                    retour = self.get_task_iter_from_id_sublevels(task_id,self.task_model.iter_children(itr))
+                    if retour != None:
+                        return retour
+                retour = self.get_task_iter_from_id_sublevels(task_id,self.task_model.iter_next(itr))
+                if retour != None:
+                        return retour
+
+    def get_task_iter_from_id(self, task_id):
+        itr = self.task_model.get_iter_first()
+        itr_ = self.get_task_iter_from_id_sublevels(task_id,itr)
+        if itr_ != None:
+            return itr_
+        else:
+            return itr
+
     def on_project_changed(self, app):
         """Propagates the fact that the project file
         has changed"""
@@ -269,6 +287,17 @@ class TaskEditor(gobject.GObject):
             self.w("combobox_description_format").set_active(0)
         else:
             self.w("combobox_description_format").set_active(2)
+
+        #securité acces load si taches filles
+        has_child = task.children
+        if has_child:
+            task.duration=0.0
+        self.w("spinbutton_duration").set_sensitive(not has_child)
+        self.w("combobox_scheduling_type").set_sensitive(not has_child)
+
+        if task.TYPE=="milestone":
+            self.w("combobox_scheduling_type").set_sensitive(False)
+            self.w("spinbutton_duration").set_sensitive(False)
 
         buf.set_text( task.description_raw )
         self.w("spinbutton_duration").get_adjustment().set_value( task.duration )
@@ -319,6 +348,7 @@ class TaskEditor(gobject.GObject):
         iter = combo.get_active_iter()
         load_type = model.get_value(iter, 0)
         self.current_task.load_type = LOAD_TYPE_MAP[load_type]
+        self.update_task_info()
 
     def on_combobox_description_format_changed(self, combo):
         model = combo.get_model()
@@ -347,8 +377,21 @@ class TaskEditor(gobject.GObject):
         return 1
 
     def popup_add_task(self, item, path):
+        if path is None:
+            return
         root_task = self.app.project.root_task
         parent_task = self.get_task_from_path( path )
+
+        if not parent_task.children:
+            dlg = gtk.MessageDialog(parent=None, flags=0, 
+                    type=gtk.MESSAGE_QUESTION, 
+                    buttons=gtk.BUTTONS_YES_NO, 
+                    message_format= "Warning : Adding a Task as a child of Task(%s) will reset the load value of it. \n Are you sure ?" % parent_task.id);
+            ret = dlg.run()
+            dlg.destroy()
+            if ret == gtk.RESPONSE_NO:
+                return
+
         if not parent_task:
             parent_task = root_task
         if not isinstance(parent_task, Task):
@@ -362,30 +405,67 @@ class TaskEditor(gobject.GObject):
                 break
             i = i + 1
         new_task = MODEL_FACTORY.create_task( new_id )
+        new_task.title = "#TODO"
+        new_task.description_raw = "#TODO"
         parent_task.append( new_task )
-        self.refresh_task_list(task_id=new_id)
+        self.refresh_task_list(sel_task_id=new_id)
 
     def popup_add_milestone(self, item, path):
-        pass
-        
+        if path is None:
+            return
+        root_task = self.app.project.root_task
+        parent_task = self.get_task_from_path( path )
+
+        if not parent_task.children:
+            dlg = gtk.MessageDialog(parent=None, flags=0, 
+                    type=gtk.MESSAGE_QUESTION, 
+                    buttons=gtk.BUTTONS_YES_NO, 
+                    message_format= "Warning : Adding a Milestone as a child of Task(%s) will reset the load value of it. \n Are you sure ?" % parent_task.id);
+            ret = dlg.run()
+            dlg.destroy()
+            if ret == gtk.RESPONSE_NO:
+                return
+
+        if not parent_task:
+            parent_task = root_task
+        if not isinstance(parent_task, Task):
+            print "XXX: CAN'T MILESTONE TASK TO MILESTONE"
+            return
+        ids = set([ task.id for task in root_task.flatten() ])
+        i = 1
+        while 1:
+            new_id = "milestone_"+parent_task.id+"_%s"%i
+            if new_id not in ids:
+                break
+            i = i + 1
+        new_task = MODEL_FACTORY.create_milestone( new_id )
+        new_task.TYPE="milestone"
+        new_task.load_type=LOAD_TYPE_MAP["milestone"]
+        new_task.title = "#TODO"
+        parent_task.append( new_task )
+        self.refresh_task_list(sel_task_id=new_id)
+
     def popup_del_task(self, item, path):
         task = self.get_task_from_path( path )
         parent = task.parent
         if not parent:
-            print "XXX: CAN'T DELETE ROOT"
+            dlg = gtk.MessageDialog(parent=None, flags=0, type=gtk.MESSAGE_WARNING, buttons=gtk.BUTTONS_OK, message_format= "Error : Root task can't be deleted.")
+            dlg.run()
+            dlg.destroy()
             return
         if task.children:
-            print "XXX: TASK HAS CHILDREN"
+            dlg = gtk.MessageDialog(parent=None, flags=0, type=gtk.MESSAGE_WARNING, buttons=gtk.BUTTONS_OK, message_format= "Error : Can't delete task(%s), task has children." % task.id)
+            dlg.run()
+            dlg.destroy()
             return
         parent.remove( task )
-        self.refresh_task_list(task=parent)
-        
+        self.refresh_task_list(sel_task=parent)
+
     def on_textview_task_description_changed(self, buf):
         _beg = buf.get_start_iter()
         _end = buf.get_end_iter()
         txt = buf.get_text( _beg, _end )
         self.current_task.description_raw = txt
-
 
     def on_constraint_type_edited(self, renderer, path, new_text):
         itr = self.constraints_model.get_iter( path )

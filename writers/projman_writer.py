@@ -123,8 +123,6 @@ def schedule_as_dom(project):
                 act_element.set('to', end.date)
     return doc
 
-
-
 class TasksVisitor:
     def __init__(self):
         self.parents = []
@@ -157,7 +155,7 @@ class TasksVisitor:
         self.parents.pop()
 
     def visit_milestone(self, node):
-        elem = ET.SubElement( self.parents[-1], 'task', id=node.id )
+        elem = ET.SubElement( self.parents[-1], 'milestone', id=node.id )
         self.set_common_attr( node, elem )
 
     def set_common_attr(self, node, elem):
