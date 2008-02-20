@@ -69,6 +69,9 @@ class MainApp(gobject.GObject):
         # build specific ui controlers
         self.taskeditor = TaskEditor( self )
 
+    def get_project_path(self):
+        return self.project_file[0:self.project_file.rindex("/")+1]
+
     def on_new_cmd_activate(self,*args):
         print "new", args
 
@@ -89,8 +92,38 @@ class MainApp(gobject.GObject):
 
     def load_project(self, fname):
         self.project_file = fname
-        reader = ProjectXMLReader( fname, None )
+        reader = ProjectXMLReader( fname, None, True )
         self.project, self.files = reader.read()
+        from projman.scheduling.csp import CSPScheduler
+        scheduler = CSPScheduler(self.project)
+        scheduler.schedule()
+        self.project = scheduler.project
+        from projman.writers.projman_writer import write_schedule_as_xml
+        schedule_file=str(self.get_project_path())+str(self.files["schedule"])
+        write_schedule_as_xml(self.get_project_path()+self.files["schedule"],self.project)
+
+        from projman.renderers import GanttRenderer, HandlerFactory
+        handler = HandlerFactory("png")
+        # it works !! but HOW  ??? ......
+        options = handler
+        options.timestep = 1
+        options.detail = 2
+        options.depth = 0
+        options.view_begin = None
+        options.view_end = None
+        options.showids = False
+        options.rappel = False
+        options.output = None
+        options.selected_resource = None
+        options.format = "png"
+        options.del_ended = False
+        options.del_empty = False
+        # end of mystic code ...
+        renderer = GanttRenderer(options, handler)
+        output = self.get_project_path()+"gantt.png"
+        stream = handler.get_output(output)
+        renderer.render(self.project, stream)
+        self.taskeditor.w("image1").set_from_file(output)
         self.emit("project-changed")
         
     def on_save_cmd_activate(self,*args):
@@ -98,6 +131,7 @@ class MainApp(gobject.GObject):
         basedir = osp.dirname( self.project_file )
         task_file = osp.join( basedir, self.files['tasks'] )
         write_tasks_as_xml( task_file, self.project )
+        self.load_project(self.project_file)
 
 
     def on_save_as_cmd_activate(self,*args):
@@ -117,6 +151,7 @@ class MainApp(gobject.GObject):
         if res!=gtk.RESPONSE_OK:
             return
         write_tasks_as_xml( fname, self.project )
+        self.load_project(self.project_file)
 
     def on_quit_cmd_activate(self, *args):
         gtk.main_quit()
