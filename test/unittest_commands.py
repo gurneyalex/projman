@@ -56,6 +56,7 @@ class ScheduleTest(AbstractCommandTest):
 
     def test_default(self):
         """Check if a schedule file is created and can be read again"""
+        self.skip("this test needs rewrite")
         try:
             os.remove(self.sched)
         except OSError, e:
