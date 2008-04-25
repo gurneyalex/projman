@@ -235,8 +235,8 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
 
 	cout << "ALL DAYS:" << all_days << endl;
     }
-    branch(this, res_tasks, SETBVAR_MIN_CARD, SETBVAL_MIN);
-    branch(this, milestones, BVAR_NONE, BVAL_MIN);
+    branch(this, res_tasks, SET_VAR_MIN_CARD, SET_VAL_MIN);
+    branch(this, milestones, INT_VAR_NONE, INT_VAL_MIN);
 }
 
 
@@ -346,7 +346,7 @@ void ProjmanSolver::run( ProjmanProblem& pb, Search::Stop *stop )
 	n_p = s->propagators();
 	n_b = s->branchings();
     }
-    Engine<ProjmanSolver> e(s,pb.c_d,pb.a_d,stop);
+    Engine<ProjmanSolver> e(s); //,stop); //pb.c_d,pb.a_d,stop);
     delete s;
     do {
 	ProjmanSolver* ex = e.next();
@@ -459,7 +459,7 @@ void ProjmanSolver::register_order( const ProjmanProblem& pb,
 		max(this, real_tasks[p0], bound0);
 	    }
 	} else {
-	    eq(this, bound0, milestones[task0.milestone]);
+	  rel(this, bound0, IRT_EQ, milestones[task0.milestone]);
 	    rel_type = IRT_GQ;
 	}
 
@@ -475,8 +475,8 @@ void ProjmanSolver::register_order( const ProjmanProblem& pb,
 		break;
 	    }
 	} else {
-	    eq(this, bound1, milestones[task1.milestone]);
-	    //rel_type = IRT_GQ;
+	  rel(this, bound1, IRT_EQ, milestones[task1.milestone]);
+	  //rel_type = IRT_GQ;
 	}
 
 	rel(this, bound0, rel_type, bound1);
