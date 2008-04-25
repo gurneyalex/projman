@@ -28,7 +28,7 @@
 #include <ctime>
 #include <cmath>
 
-#include "gecode/config.icc"
+#include "gecode/support/config.icc"
 
 /*
  * Support for measuring time
