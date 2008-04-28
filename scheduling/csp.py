@@ -30,6 +30,7 @@ for t in CST.TASK_CONSTRAINTS:
     GCSPMAP[t] = getattr(GCSP_CST, name)
 
 _VERBOSE=2
+FACTOR = 1
 
 class CSPScheduler:
     """
@@ -159,16 +160,16 @@ class CSPScheduler:
         Return list of errors occured during schedule
         """
         _VERBOSE = verbose
-        self.max_duration = int(self.max_duration*1.5)
+        self.max_duration = int(self.max_duration * 1.5 )#!!
         if _VERBOSE>0:
             print "Tasks", len(self.real_tasks)
             print "Res", len(self.resources)
             print "Dur", self.max_duration
-        pb = ProjmanProblem( int(self.max_duration) )
-        pb.set_first_day( self.first_day )
+        pb = ProjmanProblem( int(self.max_duration * FACTOR) )#!!
+        pb.set_first_day( self.first_day )#!!qd ferie
         real_tasks_items = self.real_tasks.items()
         real_tasks_items.sort( key = lambda x:x[1][0] )
-
+        dt = []
         if _VERBOSE:
             print "occupation"
             print "----------"
@@ -178,10 +179,11 @@ class CSPScheduler:
             res = self.project.get_resource( res_id )
             res_num = pb.add_worker( res_id )
             resources_map[res_id] = res_num
+            #gestion calendrier jours feries et we
             for d in range(int(self.max_duration)):
                 dt = self.start_date + d
                 if not res.is_available( dt ):
-                    pb.add_not_working_day( res_num, d )
+                    pb.add_not_working_day( res_num, d )#!!
                     sched.append("x")
                 else:
                     sched.append(".")
@@ -193,7 +195,7 @@ class CSPScheduler:
         for tid, (num, _type, duration, resources) in real_tasks_items:
             # gestion des charges flottantes
             duration_ = duration
-            if duration % 1 > 0 :
+            if duration % 1 > 0 :#!!
                 duration_ = duration - (duration % 1) + 1
             task_num = pb.add_task( tid, _type, int(duration_), 0 ) # 0: for future use (interruptible flag)
             low, high = self.task_ranges[tid]
