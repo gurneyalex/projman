@@ -242,7 +242,7 @@ class Task(TaskNode):
     Attributes:
       - priority: integer from 0 (lowest) to 9, -1 means inherits
         parent's priority
-      - duration: integer estimated duration of the task 
+      - duration: integer estimated duration of the task
       - progress: integer progress of task (in percent)
       - resource_constraints: sequence of tuples (type, id_res,
         usage), can be used without id_res for planning with type of
