@@ -16,6 +16,8 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
       last_days(this,pb.tasks.size(),0,pb.max_duration),
       milestones(this,pb.milestones.size(),0,pb.max_duration-1)
 {
+	int st=0;
+	unsigned long pn=0;
     /* here: real task means a task as defined by the project_task.xml
              pseudo task is used to designate the part of a real task done by
              a specific resource
@@ -183,9 +185,10 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
 #endif
 	}
     }
-    
     if (pb.verbosity>3) {
-	cout << "Before convex" << endl;
+    st = status( pn );
+	cout << "1 Propagation status="<<st<<" pn="<<pn<<endl;	
+    cout << "Before convex" << endl;
 	debug(pb, "Pseudo tasks", res_tasks);
 	cout << "------------------" << endl;
     }
@@ -193,15 +196,22 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
     // union of tasks is convex
     // and contains 0
     SetVar all_days(this);
-    //SetVar all_w_days(this);
+    SetVar all_w_days(this);
     rel(this, SOT_UNION, task_plus_nw_cvx, all_days );
     dom(this, all_days, SRT_SUP, pb.first_day );
     max(this, all_days, last_day);
 
-#if 1
+    if (pb.verbosity>3) {
+    	st = status( pn );
+    	cout << "2 Propagation status="<<st<<" pn="<<pn<<endl;
+    }
+
+#if 0
     for(uint_t task_id=0;task_id<pb.tasks.size();++task_id) {
 	max(this, real_tasks[task_id], last_days[task_id] );
     }
+	st = status( pn );
+	cout << "2xPropagation status="<<st<<" pn="<<pn<<endl;
     linear(this, last_days, IRT_EQ, eta_cost );
 #endif
 #if 0
@@ -209,31 +219,43 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
     // on peut avoir des trous avec les contraintes de dates
     convex(this, all_days);
 #endif
-    //rel(this, SOT_UNION, tasks, all_w_days );
-    //dom(this, all_w_days, SRT_SUP, 0 );
+    rel(this, SOT_UNION, res_tasks, all_w_days ); // all_w_days = union (res_tasks)
+//    dom(this, all_w_days, SRT_SUP, 1 ); // {1} in all_w_days
+//    dom(this, all_w_days, SRT_SUP, 0 );// {0} in all_w_days
 
-    register_order( pb, real_tasks );
-    
-    if (pb.verbosity>1) {
 	if (pb.verbosity>3) {
-	    cout << "Current Res" << endl;
-	    debug(pb, "Pseudo tasks", res_tasks);
-	    cout << "------------------" << endl;
-	}
+    	st = status( pn );
+    	cout << "3 Propagation status="<<st<<" pn="<<pn<<endl;
+        cout << "eta_cost:" << eta_cost << endl;
+    }
+	if (pb.verbosity>3) {
+        for(uint_t task_id=0;task_id<pb.tasks.size();++task_id) {
+            cout << "last_day[" << task_id << "]=" << last_days[task_id] << endl;
+        }
+    } 
+    register_order( pb, real_tasks );
 
-	int st=0;
-	unsigned long pn=0;
-	st = status( pn );
-	cout << "Propagation status="<<st<<" pn="<<pn<<endl;
+	if (pb.verbosity>3) {
+    	st = status( pn );
+    	cout << "4 Propagation status="<<st<<" pn="<<pn<<endl;
+    }    
+    if (pb.verbosity>1) {
+	    if (pb.verbosity>3) {
+	        cout << "Current Res" << endl;
+	        debug(pb, "Pseudo tasks", res_tasks);
+	        cout << "------------------" << endl;
+	        st = status( pn );
+    	    cout << "Propagation status="<<st<<" pn="<<pn<<endl;
+        }
 	
-	cout << "After first propagation" << endl;
-	debug(pb, "Pseudo tasks", res_tasks);
-	cout << "------------------" << endl;
-	debug(pb, "Real tasks", real_tasks);
-	debug(pb, "Cvx tasks", task_plus_nw_cvx);
-	debug(pb, "Hull", hull);
+    	cout << "After first propagation" << endl;
+    	debug(pb, "Pseudo tasks", res_tasks);
+    	cout << "------------------" << endl;
+    	debug(pb, "Real tasks", real_tasks);
+    	debug(pb, "Cvx tasks", task_plus_nw_cvx);
+    	debug(pb, "Hull", hull);
 
-	cout << "ALL DAYS:" << all_days << endl;
+    	cout << "ALL DAYS:" << all_days << endl;
     }
     branch(this, res_tasks, SET_VAR_MIN_CARD, SET_VAL_MIN);
     branch(this, milestones, INT_VAR_NONE, INT_VAL_MIN);
@@ -396,7 +418,7 @@ void ProjmanSolver::constrain(Space* s)
     for(int i=0;i<last_days.size();++i) {
 	_eta_cost+=solver->last_days[i].val();
     }
-    cout << "ETA SUM:" << _eta_cost << "/" << day << endl;
+    //cout << "ETA SUM:" << _eta_cost << "/" << day << endl;
     /* post constraint that next sum of last days must be less than or equal to current */
     dom(this, eta_cost,0,_eta_cost);
 #endif
