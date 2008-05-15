@@ -70,6 +70,33 @@ class Project:
         self.costs = Table(default_value=None,
                            col_names=['task', 'resource', 'cost', 'unit'])
         self.milestones = {}
+        self.factor = 1
+
+    def get_factor(self):
+        """find if we must schedule on day, half  or quarter of day
+        and return the appropriate factor
+        """
+        factor = 1
+        factor_ = 1
+        for leaf in self.root_task.leaves():
+            mod = (leaf.duration % 1 )
+            if mod > 0:
+                if mod >= 0.13:
+                    factor_ = mod
+                if mod > 0.5 and mod -0.5 >= 0.13 and mod<0.83:
+                    if mod >= 0.13:
+                        factor_ = (leaf.duration % 1 ) - 0.5
+            factor = min(factor, factor_)
+            
+        dist=abs(factor-1.)
+        _factor = 1.
+        for f in [1., 0.5, 0.25]:
+             d=abs(factor-f)
+             if d<dist:
+                _factor = f
+                dist = d
+        factor = _factor
+        self.factor = int(1 / factor)
 
     def get_root_task(self):
         return self._root_task
@@ -180,7 +207,7 @@ class Project:
         tests if day is in allocated time for task t_id
         """
         for begin, end, _, _, _, _ in self.activities.select('task', task_id):
-            if begin <= date <= end:
+            if begin <= date < end:
                 return True
         return False
 
