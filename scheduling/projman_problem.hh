@@ -146,7 +146,8 @@ public:
     void set_verbosity( int level );
     void set_first_day( uint_t d );
     void set_time( int _time );
-
+    void set_max_nb_solutions( int nb );
+    
     // new interface:
     std::vector< task_t > tasks;
     std::vector< resource_t > resources;

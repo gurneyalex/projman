@@ -24,7 +24,7 @@ from projman.renderers.abstract import \
      AbstractRenderer, AbstractDrawer, TODAY, \
      TITLE_COLUMN_WIDTH, FIELD_COLUMN_WIDTH, ROW_HEIGHT
 from logilab.common.tree import NodeNotFound
-
+from mx.DateTime import *
 class GanttRenderer(AbstractRenderer) :
     """
     Render a Gantt diagram
@@ -61,7 +61,7 @@ class GanttRenderer(AbstractRenderer) :
                 except NodeNotFound :
                     ct = None
                 if ct and ct in self._visible_tasks:
-                    self.drawer.task_constraints(c_type, task, ct)
+                    self.drawer.task_constraints(c_type, task, ct, project.factor)        
 
     def render_node(self, node, project, begin_p, end_p):
         """
@@ -85,11 +85,13 @@ class GanttRenderer(AbstractRenderer) :
         if node.children:
             for node_child in node.children:
                 self.render_node(node_child, project, begin_p, end_p)
-                        
+                
     def render_task(self, task, project):
         """
         generate event for a given task 
         """
+        project.get_factor()
+        factor = project.factor
         if self.options.del_ended and task.is_finished():
             return
         self.drawer.set_color_set(self._i)
@@ -108,13 +110,15 @@ class GanttRenderer(AbstractRenderer) :
             self.drawer.simple_content(task.title)
                 
         begin, end = project.get_task_date_range(task)
-        
+        if begin.hour >= 12:
+            begin += oneHour
+        if end.hour >= 12:
+            end += oneHour
         self.drawer.task_timeline_bg()
         for day in self.drawer._timeline_days:
             self.drawer.task_timeline(task, True, task.children, '', day,
-                                      begin, end, project)
+                                          begin, end, project)
         self.drawer.close_timeline()
-
         if self.options.rappel:
             self.drawer.main_content(task.title or task.id,
                                      project, task.depth(), task)
@@ -177,7 +181,7 @@ class GanttDrawer(AbstractDrawer) :
         if self.options.rappel:
             width *= 2
         if self.options.showids :
-            width += FIELD_COLUMN_WIDTH
+            width += FIELD_COLUMN_WIDTH*1
         if 0 and self.options.detail > 1 :
             width += FIELD_COLUMN_WIDTH*2
         if 0 and self.options.detail > 0 :
@@ -203,18 +207,24 @@ class GanttDrawer(AbstractDrawer) :
         """
         write a timeline day for the task (i.e. <timestep> days)
         """
-        last_day = first_day+self._timestep
-        for day in date_range(first_day, last_day):
-            worked = False
-            if begin and end and begin <= day <= end:
-                if is_container or project.is_in_allocated_time(task.id, day):
-                    worked = True
-            self._task_timeline(worked, is_container,
-                                day == begin,
-                                day == end,
-                                True, # ??
-                                day == last_day,
-                                day)
+        last_day = first_day + self._timestep - (15 +8 / project.factor) * oneHour
+        for d in range(self._timestep):
+            for i in range(project.factor):
+                courant = d + first_day
+                day_ = d + first_day + i*(1./project.factor)*8*oneHour
+                if day_.hour >= 12:
+                    day_ += oneHour
+                worked = False
+                if begin and end and begin <= day_ <= end:
+                    if is_container or project.is_in_allocated_time(task.id, courant):
+                        worked = True
+                self._task_timeline(worked, is_container,
+                                        day_ == begin,
+                                        day_ == end,
+                                        day_ == first_day,
+                                        day_ == end,
+                                        day_,
+                                        project.factor)
 
     def task_timeline_bg( self ):
         """Draw the background of a timeline"""
@@ -235,12 +245,24 @@ class GanttDrawer(AbstractDrawer) :
             self._handler.draw_rect(self._x+n*daywidth, self._y+1, daywidth,
                                     ROW_HEIGHT-2, fillcolor=bgcolor)
 
+        # affichage separateurs
+        if self._timestep <= 7:
+            for n in range(len(rnge)):
+                self._handler.draw_line(self._x+n*daywidth, self._y,
+                                  self._x+n*daywidth, self._y+ROW_HEIGHT,
+                                  color=(204,204,204))
+                if self._timestep == 1:
+                    self._handler.draw_dot(self._x+(n+0.5)*daywidth, self._y,
+                                      self._x+(n+0.5)*daywidth, self._y+ROW_HEIGHT,
+                                      4,
+                                      color=(204,204,204))
 
-    def _task_timeline(self, worked, is_container, first, last, begin, end, day):
+
+    def _task_timeline(self, worked, is_container, first, last, begin, end, day, factor):
         """
         write a day for a task
         """
-        width = self._daywidth
+        width = self._daywidth / factor
         if not worked:
             self._x += width
             return
@@ -270,6 +292,9 @@ class GanttDrawer(AbstractDrawer) :
             end_width = ROW_HEIGHT/4
             r_x = x
             r_width = width
+            self._handler.draw_rect(r_x, y, max(r_width, 0),
+                           ROW_HEIGHT-10*line_width, fillcolor=color)
+
             if first:
                 self._handler.draw_poly(((x, y),
                                          (x+end_width, y),
@@ -284,10 +309,6 @@ class GanttDrawer(AbstractDrawer) :
                                          (x, y+ROW_HEIGHT*7/12)),
                                         fillcolor=color)
                 r_width -= 5
-            self._handler.draw_rect(r_x, y, max(r_width, 0),
-                                    ROW_HEIGHT-10*line_width, fillcolor=color)
-
-        # record position
         self._x += width
 
     def milestone_timeline(self, day, milestone, project):
@@ -298,7 +319,6 @@ class GanttDrawer(AbstractDrawer) :
         last_day = day + self.options.timestep
         begin, end = project.get_task_date_range(milestone)
         assert begin == end
-        
         for day in date_range(day, last_day):
             draw = (day == begin)
             self._milestone_timeline(day, draw)
@@ -318,19 +338,28 @@ class GanttDrawer(AbstractDrawer) :
         width = self._daywidth
         self._handler.draw_rect(self._x, self._y, max(width, 0),
                           ROW_HEIGHT, fillcolor=bgcolor)
+        if self._timestep <= 7:
+            if self._timestep == 1:
+                self._handler.draw_dot(self._x+0.5*width, self._y,
+                                      self._x+0.5*width, self._y+ROW_HEIGHT,4,
+                                      color=(204,204,204))
+            self._handler.draw_line(self._x, self._y,
+                                  self._x, self._y+ROW_HEIGHT,
+                                  color=(204,204,204))
+
         # draw milestone as diamond
         if draw:
             x, y = self._x, self._y
             self._tasks_slots.setdefault(self._ctask, []).append((x, y))
-            self._handler.draw_poly(((x+width, y+ROW_HEIGHT/2), 
-                                     (x+width/2, y+ROW_HEIGHT), 
+            self._handler.draw_poly(((x+width/2, y+ROW_HEIGHT/2), 
+                                     (x+width/4, y+ROW_HEIGHT*3/4), 
                                      (x, y+ROW_HEIGHT/2), 
-                                     (x+width/2, y)),
+                                     (x+width/4, y+ROW_HEIGHT/4)),
                                     fillcolor=self._colors['CONSTRAINT'])
         # record position
         self._x += width
         
-    def task_constraints(self, type_constraint, task, constraint_task):
+    def task_constraints(self, type_constraint, task, constraint_task, factor):
         """
         draw a constraint between from task to constraint_task
         """
@@ -349,7 +378,7 @@ class GanttDrawer(AbstractDrawer) :
             offset2 = 0
         else:
             index2 = -1
-            offset2 = self._daywidth
+            offset2 = self._daywidth / factor
         x1, y1 = self._tasks_slots[task][index1]
         x1 += offset1
         y1 += ROW_HEIGHT/2

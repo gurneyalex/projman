@@ -2,7 +2,6 @@
 #include "projman_problem.hh"
 
 
-
 ProjmanProblem::ProjmanProblem(uint_t _maxdur):
     icl(ICL_DEF),
     c_d(Search::Config::c_d),
@@ -17,6 +16,10 @@ ProjmanProblem::ProjmanProblem(uint_t _maxdur):
 {
 }
 
+void ProjmanProblem::set_max_nb_solutions( int nb )
+{
+    solutions = nb;
+}
 
 void ProjmanProblem::set_time( int _time )
 {
