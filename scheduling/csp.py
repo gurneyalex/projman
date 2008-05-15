@@ -18,7 +18,7 @@
 
 __revision__ = "$Id: csp.py,v 1.2 2005-09-07 23:51:01 nico Exp $"
 
-from mx.DateTime import today
+from mx.DateTime import oneDay, oneHour
 
 from logilab.common.compat import set
 import projman.lib.constants as CST
@@ -153,33 +153,20 @@ class CSPScheduler:
                 usage = usage + element[4]
         return usage
 
-    def find_factor(self):
-        """find if we must schedule on day, half  or quarter of day
-        and return the appropriate factor
-        """
-        factor = 1
-        for leaf in self.project.root_task.leaves():
-            if (leaf.duration % 1 ) > 0:
-                factor = leaf.duration % 1
-                if (leaf.duration % 1 ) - 0.5 > 0:
-                    factor = (leaf.duration % 1 ) - 0.5
-        if not (factor in [1, 0.5, 0.25]):
-            raise AssertionError('non valid tasks duration')
-        return int(1 / factor)
-
     def schedule(self, verbose=0):
         """
         Update the project's schedule
         Return list of errors occured during schedule
         """
         _VERBOSE = verbose
-        self.max_duration = int(self.max_duration * 1.5 )
+        self.project.get_factor()
+        factor = self.project.factor
+        self.max_duration = int( self.max_duration * 1.5 )
         if _VERBOSE>0:
             print "Tasks", len(self.real_tasks)
             print "Res", len(self.resources)
             print "Dur", self.max_duration
-
-        factor = self.find_factor()
+            print "Factor", factor
         pb = ProjmanProblem( int(self.max_duration * factor ) )
         pb.set_first_day( self.first_day * factor) 
         real_tasks_items = self.real_tasks.items()
@@ -207,20 +194,29 @@ class CSPScheduler:
             if _VERBOSE:
                 print "%02d" % res_num, "".join(sched)
         pseudo_tasks = []
+        i = 0
         for tid, (num, _type, duration, resources) in real_tasks_items:
             # gestion des charges flottantes
-            duration_ = duration * factor 
+            duration_ = duration * factor
             if (duration * factor) % 1 > 0 :
-                duration_ = duration * factor - ((duration * factor) % 1) + 1 
+                if (duration * factor)%1 < 0.5:
+                    duration_ = duration * factor - ((duration * factor) % 1)
+                else:
+                    duration_ = duration * factor - ((duration * factor) % 1) + 1
+                real_tasks_items[i][1][2] = duration_ / factor
             task_num = pb.add_task( tid, _type, int(duration_), 0 ) # 0: for future use (interruptible flag)                
             low, high = self.task_ranges[tid]
             if _VERBOSE>0:
                 print "Task %2d = #%.2f [%4s,%4s] = '%20s'" % ((task_num,duration,low,high,tid,))
             if low is None:
                 low = 0
+            else:
+                low *= factor
             if high is None:
                 high = self.max_duration * factor
-            pb.set_task_range( task_num, int(low), int(high*factor), 0, 0 ) # XXX: cmp_type unused
+            else:
+                high *= factor
+            pb.set_task_range( task_num, int(low), int(high), 0, 0 ) # XXX: cmp_type unused
             if _type == load_types.TASK_MILESTONE:
                 continue
             for res_id, usage in sorted(resources):
@@ -237,25 +233,42 @@ class CSPScheduler:
                     print "%s %s(%s), %s(%s)" %(type, t1, n1, t2, n2)
 
         pb.set_convexity( True )
-        pb.set_time( 400000 ) # 2 min max
+        pb.set_time( 400000 ) # 2 min max : ne marche pas
         pb.set_verbosity( _VERBOSE )
+        pb.set_max_nb_solutions(4000)
         solve( pb )
 
         N = pb.get_number_of_solutions()
         if N==0:
             return []
-        if (_VERBOSE==1):
+        if (_VERBOSE>2):
             self.compare_solutions( pb )
-        # attention : utiliser read_solution(self, SOL) pour les 3 instr suivantes
         SOL = pb.get_solution( N-1 )
-        duration = SOL.get_duration() 
+        duration = SOL.get_duration()
         ntasks = SOL.get_ntasks()
-        tasks_days = [ [ day / factor for day in range(duration) if SOL.isworking( task, day ) ] for task in range(ntasks) ] 
+        tasks_days = [ [ day / factor for day in range(duration) if SOL.isworking( task, day ) ] for task in range(ntasks) ]
+        
+        calendar = []# attention si le calendrier est fonction des resources
+        for i in range(duration/factor):
+            calendar.append([])
+            for j in range(len(resources_map)):
+                calendar[i].append(0) 
+
         activities = []
         for pid, days in enumerate( tasks_days ):
             num, tid, res_id = pseudo_tasks[pid]
+            time_table = oneHour * 8 / factor
             for d in days:
-                date = self.start_date + d
+                date = self.start_date + d + 8 * oneHour +\
+                     calendar[d][resources_map[res_id]]* time_table
+                if date.hour == 0:
+                    date += 8 * oneHour
+                elif date.hour > 17:
+                    date += 8 * oneHour
+                    date += oneDay
+                elif date.hour >= 12:
+                    date += oneHour
+                calendar[d][resources_map[res_id]] += 1
                 delta = self.real_tasks[tid][2] * factor - \
                     self.activity_usage_counter_by_task( activities, tid )* factor 
                 # duree (initiale) tache * factor - nb de jours 
@@ -272,7 +285,7 @@ class CSPScheduler:
                     else:
                         usage == last_usage
                         self.real_tasks[tid][1] == CST.TASK_SHARED
-                activities.append( (date, date, res_id, tid, usage) )             
+                activities.append((date, date + time_table, res_id, tid, usage))
         print "\nactivites :"
         for (db, de, res_id, tid, dur) in activities:
             print "\tdu", db,"au", de, res_id, tid, dur
@@ -284,7 +297,7 @@ class CSPScheduler:
             if milestone>=nmilestones:
                 break
             d = SOL.get_milestone( milestone )
-            date = self.start_date + d * factor
+            date = self.start_date + 8*oneHour +int(d / factor)
             if (_VERBOSE>=2):
                 print "MILESTONE", tid, date
             self.project.milestones[tid] = date

@@ -195,9 +195,11 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
 
     // union of tasks is convex
     // and contains 0
+    //SetVar all_days(this);
     SetVar all_days(this);
-    SetVar all_w_days(this);
-    rel(this, SOT_UNION, task_plus_nw_cvx, all_days );
+    //rel(this, SOT_UNION, task_plus_nw_cvx, all_days );
+    //dom(this, all_days, SRT_SUP, pb.first_day );
+    rel(this, SOT_UNION, res_tasks, all_days ); // all_w_days = union (res_tasks)
     dom(this, all_days, SRT_SUP, pb.first_day );
     max(this, all_days, last_day);
 
@@ -219,10 +221,7 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
     // on peut avoir des trous avec les contraintes de dates
     convex(this, all_days);
 #endif
-    rel(this, SOT_UNION, res_tasks, all_w_days ); // all_w_days = union (res_tasks)
-//    dom(this, all_w_days, SRT_SUP, 1 ); // {1} in all_w_days
-//    dom(this, all_w_days, SRT_SUP, 0 );// {0} in all_w_days
-
+    
 	if (pb.verbosity>3) {
     	st = status( pn );
     	cout << "3 Propagation status="<<st<<" pn="<<pn<<endl;
@@ -257,7 +256,7 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
 
     	cout << "ALL DAYS:" << all_days << endl;
     }
-    branch(this, res_tasks, SET_VAR_MIN_CARD, SET_VAL_MIN);
+    branch(this, res_tasks, SET_VAR_MAX_CARD, SET_VAL_MIN);
     branch(this, milestones, INT_VAR_NONE, INT_VAL_MIN);
 }
 
