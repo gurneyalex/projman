@@ -1,7 +1,7 @@
 ##
 # mini demo utilisation matplotlib pour du svg:
 #
-
+from math import sqrt
 from matplotlib.backends.backend_svg import RendererSVG
 from matplotlib.font_manager import FontProperties
 import codecs
@@ -135,6 +135,23 @@ class SVGHandler:
         y2 = self.height-y2
         gc = self.get_gc( **args )
         self._rend.draw_line(gc, x1, y1, x2, y2)
+
+    def draw_dot(self, x1, y1, x2, y2, n, **args):
+        """ draw a dot line """
+        dist = sqrt((x1-x2)**2 + (y1-y2)**2)
+        length = dist / n
+        dx = (x1 - x2)/length
+        dy = (y1 - y2)/length
+        gc = self.get_gc( **args )
+        count=0
+        while dist >= 0.00001:
+            x1 += 2*dx
+            y1 -= 2*dy
+            dist = sqrt((x1-x2)**2 + (y1-y2)**2)
+            self.draw_line(x1, y1, x1+dx, y1+dy, **args)
+            count+=1
+            if count>1000:
+                break
 
     def draw_rect(self, x, y, width, height, **args):
         """ draw a rectangle """

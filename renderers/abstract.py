@@ -23,7 +23,7 @@ from projman.lib import date_range
 
 TITLE_COLUMN_WIDTH  = 260
 FIELD_COLUMN_WIDTH  = 40
-TIME_COLUMN_WIDTH   = 40
+TIME_COLUMN_WIDTH   = 40.
 LEGEND_COLUMN_WIDTH = 80
 ROW_HEIGHT          = 24
 
@@ -115,7 +115,7 @@ class AbstractRenderer :
     (see the IRender)
     """
     
-    DEFAULT_OPTIONS = {'timestep' : 1,
+    DEFAULT_OPTIONS = {'timestep' : 1, #day
                        'detail' : 2,
                        'depth' : 0,
                        'view_begin' : None,
@@ -220,7 +220,7 @@ class AbstractDrawer :
         self._x = 0
         self._y = 0        
         self._max_x = 0
-        self._max_y = 0        
+        self._max_y = 0
         
     def set_color_set(self, parity):
         """
