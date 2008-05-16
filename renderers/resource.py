@@ -28,6 +28,7 @@ from projman.lib import date_range
 from projman.renderers.abstract import \
      AbstractRenderer, AbstractDrawer, TODAY, \
      TITLE_COLUMN_WIDTH, FIELD_COLUMN_WIDTH, ROW_HEIGHT
+from mx.DateTime import oneHour
 
 class ResourcesRenderer(AbstractRenderer) :
 
@@ -141,6 +142,8 @@ class ResourcesDrawer(AbstractDrawer) :
         """
         calculate dimension of the table
         """
+        project.get_factor()
+        self.factor=project.factor
         # calculate width
         width = TITLE_COLUMN_WIDTH
         if self.options.rappel:
@@ -185,69 +188,8 @@ class ResourcesDrawer(AbstractDrawer) :
 
     # project table content ###################################################
 
-    def occupation_timeline(self, project, resource):
-        """
-        write a timeline day for a resource occupation
-        """
-        for day in date_range(self.view_begin, self.view_end):
-            usage = project.get_total_usage(resource.id, day)
-            self._occupation_timeline(resource.is_available(day), usage, day)
-            if usage > 1:
-                log.info(" Warning! usage", usage, "for", resource.id, "on", day)
-
-    def _occupation_timeline(self, available, usage, day):
-        """
-        write a day for a resource occupation
-        """
-        width = self._daywidth        
-        height = 0
-        color = None
-        if not available:
-            self._handler.draw_rect(self._x, self._y, width, ROW_HEIGHT,
-                                    fillcolor=self._colors['EVEN_SET']['RESOURCE_UNAVAILABLE'])
-            if usage:
-                color = self._colors['TASK_SET']['problem']
-                height = ROW_HEIGHT
-        elif usage > 1:
-            color = self._colors['TASK_SET']['problem']
-            height = ROW_HEIGHT
-        elif 0 < usage <= 1:
-            color = self._color_set['RESOURCE_USED'] 
-            height = ROW_HEIGHT*min(usage, 1)
-        elif day.date == TODAY.date:
-            color = self._color_set['TODAY']
-            height = ROW_HEIGHT
-        if color:
-            self._handler.draw_rect(self._x+1, self._y+ROW_HEIGHT-height,
-                                    width-2, height,
-                                    fillcolor=color)
-        if not available:
-            self._handler.draw_line(self._x, self._y + ROW_HEIGHT/2, 
-                                    self._x + FIELD_COLUMN_WIDTH/self.options.timestep,
-                                    self._y + ROW_HEIGHT/2, 
-                                    color=self._colors['CONSTRAINT'])
-        # update abscisse
-        self._x += width
-
-    def activity_timeline(self, activities, resource):
-        """write a day for a task"""
-        for day in date_range(self.view_begin, self.view_end):
-            for begin, end, _, _, usage, _ in activities:
-                if begin <= day <= end:
-                    if usage > 1:
-                        log.info("    usage", usage,
-                                 "for", resource.id, "on", day)
-                    break
-            else:
-                usage = 0
-            available = resource.is_available(day)
-            self._activity_timeline(available, usage, day)
-
-    def _activity_timeline(self, available, usage, day):
-        """write a day for a task"""
-        width = self._daywidth
-        height = 0
-        # set color
+    def set_bg_color(self, day, available):
+        """ set background color for a day"""
         if day.date == TODAY.date:
             bgcolor = self._color_set['TODAY']
         elif not available:
@@ -256,6 +198,98 @@ class ResourcesDrawer(AbstractDrawer) :
             bgcolor = self._color_set['WEEKEND']
         else:
             bgcolor = self._color_set['WEEKDAY']
+        return bgcolor
+
+    def draw_lines(self):
+        self._handler.draw_line(self._x, self._y, 
+                                    self._x + FIELD_COLUMN_WIDTH/self.options.timestep,
+                                    self._y, 
+                                    color=(204, 204, 204))
+#        if self.factor > 2:
+#            self._handler.draw_dot(self._x, self._y + ROW_HEIGHT/2, 
+#                                    self._x + FIELD_COLUMN_WIDTH/self.options.timestep,
+#                                    self._y + ROW_HEIGHT/2, 4,
+#                                    color=(204, 204, 204))
+        
+
+    def occupation_timeline(self, project, resource):
+        """
+        write a timeline day for a resource occupation
+        """
+        for day in date_range(self.view_begin, self.view_end):
+            self._handler.draw_rect(self._x, self._y, self._daywidth, ROW_HEIGHT,
+                            fillcolor=self._colors['EVEN_SET']['RESOURCE_UNAVAILABLE'])
+            for d in range(self.factor):
+                day_ = day + oneHour * d*(8 / self.factor)
+                if day_.hour >= 12:
+                    day_ += oneHour
+                usage = project.get_total_usage(resource.id, day_)
+                available = resource.is_available(day_) and \
+                               (day_ < self.view_end) and usage
+                self._occupation_timeline(available, 1./self.factor, day_, d)
+                if usage > 1:
+                    log.info(" Warning! usage", usage, "for", resource.id, "on", day_)
+            #draw separators
+            self.draw_lines()
+            # update abscisse
+            self._x += self._daywidth 
+
+    def _occupation_timeline(self, available, usage, day, d):
+        """
+        write a day for a resource occupation
+        """
+        width = self._daywidth        
+        height = 0
+        color = None
+        if not available:
+            if usage:
+                color = self._colors['TASK_SET']['problem']
+                height = ROW_HEIGHT
+        else:
+            if usage > 1:
+                color = self._colors['TASK_SET']['problem']
+                height = ROW_HEIGHT
+            elif 0 < usage <= 1:
+                color = self._color_set['RESOURCE_USED'] 
+                height = ROW_HEIGHT*min(usage, 1)
+            elif day.date == TODAY.date:
+                color = self._color_set['TODAY']
+                height = ROW_HEIGHT
+            if color and available:
+                self._handler.draw_rect(self._x+1, self._y+ROW_HEIGHT-height*(d+1),
+                                width-2, height,
+                                fillcolor=color)
+
+    def activity_timeline(self, activities, resource):
+        """write a day for a task"""
+        task = activities[0][3]
+        for day in date_range(self.view_begin, self.view_end):
+            available = resource.is_available(day)
+            bgcolor = self.set_bg_color(day, available)
+            #draw backgrgound
+            self._handler.draw_rect(self._x, self._y, self._daywidth, ROW_HEIGHT,
+                                fillcolor=bgcolor)
+
+            for d in range(self.factor):
+                day_ = day + oneHour * d*(8 / self.factor)
+                if day_.hour >= 12:
+                    day_ += oneHour
+                for begin, end, _, _, usage, _ in activities:
+                    if begin <= day_ < end:
+                        if usage > 1:
+                            log.info("    usage", usage,
+                                     "for", resource.id, "on", day)
+                            break
+                        self._activity_timeline(available, usage, day, d)
+            self._activity_timeline(False, 0, day, d)
+            self.draw_lines()
+            # update abscisse
+            self._x += self._daywidth
+
+    def _activity_timeline(self, available, usage, day, d):
+        """write a day for a task"""
+        width = self._daywidth
+        height = 0
         if 0 < usage <= 1:
             if available:
                 color = self._color_set['RESOURCE_USED']
@@ -268,17 +302,9 @@ class ResourcesDrawer(AbstractDrawer) :
             height = ROW_HEIGHT
         else:
             color = None
-        # draw
-        self._handler.draw_rect(self._x, self._y, max(width, 0), ROW_HEIGHT,
-                                fillcolor=bgcolor)
+
         if color:
-            self._handler.draw_rect(self._x+1, self._y+ROW_HEIGHT-height,
-                                    width-2, height,
-                                    fillcolor=color)
-        if not available:
-            self._handler.draw_line(self._x, self._y + ROW_HEIGHT/2, 
-                                    self._x + FIELD_COLUMN_WIDTH/self.options.timestep,
-                                    self._y + ROW_HEIGHT/2, 
-                                    color=self._colors['CONSTRAINT'])
-        # update abscisse
-        self._x += width
+            self._handler.draw_rect(self._x+1, self._y+ROW_HEIGHT-height*(d+1),
+                                        width-2, height,
+                                        fillcolor=color)
+
