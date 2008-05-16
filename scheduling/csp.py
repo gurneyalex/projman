@@ -159,6 +159,9 @@ class CSPScheduler:
         Return list of errors occured during schedule
         """
         _VERBOSE = verbose
+        # check the tasks (duration is not 0)
+        for leaf in self.project.root_task.leaves():
+            leaf.check_consistency()
         self.project.get_factor()
         factor = self.project.factor
         self.max_duration = int( self.max_duration * 1.5 )
