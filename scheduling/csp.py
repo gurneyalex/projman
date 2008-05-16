@@ -153,7 +153,7 @@ class CSPScheduler:
                 usage = usage + element[4]
         return usage
 
-    def schedule(self, verbose=0):
+    def schedule(self, verbose=0, time=2000, **kw):
         """
         Update the project's schedule
         Return list of errors occured during schedule
@@ -236,7 +236,7 @@ class CSPScheduler:
                     print "%s %s(%s), %s(%s)" %(type, t1, n1, t2, n2)
 
         pb.set_convexity( True )
-        pb.set_time( 400000 ) # 2 min max : ne marche pas
+        pb.set_time( time)#time ) # 2 min max : ne marche pas
         pb.set_verbosity( _VERBOSE )
         pb.set_max_nb_solutions(4000)
         solve( pb )

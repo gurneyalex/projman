@@ -82,7 +82,7 @@ class DumbScheduler:
         return activities
     
                 
-    def schedule(self, verbose=0):
+    def schedule(self, verbose=0, **kw):
         """
         Update the project's schedule
         Return list of errors occured during schedule

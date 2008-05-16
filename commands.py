@@ -88,10 +88,17 @@ class ScheduleCommand(ProjmanCommand):
           'help': 'scheduling method',
           }
          ),
+        ('time', 
+         {'type' : 'int', 'metavar': '<1...>',
+          'default': 2000,
+          'help': 'stop the programm after 2000 (time)'
+          }
+         ),
         )
 
     def _run(self, views):
         from projman.scheduling import schedule
+        print "test", self.config
         schedule(self.project, self.config)
         write_schedule_as_xml(self.files['schedule'], self.project)
 
@@ -161,7 +168,7 @@ class DiagramCommand(ProjmanCommand):
         ('format',
          {'type' : 'choice', 'metavar': '<format>',
           'choices': ('png', 'gif', 'jpeg', 'tiff', 'svg'), # 'html'
-          'default': 'png',
+          'default': 'svg',
           'help': 'specifies the output format for diagrams',
           }
          ),
