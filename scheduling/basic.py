@@ -96,7 +96,7 @@ class BasicScheduler(Visitor):
         self._past_activities = Table()
         self._current_schedule = None
 
-    def schedule(self, verbose=1):
+    def schedule(self, verbose=1, **kw):
         """
         Try to update the current_schedule using data from project
         and activities.

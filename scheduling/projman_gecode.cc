@@ -357,6 +357,7 @@ void ProjmanSolver::print(ProjmanProblem& pb)
 template <template<class> class Engine>
 void ProjmanSolver::run( ProjmanProblem& pb, Search::Stop *stop )
 {
+    double t0;
     int i = pb.solutions;
     Timer t;
     ProjmanSolver* s = new ProjmanSolver( pb );
@@ -375,16 +376,18 @@ void ProjmanSolver::run( ProjmanProblem& pb, Search::Stop *stop )
 	    break;
 	ex->print(pb);
 	delete ex;
-    } while (--i != 0);
+    t0 = t0 + t.stop();
+    } while (--i != 0 && t0 < pb.time);
     Search::Statistics stat = e.statistics();
-    if (pb.verbosity>0) {
+    if (pb.verbosity==0) {
 	cout << endl;
 	cout << "Initial" << endl
 	     << "\tpropagators:   " << n_p << endl
 	     << "\tbranchings:    " << n_b << endl
 	     << endl
 	     << "Summary" << endl
-	     << "\truntime:       " << t.stop() << endl
+	     //<< "\truntime:       " << t.stop() << endl
+         << "\truntime:       " << t0 << endl
 	     << "\tsolutions:     " << abs(static_cast<int>(pb.solutions) - i) << endl
 	     << "\tpropagations:  " << stat.propagate << endl
 	     << "\tfailures:      " << stat.fail << endl

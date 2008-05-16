@@ -145,7 +145,7 @@ class SVGHandler:
         gc = self.get_gc( **args )
         count=0
         while dist >= 0.00001:
-            x1 += 2*dx
+            x1 -= 2*dx
             y1 -= 2*dy
             dist = sqrt((x1-x2)**2 + (y1-y2)**2)
             self.draw_line(x1, y1, x1+dx, y1+dy, **args)
