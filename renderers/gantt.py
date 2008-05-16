@@ -24,7 +24,7 @@ from projman.renderers.abstract import \
      AbstractRenderer, AbstractDrawer, TODAY, \
      TITLE_COLUMN_WIDTH, FIELD_COLUMN_WIDTH, ROW_HEIGHT
 from logilab.common.tree import NodeNotFound
-from mx.DateTime import *
+from mx.DateTime import oneHour
 class GanttRenderer(AbstractRenderer) :
     """
     Render a Gantt diagram
@@ -112,8 +112,7 @@ class GanttRenderer(AbstractRenderer) :
         begin, end = project.get_task_date_range(task)
         if begin.hour >= 12:
             begin += oneHour
-        if end.hour >= 12:
-            end += oneHour
+        end -= oneHour * 8 /factor
         self.drawer.task_timeline_bg()
         for day in self.drawer._timeline_days:
             self.drawer.task_timeline(task, True, task.children, '', day,
@@ -210,13 +209,12 @@ class GanttDrawer(AbstractDrawer) :
         last_day = first_day + self._timestep - (15 +8 / project.factor) * oneHour
         for d in range(self._timestep):
             for i in range(project.factor):
-                courant = d + first_day
                 day_ = d + first_day + i*(1./project.factor)*8*oneHour
                 if day_.hour >= 12:
                     day_ += oneHour
                 worked = False
                 if begin and end and begin <= day_ <= end:
-                    if is_container or project.is_in_allocated_time(task.id, courant):
+                    if is_container or project.is_in_allocated_time(task.id, day_):
                         worked = True
                 self._task_timeline(worked, is_container,
                                         day_ == begin,
