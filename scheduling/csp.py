@@ -153,7 +153,7 @@ class CSPScheduler:
                 usage = usage + element[4]
         return usage
 
-    def schedule(self, verbose=0, time=2000, **kw):
+    def schedule(self, verbose=0, time=400000, **kw):
         """
         Update the project's schedule
         Return list of errors occured during schedule
@@ -219,6 +219,7 @@ class CSPScheduler:
                 high = self.max_duration * factor
             else:
                 high *= factor
+            print "LOW:", low, "HIGTH", high
             pb.set_task_range( task_num, int(low), int(high), 0, 0 ) # XXX: cmp_type unused
             if _type == load_types.TASK_MILESTONE:
                 continue
@@ -272,23 +273,28 @@ class CSPScheduler:
                 elif date.hour >= 12:
                     date += oneHour
                 calendar[d][resources_map[res_id]] += 1
+                if calendar[d][resources_map[res_id]]> factor:
+                    raise Exception("found non valid solution")
                 delta = self.real_tasks[tid][2] * factor - \
                     self.activity_usage_counter_by_task( activities, tid )* factor 
                 # duree (initiale) tache * factor - nb de jours 
                 #                        deja ecoules pr cette tache
-                if delta > 1.0 / factor:
+                if delta > 1.0 / factor or delta <= 0:
                     usage = 1.0 / factor
                 else:
                     usage = delta
                 # gestion des taches de type sameforall
-                if self.real_tasks[tid][1] == CST.TASK_SAMEFORALL:
-                    if resources_map.get(res_id) == 0:
-                        last_usage = usage
-                        self.real_tasks[tid][2] *= res_num
-                    else:
-                        usage == last_usage
-                        self.real_tasks[tid][1] == CST.TASK_SHARED
-                activities.append((date, date + time_table, res_id, tid, usage))
+                #if self.real_tasks[tid][1] == CST.TASK_SAMEFORALL:
+                    #last_usage = 0
+                 #   if resources_map.get(res_id) == 0:
+                 #       last_usage = usage
+                 #       self.real_tasks[tid][2] *= res_num
+                 #   else:
+                 #       usage == last_usage
+                 #       self.real_tasks[tid][1] == CST.TASK_SHARED
+                if usage >= 1./(2 * factor):
+                    activities.append((date, date + time_table, res_id, 
+                                tid, max(usage,1./factor)))
         print "\nactivites :"
         for (db, de, res_id, tid, dur) in activities:
             print "\tdu", db,"au", de, res_id, tid, dur
