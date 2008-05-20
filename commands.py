@@ -90,7 +90,7 @@ class ScheduleCommand(ProjmanCommand):
          ),
         ('time', 
          {'type' : 'int', 'metavar': '<1...>',
-          'default': 2000,
+          'default': 400000,
           'help': 'stop the programm after 2000 (time)'
           }
          ),
@@ -98,7 +98,6 @@ class ScheduleCommand(ProjmanCommand):
 
     def _run(self, views):
         from projman.scheduling import schedule
-        print "test", self.config
         schedule(self.project, self.config)
         write_schedule_as_xml(self.files['schedule'], self.project)
 

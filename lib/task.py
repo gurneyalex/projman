@@ -203,7 +203,7 @@ class TaskNode(VNode):
         """
         #check non valid duration (0)
         if self.TYPE != 'milestone' and self.duration == 0:
-            raise Exception("non valid task duration")
+            raise Exception("non valid task duration for", self)
         errors = []
         task_ids = set()
         for node in self.flatten():
