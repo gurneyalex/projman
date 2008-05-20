@@ -110,8 +110,6 @@ class GanttRenderer(AbstractRenderer) :
             self.drawer.simple_content(task.title)
                 
         begin, end = project.get_task_date_range(task)
-        if begin.hour >= 12:
-            begin += oneHour
         end -= oneHour * 8 /factor
         self.drawer.task_timeline_bg()
         for day in self.drawer._timeline_days:

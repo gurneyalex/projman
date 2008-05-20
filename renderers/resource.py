@@ -223,9 +223,11 @@ class ResourcesDrawer(AbstractDrawer) :
                 day_ = day + oneHour * d*(8 / self.factor)
                 if day_.hour >= 12:
                     day_ += oneHour
+                act = project.activities.select('resource', resource.id)
+                act = act.select('begin', day_)
                 usage = project.get_total_usage(resource.id, day_)
                 available = resource.is_available(day_) and \
-                               (day_ < self.view_end) and usage
+                               (day_ < self.view_end) and usage and act
                 self._occupation_timeline(available, 1./self.factor, day_, d)
                 if usage > 1:
                     log.info(" Warning! usage", usage, "for", resource.id, "on", day_)
