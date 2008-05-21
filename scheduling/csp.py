@@ -219,7 +219,6 @@ class CSPScheduler:
                 high = self.max_duration * factor
             else:
                 high *= factor
-            print "LOW:", low, "HIGTH", high
             pb.set_task_range( task_num, int(low), int(high), 0, 0 ) # XXX: cmp_type unused
             if _type == load_types.TASK_MILESTONE:
                 continue

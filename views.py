@@ -120,7 +120,7 @@ class CostData:
 
     def _compute(self, task, level=0):
         try:
-            task_cost = self.projman.get_task_total_cost(task.id)
+            task_cost = self.projman.get_task_total_cost(task.id, task.duration)
         except KeyError:
             task_cost = 0
         self.project_cost += task_cost
@@ -275,10 +275,11 @@ class CostTableView(XMLView):
         duration = task.duration and unicode(task.duration) or u''
         self.dbh.table_cell_node(row, 'left', duration)
         # task cost by resources
-        costs, durations = self.projman.get_task_costs(task.id)
+        costs, durations = self.projman.get_task_costs(task.id, task.duration)
         # FIXME = do we what number of days for each resource or monetary cost for each resource.
         r_info = ['%s(%s)' % (r_id, format_monetary(cost)) 
                   for r_id, cost in durations.items() if r_id]
+                
         self.dbh.table_cell_node(row, 'left', ', '.join(r_info))
         # task global cost
         # FIXME hack : a (containing) task with no resources has global cost of 1!
