@@ -103,7 +103,7 @@ class MainApp(gobject.GObject):
         write_schedule_as_xml(self.get_project_path()+self.files["schedule"],self.project)
 
         from projman.renderers import GanttRenderer, HandlerFactory
-        handler = HandlerFactory("png")
+        handler = HandlerFactory("svg")
         # it works !! but HOW  ??? ......
         options = handler
         options.timestep = 1
@@ -115,12 +115,12 @@ class MainApp(gobject.GObject):
         options.rappel = False
         options.output = None
         options.selected_resource = None
-        options.format = "png"
+        options.format = "svg" # ce n est plus le format par defaut ...
         options.del_ended = False
         options.del_empty = False
         # end of mystic code ...
         renderer = GanttRenderer(options, handler)
-        output = self.get_project_path()+"gantt.png"
+        output = self.get_project_path()+"gantt.svg"
         stream = handler.get_output(output)
         renderer.render(self.project, stream)
         self.taskeditor.w("image1").set_from_file(output)

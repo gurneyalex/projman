@@ -91,7 +91,7 @@ class ScheduleCommand(ProjmanCommand):
         ('time', 
          {'type' : 'int', 'metavar': '<1...>',
           'default': 400000,
-          'help': 'stop the programm after 2000 (time)'
+          'help': 'stop the programm after time'
           }
          ),
         )

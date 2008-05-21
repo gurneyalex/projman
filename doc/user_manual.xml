@@ -60,8 +60,7 @@
         This is the reference manual for the &projman; software. &projman; has
         three functionnalities. First, &projman; reads a project
         description from a xml formatted file and outputs differents kind of diagrams like, 
-        a Gantt diagram, or resources activities description in different
-        formats (html, svg, png...). Second, &projman; has the ability to allow data
+        a Gantt diagram, or resources activities description in formats svg. Second, &projman; has the ability to allow data
         exchange between other soft like <ulink url="http://mrproject.codefactory.se">
         Planner</ulink>. And finally, &projman; can schedule a
         project, so proposes a planned project. The main difference between &projman; and other
@@ -221,15 +220,13 @@ Please consider contributing anything useful to this package.
                             |constraint-resource)*,(duration,progress?),
                             priority?,(task|milestone|import-project)*)>
             <!ATTLIST task
-                      id       ID                #REQUIRED>
+                     id        ID                            #REQUIRED
+                     load-type (shared | sameforall | oneof) #REQUIRED 
+                     load      float                         #REQUIRED>
 
             <!-- label, duration and progress of the task -->
 
             <!ELEMENT label (#PCDATA)>
-
-            <!ELEMENT duration (#PCDATA)>
-            <!ATTLIST duration
-                      unit (days|weeks|months) "days">
 
             <!ELEMENT progress (#PCDATA)>
     ]]>     
@@ -318,6 +315,23 @@ Please consider contributing anything useful to this package.
           </para>
     </section>
   </section>
+<!-- insertion ici d un exemple de decrption des taches-->
+          <programlisting role="python">
+    &lt;<emphasis role="keyword">task</emphasis> <emphasis role="name">id</emphasis>=<emphasis role="string">"project"</emphasis>>
+        &lt;<emphasis role="keyword">label</emphasis>><emphasis role="string">Trivial project</emphasis>&lt;<emphasis role="keyword">/label</emphasis>>
+        &lt;<emphasis role="keyword">constraint-resource</emphasis> <emphasis role="name">usage=</emphasis><emphasis role="string">"100"</emphasis> <emphasis role="name">idref=</emphasis><emphasis role="string">"ing_1"</emphasis> <emphasis role="name">type=</emphasis><emphasis role="string">"engineer</emphasis>>
+        &lt;<emphasis role="keyword">constraint-resource</emphasis> <emphasis role="name">usage=</emphasis><emphasis role="string">"100"</emphasis> <emphasis role="name">idref=</emphasis><emphasis role="string">"ing_2"</emphasis> <emphasis role="name">type=</emphasis><emphasis role="string">"engineer</emphasis>>
+        &lt;<emphasis role="keyword">task</emphasis> <emphasis role="name">id=</emphasis><emphasis role="string">t1</emphasis> <emphasis role="name">load-type=</emphasis><emphasis role="string">"shared"</emphasis> <emphasis role="name">load=</emphasis><emphasis role="string">"1.5</emphasis>>
+            &lt;<emphasis role="keyword">label</emphasis> <emphasis role="string">task_1</emphasis> &lt;<emphasis role="keyword">/label</emphasis>>
+            &lt;<emphasis role="keyword">constraint-date</emphasis> <emphasis role="name">type</emphasis> <emphasis role="string">"begin-after-date"</emphasis>> <emphasis role="string">2008-01-01</emphasis> &lt;<emphasis role="keyword">/constraint-date</emphasis>>
+        &lt;<emphasis role="keyword">/task</emphasis>>
+        &lt;<emphasis role="keyword">task</emphasis> <emphasis role="name">id=</emphasis><emphasis role="string">t2</emphasis> <emphasis role="name">load-type=</emphasis><emphasis role="string">"sameforall"</emphasis> <emphasis role="name">load=</emphasis><emphasis role="string">"2</emphasis>>
+            &lt;<emphasis role="keyword">label</emphasis> <emphasis role="string">task_2</emphasis> &lt;<emphasis role="keyword">/label</emphasis>>
+            &lt;<emphasis role="keyword">constraint-task</emphasis> <emphasis role="name">type</emphasis> <emphasis role="string">"begin-after-end"</emphasis> <emphasis role="keyword">idref</emphasis> <emphasis role="string">"t1"</emphasis>>
+        &lt;<emphasis role="keyword">/task</emphasis>>
+    &lt;<emphasis role="keyword">/task</emphasis>>
+          </programlisting>
+<!-- fin de l exemple-->
 
   <section id="resourcesgen"><title>Resources file</title>
 
@@ -613,21 +627,20 @@ Please consider contributing anything useful to this package.
     usage:
        1) To convert data:
        projman --convert [--arg=value] &lt;xml_input_file&gt; &lt;xml_output_file&gt;
-        
-       2) To render diagrams:
-       projman --diagram [--arg=value] &lt;projman_input_file&gt; &lt;output_image&gt;
-
-       3) To schedule the project:
-       projman --plan [--arg=value] &lt;projman_input_file&gt; &lt;output_file&gt;
+       
+       2) To schedule the project:
+       projman schedule [--arg=value]
+ 
+       3) To render diagrams:
+       projman diagram [--arg=value] diagram-type
 
        4) To generate XML documents for call for tenders:
-       projman --xmldoc [--arg=value] &lt;projman_input_file&gt; &lt;output_file&gt;
+       projman view [--arg=value] type
 
       </synopsis>
-      This can first import data in &projman; format (by using
-      --convert option) and then schedule the project (by using
-      --plan) and then generate the wanted diagrams (by using
-      --diagram option).
+      This can first schedule the project (by using
+      schedule) and then generate the wanted diagrams (by using
+      diagram).
       The specificity of &projman; is that you can schedule a project
       a single time and then generate the diagrams from the scheduling
       results. Each result of this operation are stored in XML files. 
@@ -684,7 +697,7 @@ Please consider contributing anything useful to this package.
     
   <section id="schedulinggen"><title>Scheduling</title>
     <para>
-        You will find in this section some things that you should no about those
+        You will find in this section some things that you should know about those
         differents algorithm. 
       </para><para>
         &projman; provides two way to schedule a project : the standard (old) algorithm
@@ -694,9 +707,17 @@ Please consider contributing anything useful to this package.
       <para>
         The options available for the scheduling mode are:
         <synopsis>
-          --include-references
-                     input file will be modified to include references to 
-                     produced schedules
+          --project-file
+                     specify the project description file to use
+
+          --verbose
+                     display additional information during execution of projman
+
+          --time
+                     stop the scheduling compute after time
+
+          --type
+                     scheduling method (csp or simple)
         </synopsis>
       </para>
       
@@ -733,6 +754,7 @@ Please consider contributing anything useful to this package.
   <section id="renderinggen"><title>Rendering</title>
     <para>
         TO VALIDATE NOT SURE!!!!!!
+
         &projman; is able to draw the Gantt diagram in the following format :
         HTML, SVG, ARG, BMP, CUR, DCX, EPS, FLI, FPX, GBR, GIF, HTML, ICO, IM, IPTC,
         JPEG, MIC, MPEG, MSP, PCD, PCX, PDF, PNG, PPM, PSD, SGI, SUN, SVG, TGA, TIFF,
@@ -744,23 +766,33 @@ Please consider contributing anything useful to this package.
       <para>
         The differents options available are:
         <synopsis>
-          --diagram-type
+          diagram-type
                       specifies the type of diagram to generate
                       this option is required
                       - resources (describes resources activities
                         in past and future)
                       - gantt
+                      - gantt-resources (both)
+
+          --verbose
+        
+          --project-file
+
+          --output
+                      specifie output file to use when a single diagram is
+                      generated
 
           --selected-resource
                       specifies the id of the resource to take
                       in account for resources diagrams
                       [default=all resources]
             
-          --renderer 
+          --format 
                       specifies the output renderering for resources
-                      diagram [default=png] use only with schedule input
+                      diagram [default=svg] use only with schedule input
                       - html (bugs)
-                      - png
+                      - png  (bug)
+                      - svg
             
           --timestep
                       timeline increment in days for diagram
@@ -790,11 +822,22 @@ Please consider contributing anything useful to this package.
         The differents options available are:
         <synopsis>
 	
-	        --view
+	        type
               	      Specify the type of view generated
-              	      - [tasks-costs]:  Will create a table in which the project's tasks are listed with all the main informations (duration, cost, resources)
+               	      - tasks-costs:  Will create a table in which the project's
+                        tasks are listed with all the main informations 
+                        (duration, cost, resources)
                       - tasks-list: Will dump tasks information.
                       - tasks-dates: Will dump begin, end date and global cost for tasks.
+
+          --project-file
+        
+          --verbose
+        
+          --output
+        
+          display-date
+                     display task's begin and end date (y or n)
 
       	  --format
                       set output format.
