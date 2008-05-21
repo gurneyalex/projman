@@ -147,7 +147,6 @@ class Project:
 
     def update_caches(self):
         """updates self.tasks and self.costs"""
-        #print 'updating cache'
         # FIXME: Table has no empty() method
         self.tasks = Table(default_value=None,
                            col_names=['begin', 'end', 'status', 'cost', 'unit'])
@@ -157,7 +156,7 @@ class Project:
             try:
                 begin, end = self.get_task_date_range(task)
                 status = self.compute_task_status(task, begin, end)
-                cost = self.get_task_total_cost(task.id)
+                cost = self.get_task_total_cost(task.id, task.duration)
                 self.tasks.append_row((begin, end, status, cost, 'XXX'),
                                       row_name=task.id)
             except ValueError, exc:
@@ -343,14 +342,14 @@ class Project:
         return duration
 
     
-    def get_task_total_cost(self, task_id):
+    def get_task_total_cost(self, task_id ,task_tot_duration):
         """
         obtain concatenation of costs for a task
         """
-        costs = self.get_task_costs(task_id)[0]
+        costs = self.get_task_costs(task_id, task_tot_duration)[0]
         return sum(costs.values())
 
-    def get_task_costs(self, task_id):
+    def get_task_costs(self, task_id, task_tot_duration):
         """
         run through all activities and sum up duration * usage
         # FIXME - do we really need to send back durations
@@ -358,26 +357,38 @@ class Project:
         """
         costs = {}
         durations = {}
+        rounded = task_tot_duration % 1
+        if rounded >= self.factor /2.:
+            rounded = rounded - self.factor
         for begin, end, resource, task, usage, src \
                 in self.activities.select('task', task_id):
             costs.setdefault(resource, 0)
             durations.setdefault(resource, 0)
             # FIXME - presuming 8 hour /day work
             # FIXME - leaving behind the currency
-            try:
-                resource_cost_rate = self.get_resource(resource).hourly_rate[0] * 8
-            except NodeNotFound,ex :
-                # if resource not found ???
-                resource_cost_rate = 1
             duration = self.compute_duration(begin, end, usage)
             #print '+ duration : ', resource, duration
-            costs[resource] += (duration * resource_cost_rate)
+            tot_res_duration = 0
             durations[resource] += duration
+            # calcul du total du temps consomme sur toutes les resources pour cette tache
+            for res in durations:
+                tot_res_duration += durations[res]
+        # gestion des arrondis
+        if len(durations) > 0:
+            rounded  = rounded / len(durations)
+            for res in durations:
+                try:
+                    resource_cost_rate = self.get_resource(res).hourly_rate[0] * 8
+                except NodeNotFound,ex :
+                    # if resource not found ???
+                    resource_cost_rate = 1
+                durations[res] += rounded
+                costs[res] += durations[res] * resource_cost_rate
         return costs, durations
 
     def compute_duration(begin, end, usage):
-        delta = end - begin
-        days = 1 + delta.days
+        delta = end.day - begin.day
+        days = 1 + delta
         return days * usage
     compute_duration = staticmethod(compute_duration)
 

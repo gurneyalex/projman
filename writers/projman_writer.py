@@ -95,7 +95,7 @@ def schedule_as_dom(project):
         if element.tag == "milestone":
             continue # milestone don't need more
         # global cost
-        costs = project.get_task_costs(task.id)[0]
+        costs = project.get_task_costs(task.id, task.duration)[0]
         global_cost = ET.SubElement(element, 'global-cost', unit='XXX')
         global_cost.text = '%.1f' % sum(costs.values())
         # cost by resource
