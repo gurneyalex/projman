@@ -36,7 +36,7 @@ without arguments.
     ex: projman diagram gantt
 
   projman view
-    to generate xml views (list, cost , date)
+    to generate xml views (cost-para, duration-para, duration-table, cost-table, dates-para, duration-section, rates-section, tasks-list-section)
     ex: projman view --output=out_list.xml tasks-list-section
     
   projman -V (--version)
@@ -48,7 +48,7 @@ without arguments.
 .SH OPTIONS
 .SS Diagram
 .SP
- .TP
+
 \fB\-\-version\fR
 show program's version number and exit
 .TP
@@ -103,19 +103,6 @@ theirs duration. [current: no]
 \fB\-\-del\-empty=\fR<y or n>
 do not display in resource diagram tasks wich are not
 worked during given period [current: no]
-.SH "SEE ALSO"
-The full documentation for
-.B projman diagram
-is maintained as a Texinfo manual.  If the
-.B info
-and
-.B projman diagram
-programs are properly installed at your site, the command
-.IP
-.B info projman diagram
-.PP
-should give you access to the complete manual.
-
 
 .SS XML-View
 .SP
@@ -190,18 +177,6 @@ scheduling method [current: csp]
 .TP
 \fB\-\-time=\fR<1...>
 stop the programm after time [current: 400000]
-.SH "SEE ALSO"
-The full documentation for
-.B projman schedule
-is maintained as a Texinfo manual.  If the
-.B info
-and
-.B projman schedule
-programs are properly installed at your site, the command
-.IP
-.B info projman schedule
-.PP
-should give you access to the complete manual.
   
 
 .SH SEE ALSO 
