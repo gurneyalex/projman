@@ -1,7 +1,7 @@
 ChangeLog for Projman
 =====================
 
-	--
+2008-05-22	-- 0.12.3
 	
     * simple scheduling: correctly handles resource usage and task
       prioritites
