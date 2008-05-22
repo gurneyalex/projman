@@ -202,10 +202,7 @@ class CSPScheduler:
             # gestion des charges flottantes
             duration_ = duration * factor
             if (duration * factor) % 1 > 0 :
-                if (duration * factor)%1 < 0.5:
-                    duration_ = duration * factor - ((duration * factor) % 1)
-                else:
-                    duration_ = duration * factor - ((duration * factor) % 1) + 1
+                duration_ = duration * factor - ((duration * factor) % 1) + 1
                 real_tasks_items[i][1][2] = duration_ / factor
             task_num = pb.add_task( tid, _type, int(duration_), 0 ) # 0: for future use (interruptible flag)                
             low, high = self.task_ranges[tid]
@@ -251,7 +248,7 @@ class CSPScheduler:
         ntasks = SOL.get_ntasks()
         tasks_days = [ [ day / factor for day in range(duration) if SOL.isworking( task, day ) ] for task in range(ntasks) ]
         
-        calendar = []# attention si le calendrier est fonction des resources
+        calendar = []# attention si le calendrier est fonction de chaque resources
         for i in range(duration/factor):
             calendar.append([])
             for j in range(len(resources_map)):
@@ -291,8 +288,7 @@ class CSPScheduler:
                  #   else:
                  #       usage == last_usage
                  #       self.real_tasks[tid][1] == CST.TASK_SHARED
-                if usage >= 1./(2 * factor):
-                    activities.append((date, date + time_table, res_id, 
+                activities.append((date, date + time_table, res_id, 
                                 tid, max(usage,1./factor)))
         print "\nactivites :"
         for (db, de, res_id, tid, dur) in activities:
