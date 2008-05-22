@@ -4,4 +4,3 @@ dtd/activities.dtd usr/share/sgml/projman/dtd
 dtd/resources.dtd usr/share/sgml/projman/dtd
 dtd/schedule.dtd usr/share/sgml/projman/dtd
 dtd/catalog usr/share/sgml/projman
-xsl/convert.xsl usr/share/sgml/projman/stylesheet

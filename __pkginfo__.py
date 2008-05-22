@@ -50,7 +50,7 @@ ftp = "ftp://ftp.logilab.org/pub/%s" % modname
 mailinglist = "http://lists.logilab.org/mailman/listinfo/management-projects"
 
 
-scripts = ['bin/projman', 'bin/projman_convert_format']
+scripts = ['bin/projman', ]
 data_files = [['share/projman',
                ['fonts/Arial_12_72.pil',
                 'fonts/Arial Bold_12_72.pil',
