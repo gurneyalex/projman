@@ -27,17 +27,17 @@ without arguments.
 
 .SH COMMANDS
 
-  projman -d (--diagram)
-    to generate diagrams (resources, gantt, etc.)
-    ex: projman -d --diagram-type=gantt projman.xml image.png
-
-  projman -s (--schedule, --plan)
+  projman schedule
     to schedule project
-    ex:  projman -s -I projman.xml schedule.xml
+    ex:  projman schedule --project-file=projman_project.xml
 
-  projman -x (--xml-view, --xml-doc)
+  projman diagram
+    to generate diagrams (resources, gantt, etc.)
+    ex: projman diagram gantt
+
+  projman view
     to generate xml views (list, cost , date)
-    ex: projman -x -v cost projman.xml view.xml
+    ex: projman view --output=out_list.xml tasks-list-section
     
   projman -V (--version)
     display version of installed projman
@@ -48,68 +48,162 @@ without arguments.
 .SH OPTIONS
 .SS Diagram
 .SP
-  --diagram-type
-    specifies the type of diagram to generate
-    REQUIRED
-    * resources
-    * gantt
-    * gantt-resources (resources displayed as summary)
+ .TP
+\fB\-\-version\fR
+show program's version number and exit
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+show this help message and exit
+.TP
+\fB\-f\fR <project description file>, \fB\-\-project\-file=\fR<project description file>
+specify the project description file to use [current:
+project.xml]
+.TP
+\fB\-\-verbose=\fR<0..3>
+display additional information during execution of
+projman [current: none]
+.TP
+\fB\-R\fR <virtual task root>, \fB\-\-task\-root=\fR<virtual task root>
+identifier of a task to use as root [current: none]
+.TP
+\fB\-\-factorized_days=\fR<y or n>
+display task in day, half day or quarter of day,
+depending of tasks durations. [current: no]
+.TP
+\fB\-o\fR <output xml file>, \fB\-\-output=\fR<output xml file>
+specific output file to use when a single diagram is
+generated [current: none]
+.TP
+\fB\-\-selected\-resource=\fR<resource identifier>
+specifies the id of the resource to take in account
+for resources diagrams [current: none]
+.TP
+\fB\-\-format=\fR<format>
+specifies the output format for diagrams [current:
+svg]
+.TP
+\fB\-\-depth=\fR<level>
+specifies the depth to visualize for diagrams, default
+to 0 which means all the tree [current: none]
+.TP
+\fB\-\-timestep=\fR<nb days>
+timeline increment in days for diagram [current: 1]
+.TP
+\fB\-\-view\-begin=\fR<yyyy/mm/dd>
+begin date for diagram view [current: none]
+.TP
+\fB\-\-view\-end=\fR<yyyy/mm/dd>
+end date for diagram view [current: none]
+.TP
+\fB\-\-del\-ended=\fR<y or n>
+do not display in resource diagram tasks wich are
+completed, meaning that time of work on them equals
+theirs duration. [current: no]
+.TP
+\fB\-\-del\-empty=\fR<y or n>
+do not display in resource diagram tasks wich are not
+worked during given period [current: no]
+.SH "SEE ALSO"
+The full documentation for
+.B projman diagram
+is maintained as a Texinfo manual.  If the
+.B info
+and
+.B projman diagram
+programs are properly installed at your site, the command
+.IP
+.B info projman diagram
+.PP
+should give you access to the complete manual.
 
-  --selected-resource
-    specifies the id of the resource to take in account for resources diagrams
-    [default=all resources]
-
-  --renderer 
-    specifies the output renderering for resources diagram 
-    use only with schedule input
-    * [png]
-    * html (bugs)
-
-  --depth
-    specifies the depth to visualisate for diagrams
-    [default=0, this means all the tree]
-
-  --timestep
-    timeline increment in days for diagram
-    [default=1]
-
-  --view-begin
-    begin date for diagram view (yyyy/mm/dd)
-    [default=date begin project]
-
-  --view-end
-    end date for diagram view (yyyy/mm/dd)
-    [default=date end project]
 
 .SS XML-View
 .SP
-  -v; --view
-    Specify the type of view generated
-    * [cost]: Table with task, load, resources, cost
-    * list: List of all tasks
-    * date: Table with task, begin date, end date, cost.
-
-  -f; --format
-    set output format.
-    * [docbook]: respectful of format dockbook 4.2.
-    * html: NOT IMPLEMENTED YET
-    * csv: NOT IMPLEMENTED YET
-     
-  --display-cost
-    Add global cost of project at the end of the view
-
-  --display-duration
-    Add global duration of project at the end of the view
-    
-  --display-rates
-    Add daily rates for each resources working on project
+.TP
+\fB\-\-version\fR
+show program's version number and exit
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+show this help message and exit
+.TP
+\fB\-f\fR <project description file>, \fB\-\-project\-file=\fR<project description file>
+specify the project description file to use [current:
+project.xml]
+.TP
+\fB\-\-verbose=\fR<0..3>
+display additional information during execution of
+projman [current: none]
+.TP
+\fB\-R\fR <virtual task root>, \fB\-\-task\-root=\fR<virtual task root>
+identifier of a task to use as root [current: none]
+.TP
+\fB\-\-factorized_days=\fR<y or n>
+display task in day, half day or quarter of day,
+depending of tasks durations. [current: no]
+.TP
+\fB\-o\fR <output xml file>, \fB\-\-output=\fR<output xml file>
+specific output file to use [current: output.xml]
+.TP
+\fB\-\-display\-dates=\fR<y or n>
+display task's begin and end date (tasks\-list view
+only) [current: yes]
+.SH "SEE ALSO"
+The full documentation for
+.B projman view
+is maintained as a Texinfo manual.  If the
+.B info
+and
+.B projman view
+programs are properly installed at your site, the command
+.IP
+.B info projman view
+.PP
+should give you access to the complete manual.
+  
 
 .SS Schedule
 .SP
-  -I; --include-references
-    input file will be modified to include references to 
-    produced schedules
-"
+.TP
+\fB\-\-version\fR
+show program's version number and exit
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+show this help message and exit
+.TP
+\fB\-f\fR <project description file>, \fB\-\-project\-file=\fR<project description file>
+specify the project description file to use [current:
+project.xml]
+.TP
+\fB\-\-verbose=\fR<0..3>
+display additional information during execution of
+projman [current: none]
+.TP
+\fB\-R\fR <virtual task root>, \fB\-\-task\-root=\fR<virtual task root>
+identifier of a task to use as root [current: none]
+.TP
+\fB\-\-factorized_days=\fR<y or n>
+display task in day, half day or quarter of day,
+depending of tasks durations. [current: no]
+.TP
+\fB\-\-type=\fR<schedule type>
+scheduling method [current: csp]
+.TP
+\fB\-\-time=\fR<1...>
+stop the programm after time [current: 400000]
+.SH "SEE ALSO"
+The full documentation for
+.B projman schedule
+is maintained as a Texinfo manual.  If the
+.B info
+and
+.B projman schedule
+programs are properly installed at your site, the command
+.IP
+.B info projman schedule
+.PP
+should give you access to the complete manual.
+  
+
 .SH SEE ALSO 
 http://www.logilab.org/projects/projman/
 
