@@ -360,7 +360,6 @@ class Project:
         rounded=0
         if task_tot_duration % 1:
             rounded = task_tot_duration % 1 - self.factor
-        print "ounded:", rounded
         for begin, end, resource, task, usage, src \
                 in self.activities.select('task', task_id):
             costs.setdefault(resource, 0)
