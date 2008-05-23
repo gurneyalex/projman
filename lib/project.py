@@ -76,27 +76,28 @@ class Project:
         """find if we must schedule on day, half  or quarter of day
         and return the appropriate factor
         """
-        factor = 1
-        factor_ = 1
-        for leaf in self.root_task.leaves():
-            mod = (leaf.duration % 1 )
-            if mod > 0:
-                if mod >= 0.13:
-                    factor_ = mod
-                if mod > 0.5 and mod -0.5 >= 0.13 and mod<0.83:
-                    if mod >= 0.13:
-                        factor_ = (leaf.duration % 1 ) - 0.5
-            factor = min(factor, factor_)
+        pass # valeur donnee en option ou egale a 1
+#        factor = 1
+#        factor_ = 1
+#        for leaf in self.root_task.leaves():
+#            mod = (leaf.duration % 1 )
+#            if mod > 0:
+#                if mod >= 0.13:
+#                    factor_ = mod
+#                if mod > 0.5 and mod -0.5 >= 0.13 and mod<0.83:
+#                    if mod >= 0.13:
+#                        factor_ = (leaf.duration % 1 ) - 0.5
+#            factor = min(factor, factor_)
             
-        dist=abs(factor-1.)
-        _factor = 1.
-        for f in [1., 0.5, 0.25]:
-             d=abs(factor-f)
-             if d<dist:
-                _factor = f
-                dist = d
-        factor = _factor
-        self.factor = int(1 / factor)
+#        dist=abs(factor-1.)
+#        _factor = 1.
+#        for f in [1., 0.5, 0.25]:
+#             d=abs(factor-f)
+#             if d<dist:
+#                _factor = f
+#                dist = d
+#        factor = _factor
+#        self.factor = int(1 / factor)
 
     def get_root_task(self):
         return self._root_task
@@ -358,9 +359,8 @@ class Project:
         costs = {}
         durations = {}
         rounded=0
-        if task_tot_duration % 1:
-            rounded = task_tot_duration % 1 - self.factor
-        print "ounded:", rounded
+        if 0 < task_tot_duration % (1./self.factor) < (1./self.factor):
+            rounded = task_tot_duration % (1./self.factor) - 1./self.factor
         for begin, end, resource, task, usage, src \
                 in self.activities.select('task', task_id):
             costs.setdefault(resource, 0)
