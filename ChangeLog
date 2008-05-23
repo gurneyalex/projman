@@ -2,6 +2,18 @@ ChangeLog for Projman
 =====================
 
 2008-05-22	-- 0.12.3
+    * csp scheduling:
+    - correct scheduling in case of float duration (for tasks)
+    - add possibility to schedule per day, half day or quarter of day
+    - add option --time to stop the schedule
+    - precise date (hours in dates)
+    * diagrams:
+    - fix gantt and resources diagrams
+    - print half days in graphs to schedule per half day or quarter of day
+    * views:
+    - fix tasks cost and duration compute
+
+2008-05-22	-- 0.12.1
 	
     * simple scheduling: correctly handles resource usage and task
       prioritites
