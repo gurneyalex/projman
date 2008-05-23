@@ -58,7 +58,16 @@ class ProjmanCommand(Command):
           'type' : 'string', 'metavar': '<virtual task root>',
           'default': None,
           'help': 'identifier of a task to use as root',
-          }),
+          }
+         ),
+        ('factorized_days',
+         {'type' : 'int', 'metavar' : '<1, 2 or 4>',
+          'default': 1,
+          'help' : 'schedule and display task in day(1), half day(2) or quarter of day(4).' 
+                   'Attention: if you decide to use this option, be coherent ' 
+                   'for next projman commands ! '
+          }
+         ),
         )
 
     def run(self, args):
@@ -67,6 +76,7 @@ class ProjmanCommand(Command):
         logging.basicConfig(level=loglevel)
         reader = ProjectXMLReader(self.config.project_file, self.config.task_root)
         self.project, self.files = reader.read()
+        self.project.factor = self.config.factorized_days
         self._run(args)
 
     def _run(self, args):
