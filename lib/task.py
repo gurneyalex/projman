@@ -197,13 +197,18 @@ class TaskNode(VNode):
                     constraints.add((END_BEFORE_DATE, date))
         return constraints
 
+    def check_duration(self):
+        """check non valid duration (0)"""
+        if self.TYPE != 'milestone' and self.duration == 0:
+            raise Exception("non valid task duration for '%s'" %self.id)
+
     def check_consistency(self):
         """
         check that there are no duplicated task ids
         """
         #check non valid duration (0)
-        if self.TYPE != 'milestone' and self.duration == 0:
-            raise Exception("non valid task duration for", self)
+        #if self.TYPE != 'milestone' and self.duration == 0:
+        #    raise Exception("non valid task duration for '%s'" %self.id)
         errors = []
         task_ids = set()
         for node in self.flatten():

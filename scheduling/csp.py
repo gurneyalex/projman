@@ -161,7 +161,7 @@ class CSPScheduler:
         _VERBOSE = verbose
         # check the tasks (duration is not 0)
         for leaf in self.project.root_task.leaves():
-            leaf.check_consistency()
+            leaf.check_duration()
         self.project.get_factor()
         factor = self.project.factor
         self.max_duration = int( self.max_duration * 1.5 )
@@ -233,7 +233,7 @@ class CSPScheduler:
                     print "%s %s(%s), %s(%s)" %(type, t1, n1, t2, n2)
 
         pb.set_convexity( True )
-        pb.set_time( time)#time ) # 2 min max : ne marche pas
+        pb.set_time(time)
         pb.set_verbosity( _VERBOSE )
         pb.set_max_nb_solutions(4000)
         solve( pb )
