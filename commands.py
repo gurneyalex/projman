@@ -83,6 +83,20 @@ class ProjmanCommand(Command):
         raise NotImplementedError
 
 # Concrete commands ###########################################################
+class CheckCommand(ProjmanCommand):
+    "check the definition of a projman problem"
+    name = 'checker'
+    max_args = 0
+    arguments = ''
+
+    def _run(self, args):
+        from projman.checker.problem_checker import Checker
+        # validate xml format
+        reader = ProjectXMLReader(self.config.project_file, self.config.task_root)
+        check_project = Checker(self.project)
+        check_project.validate() # verifier si il existe chaque tache a au moins 1 resource associee
+        print "ok pour validate"
+
 
 class ScheduleCommand(ProjmanCommand):
     """schedule a project"""
@@ -268,4 +282,4 @@ class DiagramCommand2(ProjmanCommand):  # a test...
         gantt.save()
 
 
-register_commands((ScheduleCommand, ViewCommand, DiagramCommand))
+register_commands((CheckCommand, ScheduleCommand, ViewCommand, DiagramCommand))

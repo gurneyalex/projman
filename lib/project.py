@@ -379,7 +379,7 @@ class Project:
             rounded  = rounded / len(durations)
             for res in durations:
                 try:
-                    resource_cost_rate = self.get_resource(res).hourly_rate[0] * 8
+                    resource_cost_rate = self.get_resource(res).hourly_rate[0]
                 except NodeNotFound,ex :
                     # if resource not found ???
                     resource_cost_rate = 1
