@@ -122,12 +122,15 @@ class SVGHandler:
         gc = self.get_gc( **args )
         prop = self.get_prop( **args )
         if n!=len(text): # spaces are not printed so we shift left n*size(i)
-            w,h=self._rend.get_text_width_height("i", prop, False)
+            try:
+                w,h,_ = self._rend.get_text_width_height_descent("i", prop, False)
+            except AttributeError: # compatibility with matplotlib 0.90
+                w,h = self._rend.get_text_width_height("i", prop, False)
             x+= w*(n-len(text))
         self._rend.draw_text( gc, x, y,
                               text, prop,
                               angle=0, ismath=False)
-
+        
     def draw_line(self, x1, y1, x2, y2, **args):
         """ draw a line """
         #print "draw_line", x1, y1, x2, y2, args
