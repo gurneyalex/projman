@@ -130,8 +130,8 @@ class TasksVisitor:
     def visit_root(self, node):
         elem = ET.Element('task', id=node.id)
         self.set_common_attr( node, elem )
-        for rtype, rid, usage in node.resource_constraints:
-            ET.SubElement( elem, "constraint-resource", usage=str(usage),
+        for rtype, rid in node.resource_constraints:
+            ET.SubElement( elem, "constraint-resource",
                            idref=rid, type=rtype )
         
         self.parents.append(elem)
@@ -145,8 +145,8 @@ class TasksVisitor:
         elem.set("load", str(node.duration) )
         self.set_common_attr( node, elem )
 
-        for rtype, rid, usage in node.resource_constraints:
-            ET.SubElement( elem, "constraint-resource", usage=str(usage),
+        for rtype, rid in node.resource_constraints:
+            ET.SubElement( elem, "constraint-resource",
                            idref=rid, type=rtype )
         
         self.parents.append( elem )

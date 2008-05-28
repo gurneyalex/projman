@@ -208,7 +208,7 @@ class ProjectXMLReader(AbstractXMLReader) :
         for ct in task.findall("constraint-task"):
             t.add_task_constraint( ct.get("type"), ct.get("idref") )
         for cr in task.findall("constraint-resource"):
-            t.add_resource_constraint( cr.get("type"), cr.get("idref"), float(cr.get("usage")) )
+            t.add_resource_constraint( cr.get("type"), cr.get("idref"))#, float(cr.get("usage")) )
         desc = task.find("description")
         txt_fmt = "none"
         if desc is None:

@@ -127,18 +127,17 @@ class CSPScheduler:
         # -> using new projman definition
         if node.TYPE != 'milestone' and node.get_resource_constraints()== set():
             # collect reources in root_trask
-            for r_type, r_id, usage in self.project.root_task.get_resource_constraints():
+            for r_type, r_id in self.project.root_task.get_resource_constraints():
                 self.resources.add( r_id )
                 task_resources.append( r_id )
             self.project.get_resources_from_task_type(node)
             #trouver les resources correspondantes
             task_type = node.get_task_type()
             if _VERBOSE>1:
-                print "Resource", node.task_type#, r_id, usage
+                print "Resource", r_id
         # -> using old projman definition
         else:
-            for r_type, r_id, usage in node.get_resource_constraints():
-                # keep usage around in case we use it one day
+            for r_type, r_id in node.get_resource_constraints():
                 if _VERBOSE>1:
                     print "Resource", r_type, r_id
                 self.resources.add( r_id )
@@ -242,8 +241,7 @@ class CSPScheduler:
                 continue
             for res_id in sorted(resources):
                 res_num = resources_map[res_id]
-                pseudo_id = pb.add_resource_to_task( task_num, res_num, 1000 ) 
-                                                    #  100  for usage
+                pseudo_id = pb.add_resource_to_task( task_num, res_num ) 
                 pseudo_tasks.append( (pseudo_id, tid, res_id) )
 
         # register constraints

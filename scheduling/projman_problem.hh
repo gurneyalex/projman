@@ -29,12 +29,10 @@ enum constraint_type_t {
 };
 
 struct res_task_t {
-    res_task_t( uint_t _task_id, uint_t _res_id, int _usage ):task_id(_task_id),
-							      res_id(_res_id),
-							      usage(_usage) {}
+    res_task_t( uint_t _task_id, uint_t _res_id):task_id(_task_id),
+							      res_id(_res_id){}
     uint_t task_id;
     uint_t res_id;
-    int usage;
 };
 struct task_constraint_t {
     task_constraint_t( constraint_type_t t, int ti, int tj):
@@ -160,7 +158,7 @@ public:
 			 int cmp_type_low, int cmp_type_high );
     uint_t add_worker( std::string worker_name );
     void add_not_working_day( uint_t worker, uint_t day );
-    int add_resource_to_task( uint_t task_id, uint_t res_id, int usage );
+    int add_resource_to_task( uint_t task_id, uint_t res_id );
     void add_task_constraint( constraint_type_t t, uint_t ti, uint_t tj );
 
 };

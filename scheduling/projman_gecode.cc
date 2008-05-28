@@ -118,10 +118,9 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
 		int tmax = 0;
 		for(j=0;j<task.resources.size();++j) {
 		    uint_t pseudo_id = task.res_tasks_id[j];
-		    int usage = pb.res_tasks[pseudo_id].usage;
-		    int real_load = (load*usage)/100;
-		    if (real_load>tmax) {
-			tmax = real_load;
+            int real_load = load;
+		    if (load>tmax) {
+			tmax = load;
 		    }
 		    cardinality(this, res_tasks[pseudo_id], real_load, real_load);
 		}
