@@ -356,21 +356,27 @@ class ResourcesChecker(BaseEtreeChecker):
     def check_resources_list(self):
         self._isroot()
         self._attributes( { "id?" : not_empty } )
-        self._children("resource+","calendar+")
+        self._children("resource+","calendar+","resource-role*")
         self._empty()
         
     def check_resource(self):
         self._is_child_of( "resources-list" )
-        self._children("label","use-calendar","hourly-rate")
+        self._children("label","use-calendar","hourly-rate?", "role*")
         self._empty()
-        self._attributes( {"type" : not_empty,
+        self._attributes( {"type?" : not_empty,
                            "id" : not_empty,} )
 
     def check_label(self):
         self._children()
         self._noattr()
-        self._is_child_of("resource","calendar","day-type")
+        self._is_child_of("resource","resource-role","calendar","day-type")
         self._content( unicode )
+
+    def check_role(self):
+        self._children()
+        self._empty()
+        self._is_child_of("resource")
+        self._attributes({'idref' : not_empty})
 
     def check_use_calendar(self):
         self._children()
@@ -383,6 +389,14 @@ class ResourcesChecker(BaseEtreeChecker):
         self._content( float )
         self._is_child_of( "resource" )
         self._attributes( {"unit?": one_of("euros")} )
+
+    def check_resource_role(self):
+        self._is_child_of( "resources-list" )
+        self._children("label")
+        self._empty()
+        self._attributes( {"id" : not_empty,
+                           "hourly-cost" : convertible(float),
+                           "cost-unit?" : one_of("EUR")} )
 
     def check_calendar(self):
         self._is_child_of( "calendar", "resources-list" )
@@ -444,6 +458,7 @@ class TasksChecker(BaseEtreeChecker):
                                           depends("load") ),
                            "load?":(convertible(float),
                                     depends("load-type")),
+                           "resource-role?" : not_empty,
                            } )
         self._empty()
         pos, node = self.stack[-1]

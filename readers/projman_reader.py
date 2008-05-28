@@ -89,13 +89,13 @@ class ProjectXMLReader(AbstractXMLReader) :
         checker = ProjectChecker()
         if not checker.validate(tree, filename):
             raise MalformedProjectFile(str(checker))
-
         sched = self.get_file(tree, "schedule")
+        tasks = self.get_file(tree, "tasks")
         rsrc = self.get_file(tree, "resources")
         act = self.get_file(tree, "activities")
-        tasks = self.get_file(tree, "tasks")
         self.project.root_task = self.read_tasks(tasks)
         self.project.resource_set = self.read_resources(rsrc)
+        self.project.resource_role_set = self.read_resource_role(rsrc)
         self.project.add_activities( self.read_activities(act) )
         if sched and not self.skip_schedule:
             try:
@@ -175,6 +175,8 @@ class ProjectXMLReader(AbstractXMLReader) :
 
     def read_task(self, task):
         t = self._factory.create_task( task.get("id") )
+        if task.get("resource-role"):
+            t.task_type = task.get("resource-role")
         self.task_milestone_common( t, task )
         for child in task:
             if child.tag == "duration":
@@ -241,8 +243,23 @@ class ProjectXMLReader(AbstractXMLReader) :
                 res.hourly_rate[1] = n.get('unit','euros')
             elif n.tag == 'use-calendar':
                 res.calendar = n.get('idref')
+            elif n.tag == 'role':
+                res.id_role.append(n.get('idref'))
         return res
 
+    def read_resource_role(self, fname):
+        tree = ET.parse(fname)
+        root_node = tree.getroot()
+        res_role_set = self._factory.create_resource_role_set('all_resource_role')
+        for res_role in root_node.findall('resource-role'):
+            res = self._factory.create_resource_role( res_role.get('id'), u'')
+            res.hourly_cost = float(res_role.get("hourly-cost"))
+            res.unit = res_role.get("cost-unit")
+            for n in res_role._children:
+                if n.tag == 'label':
+                    res.name = unicode(n.text)
+            res_role_set.append(res)
+        return res_role_set
 
     def read_calendar_definition(self, cal_node, parent_cal=None):
         cal = self._factory.create_calendar( cal_node.get('id') )
@@ -287,6 +304,7 @@ class ProjectXMLReader(AbstractXMLReader) :
         return cal
 
     def read_resources(self, fname):
+
         tree = ET.parse(fname)
         checker = ResourcesChecker()
         if not checker.validate(tree, fname):

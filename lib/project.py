@@ -57,6 +57,7 @@ class Project:
     def __init__(self):
         self._root_task = None
         self.resource_set = None
+        self.resource_role_set = None
         self._is_scheduled = False
         self.activities = Table(default_value=None,
                                 col_names=['begin', 'end', 'resource', 'task',
@@ -191,6 +192,15 @@ class Project:
     def get_resource(self, resource_id):
         return self.resource_set.get_resource(resource_id)
 
+    def get_resources_from_task_type(self, task):
+        """add all the resources with type abilities in task.set_resources"""
+        res_set = self.get_resources()
+        for res in res_set:
+            res = self.get_resource(res)
+            for i in range(len(res.id_role)):
+                if res.id_role[i] == task.task_type:
+                    task.set_resources.append(res.id)
+      
     # tasks methods ###########################################################
 
     def get_task(self, task_id):
@@ -378,14 +388,26 @@ class Project:
         if len(durations) > 0:
             rounded  = rounded / len(durations)
             for res in durations:
-                try:
-                    resource_cost_rate = self.get_resource(res).hourly_rate[0]
-                except NodeNotFound,ex :
-                    # if resource not found ???
-                    resource_cost_rate = 1
+                # using resources old definition
+                if self.resource_role_set.width() == 1:
+                    try:
+                        cost_rate = self.get_resource(res).hourly_rate[0]
+                    except NodeNotFound,ex :
+                        # if resource not found ???
+                        cost_rate = 1
+                #using new resources definition
+                else:
+                    task = self.get_task(task_id)
+                    #resource = self.get_resource(res)
+                    role = task.task_type
+                    cost_rate = self.get_cost_from_role(role)
                 durations[res] += rounded
-                costs[res] += durations[res] * resource_cost_rate
+                costs[res] += durations[res] * cost_rate
         return costs, durations
+
+    def get_cost_from_role(self, role):
+        res_role = self.resource_role_set.get_resource_role(role)
+        return res_role.hourly_cost
 
     def compute_duration(begin, end, usage):
         delta = end.day - begin.day

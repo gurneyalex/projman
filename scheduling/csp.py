@@ -29,7 +29,7 @@ for t in CST.TASK_CONSTRAINTS:
     name = t.upper().replace("-","_")
     GCSPMAP[t] = getattr(GCSP_CST, name)
 
-_VERBOSE=2
+_VERBOSE=1
 
 class CSPScheduler:
     """
@@ -94,6 +94,7 @@ class CSPScheduler:
 
     def _process_node(self, node):
         max_duration = self.max_duration
+
         _, _, _, task_resources = self.real_tasks.setdefault( node.id,
                                                            [len(self.real_tasks),
                                                             node.load_type,
@@ -114,19 +115,36 @@ class CSPScheduler:
                 rnge[0] = days
                 if _VERBOSE>1:
                     print node.id, 'begin after', days
-            elif c_type == CST.END_BEFORE_DATE :
+            elif c_type == CST.END_BEFORE_DATE:
                 rnge[1] = days + 1
                 if _VERBOSE>1:
                     print node.id, 'end before', days
         # collect resources
-        for r_type, r_id, usage in node.get_resource_constraints():
-            # keep usage around in case we use it one day
+            # 
+            # on utilise task.set_resources pour obtenir l ensemble des
+            # resources disponibles pour une tache
+            #
+        # -> using new projman definition
+        if node.TYPE != 'milestone' and node.get_resource_constraints()== set():
+            # collect reources in root_trask
+            for r_type, r_id, usage in self.project.root_task.get_resource_constraints():
+                self.resources.add( r_id )
+                task_resources.append( r_id )
+            self.project.get_resources_from_task_type(node)
+            #trouver les resources correspondantes
+            task_type = node.get_task_type()
             if _VERBOSE>1:
-                print "Resource", r_type, r_id, usage
-            self.resources.add( r_id )
-            task_resources.append( (r_id, usage) ) 
-            
-            
+                print "Resource", node.task_type#, r_id, usage
+        # -> using old projman definition
+        else:
+            for r_type, r_id, usage in node.get_resource_constraints():
+                # keep usage around in case we use it one day
+                if _VERBOSE>1:
+                    print "Resource", r_type, r_id
+                self.resources.add( r_id )
+                task_resources.append( r_id )
+                node.set_resources.append(r_id)
+
     def add_priorities_as_constraints(self):
         """
         transform priorities as BEGIN_AFTER_END constraints
@@ -198,8 +216,11 @@ class CSPScheduler:
                 print "%02d" % res_num, "".join(sched)
         pseudo_tasks = []
         i = 0
+
         for tid, (num, _type, duration, resources) in real_tasks_items:
-            # gestion des charges flottantes
+
+            task = self.project.get_task(tid)
+            resources = task.set_resources # set resources according to new definition
             duration_ = duration * factor
             if (duration * factor) % 1 > 0 :
                 duration_ = duration * factor - ((duration * factor) % 1) + 1
@@ -219,10 +240,12 @@ class CSPScheduler:
             pb.set_task_range( task_num, int(low), int(high), 0, 0 ) # XXX: cmp_type unused
             if _type == load_types.TASK_MILESTONE:
                 continue
-            for res_id, usage in sorted(resources):
+            for res_id in sorted(resources):
                 res_num = resources_map[res_id]
-                pseudo_id = pb.add_resource_to_task( task_num, res_num, int(usage) )
+                pseudo_id = pb.add_resource_to_task( task_num, res_num, 1000 ) 
+                                                    #  100  for usage
                 pseudo_tasks.append( (pseudo_id, tid, res_id) )
+
         # register constraints
         for type, pairs in self.constraints.items():
             for t1, t2 in pairs:
@@ -290,9 +313,10 @@ class CSPScheduler:
                  #       self.real_tasks[tid][1] == CST.TASK_SHARED
                 activities.append((date, date + time_table, res_id, 
                                 tid, max(usage,1./factor)))
-        print "\nactivites :"
-        for (db, de, res_id, tid, dur) in activities:
-            print "\tdu", db,"au", de, res_id, tid, dur
+        if _VERBOSE >0:
+            print "\nactivites :"
+            for (db, de, res_id, tid, dur) in activities:
+                print "\tdu", db,"au", de, res_id, tid, dur
         milestone = 0
         nmilestones = SOL.get_nmilestones()
         for tid, (num, _type, duration, resources) in self.real_tasks.items():
