@@ -60,6 +60,8 @@ class TaskNode(VNode):
         self._priority = None
         self.duration = 0
         self.load_type = 0
+        self.task_type = None
+        self.set_resources = []
 
     def __repr__(self):
         return "<Task id=%s at %s>" % (self.id, id(self))
@@ -268,15 +270,27 @@ class Task(TaskNode):
         TaskNode.__init__(self, t_id)
         self.resource_constraints = set()
 
+    def get_task_type(self):
+        if self.task_type:
+                return self.task_type
+        elif self.parent:
+            return self.parent.get_task_type()
+        else:
+            return set()
+
     def get_resource_constraints(self):
         """
         get real resource constraints using parent resource constraints
         """
-        if self.resource_constraints:
-            return self.resource_constraints
-        elif self.parent:
-            return self.parent.get_resource_constraints()
+        if not self.task_type:
+            if self.resource_constraints:
+                return self.resource_constraints
+            elif self.parent:
+                return self.parent.get_resource_constraints()
+            else:
+                return set()
         else:
+            self.get_task_type()
             return set()
         
     def get_resources(self):

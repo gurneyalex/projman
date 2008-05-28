@@ -80,13 +80,13 @@ def schedule_as_dom(project):
         # add date-constraints
         begin, end = project.get_task_date_range(task)
         if element.tag == "task":
-            ET.SubElement( element, "constraint-date", type=BEGIN_AT_DATE ).text = str(begin)#begin.date
-            ET.SubElement( element, "constraint-date", type=END_AT_DATE ).text = str(end)#end.date
+            ET.SubElement( element, "constraint-date", type=BEGIN_AT_DATE ).text = str(begin)
+            ET.SubElement( element, "constraint-date", type=END_AT_DATE ).text = str(end)
             if task.priority is not None:
                 ET.SubElement(element, 'priority').text = str(task.priority)
             ET.SubElement(element, 'status').text = project.get_task_status(task)
         else:
-            ET.SubElement( element, "constraint-date", type=AT_DATE ).text = str(begin)#begin.date
+            ET.SubElement( element, "constraint-date", type=AT_DATE ).text = str(begin)
 
         # task_constraints
         for ctype, ctask_id in task.task_constraints:
@@ -119,8 +119,8 @@ def schedule_as_dom(project):
                 act_element = ET.SubElement(rlist, 'report',
                                             idref=r_id,
                                             usage='%f' % usage)
-                act_element.set('from', str(begin))#begin.date)
-                act_element.set('to', str(end) )#end.date)
+                act_element.set('from', str(begin))
+                act_element.set('to', str(end) )
     return doc
 
 class TasksVisitor:

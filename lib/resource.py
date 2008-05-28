@@ -54,6 +54,7 @@ class Resource(VNode):
         self.type = type
         self.calendar = calendar
         self.hourly_rate = [hourly_rate, unit]
+        self.id_role = []
 
     def get_default_wt_in_hours(self):
         """return number of working hours for this resource in a default day"""
