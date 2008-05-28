@@ -321,6 +321,7 @@ class ScheduleChecker(BaseEtreeChecker):
         self._content( str )
         self._children()
         self._noattr()
+
     def check_report(self):
         self._children()
         self._empty()
@@ -519,8 +520,8 @@ class TasksChecker(BaseEtreeChecker):
     def check_constraint_resource(self):
         self._is_child_of("task","milestone")
         self._empty()
-        self._attributes( {"usage" : convertible(float),
-                           "idref" : not_empty,
+        self._attributes( {"idref" : not_empty,
+                           "usage?" : not_empty,
                            "type?" : not_empty,} )
         self._children()
 

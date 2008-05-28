@@ -254,8 +254,8 @@ class Task(TaskNode):
         parent's priority
       - duration: integer estimated duration of the task
       - progress: integer progress of task (in percent)
-      - resource_constraints: sequence of tuples (type, id_res,
-        usage), can be used without id_res for planning with type of
+      - resource_constraints: sequence of tuples (type, id_res),
+        can be used without id_res for planning with type of
         resource
       - hide: boolean, used to render partial graphs (e.g. for a
         given resource)
@@ -297,20 +297,20 @@ class Task(TaskNode):
         """
         return a sequence of the resources in resource_constraints
         """
-        return set([id_res for type_c, id_res, usage in
+        return set([id_res for type_c, id_res in
                     self.get_resource_constraints()])
     
-    def get_resource_dispo(self, res_id):
-        """
-        get the resource disponibility required for this task
-        """
-        for type_c, id_res, usage in self.get_resource_constraints():
-            if id_res == res_id:    
-                return usage
-        return 0
+#    def get_resource_dispo(self, res_id):
+#        """
+#        get the resource disponibility required for this task
+#        """
+#        for type_c, id_res in self.get_resource_constraints():
+#            if id_res == res_id:    
+#                return usage
+#        return 0
 
-    def add_resource_constraint(self, resource_type, resource_id, usage):
-        self.resource_constraints.add((resource_type, resource_id, usage))
+    def add_resource_constraint(self, resource_type, resource_id):
+        self.resource_constraints.add((resource_type, resource_id))
 
 
 class MileStone(TaskNode):
