@@ -471,14 +471,10 @@ class TasksChecker(BaseEtreeChecker):
         else:
             # a leaf task
             pos, node = self.stack[-1]
-            if "load-type" in node.attrib:
-                # we don't want duration with the new load-type descriptions
-                self._children("label","description?","constraint-date*",
-                               "constraint-resource*","constraint-task*")
-            else:
-                self._children("label","description?","constraint-date*",
-                               "constraint-resource*","duration","constraint-task*")
-
+            # we don't want duration with the new load-type descriptions
+            self._children("label","description?","constraint-date*",
+                           "constraint-resource*","constraint-task*")
+            
     def check_milestone(self):
         self._is_child_of( "task" )
         self._attributes( {"id":not_empty} )
@@ -491,12 +487,6 @@ class TasksChecker(BaseEtreeChecker):
         self._attributes( {"format?" : one_of("rest","docbook")} )
         self._content(unicode)
         self._ignore_children()
-
-    def check_duration(self):
-        self._is_child_of("task")
-        self._content(float)
-        self._noattr()
-        self._children()
 
     def check_label(self):
         self._is_child_of("task","milestone")

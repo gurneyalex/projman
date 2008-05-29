@@ -179,9 +179,7 @@ class ProjectXMLReader(AbstractXMLReader) :
             t.task_type = task.get("resource-role")
         self.task_milestone_common( t, task )
         for child in task:
-            if child.tag == "duration":
-                t.duration = float(child.text)
-            elif child.tag == "progress":
+            if child.tag == "progress":
                 t.progress = float(child.text)
             elif child.tag == "priority":
                 t.priority = int(child.text)
