@@ -18,7 +18,7 @@
 
 __revision__ = "$Id: csp.py,v 1.2 2005-09-07 23:51:01 nico Exp $"
 
-from mx.DateTime import oneDay, oneHour
+from mx.DateTime import oneDay, oneHour, today
 
 from logilab.common.compat import set
 import projman.lib.constants as CST
@@ -29,7 +29,7 @@ for t in CST.TASK_CONSTRAINTS:
     name = t.upper().replace("-","_")
     GCSPMAP[t] = getattr(GCSP_CST, name)
 
-_VERBOSE=1
+_VERBOSE=2
 
 class CSPScheduler:
     """
@@ -91,9 +91,8 @@ class CSPScheduler:
             other_length = 0
         self.max_duration = max(max_duration, other_length)
 
-
     def _process_node(self, node):
-        max_duration = self.max_duration
+        max_duration = int(self.max_duration*2)
 
         _, _, _, task_resources = self.real_tasks.setdefault( node.id,
                                                            [len(self.real_tasks),
@@ -107,18 +106,20 @@ class CSPScheduler:
                 lst = self.constraints.setdefault(constraint_type, set())
                 lst.add( (node.id, leaf.id)  )
         # collect date constraints
+        tab_rnge0 = [0]
+        tab_rnge1 = [max_duration]
         for c_type, date in node.get_date_constraints():
             days = (date-self.start_date).days
             if days<0:
                 raise Exception('WTF?')
             if c_type == CST.BEGIN_AFTER_DATE :
-                rnge[0] = days
-                if _VERBOSE>1:
-                    print node.id, 'begin after', days
+                tab_rnge0.append(days)
             elif c_type == CST.END_BEFORE_DATE:
-                rnge[1] = days + 1
-                if _VERBOSE>1:
-                    print node.id, 'end before', days
+                tab_rnge1.append(days+1)
+        rnge[0] = max(tab_rnge0)
+        rnge[1] = min(tab_rnge1)
+        if _VERBOSE>1:
+            print node.id, 'range=', rnge
         # collect resources
             # 
             # on utilise task.set_resources pour obtenir l ensemble des
@@ -126,7 +127,7 @@ class CSPScheduler:
             #
         # -> using new projman definition
         if node.TYPE != 'milestone' and node.get_resource_constraints()== set():
-            # collect reources in root_trask
+            # collect resources in root_trask
             for r_type, r_id in self.project.root_task.get_resource_constraints():
                 self.resources.add( r_id )
                 task_resources.append( r_id )
@@ -175,13 +176,14 @@ class CSPScheduler:
         Update the project's schedule
         Return list of errors occured during schedule
         """
+        print "\nscheduling ..."
         _VERBOSE = verbose
         # check the tasks (duration is not 0)
         for leaf in self.project.root_task.leaves():
             leaf.check_duration()
         self.project.get_factor()
         factor = self.project.factor
-        self.max_duration = int( self.max_duration * 1.5 )
+        self.max_duration = int( self.max_duration * 2 )
         if _VERBOSE>0:
             print "Tasks", len(self.real_tasks)
             print "Res", len(self.resources)
@@ -199,7 +201,7 @@ class CSPScheduler:
         for res_id in self.resources:
             sched = []
             res = self.project.get_resource( res_id )
-            res_num = pb.add_worker( res_id ) 
+            res_num = pb.add_worker( res_id )
             resources_map[res_id] = res_num
             #gestion calendrier jours feries et we
             for d in range(int(self.max_duration)):
@@ -311,7 +313,7 @@ class CSPScheduler:
                  #       self.real_tasks[tid][1] == CST.TASK_SHARED
                 activities.append((date, date + time_table, res_id, 
                                 tid, max(usage,1./factor)))
-        if _VERBOSE >0:
+        if _VERBOSE > 0:
             print "\nactivites :"
             for (db, de, res_id, tid, dur) in activities:
                 print "\tdu", db,"au", de, res_id, tid, dur
