@@ -205,6 +205,7 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
     if (pb.verbosity>3) {
     	st = status( pn );
     	cout << "2 Propagation status="<<st<<" pn="<<pn<<endl;
+	    debug(pb, "Pseudo tasks", res_tasks);    
     }
 
 #if 0
@@ -225,7 +226,9 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
     	st = status( pn );
     	cout << "3 Propagation status="<<st<<" pn="<<pn<<endl;
         cout << "eta_cost:" << eta_cost << endl;
+    	debug(pb, "Pseudo tasks", res_tasks);    
     }
+
 	if (pb.verbosity>3) {
         for(uint_t task_id=0;task_id<pb.tasks.size();++task_id) {
             cout << "last_day[" << task_id << "]=" << last_days[task_id] << endl;
