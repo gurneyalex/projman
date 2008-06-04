@@ -497,14 +497,16 @@ class TasksChecker(BaseEtreeChecker):
     def check_constraint_date(self):
         self._is_child_of("task","milestone")
         self._content(iso_date)
-        self._attributes( {"type" : one_of(*DATE_CONSTRAINT)} )
+        self._attributes( {"type" : one_of(*DATE_CONSTRAINT),
+                           "priority?": one_of('1','2','3')} )
         self._children()
 
     def check_constraint_task(self):
         self._is_child_of("task","milestone")
         self._empty()
         self._attributes( {"type" : one_of(*TASK_CONSTRAINT),
-                          "idref" : not_empty} )
+                          "idref" : not_empty,
+                          "priority?": one_of('1','2','3') } )
         self._children()
 
     def check_constraint_resource(self):
@@ -512,7 +514,7 @@ class TasksChecker(BaseEtreeChecker):
         self._empty()
         self._attributes( {"idref" : not_empty,
                            "usage?" : not_empty,
-                           "type?" : not_empty,} )
+                           "type?" : not_empty} )
         self._children()
 
 class ActivitiesChecker(BaseEtreeChecker):

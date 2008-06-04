@@ -72,6 +72,9 @@ class Project:
                            col_names=['task', 'resource', 'cost', 'unit'])
         self.milestones = {}
         self.factor = 1
+        self.priority = 3
+        # traite les contraintes de priorité jusque 3 (ie 1, 2 et 3)
+        self.nb_solution = 0
 
     def get_factor(self):
         """find if we must schedule on day, half  or quarter of day
@@ -136,12 +139,14 @@ class Project:
             status = 'current'
         else:
             status = 'todo'
-        for c_type, date in task.get_date_constraints():
-            if c_type == BEGIN_AFTER_DATE and not date <= begin:
+        for c_type, date, priority in task.get_date_constraints():
+            if c_type == BEGIN_AFTER_DATE and not date <= begin and \
+                            priority  <= self.priority:
                 print "task %s should begin after %s" % (task.id, begin)
                 status = 'problem'
                 break
-            elif c_type == END_BEFORE_DATE and not end <= date:
+            elif c_type == END_BEFORE_DATE and not end <= date and \
+                            priority  <= self.priority:
                 print "task %s should end before %s" % (task.id, begin)
                 status = 'problem'
                 break
@@ -234,12 +239,13 @@ class Project:
         ordered_status = ['problem', 'todo', 'current', 'done']
         status_list = []
         for leaf in task.leaves():
-            # as leaf.id is int, self.tasks[leaf.id] will mistake it
-            _, _, status, _, _ = self.tasks.get_row_by_id(leaf.id)
-            status_list.append(status)
-        for status in ordered_status:
-            if status in status_list:
-                return status
+            if leaf.TYPE == 'Milestone':
+                # as leaf.id is int, self.tasks[leaf.id] will mistake it
+                _, _, status, _, _ = self.tasks.get_row_by_id(leaf.id)
+                status_list.append(status)
+            for status in ordered_status:
+                if status in status_list:
+                    return status
         return 'todo'
 
     def task_has_info(self, task_id):

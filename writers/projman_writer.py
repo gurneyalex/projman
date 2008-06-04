@@ -89,7 +89,7 @@ def schedule_as_dom(project):
             ET.SubElement( element, "constraint-date", type=AT_DATE ).text = str(begin)
 
         # task_constraints
-        for ctype, ctask_id in task.task_constraints:
+        for ctype, ctask_id, priority in task.task_constraints:
             ET.SubElement(element, "constraint-task", type=ctype, idref=ctask_id)
 
         if element.tag == "milestone":
@@ -174,10 +174,10 @@ class TasksVisitor:
                 text = u"<description>%s</description>" % node.description_raw
                 el = ET.fromstring(text.encode("utf-8"))
                 elem.append( el )
-        for ctype, tid in node.task_constraints:
+        for ctype, tid, priority in node.task_constraints:
             ET.SubElement( elem, "constraint-task", type=ctype, idref=tid )
 
-        for ctype, date in node.date_constraints:
+        for ctype, date, priority in node.date_constraints:
             el = ET.SubElement( elem, "constraint-date", type=ctype )
             el.text = date.strftime("%F")
 

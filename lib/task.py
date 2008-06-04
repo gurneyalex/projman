@@ -49,9 +49,9 @@ class TaskNode(VNode):
     def __init__(self, node_id):
         VNode.__init__(self, node_id)
         self.title = u''
-        # list of couples ('{begin/end}-{at/before/after}-date', mxDate)
+        # list of triplets ('{begin/end}-{at/before/after}-date', mxDate, priority)
         self.date_constraints = set()
-        # list of couples ('{begin/end}-after-{begin/end}', task_id)
+        # list of triplets ('{begin/end}-after-{begin/end}', task_id, priority)
         self.task_constraints = set()
         self.description = u''
         self.description_raw = u''
@@ -112,15 +112,15 @@ class TaskNode(VNode):
 
     # Editing functions #############################################
 
-    def add_date_constraint(self, constraint_type, date):
+    def add_date_constraint(self, constraint_type, date, priority=1):
         """ add a date constraint to the milestone """
         assert constraint_type in DATE_CONSTRAINTS, constraint_type
-        self.date_constraints.add((constraint_type, date))
+        self.date_constraints.add((constraint_type, date, priority))
 
-    def add_task_constraint(self, constraint_type, task_id):
+    def add_task_constraint(self, constraint_type, task_id, priority=1):
         """ add a task constraint to the milestone """ 
         assert constraint_type in TASK_CONSTRAINTS, constraint_type
-        self.task_constraints.add((constraint_type, task_id))
+        self.task_constraints.add((constraint_type, task_id, priority))
 
     # Manipulation functions #############################################
     
@@ -192,11 +192,11 @@ class TaskNode(VNode):
         # FIXME: Cache result (or modify in-place)
         constraints = set(self.date_constraints)
         if self.parent:
-            for c_type, date in self.parent.get_date_constraints():
+            for c_type, date, priority in self.parent.get_date_constraints():
                 if c_type in (BEGIN_AT_DATE, BEGIN_AFTER_DATE):
-                    constraints.add((BEGIN_AFTER_DATE, date))
+                    constraints.add((BEGIN_AFTER_DATE, date, priority))
                 elif c_type in (END_AT_DATE, END_BEFORE_DATE):
-                    constraints.add((END_BEFORE_DATE, date))
+                    constraints.add((END_BEFORE_DATE, date, priority))
         return constraints
 
     def check_duration(self):
@@ -227,9 +227,9 @@ class TaskNode(VNode):
         errors = []
         msg = 'Parent task of %s has constraint (%s, %s) which ' \
               'conflicts with its constraints (%s, %s)'
-        for other_c_type, other_date in other.get_date_constraints():
+        for other_c_type, other_date, other_priority in other.get_date_constraints():
             if other_c_type in (BEGIN_AT_DATE, BEGIN_AFTER_DATE):
-                for c_type, date in self.date_constraints:
+                for c_type, date, priority in self.date_constraints:
                     if date < other_date:
                         errors.append(msg % (self.id, other_c_type,
                                              other_date, c_type, date))

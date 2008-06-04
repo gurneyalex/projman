@@ -29,7 +29,7 @@ for t in CST.TASK_CONSTRAINTS:
     name = t.upper().replace("-","_")
     GCSPMAP[t] = getattr(GCSP_CST, name)
 
-_VERBOSE=2
+_VERBOSE=1
 
 class CSPScheduler:
     """
@@ -57,10 +57,12 @@ class CSPScheduler:
         max_duration = self.project.root_task.maximum_duration()
         begins, ends = [], []
         for leaf in self.project.root_task.leaves():
-            for c_type, date in leaf.get_date_constraints():
-                if c_type in (CST.BEGIN_AT_DATE, CST.BEGIN_AFTER_DATE):
+            for c_type, date, priority in leaf.get_date_constraints():
+                if c_type in (CST.BEGIN_AT_DATE, CST.BEGIN_AFTER_DATE) and \
+                            self.project.priority >= int(priority):
                     begins.append(date)
-                elif c_type in (CST.END_AT_DATE, CST.END_BEFORE_DATE):
+                elif c_type in (CST.END_AT_DATE, CST.END_BEFORE_DATE) and \
+                            self.project.priority >= int(priority):
                     ends.append(date)
         if not self.start_date:
             # We take the earliest date constraint as a start date
@@ -101,24 +103,26 @@ class CSPScheduler:
         rnge = self.task_ranges.setdefault( node.id, [None,None] )
 
         # collect task constraints
-        for constraint_type, task_id in node.get_task_constraints():
-            for leaf in node.get_task(task_id).leaves():
-                lst = self.constraints.setdefault(constraint_type, set())
-                lst.add( (node.id, leaf.id)  )
-        # collect date constraints
+        for constraint_type, task_id, priority in node.get_task_constraints():
+            if self.project.priority >= int(priority):
+                for leaf in node.get_task(task_id).leaves():
+                    lst = self.constraints.setdefault(constraint_type, set())
+                    lst.add( (node.id, leaf.id)  )
+            # collect date constraints
         tab_rnge0 = [0]
         tab_rnge1 = [max_duration]
-        for c_type, date in node.get_date_constraints():
-            days = (date-self.start_date).days
-            if days<0:
-                raise Exception('WTF?')
-            if c_type == CST.BEGIN_AFTER_DATE :
-                tab_rnge0.append(days)
-            elif c_type == CST.END_BEFORE_DATE:
-                tab_rnge1.append(days+1)
+        for c_type, date, priority in node.get_date_constraints():
+            if self.project.priority >= int(priority):
+                days = (date-self.start_date).days
+                if days<0:
+                    raise Exception('WTF?')
+                if c_type == CST.BEGIN_AFTER_DATE :
+                    tab_rnge0.append(days)
+                elif c_type == CST.END_BEFORE_DATE:
+                    tab_rnge1.append(days+1)
         rnge[0] = max(tab_rnge0)
         rnge[1] = min(tab_rnge1)
-        if _VERBOSE>1:
+        if _VERBOSE>2:
             print node.id, 'range=', rnge
         # collect resources
             # 
@@ -129,8 +133,9 @@ class CSPScheduler:
         if node.TYPE != 'milestone' and node.get_resource_constraints()== set():
             # collect resources in root_trask
             for r_type, r_id in self.project.root_task.get_resource_constraints():
-                self.resources.add( r_id )
-                task_resources.append( r_id )
+                if self.project.priority >= int(priority):
+                    self.resources.add( r_id )
+                    task_resources.append( r_id )
             self.project.get_resources_from_task_type(node)
             #trouver les resources correspondantes
             task_type = node.get_task_type()
@@ -139,11 +144,12 @@ class CSPScheduler:
         # -> using old projman definition
         else:
             for r_type, r_id in node.get_resource_constraints():
-                if _VERBOSE>1:
-                    print "Resource", r_type, r_id
-                self.resources.add( r_id )
-                task_resources.append( r_id )
-                node.set_resources.append(r_id)
+                if self.project.priority >= int(priority):
+                    if _VERBOSE>1:
+                        print "Resource", r_type, r_id
+                    self.resources.add( r_id )
+                    task_resources.append( r_id )
+                    node.set_resources.append(r_id)
 
     def add_priorities_as_constraints(self):
         """
@@ -184,7 +190,7 @@ class CSPScheduler:
         self.project.get_factor()
         factor = self.project.factor
         self.max_duration = int( self.max_duration * 2 )
-        if _VERBOSE>0:
+        if _VERBOSE>1:
             print "Tasks", len(self.real_tasks)
             print "Res", len(self.resources)
             print "Dur", self.max_duration
@@ -213,7 +219,7 @@ class CSPScheduler:
                 else:
                     for i in range(factor):
                         sched.append(".")
-            if _VERBOSE:
+            if _VERBOSE > 1:
                 print "%02d" % res_num, "".join(sched)
         pseudo_tasks = []
         i = 0
@@ -228,7 +234,7 @@ class CSPScheduler:
                 real_tasks_items[i][1][2] = duration_ / factor
             task_num = pb.add_task( tid, _type, int(duration_), 0 ) # 0: for future use (interruptible flag)                
             low, high = self.task_ranges[tid]
-            if _VERBOSE>0:
+            if _VERBOSE>1:
                 print "Task %2d = #%.2f [%4s,%4s] = '%20s'" % ((task_num,duration,low,high,tid,))
             if low is None:
                 low = 0
@@ -261,12 +267,12 @@ class CSPScheduler:
         pb.set_max_nb_solutions(4000)
         solve( pb )
 
-        N = pb.get_number_of_solutions()
-        if N==0:
+        self.project.nb_solution = pb.get_number_of_solutions()
+        if self.project.nb_solution==0:
             return []
         if (_VERBOSE>2):
             self.compare_solutions( pb )
-        SOL = pb.get_solution( N-1 )
+        SOL = pb.get_solution( self.project.nb_solution-1 )
         duration = SOL.get_duration()
         ntasks = SOL.get_ntasks()
         tasks_days = [ [ day / factor for day in range(duration) if SOL.isworking( task, day ) ] for task in range(ntasks) ]
@@ -302,15 +308,6 @@ class CSPScheduler:
                     usage = 1.0 / factor
                 else:
                     usage = delta
-                # gestion des taches de type sameforall
-                #if self.real_tasks[tid][1] == CST.TASK_SAMEFORALL:
-                    #last_usage = 0
-                 #   if resources_map.get(res_id) == 0:
-                 #       last_usage = usage
-                 #       self.real_tasks[tid][2] *= res_num
-                 #   else:
-                 #       usage == last_usage
-                 #       self.real_tasks[tid][1] == CST.TASK_SHARED
                 activities.append((date, date + time_table, res_id, 
                                 tid, max(usage,1./factor)))
         if _VERBOSE > 0:

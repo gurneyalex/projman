@@ -202,11 +202,20 @@ class ProjectXMLReader(AbstractXMLReader) :
         t.load_type = load_type
         t.duration = float(task.get("load", "0"))
         for cd in task.findall("constraint-date"):
-            t.add_date_constraint( cd.get("type"), iso_date( cd.text ) )
+            if cd.get("priority"):
+                priority = cd.get("priority")
+            else:
+                priority = 1
+            t.add_date_constraint( cd.get("type"), iso_date( cd.text ), priority )
         for ct in task.findall("constraint-task"):
-            t.add_task_constraint( ct.get("type"), ct.get("idref") )
+            if ct.get("priority"):
+                priority = ct.get("priority")
+            else:
+                priority = 1
+            t.add_task_constraint( ct.get("type"), ct.get("idref"), priority)
         for cr in task.findall("constraint-resource"):
-            t.add_resource_constraint( cr.get("type"), cr.get("idref"))#, float(cr.get("usage")) )
+            t.add_resource_constraint( cr.get("type"), cr.get("idref"))
+        
         desc = task.find("description")
         txt_fmt = "none"
         if desc is None:
