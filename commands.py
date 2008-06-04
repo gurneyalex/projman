@@ -122,7 +122,20 @@ class ScheduleCommand(ProjmanCommand):
 
     def _run(self, views):
         from projman.scheduling import schedule
+        rounder = 0
         schedule(self.project, self.config)
+        while (self.project.nb_solution == 0 and rounder < 3):
+            print '\nAttention: pas de solution au probleme !'
+            print "Les contraintes de priorité", self.project.priority,
+            print 'ne sont pas traitées ...\n'
+            reader = ProjectXMLReader(self.config.project_file,
+                                self.config.task_root)
+            self.project, self.files = reader.read()
+            self.project.factor = self.config.factorized_days
+            rounder += 1
+            self.project.priority -= rounder
+            schedule(self.project, self.config)
+            nb_solution = self.project.nb_solution
         write_schedule_as_xml(self.files['schedule'], self.project)
 
 

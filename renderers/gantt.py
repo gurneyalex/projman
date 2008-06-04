@@ -55,7 +55,7 @@ class GanttRenderer(AbstractRenderer) :
         begin_p, end_p = project.get_task_date_range(project.root_task)
         self.render_node(project.root_task, project, begin_p, end_p)
         for task in self._pending_constraints:
-            for c_type, c_id in task.task_constraints:
+            for c_type, c_id, priority in task.task_constraints:
                 try:
                     ct = task.get_node_by_id(c_id)
                 except NodeNotFound :
