@@ -317,9 +317,9 @@ class GanttDrawer(AbstractDrawer) :
         assert begin == end
         for day in date_range(day, last_day):
             draw = (day == begin)
-            self._milestone_timeline(day, draw)
+            self._milestone_timeline(day, draw, project.factor)
 
-    def _milestone_timeline(self, day, draw):
+    def _milestone_timeline(self, day, draw, factor):
         """
         Effectively draw a milestone
         """
@@ -346,11 +346,12 @@ class GanttDrawer(AbstractDrawer) :
         # draw milestone as diamond
         if draw:
             x, y = self._x, self._y
+
             self._tasks_slots.setdefault(self._ctask, []).append((x, y))
-            self._handler.draw_poly(((x+width/2, y+ROW_HEIGHT/2), 
-                                     (x+width/4, y+ROW_HEIGHT*3/4), 
-                                     (x, y+ROW_HEIGHT/2), 
-                                     (x+width/4, y+ROW_HEIGHT/4)),
+            self._handler.draw_poly(((x+width/factor, y+ROW_HEIGHT/2), #coin droit
+                                     (x+width/(2*factor), y+ROW_HEIGHT*3/4), #haut
+                                     (x, y+ROW_HEIGHT/2), #gauche
+                                     (x+width/(2*factor), y+ROW_HEIGHT/4)), # bas
                                     fillcolor=self._colors['CONSTRAINT'])
         # record position
         self._x += width
