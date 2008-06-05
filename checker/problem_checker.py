@@ -72,7 +72,10 @@ class Checker:
 
     def validate(self):
         """check that there is no duplicate id or null duration of leaves"""
-        self.project.check_consistency()
+        consistence_errors = self.project.check_consistency()
+        if consistence_errors:
+            for error in consistence_errors:
+                self.errors.append(error)
         # check tasks duration for leaves
         for leaf in self.project.root_task.leaves():
             if leaf.duration == 0 and leaf.TYPE=='task':
