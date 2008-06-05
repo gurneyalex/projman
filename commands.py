@@ -93,10 +93,8 @@ class CheckCommand(ProjmanCommand):
         from projman.checker.problem_checker import Checker
         # validate xml format
         reader = ProjectXMLReader(self.config.project_file, self.config.task_root)
-        check_project = Checker(self.project)
-        check_project.validate() # verifier si il existe chaque tache a au moins 1 resource associee
-        print "ok pour validate"
-
+        # validate projman probleme
+        check_project = Checker(self.project, self.config.verbose)
 
 class ScheduleCommand(ProjmanCommand):
     """schedule a project"""
