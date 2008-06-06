@@ -49,7 +49,6 @@ class CSPScheduler:
         self.resources = set()   # res_id -> res_number
         for leaf in project.root_task.leaves():
             self._process_node(leaf)
-           
         #self.add_priorities_as_constraints()
 
     def calc_project_length(self):
@@ -108,7 +107,7 @@ class CSPScheduler:
                 for leaf in node.get_task(task_id).leaves():
                     lst = self.constraints.setdefault(constraint_type, set())
                     lst.add( (node.id, leaf.id)  )
-            # collect date constraints
+        # collect date constraints
         tab_rnge0 = [0]
         tab_rnge1 = [max_duration]
         for c_type, date, priority in node.get_date_constraints():
@@ -200,7 +199,7 @@ class CSPScheduler:
         real_tasks_items = self.real_tasks.items()
         real_tasks_items.sort( key = lambda x:x[1][0] )
         dt = []
-        if _VERBOSE:
+        if _VERBOSE>1:
             print "occupation"
             print "----------"
         resources_map = {}
@@ -232,7 +231,7 @@ class CSPScheduler:
             if (duration * factor) % 1 > 0 :
                 duration_ = duration * factor - ((duration * factor) % 1) + 1
                 real_tasks_items[i][1][2] = duration_ / factor
-            task_num = pb.add_task( tid, _type, int(duration_), 0 ) # 0: for future use (interruptible flag)                
+            task_num = pb.add_task( tid, _type, int(duration_), bool(task.can_interrupt[0]) ) # 0: for future use (interruptible flag)                
             low, high = self.task_ranges[tid]
             if _VERBOSE>1:
                 print "Task %2d = #%.2f [%4s,%4s] = '%20s'" % ((task_num,duration,low,high,tid,))
