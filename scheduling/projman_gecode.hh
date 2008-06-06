@@ -42,6 +42,7 @@ public:
 
 protected:
     void register_order( const ProjmanProblem& pb, SetVarArray& real_tasks);
+    void register_convex_tasks(const ProjmanProblem& pb, SetVarArray& real_tasks);
 };
 
 

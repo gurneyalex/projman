@@ -122,7 +122,7 @@ class ScheduleCommand(ProjmanCommand):
         from projman.scheduling import schedule
         rounder = 0
         schedule(self.project, self.config)
-        while (self.project.nb_solution == 0 and rounder < 3):
+        while (self.project.nb_solution == 0 and rounder < 2):
             print '\nAttention: pas de solution au probleme !'
             print "Les contraintes de priorité", self.project.priority,
             print 'ne sont pas traitées ...\n'

@@ -473,7 +473,8 @@ class TasksChecker(BaseEtreeChecker):
             pos, node = self.stack[-1]
             # we don't want duration with the new load-type descriptions
             self._children("label","description?","constraint-date*",
-                           "constraint-resource*","constraint-task*")
+                           "constraint-resource*","constraint-task*",
+                           "constraint-interruptible?")
             
     def check_milestone(self):
         self._is_child_of( "task" )
@@ -516,6 +517,12 @@ class TasksChecker(BaseEtreeChecker):
                            "usage?" : not_empty,
                            "type?" : not_empty} )
         self._children()
+
+    def check_constraint_interruptible(self):
+        self._is_child_of("task","milestone")
+        self._empty()
+        self._attributes( { "type" : one_of('True', 'False'),
+                            "priority" : one_of('1', '2', '3')})
 
 class ActivitiesChecker(BaseEtreeChecker):
     def check_activities(self):

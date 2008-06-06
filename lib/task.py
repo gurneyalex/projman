@@ -62,6 +62,7 @@ class TaskNode(VNode):
         self.load_type = 0
         self.task_type = None
         self.set_resources = []
+        self.can_interrupt = [True, 1]
 
     def __repr__(self):
         return "<Task id=%s at %s>" % (self.id, id(self))

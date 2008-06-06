@@ -39,6 +39,7 @@ class Checker:
         if self.verbosity:
             self.dump()
         self.validate()
+        self.check_tasks_convexity()
         self.check_tree()
         if self.trees:
             self.check_first_days()
@@ -79,7 +80,7 @@ class Checker:
         # check tasks duration for leaves
         for leaf in self.project.root_task.leaves():
             if leaf.duration == 0 and leaf.TYPE=='task':
-                self.errors.append('leaf without any duration')
+                self.errors.append('Leaf %s without any duration:\n\t-> change duration or write it as a milestone' %leaf.id)
 
     def check_tree(self):
         tasks = []
@@ -127,16 +128,16 @@ class Checker:
                     if not v_prime in tag:
                         Q.add(v_prime)
                     else:
-                        self.errors.append('cycles detected in tasks constraints')
+                        self.errors.append('Cycles detected:\n\t-> change tasks constraints')
                         trees = []
             trees.append(tag)
             
             for elt in tag:
                 set_tag.add(elt)
         if tag == []:
-            self.errors.append('cycles detected in tasks constraints')
+            self.errors.append('Cycles detected:\n\t-> change tasks constraints')
         elif len(set_tag) < len(tasks):
-            self.errors.append('Some tasks was ignored during cycle detection process')
+            print "Some tasks was ignored during cycle detection process"
         if self.verbosity:
             print 'tasks paths'
             print trees
@@ -156,7 +157,20 @@ class Checker:
             task = self.project.get_task(tree[0])
             for c_type, date, priority in task.get_date_constraints():
                 if date > self.first_day:
-                    self.errors.append('incoherent date constraints')
+                    self.errors.append('Incoherent date constraint in task %s:\n\t-> change date constraints' % task.id)
 
-
-
+    def check_tasks_convexity(self):
+        for leaf_id in self.real_tasks:
+            leaf = self.project.get_task(leaf_id)
+            # compute the number of possible resources for the task
+            # according to new definition of resources role
+            if not leaf.can_interrupt[0] and leaf.duration >5:
+                count = 0
+                for res_id in self.resources:
+                    resource = self.project.get_resource(res_id)
+                    if leaf.task_type in resource.id_role:
+                        count += 1
+                duration = leaf.duration / float(count)
+                if duration > 5:
+                    self.errors.append('Uninterruptible task %s with duration in excess of one week:\n\t-> reduce duration or associate the task to more resources' %leaf.id)
+                

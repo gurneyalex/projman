@@ -179,7 +179,12 @@ class ProjectXMLReader(AbstractXMLReader) :
             t.task_type = task.get("resource-role")
         self.task_milestone_common( t, task )
         for child in task:
-            if child.tag == "progress":
+            if child.tag == 'constraint-interruptible':
+                if child.get('type') == 'False':
+                    t.can_interrupt[0] = False
+                if child.get('priority'):
+                    t.can_interrupt[1] = int(child.get('priority'))
+            elif child.tag == "progress":
                 t.progress = float(child.text)
             elif child.tag == "priority":
                 t.priority = int(child.text)

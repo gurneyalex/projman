@@ -239,7 +239,17 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
 	if (pb.verbosity>3) {
     	st = status( pn );
     	cout << "4 Propagation status="<<st<<" pn="<<pn<<endl;
-    }    
+        debug(pb, "Pseudo tasks", res_tasks);    
+    }
+    // add convexity constraints
+    register_convex_tasks( pb, real_tasks);
+
+	if (pb.verbosity>3) {
+    	st = status( pn );
+    	cout << "5 Propagation status="<<st<<" pn="<<pn<<endl;
+        debug(pb, "Pseudo tasks", res_tasks);
+    }
+
     if (pb.verbosity>1) {
 	    if (pb.verbosity>3) {
 	        cout << "Current Res" << endl;
@@ -276,7 +286,7 @@ void ProjmanSolver::debug(const ProjmanProblem& pb, std::string s, SetVarArray& 
 void ProjmanSolver::print(ProjmanProblem& pb)
 {
     uint_t i,j;
-    if (pb.verbosity>0) {
+    if (pb.verbosity>1) {
 	cout << "Planning:" << pb.max_duration << endl;
 	cout << "                           ";
 	for(i=0;i<pb.max_duration;++i) {
@@ -301,7 +311,7 @@ void ProjmanSolver::print(ProjmanProblem& pb)
 	int res_id = pb.res_tasks[i].res_id;
 	const resource_t& res = pb.resources[res_id];
 
-	if (pb.verbosity>0) {
+	if (pb.verbosity>1) {
 	    cout <<  setw(2) << i << " ";
 	    cout <<  setw(15) << task.tid << " " << setw(8) << res.rid<< " ";
 	}
@@ -316,7 +326,7 @@ void ProjmanSolver::print(ProjmanProblem& pb)
 	    } else if (find(res.not_working.begin(), res.not_working.end(), j)!=res.not_working.end()) {
 		ok = 2;
 	    }
-	    if (pb.verbosity>0) {
+	    if (pb.verbosity>1) {
 		if (ok==1) {
 		    cout << "-";
 		} else if (ok==0) {
@@ -326,25 +336,25 @@ void ProjmanSolver::print(ProjmanProblem& pb)
 		}
 	    }
 	}
-	if (pb.verbosity>0) {
+	if (pb.verbosity>1) {
 	    cout << endl;
 	}
     }
     for(int m=0;m<milestones.size();++m) {
-	if (pb.verbosity>0) {
+	if (pb.verbosity>1) {
 	    cout << "Milestone " << m << " : " ;
 	}
 	IntVarValues vl(milestones[m]);
 	int last_val = -1;
 	while ( vl() ) {
 	    last_val = vl.val();
-	    if (pb.verbosity>0) {
+	    if (pb.verbosity>1) {
 		cout << last_val << ", ";
 	    }
 	    ++vl;
 	}
 	S.milestones[m] = last_val;
-	if (pb.verbosity>0) {
+	if (pb.verbosity>1) {
 	    cout << endl;
 	}
     }
@@ -376,7 +386,7 @@ void ProjmanSolver::run( ProjmanProblem& pb, Search::Stop *stop )
 	ProjmanSolver* ex = e.next();
 	if (ex == NULL)
 	    break;
-	ex->print(pb);
+    ex->print(pb);
 	delete ex;
     t0 = t0 + t.stop();
     } while (--i != 0 && t0 < pb.time);
@@ -506,5 +516,18 @@ void ProjmanSolver::register_order( const ProjmanProblem& pb,
 	}
 
 	rel(this, bound0, rel_type, bound1);
+    }
+}
+
+void ProjmanSolver::register_convex_tasks( const ProjmanProblem& pb,
+				    SetVarArray& real_tasks )
+{
+    int nb_tasks = pb.tasks.size();
+    for (int i=0; i<nb_tasks; i++)
+    {
+        if (pb.tasks[i].can_interrupt==0)
+        {
+            convex(this, real_tasks[i]);
+        }
     }
 }
