@@ -231,7 +231,7 @@ class CSPScheduler:
             if (duration * factor) % 1 > 0 :
                 duration_ = duration * factor - ((duration * factor) % 1) + 1
                 real_tasks_items[i][1][2] = duration_ / factor
-            task_num = pb.add_task( tid, _type, int(duration_), bool(task.can_interrupt[0]) ) # 0: for future use (interruptible flag)                
+            task_num = pb.add_task( tid, _type, int(duration_), bool(task.can_interrupt[0]) )
             low, high = self.task_ranges[tid]
             if _VERBOSE>1:
                 print "Task %2d = #%.2f [%4s,%4s] = '%20s'" % ((task_num,duration,low,high,tid,))
@@ -275,8 +275,12 @@ class CSPScheduler:
         duration = SOL.get_duration()
         ntasks = SOL.get_ntasks()
         tasks_days = [ [ day / factor for day in range(duration) if SOL.isworking( task, day ) ] for task in range(ntasks) ]
-        
+        #calendar gere l'utilisation d'une resource pour un jour afin
+        # d'organiser les heures de travail si factorized_days > 1
         calendar = []# attention si le calendrier est fonction de chaque resources
+                     # ca ne marche plus
+                     # ca ne marche pas non plus si la resource n est pas utilisee
+                     # sur une autre tache avant ...
         for i in range(duration/factor):
             calendar.append([])
             for j in range(len(resources_map)):
@@ -286,9 +290,28 @@ class CSPScheduler:
         for pid, days in enumerate( tasks_days ):
             num, tid, res_id = pseudo_tasks[pid]
             time_table = oneHour * 8 / factor
-            for d in days:
-                date = self.start_date + d + 8 * oneHour +\
-                     calendar[d][resources_map[res_id]]* time_table
+            for i, d in enumerate(days):
+                #print "debug"
+                #print "day:", d, i
+                decalage = calendar[d][resources_map[res_id]]* time_table
+                if decalage == 0:# and i+1 < len(days):
+                    if i+1 < len(days) and days[i+1] != d and factor == 2:
+                        decalage += 8. * oneHour /factor #ok
+                        calendar[d][resources_map[res_id]] += 2
+                    elif i+1 < len(days) and factor == 4 and days[i+1] != d:
+                        decalage += 8. * oneHour /(factor/3.)
+                        calendar[d][resources_map[res_id]] += 4
+                    elif i+2 < len(days) and factor == 4 and days[i+2] != d:
+                        decalage += 8. * oneHour /(factor/2.)
+                        calendar[d][resources_map[res_id]] += 3
+                    elif i+3 < len(days) and factor == 4 and days[i+3] != d:
+                        decalage += 8. * oneHour /float(factor)
+                        calendar[d][resources_map[res_id]] += 2
+                    else:
+                        calendar[d][resources_map[res_id]] += 1
+                else:
+                    calendar[d][resources_map[res_id]] += 1
+                date = self.start_date + d + 8 * oneHour + decalage
                 if date.hour == 0:
                     date += 8 * oneHour
                 elif date.hour > 17:
@@ -296,7 +319,6 @@ class CSPScheduler:
                     date += oneDay
                 elif date.hour >= 12:
                     date += oneHour
-                calendar[d][resources_map[res_id]] += 1
                 if calendar[d][resources_map[res_id]]> factor:
                     raise Exception("found non valid solution")
                 delta = self.real_tasks[tid][2] * factor - \
