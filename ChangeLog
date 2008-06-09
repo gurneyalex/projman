@@ -3,15 +3,15 @@ ChangeLog for Projman
 
 2008-05-22	-- 0.12.3
     * csp scheduling:
-    - correct scheduling in case of float duration (for tasks)
-    - add possibility to schedule per day, half day or quarter of day
-    - add option --time to stop the schedule
-    - precise date (hours in dates)
+    * correct scheduling in case of float duration (for tasks)
+    * add possibility to schedule per day, half day or quarter of day
+    * add option --time to stop the schedule
+    * precise date (hours in dates)
     * diagrams:
-    - fix gantt and resources diagrams
-    - print half days in graphs to schedule per half day or quarter of day
+    * fix gantt and resources diagrams
+    * print half days in graphs to schedule per half day or quarter of day
     * views:
-    - fix tasks cost and duration compute
+    * fix tasks cost and duration compute
 
 2008-05-22	-- 0.12.1
 	
@@ -34,12 +34,12 @@ ChangeLog for Projman
 	
 2005-11-29  --  0.10.0
     * rather important rewrite
-	- lots of renaming (variables, files, etc)
-	- correct XML handling
-	- lots of dead code removed
-	- rewrite of schedule/*py
-	- removed classes Activity*
-	- etc.
+    * lots of renaming (variables, files, etc)
+    * correct XML handling
+    * lots of dead code removed
+    * rewrite of schedule/*py
+    * removed classes Activity*
+    * etc.
     * new file format
 	
 
