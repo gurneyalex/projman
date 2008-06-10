@@ -93,7 +93,7 @@ class CheckCommand(ProjmanCommand):
         from projman.checker.problem_checker import Checker
         # validate xml format
         reader = ProjectXMLReader(self.config.project_file, self.config.task_root)
-        # validate projman probleme
+        # validate projman problem
         check_project = Checker(self.project, self.config.verbose)
 
 class ScheduleCommand(ProjmanCommand):
@@ -123,9 +123,9 @@ class ScheduleCommand(ProjmanCommand):
         rounder = 0
         schedule(self.project, self.config)
         while (self.project.nb_solution == 0 and rounder < 2):
-            print '\nAttention: pas de solution au probleme !'
-            print "Les contraintes de priorité", self.project.priority,
-            print 'ne sont pas traitées ...\n'
+            print '\nAttention: No valid solution !'
+            print "constraints with priority", self.project.priority,
+            print 'are dropped ...\n'
             reader = ProjectXMLReader(self.config.project_file,
                                 self.config.task_root)
             self.project, self.files = reader.read()
@@ -214,9 +214,9 @@ class DiagramCommand(ProjmanCommand):
           }
          ),
         ('timestep',
-         {'type' : 'int', 'metavar': '<nb days>',
-          'default': 1,
-          'help': 'timeline increment in days for diagram',
+         {'type' : 'string', 'metavar': '<day, week, month>',
+          'default': 'day',
+          'help': 'timeline increment for diagram',
           }
          ),
         ('view-begin',
@@ -268,6 +268,10 @@ class DiagramCommand(ProjmanCommand):
                 renderer = known_diagrams[diagram](self.config, handler)
             except KeyError:
                 raise BadCommandUsage('unknown diagram %s' % diagram)
+        if self.config.timestep:
+            if not self.config.timestep in ['day', 'month', 'week']:
+                raise BadCommandUsage('non valid timestep %s' %self.config.timestep) 
+            
             output = self.config.output or '%s.%s' % (diagram, self.config.format)
             stream = handler.get_output(output)
             renderer.render(self.project, stream)
