@@ -133,10 +133,10 @@ class SVGHandler:
         
     def draw_line(self, x1, y1, x2, y2, **args):
         """ draw a line """
-        #print "draw_line", x1, y1, x2, y2, args
         y1 = self.height-y1
         y2 = self.height-y2
         gc = self.get_gc( **args )
+        gc._linewidth /= 2.
         self._rend.draw_line(gc, x1, y1, x2, y2)
 
     def draw_dot(self, x1, y1, x2, y2, n, **args):
@@ -146,6 +146,7 @@ class SVGHandler:
         dx = (x1 - x2)/length
         dy = (y1 - y2)/length
         gc = self.get_gc( **args )
+        gc._linewidth /= 3.
         count=0
         while dist >= 0.00001:
             x1 -= 2*dx

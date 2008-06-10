@@ -242,17 +242,43 @@ class GanttDrawer(AbstractDrawer) :
                                     ROW_HEIGHT-2, fillcolor=bgcolor)
 
         # affichage separateurs
-        if self._timestep <= 7:
+        self.draw_separator_gantt(rnge)
+
+    def draw_separator_gantt(self, rnge):
+        daywidth = self._daywidth
+        if self._timestep == 1:
             for n in range(len(rnge)):
                 self._handler.draw_line(self._x+n*daywidth, self._y,
                                   self._x+n*daywidth, self._y+ROW_HEIGHT,
                                   color=(204,204,204))
-                if self._timestep == 1:
-                    self._handler.draw_dot(self._x+(n+0.5)*daywidth, self._y,
-                                      self._x+(n+0.5)*daywidth, self._y+ROW_HEIGHT,
-                                      4,
-                                      color=(204,204,204))
+                self._handler.draw_dot(self._x+(n+0.5)*daywidth, self._y,
+                                  self._x+(n+0.5)*daywidth, self._y+ROW_HEIGHT,
+                                  4,
+                                  color=(204,204,204))
+        elif self._timestep == 7:
+            for n,day in enumerate(rnge):
+                if day.day_of_week == 0:
+                    self._handler.draw_line(self._x+n*daywidth, self._y,
+                                       self._x+n*daywidth, self._y+ROW_HEIGHT,
+                                       color=(204,204,204))
+                else:
+                    self._handler.draw_dot(self._x+n*daywidth, self._y,
+                                       self._x+n*daywidth, self._y+ROW_HEIGHT,
+                                       4,
+                                       color=(204,204,204))          
 
+        else: # timestep == month
+            for n,day in enumerate(rnge):
+                if day.day == 1:
+                    self._handler.draw_line(self._x+n*daywidth, self._y,
+                                      self._x+n*daywidth, self._y+ROW_HEIGHT,
+                                      color=(204,204,204))
+                #elif day.day_of_week == 0:
+                #    self._handler.draw_dot(self._x+n*daywidth, self._y,
+                #                       self._x+n*daywidth, self._y+ROW_HEIGHT,
+                #                       4,
+                #                       color=(204,204,204))          
+                # les pointilles genent la lecture du graphe
 
     def _task_timeline(self, worked, is_container, first, last, begin, end, day, factor):
         """
@@ -312,7 +338,7 @@ class GanttDrawer(AbstractDrawer) :
         Iterate over each day to draw corresponding milestone
         """
         self._ctask = milestone
-        last_day = day + self.options.timestep
+        last_day = day + self._timestep
         begin, end = project.get_task_date_range(milestone)
         assert begin == end
         for day in date_range(day, last_day):
@@ -332,25 +358,20 @@ class GanttDrawer(AbstractDrawer) :
             bgcolor = self._color_set['WEEKDAY']
 
         width = self._daywidth
+        first_day = self._timeline_days[0]
+        last_day = self._timeline_days[-1]+self._timestep
+        rnge = list( date_range( first_day, last_day ) )
         self._handler.draw_rect(self._x, self._y, max(width, 0),
                           ROW_HEIGHT, fillcolor=bgcolor)
-        if self._timestep <= 7:
-            if self._timestep == 1:
-                self._handler.draw_dot(self._x+0.5*width, self._y,
-                                      self._x+0.5*width, self._y+ROW_HEIGHT,4,
-                                      color=(204,204,204))
-            self._handler.draw_line(self._x, self._y,
-                                  self._x, self._y+ROW_HEIGHT,
-                                  color=(204,204,204))
+        self.draw_separator_gantt([day])
 
         # draw milestone as diamond
         if draw:
             x, y = self._x, self._y
-
             self._tasks_slots.setdefault(self._ctask, []).append((x, y))
-            self._handler.draw_poly(((x+width/factor, y+ROW_HEIGHT/2), #coin droit
+            self._handler.draw_poly(((x+(width-2)/factor, y+ROW_HEIGHT/2), #coin droit
                                      (x+width/(2*factor), y+ROW_HEIGHT*3/4), #haut
-                                     (x, y+ROW_HEIGHT/2), #gauche
+                                     (x+2, y+ROW_HEIGHT/2), #gauche
                                      (x+width/(2*factor), y+ROW_HEIGHT/4)), # bas
                                     fillcolor=self._colors['CONSTRAINT'])
         # record position

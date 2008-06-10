@@ -115,7 +115,7 @@ class AbstractRenderer :
     (see the IRender)
     """
     
-    DEFAULT_OPTIONS = {'timestep' : 1, #day
+    DEFAULT_OPTIONS = {'timestep' : 'day', 
                        'detail' : 2,
                        'depth' : 0,
                        'view_begin' : None,
@@ -215,7 +215,13 @@ class AbstractDrawer :
         self.options = options
         self._handler = handler
         self._timeline_days = []
-        self._timestep = self.options.timestep
+        # ajust time step
+        if self.options.timestep == 'day':
+            self._timestep = 1
+        if self.options.timestep == 'week':
+            self._timestep = 7
+        if self.options.timestep == 'month':
+            self._timestep = 13   # maximum possible value
         # x and y coordinate for current element location
         self._x = 0
         self._y = 0        
@@ -294,19 +300,30 @@ class AbstractDrawer :
         """
         Format time line according to time step
         """
-        for day in self._timeline_days:
-            date = day.strftime('%m-%d')
-            if day <= TODAY < day+self._timestep:
-                self._draw_text(date, weight='bold')
-            else:
+        for day in list(date_range(self.view_begin, self.view_end)):
+            # timestep == week
+            if self._timestep == 7 and day.day_of_week == 0:
+                date = str(day.iso_week[1])
+                self._draw_text("s%s" %date)
+            #timestep == month
+            elif self._timestep == 13 and day.day == 1:
+                date = str("%02d" %day.month)
                 self._draw_text(date)
-            self._x += self._timestepwidth
+            # timestep == day
+            elif self._timestep == 1:
+                date = day.strftime('%m-%d')
+                self._draw_text(date)
+            if self._timestep == 30:
+                step = float(day.days_in_month)
+            else:
+                step = float(self._timestep)
+            self._x += self._timestepwidth / step
         
     def open_timeline(self, begin, end):
         """
         open a new time line in the table
         """
-        self._timeline_days = list(date_range(begin, end+1, self._timestep))
+        self._timeline_days = list(date_range(begin, end, self._timestep))
         self.view_begin = begin
         self.view_end = end
 
