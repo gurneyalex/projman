@@ -225,7 +225,8 @@ class ResourcesDrawer(AbstractDrawer) :
                 if day_.hour >= 12:
                     day_ += oneHour
                 act = project.activities.select('resource', resource.id)
-                act = act.select('begin', day_)
+                if act:
+                    act = act.select('begin', day_)
                 usage = project.get_total_usage(resource.id, day_)
                 available = resource.is_available(day_) and \
                                (day_ < self.view_end) and usage and act
