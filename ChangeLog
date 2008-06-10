@@ -1,5 +1,8 @@
 ChangeLog for Projman
 =====================
+2008-05-22  -- 0.12.4
+    * add new option:
+    - --factorized_days to choose the factor to schedule
 
 2008-05-22	-- 0.12.3
     * csp scheduling:
@@ -51,11 +54,11 @@ ChangeLog for Projman
 	
     * BUG #8638 ecriture d'un mauvais import de schedule.xml
 	
-    * BUG #8869 fichier prj est pas créé si manque schedule
+    * BUG #8869 fichier prj est pas crï¿½ï¿½ si manque schedule
 	
-    * BUG #9097 vérifier exemples sont à jour dans paquet
+    * BUG #9097 vï¿½rifier exemples sont ï¿½ jour dans paquet
 	
-    * BUG #9103 diagramme ressource difficile à lire
+    * BUG #9103 diagramme ressource difficile ï¿½ lire
 	
 2005-06-14  --  0.9.2
     * BUG #8871 traceback for DTD errors
@@ -68,11 +71,11 @@ ChangeLog for Projman
 2005-04-22  --  0.9.1
     * BUG #8602 ecrire du joli docbook
 
-    * BUG #8742 retour à la ligne dans un élément label -> caca
+    * BUG #8742 retour ï¿½ la ligne dans un ï¿½lï¿½ment label -> caca
 
     * BUG #8740 option -V -> stack trace
 
-    * BUG #8867 décalage dans les tableaux comporte nbsp en trop
+    * BUG #8867 dï¿½calage dans les tableaux comporte nbsp en trop
 
 
 
@@ -81,7 +84,7 @@ ChangeLog for Projman
 
     * BUG #8430 UnicodeEncodeError:
 
-    * BUG #8605 pas de coût dans le tableau des dates
+    * BUG #8605 pas de coï¿½t dans le tableau des dates
 
     * BUG #8604 rendu % du diagramme des ressources faux quand timestep > 1
 
@@ -96,7 +99,7 @@ ChangeLog for Projman
 
     * ENH #1089 format de fichier projman
 
-    * ENH #948 option pour virer taches terminées
+    * ENH #948 option pour virer taches terminï¿½es
 
     * full refactoring of main.py to ease future enhancement
 
@@ -105,19 +108,19 @@ ChangeLog for Projman
 
 
 2004-10-22  --  0.8.3
-    * BUG #1188 reste références à pyganttrc
+    * BUG #1188 reste rï¿½fï¿½rences ï¿½ pyganttrc
 
-    * BUG #944 création fichier temporaire bizarre
+    * BUG #944 crï¿½ation fichier temporaire bizarre
 
     * BUG #1052 Erreur dans conversion pygantt -> projman
 
     * BUG #1121 Exception sur une action de schedule
 
-    * BUG #1166 conversion depuis pygantt foire les durées
+    * BUG #1166 conversion depuis pygantt foire les durï¿½es
 
-    * BUG #1128 planification ignore les activités
+    * BUG #1128 planification ignore les activitï¿½s
 
-    * BUG #8341 erreurs sur activités
+    * BUG #8341 erreurs sur activitï¿½s
 
     * BUG #1124 Erreur sur contrainte begin-at-date
 
@@ -133,7 +136,7 @@ ChangeLog for Projman
 
     * ENH : ajout de log (module logging)
 
-    * ENH : début MAJ testss unitaires
+    * ENH : dï¿½but MAJ testss unitaires
 
 
 
@@ -163,11 +166,11 @@ ChangeLog for Projman
 
 
 2004-06-03  --  0.7.0
-    * Vue mkview (xml/docbook): listings des taches avec leurs ressources attribuées
+    * Vue mkview (xml/docbook): listings des taches avec leurs ressources attribuï¿½es
 
-    * Vue mkview (xml/docbook): un tableau dates et coût
+    * Vue mkview (xml/docbook): un tableau dates et coï¿½t
 
-    * Vue mkview (xml/docbook): un tableau ressources et coûts.
+    * Vue mkview (xml/docbook): un tableau ressources et coï¿½ts.
 
     * Bug fix : conversion format planner compatible avec la contrainte "des que possible"
 

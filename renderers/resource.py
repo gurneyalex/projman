@@ -200,23 +200,24 @@ class ResourcesDrawer(AbstractDrawer) :
             bgcolor = self._color_set['WEEKDAY']
         return bgcolor
 
-    def draw_lines(self):
+    def draw_separator_resources(self):
+        if self.options.timestep == 'day':
+            timestep =1
+        elif self.options.timestep == 'week':
+            timestep =7
+        elif self.options.timestep == 'month':
+            timestep =31
         self._handler.draw_line(self._x, self._y, 
-                                    self._x + FIELD_COLUMN_WIDTH/self.options.timestep,
+                                    self._x + FIELD_COLUMN_WIDTH/timestep,
                                     self._y, 
                                     color=(204, 204, 204))
-#        if self.factor > 2:
-#            self._handler.draw_dot(self._x, self._y + ROW_HEIGHT/2, 
-#                                    self._x + FIELD_COLUMN_WIDTH/self.options.timestep,
-#                                    self._y + ROW_HEIGHT/2, 4,
-#                                    color=(204, 204, 204))
-        
 
     def occupation_timeline(self, project, resource):
         """
         write a timeline day for a resource occupation
         """
         for day in date_range(self.view_begin, self.view_end):
+            # draw background
             self._handler.draw_rect(self._x, self._y, self._daywidth, ROW_HEIGHT,
                             fillcolor=self._colors['EVEN_SET']['RESOURCE_UNAVAILABLE'])
             for d in range(self.factor):
@@ -224,7 +225,8 @@ class ResourcesDrawer(AbstractDrawer) :
                 if day_.hour >= 12:
                     day_ += oneHour
                 act = project.activities.select('resource', resource.id)
-                act = act.select('begin', day_)
+                if act:
+                    act = act.select('begin', day_)
                 usage = project.get_total_usage(resource.id, day_)
                 available = resource.is_available(day_) and \
                                (day_ < self.view_end) and usage and act
@@ -232,7 +234,7 @@ class ResourcesDrawer(AbstractDrawer) :
                 if usage > 1:
                     log.info(" Warning! usage", usage, "for", resource.id, "on", day_)
             #draw separators
-            self.draw_lines()
+            self.draw_separator_resources()
             # update abscisse
             self._x += self._daywidth 
 
@@ -252,15 +254,15 @@ class ResourcesDrawer(AbstractDrawer) :
                 color = self._colors['TASK_SET']['problem']
                 height = ROW_HEIGHT
             elif 0 < usage <= 1:
-                color = self._color_set['RESOURCE_USED'] 
+                color = self._color_set['RESOURCE_USED']
                 height = ROW_HEIGHT*min(usage, 1)
-            elif day.date == TODAY.date:
-                color = self._color_set['TODAY']
-                height = ROW_HEIGHT
-            if color and available:
+        if day.date == TODAY.date and not(color == self._color_set['RESOURCE_USED']):
+            color = self._color_set['TODAY']
+            height = ROW_HEIGHT
+        if color and (available or color == self._color_set['TODAY']):
                 self._handler.draw_rect(self._x+1, self._y+ROW_HEIGHT-height*(d+1),
-                                width-2, height,
-                                fillcolor=color)
+                                width, height,
+                                fillcolor=color)  # occupation totale(taches confondues)
 
     def activity_timeline(self, activities, resource):
         """write a day for a task"""
@@ -284,7 +286,7 @@ class ResourcesDrawer(AbstractDrawer) :
                             break
                         self._activity_timeline(available, usage, day, d)
             self._activity_timeline(False, 0, day, d)
-            self.draw_lines()
+            self.draw_separator_resources()
             # update abscisse
             self._x += self._daywidth
 
@@ -307,6 +309,6 @@ class ResourcesDrawer(AbstractDrawer) :
 
         if color:
             self._handler.draw_rect(self._x+1, self._y+ROW_HEIGHT-height*(d+1),
-                                        width-2, height,
+                                        width, height,
                                         fillcolor=color)
 

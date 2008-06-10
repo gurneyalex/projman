@@ -26,6 +26,7 @@ from xml.sax.handler import feature_namespaces
 from projman.lib.project import Project
 from projman.lib.task import Task, MileStone
 from projman.lib.resource import Resource, ResourcesSet
+from projman.lib.resource_role import ResourceRole, ResourceRoleSet
 from projman.lib.calendar import Calendar
 from projman.lib._exceptions import ProjectValidationError, MalformedProjectFile
 
@@ -64,6 +65,14 @@ class ModelProjectFactory:
     def create_resourcesset(self, rs_id):
         """ create a new resources set """
         return ResourcesSet(rs_id)
+
+    def create_resource_role(self, r_id, name, cost='0.0', unit='euros'):
+        """create a new resource_role"""
+        return ResourceRole(r_id, name, cost, unit)
+
+    def create_resource_role_set(self, rs_id):
+        """ create a new resource_role set """
+        return ResourceRoleSet(rs_id)
 
     def create_calendar(self, tt_id, tt_name = u''):
         """ create a new time table """
