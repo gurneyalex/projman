@@ -80,7 +80,7 @@ class Checker:
         # check tasks duration for leaves
         for leaf in self.project.root_task.leaves():
             if leaf.duration == 0 and leaf.TYPE=='task':
-                self.errors.append('Leaf %s without any duration:\n\t-> change duration or write it as a milestone' %leaf.id)
+                self.errors.append('Leaf %s without any duration:\n\t-> add duration, add sub tasks or write it as a milestone' %leaf.id)
 
     def check_tree(self):
         tasks = []

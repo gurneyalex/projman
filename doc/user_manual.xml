@@ -14,17 +14,20 @@
 <!ENTITY task             "<emphasis role='bold'>&lt;task></emphasis>">
 <!ENTITY constraintdate   "<emphasis role='bold'>&lt;constraint-date></emphasis>">
 <!ENTITY constrainttask   "<emphasis role='bold'>&lt;constraint-task></emphasis>">
+<!ENTITY constraintint   "<emphasis role='bold'>&lt;constraint-interruptible></emphasis>">
 <!ENTITY constraintres    "<emphasis role='bold'>&lt;constraint-resource></emphasis>">
 <!ENTITY activities       "<emphasis role='bold'>&lt;activities></emphasis>">
 <!ENTITY reportslist      "<emphasis role='bold'>&lt;reports-list></emphasis>">
 <!ENTITY report           "<emphasis role='bold'>&lt;report></emphasis>">
-<!ENTITY duration         "<emphasis role='bold'>&lt;duration></emphasis>">
+<!ENTITY load             "<emphasis role='bold'>&lt;load></emphasis>">
+<!ENTITY load-type        "<emphasis role='bold'>&lt;load-type></emphasis>">
 <!ENTITY timeslot         "<emphasis role='bold'>&lt;time-slot></emphasis>">
 <!ENTITY progress         "<emphasis role='bold'>&lt;progress></emphasis>">
 <!ENTITY priority         "<emphasis role='bold'>&lt;priority></emphasis>">
 <!ENTITY status           "<emphasis role='bold'>&lt;status></emphasis>">
 <!ENTITY useresource      "<emphasis role='bold'>&lt;use-resource></emphasis>">
 <!ENTITY resource         "<emphasis role='bold'>&lt;resource></emphasis>">
+<!ENTITY hourly-cost      "<emphasis role='bold'>&lt;hourly-cost></emphasis>">
 <!ENTITY importresources  "<emphasis role='bold'>&lt;import-resources></emphasis>">
 <!ENTITY importactivities "<emphasis role='bold'>&lt;import-activities></emphasis>">
 <!ENTITY importtasks      "<emphasis role='bold'>&lt;import-tasks></emphasis>">
@@ -32,6 +35,7 @@
 <!ENTITY resourceslist    "<emphasis role='bold'>&lt;resources-list></emphasis>">
 <!ENTITY usecalendar      "<emphasis role='bold'>&lt;use-calendar></emphasis>">
 <!ENTITY calendar         "<emphasis role='bold'>&lt;calendar></emphasis>">
+<!ENTITY resource-role    "<emphasis role='bold'>&lt;resource-role></emphasis>">
 <!ENTITY starton          "<emphasis role='bold'>&lt;start-on></emphasis>">
 <!ENTITY stopon           "<emphasis role='bold'>&lt;stop-on></emphasis>">
 <!ENTITY day              "<emphasis role='bold'>&lt;day></emphasis>">
@@ -189,7 +193,7 @@ Please consider contributing anything useful to this package.
           node was replaced by the content of this imported project file. 
       </para>
       <para>
-          The &constraintdate;, &constrainttask; and &constraintres;
+          The &constraintdate;, &constrainttask; and &constraintint;
           nodes are all the possible constraints that can be set on a
           project. See <xref linkend="constraintsgen"/> for how to describe constraints.
       </para>
@@ -199,7 +203,7 @@ Please consider contributing anything useful to this package.
       <example><title>Portion of the DTD for the &milestone; element</title>
         <programlisting><![CDATA[
             <!ELEMENT milestone (label?, (constraint-date |
-                                 constraint-task |constraint-resource)*,
+                                 constraint-task)*,
                                  (task|import-project|milestone)+)*)>
             <!ATTLIST milestone
                       id            ID                      #REQUIRED >
@@ -216,15 +220,16 @@ Please consider contributing anything useful to this package.
     <section><title>Task</title>
       <example><title>Portion of the DTD for the &task; element</title>
         <programlisting><![CDATA[
-            <!ELEMENT task (label?, (constraint-date | constraint-task
-                            |constraint-resource)*,(duration,progress?),
+            <!ELEMENT task (label?, (constraint-date | constraint-task)*,
+                            constraint-interruptible?,
                             priority?,(task|milestone|import-project)*)>
             <!ATTLIST task
                      id        ID                            #REQUIRED
                      load-type (shared | sameforall | oneof) #REQUIRED 
-                     load      float                         #REQUIRED>
+                     load      float                         #REQUIRED
+                     resource-role IDREF                     #REQUIRED>
 
-            <!-- label, duration and progress of the task -->
+            <!-- label and progress of the task -->
 
             <!ELEMENT label (#PCDATA)>
 
@@ -236,9 +241,9 @@ Please consider contributing anything useful to this package.
           The &task; node describes a given task, identified by its "id" attribute. A task
           maybe a container (i.e. contains some other tasks and/or milestone
           and/or imported projects) or a
-          leaf. If it's a leaf, the &duration; node is required to indicate the number of
-          days of work needed by this task. You can optionaly add an "unit" attribute if
-          you want to indicate a number of weeks or months. 
+          leaf. If it's a leaf, the &load; and &load-type; are required to indicate the
+          number of
+          days of work needed by this task and the number of resources associated.
       </para>
       <para>
           The &progress; gives the percentage of work done for this task. A leaf task is
@@ -254,17 +259,23 @@ Please consider contributing anything useful to this package.
           having a task constraint "t1 begin after begin of t2". Note that if no
           "priority" attribute is present, a task will inherit from its parent priority.
         </para>
+        <para>The &resource-role; permits to assign one or more resource to a
+        task. It design the profile of
+        the resources needed to complete the task.
+        </para>
       <para>
           See <xref linkend="constraintsgen"/> for how to describing constraints. Another
             way to give constraint between task is to use the task's "priority"
             attribute. 
       </para>
     </section>
+
   </section>
+  
   <section id="constraintsgen"><title>Constraints : date constraint,
-    task constraint and resource constraint.</title>
+    task constraint and interruptible constraint.</title>
       <example><title>Portion of the DTD for the &constraintdate;
-    &constrainttask; and &constraintres; element</title>
+    &constrainttask; and &constraintint; element</title>
       <programlisting><![CDATA[
           <!-- constraint between tasks  -->
           <!ELEMENT constraint-task EMPTY>
@@ -272,22 +283,28 @@ Please consider contributing anything useful to this package.
                     idref    IDREF                          #REQUIRED
                     type     (begin-after-end|begin-after-begin|
                              end-after-end|end-after-begin) #REQUIRED>
+                    priority float                          #REQUIRED
           
           <!-- constraint on date for a task  -->
           <!ELEMENT constraint-date (#PCDATA)>
           <!ATTLIST constraint-date
                     type     (begin-after-date|begin-at-date|begin-before-date|
                              end-after-date|end-at-date|end-before-date)
-                                                            #REQUIRED>
+                                                          #REQUIRED
+                    priority  int                         #REQUIRED>
 
-          <!-- constraint on resources to use for tasks -->
-          <!ELEMENT constraint-resource EMPTY>
-          <!ATTLIST constraint-resource
-                    type          CDATA                   #IMPLIED"
-                    usage         CDATA                   #REQUIRED">
+          <!-- constraint on interruptible tasks -->
+          <!ELEMENT constraint-interruptible EMPTY>
+          <!ATTLIST constraint-interruptible
+                    type          CDATA                   #REQUIRED
+                    prority       int                     #REQUIRED>
           ]]>
         </programlisting>
     </example>
+    <para>You can chose a priority on each constraint. If all constraint can not be
+        respected (no valid solution with them), the constraints of less priority will be
+        dropped (best priority is 1, worse priority is 3)
+    </para>
     <section><title>Date constraints</title>
         <para>
         The possible date constraint are the following : begin before date, begin at date,
@@ -304,18 +321,14 @@ Please consider contributing anything useful to this package.
         be a task id.
           </para>
     </section>
-    <section><title>Resource constraints</title>
+    <section><title>Interruptible constraints</title>
         <para>
-          A resource constraint permits to assign one or more resource to a
-        task. The attribute "type" permits to design the profile of
-        the resources needed to complete the task. Indeed "type"
-        describes the type of the resource. The attribute "usage"
-        gives the percentage of time the resource has to give to the
-        task.
+            This constraint is used to say that the task must be realized in consecutive
+          days.
           </para>
     </section>
   </section>
-<!-- insertion ici d un exemple de decrption des taches-->
+<!-- insertion ici d un exemple de decrption des taches  N EST PLUS A JOUR>
           <programlisting role="python">
     &lt;<emphasis role="keyword">task</emphasis> <emphasis role="name">id</emphasis>=<emphasis role="string">"project"</emphasis>>
         &lt;<emphasis role="keyword">label</emphasis>><emphasis role="string">Trivial project</emphasis>&lt;<emphasis role="keyword">/label</emphasis>>
@@ -330,8 +343,8 @@ Please consider contributing anything useful to this package.
             &lt;<emphasis role="keyword">constraint-task</emphasis> <emphasis role="name">type</emphasis> <emphasis role="string">"begin-after-end"</emphasis> <emphasis role="keyword">idref</emphasis> <emphasis role="string">"t1"</emphasis>>
         &lt;<emphasis role="keyword">/task</emphasis>>
     &lt;<emphasis role="keyword">/task</emphasis>>
-          </programlisting>
-<!-- fin de l exemple-->
+          </programlisting-->
+<!-- fin de l exemple--> 
 
   <section id="resourcesgen"><title>Resources file</title>
 
@@ -352,15 +365,22 @@ Please consider contributing anything useful to this package.
     <section><title>Resource</title>
       <example><title>Portion of the DTD for the &resource; element</title>
           <programlisting><![CDATA[
-            <!ELEMENT resource (use-calendar)*>
+            <!ELEMENT resource (label)?, (use-calendar)*, (role)+>
             <!ATTLIST resource
                       id       CDATA             #REQUIRED
-                      type     CDATA             #IMPLIED>
 
             <!-- time table of a resource -->
             <!ELEMENT use-calendar EMPTY>
             <!ATTLIST use-calendar
                       idref    CDATA             #REQUIRED>
+
+            <!-- label of a resource -->
+            <!ELEMENT label (#PCDATA)>
+
+            <!-- role of a resource -->
+            <!ELEMENT role 
+                      idref    CDATA             #REQUIRED>
+
             ]]>
          </programlisting>
       </example>
@@ -368,6 +388,9 @@ Please consider contributing anything useful to this package.
           The &resource; node describe a resource, identified by its
           "id" attribute.  Usual resource "type" attribute are
           "worker", "computer"...
+        </para>
+        <para>
+          The &resource-role; describe skills of a &resource;, and its &hourly-cost;.
         </para>
         <para>
           You can link a resource to its calendar with the &usecalendar;
@@ -547,6 +570,19 @@ Please consider contributing anything useful to this package.
           a.m. and from 1 p.m. to 5 p.m..
       </para>
     </section>
+
+    <section><title>Resource role</title>
+      <example><title>Portion of the DTD for the &resource-role; element</title>
+        <programlisting><![CDATA[
+            <!ELEMENT resource-role (label)?>
+            <!ATTLIST resource-role
+                      id             CDATA             #REQUIRED
+                      hourly-cost    int               #REQUIRED
+                      cost-unit      CDATA             #REQUIRED>
+        ]]>
+        </programlisting>
+      </example>
+    </section>
   </section>
 
   <section id="schedulingfile"><title>Scheduling file</title>
@@ -695,6 +731,22 @@ Please consider contributing anything useful to this package.
 
   </section>
     
+  <section id="checkgen"><title>Checking</title>
+    <para>
+        Before trying to schedule the projman problem, you can check it, and detect 
+        some inconsistancity (tasks cycle, incoherent constraints, ...)
+    </para>
+    <para>
+        The option avaliable for the checker mode are:
+      <synopsis>
+        --project-file
+                specify the project description file to use
+
+          --verbose
+                     display additional information during execution of projman
+      </synopsis>
+    </para>
+  </section>
   <section id="schedulinggen"><title>Scheduling</title>
     <para>
         You will find in this section some things that you should know about those
@@ -718,9 +770,18 @@ Please consider contributing anything useful to this package.
 
           --type
                      scheduling method (csp or simple)
+
+          --factorized_days
+                     choose a step to schedule (1 is day, 2 is half a day, 
+                     4 is quater of day)
+        
+
         </synopsis>
       </para>
-      
+      <para>Be carefull: if you choose to use the factorized_days option, you will also 
+            have to use it for futur uses of projaman. For example, if you choose to
+            schedule on half days, you will use the diagram command with the option 
+            --factirized_days=2
     <section id="def_sched"><title>Default scheduling</title>
       <para>
           The default algorithm is the fastest of both and will surely found a solution
@@ -736,19 +797,23 @@ Please consider contributing anything useful to this package.
       </para><para>
           Here are some hypothesis made by this algorithm :
         <itemizedlist>
-	  <listitem><para>
+	      <listitem><para>
                 a resource work on a single task per day.
-              </para></listitem><listitem><para>
+              </para>
+          </listitem>
+          <listitem><para>
                 a task is performed by a single resource. This means that if a task has more
                 than one used resources, it will choose only one of these resources to work on
                 this task.
-              </para></listitem><listitem><para>
+              </para>
+          </listitem>
+          <listitem><para>
                 a task which doesn't have some used resources specified (nor its ancestors) is
                 not affected by the tow previous point.
-              </para></listitem>
-          </itemizedlist>
-        </para>
-      </section>
+          </para></listitem>
+        </itemizedlist>
+      </para>
+    </section>
   </section>
 
   <section id="renderinggen"><title>Rendering</title>
@@ -795,8 +860,8 @@ Please consider contributing anything useful to this package.
                       - svg
             
           --timestep
-                      timeline increment in days for diagram
-                      [default=1]
+                      timeline increment (day, week, month) for diagram
+                      [default=day]
           
           --depth
                       specifies the depth to visualisate for diagrams
@@ -809,6 +874,10 @@ Please consider contributing anything useful to this package.
           --view-end
                       end date for diagram view [default=date end project]
                       ex: yyyy/mm/dd
+
+          --factorized_days
+                     choose a step to schedule (1 is day, 2 is half a day, 
+                     4 is quater of day)
         </synopsis>
       </para>
     </section>
@@ -823,13 +892,15 @@ Please consider contributing anything useful to this package.
         <synopsis>
 	
 	        type
-              	      Specify the type of view generated
+              	      Specify the type of view generated (not updated, cf manual)
                	      - tasks-costs:  Will create a table in which the project's
                         tasks are listed with all the main informations 
                         (duration, cost, resources)
                       - tasks-list: Will dump tasks information.
                       - tasks-dates: Will dump begin, end date and global cost for tasks.
-
+ 
+<!--cost-para|duration-para|duration-table|cost-table|dates-para|duration-section|
+    rates-section|tasks-list-section-->
           --project-file
         
           --verbose
