@@ -58,7 +58,16 @@ class ProjmanCommand(Command):
           'type' : 'string', 'metavar': '<virtual task root>',
           'default': None,
           'help': 'identifier of a task to use as root',
-          }),
+          }
+         ),
+        ('factorized_days',
+         {'type' : 'int', 'metavar' : '<1, 2 or 4>',
+          'default': 1,
+          'help' : 'schedule and display task in day(1), half day(2) or quarter of day(4).' 
+                   'Attention: if you decide to use this option, be coherent ' 
+                   'for next projman commands ! '
+          }
+         ),
         )
 
     def run(self, args):
@@ -67,12 +76,25 @@ class ProjmanCommand(Command):
         logging.basicConfig(level=loglevel)
         reader = ProjectXMLReader(self.config.project_file, self.config.task_root)
         self.project, self.files = reader.read()
+        self.project.factor = self.config.factorized_days
         self._run(args)
 
     def _run(self, args):
         raise NotImplementedError
 
 # Concrete commands ###########################################################
+class CheckCommand(ProjmanCommand):
+    "check the definition of a projman problem"
+    name = 'checker'
+    max_args = 0
+    arguments = ''
+
+    def _run(self, args):
+        from projman.checker.problem_checker import Checker
+        # validate xml format
+        reader = ProjectXMLReader(self.config.project_file, self.config.task_root)
+        # validate projman problem
+        check_project = Checker(self.project, self.config.verbose)
 
 class ScheduleCommand(ProjmanCommand):
     """schedule a project"""
@@ -98,7 +120,20 @@ class ScheduleCommand(ProjmanCommand):
 
     def _run(self, views):
         from projman.scheduling import schedule
+        rounder = 0
         schedule(self.project, self.config)
+        while (self.project.nb_solution == 0 and rounder < 2):
+            print '\nAttention: No valid solution !'
+            print "constraints with priority", self.project.priority,
+            print 'are dropped ...\n'
+            reader = ProjectXMLReader(self.config.project_file,
+                                self.config.task_root)
+            self.project, self.files = reader.read()
+            self.project.factor = self.config.factorized_days
+            rounder += 1
+            self.project.priority -= rounder
+            schedule(self.project, self.config)
+            nb_solution = self.project.nb_solution
         write_schedule_as_xml(self.files['schedule'], self.project)
 
 
@@ -179,9 +214,9 @@ class DiagramCommand(ProjmanCommand):
           }
          ),
         ('timestep',
-         {'type' : 'int', 'metavar': '<nb days>',
-          'default': 1,
-          'help': 'timeline increment in days for diagram',
+         {'type' : 'string', 'metavar': '<day, week, month>',
+          'default': 'day',
+          'help': 'timeline increment for diagram',
           }
          ),
         ('view-begin',
@@ -233,6 +268,10 @@ class DiagramCommand(ProjmanCommand):
                 renderer = known_diagrams[diagram](self.config, handler)
             except KeyError:
                 raise BadCommandUsage('unknown diagram %s' % diagram)
+        if self.config.timestep:
+            if not self.config.timestep in ['day', 'month', 'week']:
+                raise BadCommandUsage('non valid timestep %s' %self.config.timestep) 
+            
             output = self.config.output or '%s.%s' % (diagram, self.config.format)
             stream = handler.get_output(output)
             renderer.render(self.project, stream)
@@ -258,4 +297,4 @@ class DiagramCommand2(ProjmanCommand):  # a test...
         gantt.save()
 
 
-register_commands((ScheduleCommand, ViewCommand, DiagramCommand))
+register_commands((CheckCommand, ScheduleCommand, ViewCommand, DiagramCommand))

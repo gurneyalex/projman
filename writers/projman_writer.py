@@ -80,16 +80,16 @@ def schedule_as_dom(project):
         # add date-constraints
         begin, end = project.get_task_date_range(task)
         if element.tag == "task":
-            ET.SubElement( element, "constraint-date", type=BEGIN_AT_DATE ).text = str(begin)#begin.date
-            ET.SubElement( element, "constraint-date", type=END_AT_DATE ).text = str(end)#end.date
+            ET.SubElement( element, "constraint-date", type=BEGIN_AT_DATE ).text = str(begin)
+            ET.SubElement( element, "constraint-date", type=END_AT_DATE ).text = str(end)
             if task.priority is not None:
                 ET.SubElement(element, 'priority').text = str(task.priority)
             ET.SubElement(element, 'status').text = project.get_task_status(task)
         else:
-            ET.SubElement( element, "constraint-date", type=AT_DATE ).text = str(begin)#begin.date
+            ET.SubElement( element, "constraint-date", type=AT_DATE ).text = str(begin)
 
         # task_constraints
-        for ctype, ctask_id in task.task_constraints:
+        for ctype, ctask_id, priority in task.task_constraints:
             ET.SubElement(element, "constraint-task", type=ctype, idref=ctask_id)
 
         if element.tag == "milestone":
@@ -119,8 +119,8 @@ def schedule_as_dom(project):
                 act_element = ET.SubElement(rlist, 'report',
                                             idref=r_id,
                                             usage='%f' % usage)
-                act_element.set('from', str(begin))#begin.date)
-                act_element.set('to', str(end) )#end.date)
+                act_element.set('from', str(begin))
+                act_element.set('to', str(end) )
     return doc
 
 class TasksVisitor:
@@ -130,8 +130,8 @@ class TasksVisitor:
     def visit_root(self, node):
         elem = ET.Element('task', id=node.id)
         self.set_common_attr( node, elem )
-        for rtype, rid, usage in node.resource_constraints:
-            ET.SubElement( elem, "constraint-resource", usage=str(usage),
+        for rtype, rid in node.resource_constraints:
+            ET.SubElement( elem, "constraint-resource",
                            idref=rid, type=rtype )
         
         self.parents.append(elem)
@@ -145,8 +145,8 @@ class TasksVisitor:
         elem.set("load", str(node.duration) )
         self.set_common_attr( node, elem )
 
-        for rtype, rid, usage in node.resource_constraints:
-            ET.SubElement( elem, "constraint-resource", usage=str(usage),
+        for rtype, rid in node.resource_constraints:
+            ET.SubElement( elem, "constraint-resource",
                            idref=rid, type=rtype )
         
         self.parents.append( elem )
@@ -174,10 +174,10 @@ class TasksVisitor:
                 text = u"<description>%s</description>" % node.description_raw
                 el = ET.fromstring(text.encode("utf-8"))
                 elem.append( el )
-        for ctype, tid in node.task_constraints:
+        for ctype, tid, priority in node.task_constraints:
             ET.SubElement( elem, "constraint-task", type=ctype, idref=tid )
 
-        for ctype, date in node.date_constraints:
+        for ctype, date, priority in node.date_constraints:
             el = ET.SubElement( elem, "constraint-date", type=ctype )
             el.text = date.strftime("%F")
 

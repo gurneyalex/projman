@@ -55,8 +55,9 @@ class Project:
     TYPE = 'project'
 
     def __init__(self):
-        self._root_task = None
+        self.root_task = None
         self.resource_set = None
+        self.resource_role_set = None
         self._is_scheduled = False
         self.activities = Table(default_value=None,
                                 col_names=['begin', 'end', 'resource', 'task',
@@ -71,32 +72,36 @@ class Project:
                            col_names=['task', 'resource', 'cost', 'unit'])
         self.milestones = {}
         self.factor = 1
+        self.priority = 3
+        # traite les contraintes de priorité jusque 3 (ie 1, 2 et 3)
+        self.nb_solution = 0
 
     def get_factor(self):
         """find if we must schedule on day, half  or quarter of day
         and return the appropriate factor
         """
-        factor = 1
-        factor_ = 1
-        for leaf in self.root_task.leaves():
-            mod = (leaf.duration % 1 )
-            if mod > 0:
-                if mod >= 0.13:
-                    factor_ = mod
-                if mod > 0.5 and mod -0.5 >= 0.13 and mod<0.83:
-                    if mod >= 0.13:
-                        factor_ = (leaf.duration % 1 ) - 0.5
-            factor = min(factor, factor_)
+        pass # valeur donnee en option ou egale a 1
+#        factor = 1
+#        factor_ = 1
+#        for leaf in self.root_task.leaves():
+#            mod = (leaf.duration % 1 )
+#            if mod > 0:
+#                if mod >= 0.13:
+#                    factor_ = mod
+#                if mod > 0.5 and mod -0.5 >= 0.13 and mod<0.83:
+#                    if mod >= 0.13:
+#                        factor_ = (leaf.duration % 1 ) - 0.5
+#            factor = min(factor, factor_)
             
-        dist=abs(factor-1.)
-        _factor = 1.
-        for f in [1., 0.5, 0.25]:
-             d=abs(factor-f)
-             if d<dist:
-                _factor = f
-                dist = d
-        factor = _factor
-        self.factor = int(1 / factor)
+#        dist=abs(factor-1.)
+#        _factor = 1.
+#        for f in [1., 0.5, 0.25]:
+#             d=abs(factor-f)
+#             if d<dist:
+#                _factor = f
+#                dist = d
+#        factor = _factor
+#        self.factor = int(1 / factor)
 
     def get_root_task(self):
         return self._root_task
@@ -134,12 +139,14 @@ class Project:
             status = 'current'
         else:
             status = 'todo'
-        for c_type, date in task.get_date_constraints():
-            if c_type == BEGIN_AFTER_DATE and not date <= begin:
+        for c_type, date, priority in task.get_date_constraints():
+            if c_type == BEGIN_AFTER_DATE and not date <= begin and \
+                            priority  <= self.priority:
                 print "task %s should begin after %s" % (task.id, begin)
                 status = 'problem'
                 break
-            elif c_type == END_BEFORE_DATE and not end <= date:
+            elif c_type == END_BEFORE_DATE and not end <= date and \
+                            priority  <= self.priority:
                 print "task %s should end before %s" % (task.id, begin)
                 status = 'problem'
                 break
@@ -190,6 +197,15 @@ class Project:
     def get_resource(self, resource_id):
         return self.resource_set.get_resource(resource_id)
 
+    def get_resources_from_task_type(self, task):
+        """add all the resources with type abilities in task.set_resources"""
+        res_set = self.get_resources()
+        for res in res_set:
+            res = self.get_resource(res)
+            for i in range(len(res.id_role)):
+                if res.id_role[i] == task.task_type:
+                    task.set_resources.append(res.id)
+      
     # tasks methods ###########################################################
 
     def get_task(self, task_id):
@@ -223,12 +239,13 @@ class Project:
         ordered_status = ['problem', 'todo', 'current', 'done']
         status_list = []
         for leaf in task.leaves():
-            # as leaf.id is int, self.tasks[leaf.id] will mistake it
-            _, _, status, _, _ = self.tasks.get_row_by_id(leaf.id)
-            status_list.append(status)
-        for status in ordered_status:
-            if status in status_list:
-                return status
+            if leaf.TYPE == 'Milestone':
+                # as leaf.id is int, self.tasks[leaf.id] will mistake it
+                _, _, status, _, _ = self.tasks.get_row_by_id(leaf.id)
+                status_list.append(status)
+            for status in ordered_status:
+                if status in status_list:
+                    return status
         return 'todo'
 
     def task_has_info(self, task_id):
@@ -358,8 +375,8 @@ class Project:
         costs = {}
         durations = {}
         rounded=0
-        if task_tot_duration % 1:
-            rounded = task_tot_duration % 1 - self.factor
+        if 0 < task_tot_duration % (1./self.factor) < (1./self.factor):
+            rounded = task_tot_duration % (1./self.factor) - 1./self.factor
         for begin, end, resource, task, usage, src \
                 in self.activities.select('task', task_id):
             costs.setdefault(resource, 0)
@@ -377,14 +394,26 @@ class Project:
         if len(durations) > 0:
             rounded  = rounded / len(durations)
             for res in durations:
-                try:
-                    resource_cost_rate = self.get_resource(res).hourly_rate[0] * 8
-                except NodeNotFound,ex :
-                    # if resource not found ???
-                    resource_cost_rate = 1
+                # using resources old definition
+                if self.resource_role_set.width() == 1:
+                    try:
+                        cost_rate = self.get_resource(res).hourly_rate[0]
+                    except NodeNotFound,ex :
+                        # if resource not found ???
+                        cost_rate = 1
+                #using new resources definition
+                else:
+                    task = self.get_task(task_id)
+                    #resource = self.get_resource(res)
+                    role = task.task_type
+                    cost_rate = self.get_cost_from_role(role)
                 durations[res] += rounded
-                costs[res] += durations[res] * resource_cost_rate
+                costs[res] += durations[res] * cost_rate
         return costs, durations
+
+    def get_cost_from_role(self, role):
+        res_role = self.resource_role_set.get_resource_role(role)
+        return res_role.hourly_cost
 
     def compute_duration(begin, end, usage):
         delta = end.day - begin.day

@@ -321,6 +321,7 @@ class ScheduleChecker(BaseEtreeChecker):
         self._content( str )
         self._children()
         self._noattr()
+
     def check_report(self):
         self._children()
         self._empty()
@@ -356,21 +357,27 @@ class ResourcesChecker(BaseEtreeChecker):
     def check_resources_list(self):
         self._isroot()
         self._attributes( { "id?" : not_empty } )
-        self._children("resource+","calendar+")
+        self._children("resource+","calendar+","resource-role*")
         self._empty()
         
     def check_resource(self):
         self._is_child_of( "resources-list" )
-        self._children("label","use-calendar","hourly-rate")
+        self._children("label","use-calendar","hourly-rate?", "role*")
         self._empty()
-        self._attributes( {"type" : not_empty,
+        self._attributes( {"type?" : not_empty,
                            "id" : not_empty,} )
 
     def check_label(self):
         self._children()
         self._noattr()
-        self._is_child_of("resource","calendar","day-type")
+        self._is_child_of("resource","resource-role","calendar","day-type")
         self._content( unicode )
+
+    def check_role(self):
+        self._children()
+        self._empty()
+        self._is_child_of("resource")
+        self._attributes({'idref' : not_empty})
 
     def check_use_calendar(self):
         self._children()
@@ -383,6 +390,14 @@ class ResourcesChecker(BaseEtreeChecker):
         self._content( float )
         self._is_child_of( "resource" )
         self._attributes( {"unit?": one_of("euros")} )
+
+    def check_resource_role(self):
+        self._is_child_of( "resources-list" )
+        self._children("label")
+        self._empty()
+        self._attributes( {"id" : not_empty,
+                           "hourly-cost" : convertible(float),
+                           "cost-unit?" : one_of("EUR")} )
 
     def check_calendar(self):
         self._is_child_of( "calendar", "resources-list" )
@@ -444,6 +459,7 @@ class TasksChecker(BaseEtreeChecker):
                                           depends("load") ),
                            "load?":(convertible(float),
                                     depends("load-type")),
+                           "resource-role?" : not_empty,
                            } )
         self._empty()
         pos, node = self.stack[-1]
@@ -455,14 +471,11 @@ class TasksChecker(BaseEtreeChecker):
         else:
             # a leaf task
             pos, node = self.stack[-1]
-            if "load-type" in node.attrib:
-                # we don't want duration with the new load-type descriptions
-                self._children("label","description?","constraint-date*",
-                               "constraint-resource*","constraint-task*")
-            else:
-                self._children("label","description?","constraint-date*",
-                               "constraint-resource*","duration","constraint-task*")
-
+            # we don't want duration with the new load-type descriptions
+            self._children("label","description?","constraint-date*",
+                           "constraint-resource*","constraint-task*",
+                           "constraint-interruptible?")
+            
     def check_milestone(self):
         self._is_child_of( "task" )
         self._attributes( {"id":not_empty} )
@@ -476,12 +489,6 @@ class TasksChecker(BaseEtreeChecker):
         self._content(unicode)
         self._ignore_children()
 
-    def check_duration(self):
-        self._is_child_of("task")
-        self._content(float)
-        self._noattr()
-        self._children()
-
     def check_label(self):
         self._is_child_of("task","milestone")
         self._content(unicode)
@@ -491,23 +498,31 @@ class TasksChecker(BaseEtreeChecker):
     def check_constraint_date(self):
         self._is_child_of("task","milestone")
         self._content(iso_date)
-        self._attributes( {"type" : one_of(*DATE_CONSTRAINT)} )
+        self._attributes( {"type" : one_of(*DATE_CONSTRAINT),
+                           "priority?": one_of('1','2','3')} )
         self._children()
 
     def check_constraint_task(self):
         self._is_child_of("task","milestone")
         self._empty()
         self._attributes( {"type" : one_of(*TASK_CONSTRAINT),
-                          "idref" : not_empty} )
+                          "idref" : not_empty,
+                          "priority?": one_of('1','2','3') } )
         self._children()
 
     def check_constraint_resource(self):
         self._is_child_of("task","milestone")
         self._empty()
-        self._attributes( {"usage" : convertible(float),
-                           "idref" : not_empty,
-                           "type?" : not_empty,} )
+        self._attributes( {"idref" : not_empty,
+                           "usage?" : not_empty,
+                           "type?" : not_empty} )
         self._children()
+
+    def check_constraint_interruptible(self):
+        self._is_child_of("task","milestone")
+        self._empty()
+        self._attributes( { "type" : one_of('True', 'False'),
+                            "priority" : one_of('1', '2', '3')})
 
 class ActivitiesChecker(BaseEtreeChecker):
     def check_activities(self):

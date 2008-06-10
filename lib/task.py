@@ -49,9 +49,9 @@ class TaskNode(VNode):
     def __init__(self, node_id):
         VNode.__init__(self, node_id)
         self.title = u''
-        # list of couples ('{begin/end}-{at/before/after}-date', mxDate)
+        # list of triplets ('{begin/end}-{at/before/after}-date', mxDate, priority)
         self.date_constraints = set()
-        # list of couples ('{begin/end}-after-{begin/end}', task_id)
+        # list of triplets ('{begin/end}-after-{begin/end}', task_id, priority)
         self.task_constraints = set()
         self.description = u''
         self.description_raw = u''
@@ -60,6 +60,9 @@ class TaskNode(VNode):
         self._priority = None
         self.duration = 0
         self.load_type = 0
+        self.task_type = None
+        self.set_resources = []
+        self.can_interrupt = [True, 1]
 
     def __repr__(self):
         return "<Task id=%s at %s>" % (self.id, id(self))
@@ -110,15 +113,15 @@ class TaskNode(VNode):
 
     # Editing functions #############################################
 
-    def add_date_constraint(self, constraint_type, date):
+    def add_date_constraint(self, constraint_type, date, priority=1):
         """ add a date constraint to the milestone """
         assert constraint_type in DATE_CONSTRAINTS, constraint_type
-        self.date_constraints.add((constraint_type, date))
+        self.date_constraints.add((constraint_type, date, priority))
 
-    def add_task_constraint(self, constraint_type, task_id):
+    def add_task_constraint(self, constraint_type, task_id, priority=1):
         """ add a task constraint to the milestone """ 
         assert constraint_type in TASK_CONSTRAINTS, constraint_type
-        self.task_constraints.add((constraint_type, task_id))
+        self.task_constraints.add((constraint_type, task_id, priority))
 
     # Manipulation functions #############################################
     
@@ -190,20 +193,25 @@ class TaskNode(VNode):
         # FIXME: Cache result (or modify in-place)
         constraints = set(self.date_constraints)
         if self.parent:
-            for c_type, date in self.parent.get_date_constraints():
+            for c_type, date, priority in self.parent.get_date_constraints():
                 if c_type in (BEGIN_AT_DATE, BEGIN_AFTER_DATE):
-                    constraints.add((BEGIN_AFTER_DATE, date))
+                    constraints.add((BEGIN_AFTER_DATE, date, priority))
                 elif c_type in (END_AT_DATE, END_BEFORE_DATE):
-                    constraints.add((END_BEFORE_DATE, date))
+                    constraints.add((END_BEFORE_DATE, date, priority))
         return constraints
+
+    def check_duration(self):
+        """check non valid duration (0)"""
+        if self.TYPE != 'milestone' and self.duration == 0:
+            raise Exception("non valid task duration for '%s'" %self.id)
 
     def check_consistency(self):
         """
         check that there are no duplicated task ids
         """
         #check non valid duration (0)
-        if self.TYPE != 'milestone' and self.duration == 0:
-            raise Exception("non valid task duration for", self)
+        #if self.TYPE != 'milestone' and self.duration == 0:
+        #    raise Exception("non valid task duration for '%s'" %self.id)
         errors = []
         task_ids = set()
         for node in self.flatten():
@@ -220,9 +228,9 @@ class TaskNode(VNode):
         errors = []
         msg = 'Parent task of %s has constraint (%s, %s) which ' \
               'conflicts with its constraints (%s, %s)'
-        for other_c_type, other_date in other.get_date_constraints():
+        for other_c_type, other_date, other_priority in other.get_date_constraints():
             if other_c_type in (BEGIN_AT_DATE, BEGIN_AFTER_DATE):
-                for c_type, date in self.date_constraints:
+                for c_type, date, priority in self.date_constraints:
                     if date < other_date:
                         errors.append(msg % (self.id, other_c_type,
                                              other_date, c_type, date))
@@ -247,8 +255,8 @@ class Task(TaskNode):
         parent's priority
       - duration: integer estimated duration of the task
       - progress: integer progress of task (in percent)
-      - resource_constraints: sequence of tuples (type, id_res,
-        usage), can be used without id_res for planning with type of
+      - resource_constraints: sequence of tuples (type, id_res),
+        can be used without id_res for planning with type of
         resource
       - hide: boolean, used to render partial graphs (e.g. for a
         given resource)
@@ -263,35 +271,47 @@ class Task(TaskNode):
         TaskNode.__init__(self, t_id)
         self.resource_constraints = set()
 
+    def get_task_type(self):
+        if self.task_type:
+                return self.task_type
+        elif self.parent:
+            return self.parent.get_task_type()
+        else:
+            return set()
+
     def get_resource_constraints(self):
         """
         get real resource constraints using parent resource constraints
         """
-        if self.resource_constraints:
-            return self.resource_constraints
-        elif self.parent:
-            return self.parent.get_resource_constraints()
+        if not self.task_type:
+            if self.resource_constraints:
+                return self.resource_constraints
+            elif self.parent:
+                return self.parent.get_resource_constraints()
+            else:
+                return set()
         else:
+            self.get_task_type()
             return set()
         
     def get_resources(self):
         """
         return a sequence of the resources in resource_constraints
         """
-        return set([id_res for type_c, id_res, usage in
+        return set([id_res for type_c, id_res in
                     self.get_resource_constraints()])
     
-    def get_resource_dispo(self, res_id):
-        """
-        get the resource disponibility required for this task
-        """
-        for type_c, id_res, usage in self.get_resource_constraints():
-            if id_res == res_id:    
-                return usage
-        return 0
+#    def get_resource_dispo(self, res_id):
+#        """
+#        get the resource disponibility required for this task
+#        """
+#        for type_c, id_res in self.get_resource_constraints():
+#            if id_res == res_id:    
+#                return usage
+#        return 0
 
-    def add_resource_constraint(self, resource_type, resource_id, usage):
-        self.resource_constraints.add((resource_type, resource_id, usage))
+    def add_resource_constraint(self, resource_type, resource_id):
+        self.resource_constraints.add((resource_type, resource_id))
 
 
 class MileStone(TaskNode):
