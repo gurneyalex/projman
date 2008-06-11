@@ -112,14 +112,14 @@ class CSPSchedulerTC(TestCase):
 
 class CmpTasksTC(TestCase):
         
-    def test_cmp(self):
+    def skip_test_cmp(self):
         t0 = Task('0')
         t1 = Task('1')
         self.assertEquals( cmp_tasks(t0,None),  1)
         t1.add_task_constraint('begin-after-end', '0')
         self.assertEquals( cmp_tasks(t0,t1),  -1)
 
-    def test_cmp2(self):
+    def skip_test_cmp2(self):
         t0 = Task('0')
         t1 = Task('1')
         self.assertEquals( cmp_tasks(t0,None),  1)
@@ -138,7 +138,7 @@ class SimpleSchedulerTC(TestCase):
         reader = ProjectXMLReader(filename)
         self.project, files = reader.read()
         
-    def test_visit1(self):
+    def skip_test_visit1(self):
         scheduler = SimpleScheduler(self.project)
         ordered_buckets = scheduler.get_ordered_buckets()
         self.assertEquals(len(ordered_buckets), 3)
@@ -146,7 +146,7 @@ class SimpleSchedulerTC(TestCase):
         self.assertEquals(len(ordered_buckets[1]), 1)
         self.assertEquals(len(ordered_buckets[2]), 1)
 
-    def test_visit2(self):
+    def skip_test_visit2(self):
         scheduler = SimpleScheduler(self.project)
         scheduler.schedule()
 
