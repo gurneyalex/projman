@@ -32,6 +32,9 @@ class MalformedProjectFile(ProjectValidationError):
     """ malformed xml project description """
 EX_MALFORMED_FILE = 'file %s line %s : <%s> should not be a child of <%s>'
 
+class MalformedId(ProjectValidationError):
+    """ non ascii id attribute"""
+
 class ScheduleCycle (ProjectValidationError):
     """ constraints cycle exception """
 EX_CYCLE_DETECTED = "Schedule cycle detected for task '%s'"

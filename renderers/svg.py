@@ -6,6 +6,7 @@ from matplotlib.backends.backend_svg import RendererSVG
 from matplotlib.font_manager import FontProperties
 import codecs
 from StringIO import StringIO
+from xml.sax.saxutils import escape
 
 # matplotlib bugfix
 from matplotlib import rcParams
@@ -21,7 +22,8 @@ def draw_text(self, gc, x, y, s, prop, angle, ismath):
         self._draw_mathtext(gc, x, y, s, prop, angle)
         return
 
-    thetext = '%s' % s
+    #thetext = '%s' % s
+    thetext = escape(s)
     fontfamily=prop.get_family()[0]
     fontstyle=prop.get_style()
     fontsize = prop.get_size_in_points()
