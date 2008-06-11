@@ -251,6 +251,12 @@ class AbstractDrawer :
         """
         self._handler.draw_rect(self._x+1, self._y+1, width-2, height-2, **attrs)
 
+    def open_link(self,url):
+        self._handler.open_link(url)
+
+    def close_link(self):
+        self._handler.close_link()
+
     # generic events ##########################################################
 
     def close_drawing(self): 

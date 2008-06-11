@@ -206,6 +206,8 @@ class ProjectXMLReader(AbstractXMLReader) :
             load_type = TASK_MILESTONE
         t.load_type = load_type
         t.duration = float(task.get("load", "0"))
+        for link in task.findall('link'):
+            t.link = link.get('url')
         for cd in task.findall("constraint-date"):
             if cd.get("priority"):
                 priority = cd.get("priority")

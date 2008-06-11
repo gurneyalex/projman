@@ -214,6 +214,8 @@ class GanttDrawer(AbstractDrawer) :
                 if begin and end and begin <= day_ <= end:
                     if is_container or project.is_in_allocated_time(task.id, day_):
                         worked = True
+                if task.link and begin == day_:
+                    self.open_link(task.link)
                 self._task_timeline(worked, is_container,
                                         day_ == begin,
                                         day_ == end,
@@ -221,6 +223,9 @@ class GanttDrawer(AbstractDrawer) :
                                         day_ == end,
                                         day_,
                                         project.factor)
+                if task.link and end == day_:
+                    self.close_link()
+                
 
     def task_timeline_bg( self ):
         """Draw the background of a timeline"""

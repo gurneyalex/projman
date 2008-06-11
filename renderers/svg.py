@@ -114,6 +114,13 @@ class SVGHandler:
         data = self._buffer.getvalue()
         stream.write( data )
 
+    def open_link(self,url):
+        """draw a link to an url"""
+        self._rend._svgwriter.write('<a xlink:href=\"%s\"> ' %url)
+
+    def close_link(self):
+        self._rend._svgwriter.write('</a>')
+
     def draw_text(self, x, y, text, **args):
         """ draw a text """
         #print "draw_text", x, y, repr(text), args

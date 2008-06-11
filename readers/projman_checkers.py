@@ -455,8 +455,8 @@ class TasksChecker(BaseEtreeChecker):
     def check_task(self):
         self._is_child_of("task",None)
         self._attributes( {"id":not_empty,
-                           "load-type?":( one_of("oneof","shared","sameforall","spread"),
-                                          depends("load") ),
+                           "load-type?":(one_of("oneof","shared","sameforall","spread"),
+                                         depends("load") ),
                            "load?":(convertible(float),
                                     depends("load-type")),
                            "resource-role?" : not_empty,
@@ -465,14 +465,14 @@ class TasksChecker(BaseEtreeChecker):
         pos, node = self.stack[-1]
         if node.findall("task") or node.findall("milestone"):
             # a task with sub-tasks
-            self._children("label","description?","constraint-date*",
+            self._children("label", "link?", "description?","constraint-date*",
                            "constraint-resource*","constraint-task*",
                            "task*", "milestone*")
         else:
             # a leaf task
             pos, node = self.stack[-1]
             # we don't want duration with the new load-type descriptions
-            self._children("label","description?","constraint-date*",
+            self._children("label", "link?", "description?","constraint-date*",
                            "constraint-resource*","constraint-task*",
                            "constraint-interruptible?")
             
@@ -493,6 +493,12 @@ class TasksChecker(BaseEtreeChecker):
         self._is_child_of("task","milestone")
         self._content(unicode)
         self._noattr()
+        self._children()
+
+    def check_link(self):
+        self._is_child_of('task', 'milestone')
+        self._empty()
+        self._attributes({'url' : not_empty})
         self._children()
 
     def check_constraint_date(self):
