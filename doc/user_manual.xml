@@ -12,6 +12,7 @@
 <!ENTITY schedule         "<emphasis role='bold'>&lt;schedule></emphasis>">
 <!ENTITY milestone        "<emphasis role='bold'>&lt;milestone></emphasis>">
 <!ENTITY task             "<emphasis role='bold'>&lt;task></emphasis>">
+<!ENTITY link             "<emphasis role='bold'>&lt;link></emphasis>">
 <!ENTITY constraintdate   "<emphasis role='bold'>&lt;constraint-date></emphasis>">
 <!ENTITY constrainttask   "<emphasis role='bold'>&lt;constraint-task></emphasis>">
 <!ENTITY constraintint   "<emphasis role='bold'>&lt;constraint-interruptible></emphasis>">
@@ -171,9 +172,9 @@ Please consider contributing anything useful to this package.
     <section><title>Project</title>
       <example><title>Portion of the DTD for the &project; element</title>
         <programlisting><![CDATA[
-            <!ELEMENT task (label?,resource*,(constraint-date |
+            <!ELEMENT task (label?,link,(constraint-date |
                                constraint-task |constraint-resource)*,
-                               (task|import-project|milestone)+, priority?)>
+                               (task|import-project|milestone)+)>
             <!ATTLIST project
                       id            ID                      #REQUIRED>
             
@@ -202,7 +203,7 @@ Please consider contributing anything useful to this package.
     <section><title>Milestone</title>
       <example><title>Portion of the DTD for the &milestone; element</title>
         <programlisting><![CDATA[
-            <!ELEMENT milestone (label?, (constraint-date |
+            <!ELEMENT milestone (label?, link?, (constraint-date |
                                  constraint-task)*,
                                  (task|import-project|milestone)+)*)>
             <!ATTLIST milestone
@@ -220,9 +221,9 @@ Please consider contributing anything useful to this package.
     <section><title>Task</title>
       <example><title>Portion of the DTD for the &task; element</title>
         <programlisting><![CDATA[
-            <!ELEMENT task (label?, (constraint-date | constraint-task)*,
+            <!ELEMENT task (label?, link?, (constraint-date | constraint-task)*,
                             constraint-interruptible?,
-                            priority?,(task|milestone|import-project)*)>
+                            (task|milestone|import-project)*)>
             <!ATTLIST task
                      id        ID                            #REQUIRED
                      load-type (shared | sameforall | oneof) #REQUIRED 
@@ -234,6 +235,10 @@ Please consider contributing anything useful to this package.
             <!ELEMENT label (#PCDATA)>
 
             <!ELEMENT progress (#PCDATA)>
+
+            <!ELEMENT link>
+            <! ATTLIST link
+                    url      #PCDATA                          #REQUIRED>
     ]]>     
         </programlisting>
       </example>
@@ -262,6 +267,10 @@ Please consider contributing anything useful to this package.
         <para>The &resource-role; permits to assign one or more resource to a
         task. It design the profile of
         the resources needed to complete the task.
+        </para>
+        <para>The &link; permit to associate an URL to a task. The link will be use
+              after generation of gantt diagram, see <xref linkend="renderinggen"/>
+              for uses of &link;
         </para>
       <para>
           See <xref linkend="constraintsgen"/> for how to describing constraints. Another
@@ -879,6 +888,10 @@ Please consider contributing anything useful to this package.
                      choose a step to schedule (1 is day, 2 is half a day, 
                      4 is quater of day)
         </synopsis>
+      </para>
+      <para>The gantt diagram is a visualisation of project tasks along the time.
+            If you use the &link; element in tasks file description, it will be 
+            possible to link an URL on task in the graph.
       </para>
     </section>
 
