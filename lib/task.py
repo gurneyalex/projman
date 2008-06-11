@@ -312,6 +312,7 @@ class Task(TaskNode):
 #        return 0
 
     def add_resource_constraint(self, resource_type, resource_id):
+        # FIXME what about node <constraint-resource idref="toto"/>
         self.resource_constraints.add((resource_type, resource_id))
 
 

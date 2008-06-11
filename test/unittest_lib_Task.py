@@ -51,11 +51,11 @@ class TaskTC(TestCase):
         self.child2_1.duration = 5
         self.child2_2.duration = 12
         # set of resources constraints
-        self.parent.add_resource_constraint('worker', 'inge1', 1)
-        self.parent.add_resource_constraint('worker', 'inge2', 1)
-        self.child1.add_resource_constraint('worker', 'inge1', 1)
-        self.child2_1.add_resource_constraint('worker', 'inge1', 0.6)
-        self.child2_2.add_resource_constraint('worker', 'inge2', 1)
+        self.parent.add_resource_constraint('worker', 'inge1')
+        self.parent.add_resource_constraint('worker', 'inge2')
+        self.child1.add_resource_constraint('worker', 'inge1')
+        self.child2_1.add_resource_constraint('worker', 'inge1')
+        self.child2_2.add_resource_constraint('worker', 'inge2')
         # set of dates
         self.date_last_week = DateTime(2004, 10, 1)
         self.date_today = DateTime(2004, 10, 7)
@@ -73,29 +73,14 @@ class TaskTC(TestCase):
         self.assertEquals(self.parent.get_task('child2_1'), self.child2_1)
         self.assertEquals(self.parent.get_task('child2_2'), self.child2_2)
     
-    def test_get_resource_dispo(self):
-        """test usage is given back
-        """
-        #self.assertEquals(self.parent.get_resource_dispo('inge1'), 0)
-        #self.assertEquals(self.parent.get_resource_dispo('inge2'), 25)
-        self.assertEquals(self.child1.get_resource_dispo('inge1'), 1)
-        self.assertEquals(self.child1.get_resource_dispo('inge2'), 0)
-        #self.assertEquals(self.child2.get_resource_dispo('inge1'), 0)
-        #self.assertEquals(self.child2.get_resource_dispo('inge2'), 25)
-        self.assertEquals(self.child2_1.get_resource_dispo('inge1'), 0.6)
-        self.assertEquals(self.child2_1.get_resource_dispo('inge2'), 0.)
-        self.assertEquals(self.child2_2.get_resource_dispo('inge1'), 0)
-        self.assertEquals(self.child2_2.get_resource_dispo('inge2'), 1)
-
-        
     def test_get_resource_constraints(self):
         """test rsource is found, even within parents
         """
         # XXX
         # self.assertEquals(self.parent.get_resource_constraints(), [])
-        self.assertEquals(self.child1.get_resource_constraints(), set([('worker', 'inge1', 1)]))
-        self.assertEquals(self.child2_1.get_resource_constraints(), set([('worker', 'inge1', 0.6)]))
-        self.assertEquals(self.child2_2.get_resource_constraints(), set([('worker', 'inge2', 1)]))
+        self.assertEquals(self.child1.get_resource_constraints(), set([('worker', 'inge1')]))
+        self.assertEquals(self.child2_1.get_resource_constraints(), set([('worker', 'inge1')]))
+        self.assertEquals(self.child2_2.get_resource_constraints(), set([('worker', 'inge2')]))
         
     def test_get_resources(self):
         """check that array of all resource id returned
@@ -253,28 +238,28 @@ class DateConstraintsTC(testlib.TestCase):
         self.assertEquals(self.child.get_date_constraints(), set())
         self.parent.add_date_constraint(BEGIN_AT_DATE, DateTime(2005, 01, 01))
         constraints = self.child.get_date_constraints()
-        expected = set([(BEGIN_AFTER_DATE, DateTime(2005, 01, 01))])
+        expected = set([(BEGIN_AFTER_DATE, DateTime(2005, 01, 01), 1)])
         self.assertEquals(constraints, expected)
 
     def test_parent_begin_after(self):
         self.assertEquals(self.child.get_date_constraints(), set())
         self.parent.add_date_constraint(BEGIN_AFTER_DATE, DateTime(2005, 01, 01))
         constraints = self.child.get_date_constraints()
-        expected = set([(BEGIN_AFTER_DATE, DateTime(2005, 01, 01))])
+        expected = set([(BEGIN_AFTER_DATE, DateTime(2005, 01, 01), 1)])
         self.assertEquals(constraints, expected)
 
     def test_parent_end_at(self):
         self.assertEquals(self.child.get_date_constraints(), set())
         self.parent.add_date_constraint(END_AT_DATE, DateTime(2005, 01, 01))
         constraints = self.child.get_date_constraints()
-        expected = set([(END_BEFORE_DATE, DateTime(2005, 01, 01))])
+        expected = set([(END_BEFORE_DATE, DateTime(2005, 01, 01), 1)])
         self.assertEquals(constraints, expected)
 
     def test_parent_end_before(self):
         self.assertEquals(self.child.get_date_constraints(), set())
         self.parent.add_date_constraint(END_BEFORE_DATE, DateTime(2005, 01, 01))
         constraints = self.child.get_date_constraints()
-        expected = set([(END_BEFORE_DATE, DateTime(2005, 01, 01))])
+        expected = set([(END_BEFORE_DATE, DateTime(2005, 01, 01), 1)])
         self.assertEquals(constraints, expected)
 
 class ProgressTC(testlib.TestCase):

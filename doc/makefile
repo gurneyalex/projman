@@ -20,7 +20,7 @@ ${SRC}user_manual.html: ${SRC}*.xml
 
 ${SRC}user_manual.pdf: ${SRC}*.xml
 	${MKDOC} ${MKDOC_OPT} ${SRC}user_manual.xml
-	rm fop.log
+	rm -f fop.log
 
 clean:
 	rm -f ${SRC}valid *.html *.pdf fop.log

@@ -85,7 +85,7 @@ class ProjmanCommand(Command):
 # Concrete commands ###########################################################
 class CheckCommand(ProjmanCommand):
     "check the definition of a projman problem"
-    name = 'checker'
+    name = 'check'
     max_args = 0
     arguments = ''
 

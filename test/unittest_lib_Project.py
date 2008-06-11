@@ -49,11 +49,11 @@ class ProjectTC(testlib.TestCase):
         self.child2_1.duration = 5
         self.child2_2.duration = 12
         # set of resources constraints
-        self.parent.add_resource_constraint('worker', 'inge1', 1)
-        self.parent.add_resource_constraint('worker', 'inge2', 1)
-        self.child1.add_resource_constraint('worker', 'inge1', 1)
-        self.child2_1.add_resource_constraint('worker', 'inge1', 0.6)
-        self.child2_2.add_resource_constraint('worker', 'inge2', 1)
+        self.parent.add_resource_constraint('worker', 'inge1')
+        self.parent.add_resource_constraint('worker', 'inge2')
+        self.child1.add_resource_constraint('worker', 'inge1')
+        self.child2_1.add_resource_constraint('worker', 'inge1')
+        self.child2_2.add_resource_constraint('worker', 'inge2')
         # create project
         self.project = Project()
         self.project.root_task = self.parent

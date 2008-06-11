@@ -168,9 +168,9 @@ class Project:
                                       row_name=task.id)
             except ValueError, exc:
                 #print 'while building cache, ignoring', exc
-                print 'x',
+                pass #print 'x',
             else:
-                print '.',
+                pass #print '.',
                 
         grouped = self.activities.groupby('task', 'resource')
         for task_id, resources in grouped.iteritems():

@@ -791,6 +791,7 @@ Please consider contributing anything useful to this package.
             have to use it for futur uses of projaman. For example, if you choose to
             schedule on half days, you will use the diagram command with the option 
             --factirized_days=2
+      </para>
     <section id="def_sched"><title>Default scheduling</title>
       <para>
           The default algorithm is the fastest of both and will surely found a solution

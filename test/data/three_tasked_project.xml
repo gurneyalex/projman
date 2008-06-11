@@ -1,26 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <task id="project2">
-  <constraint-resource usage="1." idref="ing_1" type="engineer"/>
-  <constraint-resource usage="1." idref="ing_2" type="engineer"/>
-  <constraint-resource usage="0.5" idref="ing_3" type="engineer"/>
+  <constraint-resource idref="ing_1" type="engineer"/>
+  <constraint-resource idref="ing_2" type="engineer"/>
+  <constraint-resource idref="ing_3" type="engineer"/>
   <label>Trivial Project</label>
   <task id="t2_1">
     <label>Developpement</label>
-    <task id="t2_11">
+    <task id="t2_11" load="15" load-type="oneof">
       <label>Realisation</label>
-      <duration>15</duration>
     </task>
-    <task id="t2_12">
+    <task id="t2_12" load="8" load-type="oneof">
       <label>Validation</label>
-      <duration>8</duration>
-      <constraint-resource usage="1." idref="ing_2" type="engineer"/>
+      <constraint-resource idref="ing_2" type="engineer"/>
       <constraint-task type="begin-after-end" idref="t2_11"/>
     </task>
   </task>
 
-  <task id="t2_2">
+  <task id="t2_2" load="2" load-type="oneof">
     <label>Conclusion</label>
-    <duration>2</duration>
       <constraint-task type="begin-after-end" idref="t2_1"/>
   </task>
 

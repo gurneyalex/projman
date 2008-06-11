@@ -3,20 +3,17 @@
   <constraint-resource usage="1" idref="cdp_1" type="manager"/>
   <label>Simplest Project with a multiline
   label, gosh can you believe it</label>
-  <task id="t1_1">
+  <task id="t1_1" load="25" load-type="oneof">
     <label>Suivi de projet</label>
     <description>Réunions de début et de fin de tranche, réunions
       hebdomadaires, <emphasis>comptes-rendus</emphasis>, etc.</description>
-    <duration>25</duration>
   </task>
-  <task id="t1_2">
+  <task id="t1_2" load="10.6" load-type="oneof">
     <label>Développement</label>
     <description>Conception et réalisation des livrables.</description>
-    <duration>10.6</duration>
   </task>
-  <task id="t1_3">
+  <task id="t1_3" load="0" load-type="oneof">
     <label>Développement</label>
     <description>Conception et réalisation des livrables.</description>
-    <duration>0</duration>
   </task>
 </task>

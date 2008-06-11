@@ -202,11 +202,11 @@ class ResourcesDrawer(AbstractDrawer) :
 
     def draw_separator_resources(self):
         if self.options.timestep == 'day':
-            timestep =1
+            timestep = 1
         elif self.options.timestep == 'week':
-            timestep =7
+            timestep = 7
         elif self.options.timestep == 'month':
-            timestep =31
+            timestep = 31
         self._handler.draw_line(self._x, self._y, 
                                     self._x + FIELD_COLUMN_WIDTH/timestep,
                                     self._y, 
