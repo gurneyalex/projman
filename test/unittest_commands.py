@@ -80,15 +80,15 @@ class DiagramTest(AbstractCommandTest):
                 gantt, 'gantt')
         self.assert_(osp.exists(gantt))
         
-    def test_gantt2(self):
-        gantt = osp.join(self.tmpdir, 'out_gantt.svg')
-        cmd_run('diagram', '--timestep', 'week',
-                '-f', XML_SCHEDULED_PROJMAN_FULL, 'gantt')
-        self.assert_(osp.exists("gantt.svg"))
-        os.remove('gantt.svg')
-        cmd_run('diagram', '--timestep', 'week', '-f', XML_SCHEDULED_PROJMAN_FULL,
-                '-o', gantt, 'gantt')
-        self.assert_(osp.exists(gantt))
+#    def test_gantt2(self):
+#        gantt = osp.join(self.tmpdir, 'out_gantt.svg')
+#        cmd_run('diagram', '--timestep', 'week',
+#                '-f', XML_SCHEDULED_PROJMAN_FULL, 'gantt')
+#        self.assert_(osp.exists("gantt.svg"))
+#        os.remove('gantt.svg')
+#        cmd_run('diagram', '--timestep', 'week', '-f', XML_SCHEDULED_PROJMAN_FULL,
+#                '-o', gantt, 'gantt')
+#        self.assert_(osp.exists(gantt))
 
     def test_resources(self):
         resources = osp.join(self.tmpdir, 'resources')

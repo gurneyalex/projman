@@ -33,43 +33,5 @@ CONFIG = testlib.AttrObject(del_ended=False, del_empty=False,
                             task_root=None,
                             )
 
-class RenderTest(testlib.TestCase):
-
-    def setUp(self):
-        project_file = osp.join(DATADIR,"full_scheduled_projman.xml")
-        reader = ProjectXMLReader(project_file)
-        self.project, files = reader.read()
-        
-        project_file2 = osp.join(DATADIR,"trivial_scheduled_projman.xml")
-        reader = ProjectXMLReader(project_file2)
-        self.project2, files = reader.read()
-
-        self.tmpdir = tempfile.mkdtemp()
-        self.file = file(osp.join(self.tmpdir, 'render_test.png'), 'w')
-
-    def tearDown(self):
-        shutil.rmtree(self.tmpdir)
-
-    def test_gantt_diagram(self):
-        handler = PILHandler('png')
-        renderer = GanttRenderer(CONFIG, handler)
-        renderer.render(self.project, self.file)
-
-    def test_resource_diagram(self):
-        handler = PILHandler('png')
-        renderer = ResourcesRenderer(CONFIG, handler)
-        renderer.render(self.project, self.file)
-
-    def test_gantt_diagram2(self):
-        handler = PILHandler('png')
-        renderer = GanttRenderer(CONFIG, handler)
-        renderer.render(self.project2, self.file)
-
-    def test_resource_diagram2(self):
-        handler = PILHandler('png')
-        renderer = ResourcesRenderer(CONFIG, handler)
-        renderer.render(self.project2, self.file)
-
-
 if __name__ == '__main__':
     testlib.unittest_main()

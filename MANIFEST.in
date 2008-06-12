@@ -4,7 +4,8 @@ include logging.conf
 include DEPENDS 
 include TODO 
 include COPYING
-include scheduling/*.hh
+
+recursive-include scheduling *
 
 recursive-include doc *
 recursive-include man *
