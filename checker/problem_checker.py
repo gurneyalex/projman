@@ -33,7 +33,6 @@ class Checker:
         self.first_day = None
         self.trees = None
         self.errors = []
-        self.problem_checker()
 
     def problem_checker(self):
         if self.verbosity:
@@ -108,9 +107,18 @@ class Checker:
     def depth_first_search(self, tasks):
         """ applie DFS algorithm in set of tasks to detect cycle and find
             tasks order """
+        if self.verbosity > 1:
+            print 'ALGORITHME DEPTH FIRST SEARCH'
+        if not [] in self.predecessors.values() or not [] in self.successors.values():
+            self.errors.append('Cycles detected:\n\t-> change tasks constraints')
+            return []
         trees = []
         set_tag = set()
         tag = None
+        if self.verbosity > 2:
+            print "predecessors:", self.predecessors
+            print "successors:", self.successors
+
         for key in self.predecessors:
             # detect fisrt task
             tag = []            
@@ -119,25 +127,44 @@ class Checker:
                 first = key
             else:
                 continue
-            Q = set()
-            Q.add(first)
+            Q = []
+            Q.append(first)
+            rounder = 0
             while Q:
-                v = Q.pop()
+                rounder += 1
+                if self.verbosity > 2:
+                    print "\nQ"  , Q
+                    print 'tag', tag
+                on_good_path = True
+                v = Q[0]
+                if v == first and rounder > 1:
+                     self.errors.append('Cycles detected:\n\t-> change tasks constraints')
+                     return []
+                #check if all predecessors are allready in the path
+                for pred in self.predecessors.get(v):
+                    if not pred in tag and not pred in Q:
+                        if pred in Q:
+                            Q.remove(pred)
+                        Q.insert(0, pred)
+                        on_good_path = False
+                if not on_good_path:
+                    continue
+                Q.remove(v)
                 tag.append(v)
                 for v_prime in self.successors.get(v):
                     if not v_prime in tag:
-                        Q.add(v_prime)
-                    else:
-                        self.errors.append('Cycles detected:\n\t-> change tasks constraints')
-                        trees = []
+                        if self.verbosity > 2:
+                            print '  successors:', v_prime
+                        if not v_prime in Q:
+                            Q.append(v_prime)                    
             trees.append(tag)
-            
             for elt in tag:
                 set_tag.add(elt)
-        if tag == []:
-            self.errors.append('Cycles detected:\n\t-> change tasks constraints')
-        elif len(set_tag) < len(tasks):
-            print "Some tasks was ignored during cycle detection process"
+            # check if every real task was considered
+        for task in self.real_tasks:
+            if not task in set_tag:
+                self.errors.append('Cycles detected on task %s:\n\t-> change tasks constraints' %task)
+                return []
         if self.verbosity:
             print 'tasks paths'
             print trees

@@ -95,6 +95,7 @@ class CheckCommand(ProjmanCommand):
         reader = ProjectXMLReader(self.config.project_file, self.config.task_root)
         # validate projman problem
         check_project = Checker(self.project, self.config.verbose)
+        check_project.problem_checker()
 
 class ScheduleCommand(ProjmanCommand):
     """schedule a project"""
@@ -120,6 +121,12 @@ class ScheduleCommand(ProjmanCommand):
 
     def _run(self, views):
         from projman.scheduling import schedule
+        from projman.checker.problem_checker import Checker
+        # validate projman problem
+        check = Checker(self.project, self.config.verbose)
+        check.problem_checker()
+        if check.errors:
+            return
         rounder = 0
         schedule(self.project, self.config)
         while (self.project.nb_solution == 0 and rounder < 2):
@@ -201,7 +208,7 @@ class DiagramCommand(ProjmanCommand):
          ),
         ('format',
          {'type' : 'choice', 'metavar': '<format>',
-          'choices': ('png', 'gif', 'jpeg', 'tiff', 'svg'), # 'html'
+          'choices': ('svg', 'png'), # 'html'  ## png ne marche plus
           'default': 'svg',
           'help': 'specifies the output format for diagrams',
           }
