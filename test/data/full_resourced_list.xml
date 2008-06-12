@@ -1,30 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <resources-list id="rss_2">
-  <resource type="manager" id="cdp_1">
+  <resource id="cdp_1">
     <label>Nicolas Chauvat</label>
+    <role idref="cdp" />
     <use-calendar idref="typic_cal"/>
-    <hourly-rate unit="euros">100</hourly-rate>
   </resource>
-  <resource type="administrative" id="rh_1">
+
+  <resource id="rh_1">
     <label>Olivier Cayrol</label>
+    <role idref="rh" />
+    <role idref="cdp" />
+    <role idref="ing_spe" />
     <use-calendar idref="typic_cal"/>
-    <hourly-rate unit="euros">90</hourly-rate>
   </resource>
-  <resource type="engineer" id="ing_1">
+
+  <resource id="ing_1">
     <label>Emmanuel Breton</label>
+    <role idref="ing_exp" />
+    <role idref="ing_spe" />
+    <role idref="rh" />
     <use-calendar idref="typic_cal"/>
-    <hourly-rate unit="euros">80</hourly-rate>
   </resource>
-  <resource type="engineer" id="ing_2">
+
+  <resource  id="ing_2">
     <label>Arthur Lutz</label>
+    <role idref="ing" />
     <use-calendar idref="typic_cal"/>
-    <hourly-rate unit="euros">80</hourly-rate>
   </resource>
-  <resource type="engineer" id="ing_3">
+
+  <resource id="ing_3">
     <label>Sandrine Ribeau</label>
+    <role idref="ing_junior" />
     <use-calendar idref="typic_cal"/>
-    <hourly-rate unit="euros">80</hourly-rate>
   </resource>
+
+  <resource-role id="cdp" hourly-cost="100" cost-unit='EUR'>
+    <label>chef de projet</label>
+  </resource-role>
+
+  <resource-role id="ing" hourly-cost="50" cost-unit='EUR'>
+    <label>ingenieur</label>
+  </resource-role>
+
+  <resource-role id="ing_junior" hourly-cost="50" cost-unit='EUR'>
+    <label>ingenieur junior</label>
+  </resource-role>
+
+  <resource-role id="ing_spe" hourly-cost="50" cost-unit='EUR'>
+    <label>ingenieur specialise</label>
+  </resource-role>
+
+  <resource-role id="ing_exp" hourly-cost="50" cost-unit='EUR'>
+    <label>ingenieur expert</label>
+  </resource-role>
+
+  <resource-role id="rh" hourly-cost="75" cost-unit='EUR'>
+    <label>resources humaines</label>
+  </resource-role>
 
   <calendar id="typic_cal">
     <label>Calendrier Francais</label>
