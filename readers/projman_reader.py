@@ -171,22 +171,23 @@ class ProjectXMLReader(AbstractXMLReader) :
         self.tasks_file = fname
         rt = tasks.getroot()
         if not self.id_checker(rt.get("id")):
-            raise MalformedId()
+            raise MalformedId("Task %s has non-ascii ID." %(t.get("id")))
         if self.task_root and rt.get("id") != self.task_root:
             for t in rt.findall(".//task"):
                 if not self.id_checker(t.get("id")):
-                    raise MalformedId()
+                    raise MalformedId("Task %s has non-ascii ID." %(t.get("id")))
                 if t.get("id") == self.task_root:
                     rt = t
                     break
             else:
                 raise RuntimeError("Task root %s not found" % self.task_root)
-        return self.read_task(rt)
+        return self.read_task(rt, 0)
 
-    def read_task(self, task):
+    def read_task(self, task, niveau):
         t = self._factory.create_task( task.get("id") )
+        t.level = niveau
         if not self.id_checker(task.get("id")):
-            raise MalformedId()
+            raise MalformedId("Task %s has non-ascii ID." %(t.get("id")))
         if task.get("resource-role"):
             t.task_type = task.get("resource-role")
         self.task_milestone_common( t, task )
@@ -201,7 +202,7 @@ class ProjectXMLReader(AbstractXMLReader) :
             elif child.tag == "priority":
                 t.priority = int(child.text)
             elif child.tag == "task":
-                t.append( self.read_task( child ))
+                t.append( self.read_task( child, niveau+1))
             elif child.tag == "milestone":
                 t.append( self.read_milestone(child) )
         return t
@@ -262,7 +263,7 @@ class ProjectXMLReader(AbstractXMLReader) :
 
     def read_resource_definition(self, res_node):
         if not self.id_checker(res_node.get("id")):
-            raise MalformedId()
+            raise MalformedId("Task %s has non-ascii ID." %(t.get("id")))
         res = self._factory.create_resource( res_node.get('id'), u'',
                                              res_node.get('type'), u'' )
         for n in res_node:
@@ -283,7 +284,7 @@ class ProjectXMLReader(AbstractXMLReader) :
         res_role_set = self._factory.create_resource_role_set('all_resource_role')
         for res_role in root_node.findall('resource-role'):
             if not self.id_checker(res_role.get("id")):
-                raise MalformedId()
+                raise MalformedId("Task %s has non-ascii ID." %(t.get("id")))
             res = self._factory.create_resource_role( res_role.get('id'), u'')
             res.hourly_cost = float(res_role.get("hourly-cost"))
             res.unit = res_role.get("cost-unit")
