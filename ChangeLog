@@ -1,6 +1,10 @@
 ChangeLog for Projman
 =====================
-
+2008-06-20  -- 0.13.1.0
+    * change projman views (tasks-list-section, duration-table and
+	cost-table)
+    * add option to select length of tasks trees in table (level)
+	
 2008-06-11  -- 0.13.0
     * redefinition of the model:
     resources roles are linked to resources and tasks describe a required skill
@@ -17,7 +21,7 @@ ChangeLog for Projman
     * add new option:
     - --factorized_days to choose the factor to schedule
 
-2008-05-22	-- 0.12.3
+2008-05-22  -- 0.12.3
     * csp scheduling:
     correct scheduling in case of float duration (for tasks)
     add possibility to schedule per day, half day or quarter of day
@@ -29,7 +33,7 @@ ChangeLog for Projman
     * views:
     fix tasks cost and duration compute
 
-2008-05-22	-- 0.12.1
+2008-05-22  -- 0.12.1
 	
     * simple scheduling: correctly handles resource usage and task
       prioritites
