@@ -166,6 +166,12 @@ class ViewCommand(ProjmanCommand):
           'help': 'display task\'s begin and end date (tasks-list view only)',
           }
          ),
+        ('level',
+         {'type': 'int', 'metavar': '<1, ... >',
+         'default' : 3,
+         'help': 'display tasks on  1, 2, or more level in views tables',
+          }
+         ),
         )
 
     def _run(self, views):
