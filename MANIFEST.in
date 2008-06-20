@@ -14,4 +14,3 @@ recursive-include bin *
 recursive-include test *
 recursive-include examples *
 recursive-include fonts *
-recursive-include xsl *
