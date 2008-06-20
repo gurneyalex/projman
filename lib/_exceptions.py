@@ -55,3 +55,5 @@ EX_DUPLICATED_TASK = 'A resource with id="%s" already exists'
 class TTException(Exception):
     """ a TimeTable exception """
 
+class ViewException(Exception):
+    """ too much sub task to generate views """

@@ -62,9 +62,10 @@ class TaskNode(VNode):
         self.load_type = 0
         self.task_type = None
         self.set_resources = []
-        self.can_interrupt = [True, 1]
+        self.can_interrupt = [True, 1] # the integer represent the priority of the constraint
         self.link = None
-
+        self.level = 1
+        
     def __repr__(self):
         return "<Task id=%s at %s>" % (self.id, id(self))
     
@@ -299,9 +300,32 @@ class Task(TaskNode):
         """
         return a sequence of the resources in resource_constraints
         """
-        return set([id_res for type_c, id_res in
+        # according to old resources definition
+        self.set_resources = set([id_res for type_c, id_res in
                     self.get_resource_constraints()])
-    
+        
+        return self.set_resources
+
+    def get_linked_resources(self, set_resources):
+        """ return set of resources linked to a task and his children, from all
+        resources of set_resources"""
+        set_res = set()
+        for child in self.children:
+            if not child.TYPE == 'milestone':
+                set_res.update(child.get_linked_resources(set_resources))
+        else:
+            if self.TYPE == 'milestone':
+                return set()
+            for res in set_resources:
+                if self.task_type: # according to new definition of resources
+                    if self.task_type in res.id_role:
+                        set_res.add(res.id)
+                else: # according to old definition of resources 
+                    for ctype, res_id in self.resource_constraints:
+                        set_res.add(res_id)
+        return set_res
+
+        
 #    def get_resource_dispo(self, res_id):
 #        """
 #        get the resource disponibility required for this task
