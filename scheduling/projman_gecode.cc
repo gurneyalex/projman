@@ -380,7 +380,11 @@ void ProjmanSolver::run( ProjmanProblem& pb, Search::Stop *stop )
 	n_p = s->propagators();
 	n_b = s->branchings();
     }
-    Engine<ProjmanSolver> e(s); //,stop); //pb.c_d,pb.a_d,stop);
+    Search::Options opts;
+    opts.c_d = pb.c_d;
+    opts.a_d = pb.a_d;
+    opts.stop = stop;
+    Engine<ProjmanSolver> e(s, opts); //,stop); //pb.c_d,pb.a_d,stop);
     delete s;
     do {
 	ProjmanSolver* ex = e.next();
