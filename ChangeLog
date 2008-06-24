@@ -1,5 +1,10 @@
 ChangeLog for Projman
 =====================
+	
+2008-06-24  -- 0.13.2.0
+    * change projman views (tasks-list-section, duration-table and
+	cost-table)
+	
 2008-06-20  -- 0.13.1.0
     * change projman views (tasks-list-section, duration-table and
 	cost-table)

@@ -19,7 +19,6 @@
 __revision__ = "$Id: csp.py,v 1.2 2005-09-07 23:51:01 nico Exp $"
 
 from mx.DateTime import oneDay, oneHour, today
-from signal import signal, SIGINT, SIG_DFL
 from logilab.common.compat import set
 import projman.lib.constants as CST
 from gcsp import ProjmanProblem, solve, constraint_types as GCSP_CST, load_types
@@ -264,9 +263,7 @@ class CSPScheduler:
         pb.set_time(time)
         pb.set_verbosity( _VERBOSE )
         pb.set_max_nb_solutions(4000)
-        int_handler = signal(SIGINT, SIG_DFL)
         solve( pb )
-        signal(SIGINT, int_handler)
         
         self.project.nb_solution = pb.get_number_of_solutions()
         if self.project.nb_solution==0:
