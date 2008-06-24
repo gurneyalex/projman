@@ -10,36 +10,35 @@ ChangeLog for Projman
 	cost-table)
     * add option to select length of tasks trees in table (level)
 	
-2008-06-11  -- 0.13.0
+2008-06-11 -- 0.13.0
     * redefinition of the model:
-    resources roles are linked to resources and tasks describe a required skill
-    the houly cost for a work is linked to resources roles
-    we can add priorities to constraints
-    new uniterruptible constraint for tasks
-    remove some obsolets elements from the model (usage)
+      resources roles are linked to resources and tasks describe a required skill
+      the houly cost for a work is linked to resources roles
+      we can add priorities to constraints
+      new uniterruptible constraint for tasks
+      remove some obsolets elements from the model (usage)
     * add command checker
-    permit to check most current problem of projman's definition files
-    detect cycles of tasks due to tasks constraints (begin after end, ...)
+      permit to check most current problem of projman's definition files
+      detect cycles of tasks due to tasks constraints (begin after end, ...)
     * option --timestep = day, week, or month for diagram commands
 
-2008-05-22  -- 0.12.4
+2008-05-22 -- 0.12.4
     * add new option:
-    - --factorized_days to choose the factor to schedule
+      - --factorized_days to choose the factor to schedule
 
-2008-05-22  -- 0.12.3
+2008-05-22 -- 0.12.3
     * csp scheduling:
-    correct scheduling in case of float duration (for tasks)
-    add possibility to schedule per day, half day or quarter of day
-    add option --time to stop the schedule
-    precise date (hours in dates)
+      correct scheduling in case of float duration (for tasks)
+      add possibility to schedule per day, half day or quarter of day
+      add option --time to stop the schedule
+      precise date (hours in dates)
     * diagrams:
-    fix gantt and resources diagrams
-    print half days in graphs to schedule per half day or quarter of day
+      fix gantt and resources diagrams
+      print half days in graphs to schedule per half day or quarter of day
     * views:
-    fix tasks cost and duration compute
+      fix tasks cost and duration compute
 
-2008-05-22  -- 0.12.1
-	
+2008-05-22 -- 0.12.1
     * simple scheduling: correctly handles resource usage and task
       prioritites
     * calendar: correctly handles start and stop tags
@@ -62,8 +61,8 @@ ChangeLog for Projman
     * lots of renaming (variables, files, etc)
     * correct XML handling
     * lots of dead code removed
-    * rewrite of schedule/*py
-    * removed classes Activity*
+    * rewrite of schedule/
+    * removed classes Activity
     * etc.
     * new file format
 	
