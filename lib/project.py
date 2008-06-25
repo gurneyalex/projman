@@ -37,6 +37,7 @@ from logilab.common.table import Table
 from logilab.common.tree import NodeNotFound
 
 from projman.lib.constants import *
+from projman.lib.constants import HOURS_PER_DAY
 
 class Project:
     """A project is made a hierachy of tasks, a set of calendars and
@@ -408,7 +409,7 @@ class Project:
                     role = task.task_type
                     cost_rate = self.get_cost_from_role(role)
                 durations[res] += rounded
-                costs[res] += durations[res] * cost_rate
+                costs[res] += durations[res] * cost_rate * HOURS_PER_DAY
         return costs, durations
 
     def get_cost_from_role(self, role):

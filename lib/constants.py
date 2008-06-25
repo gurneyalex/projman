@@ -19,7 +19,7 @@ __revision__ = "$Id: constants.py,v 1.3 2005-06-29 23:31:21 nico Exp $"
 
 # needed for calculation with floats
 FLOAT_ZERO = 0.000001
-
+HOURS_PER_DAY = 8.
 # task constraints
 BEGIN_AFTER_END = 'begin-after-end'
 BEGIN_AFTER_BEGIN = 'begin-after-begin'
