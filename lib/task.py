@@ -310,14 +310,19 @@ class Task(TaskNode):
         """ return set of resources linked to a task and his children, from all
         resources of set_resources"""
         set_res = set()
-        for child in self.children:
-            if not child.TYPE == 'milestone':
-                set_res.update(child.get_linked_resources(set_resources))
-        else:
-            if self.TYPE == 'milestone':
-                return set()
-            for res in set_resources:
-                if self.task_type: # according to new definition of resources
+        if self.TYPE == 'milestone':
+            return set()
+        for res in set_resources:
+            for leaf in self.leaves():
+                if leaf.task_type: # according to new definition of resources
+                    if leaf.task_type in res.id_role:
+                        set_res.add(res.id)
+                else: # according to old definition of resources
+                    for ctype, res_id in leaf.resource_constraints:
+                        set_res.add(res_id)
+            # if task is a leaf
+            if not self.children:
+                if self.task_type and not self.children: # according to new definition of resources
                     if self.task_type in res.id_role:
                         set_res.add(res.id)
                 else: # according to old definition of resources 
