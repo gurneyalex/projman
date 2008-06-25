@@ -25,6 +25,7 @@ log = logging.getLogger()
 from logilab.common.tree import NodeNotFound
 
 from projman.lib import date_range
+from projman.lib.constants import HOURS_PER_DAY
 from projman.renderers.abstract import \
      AbstractRenderer, AbstractDrawer, TODAY, \
      TITLE_COLUMN_WIDTH, FIELD_COLUMN_WIDTH, ROW_HEIGHT
@@ -221,7 +222,7 @@ class ResourcesDrawer(AbstractDrawer) :
             self._handler.draw_rect(self._x, self._y, self._daywidth, ROW_HEIGHT,
                             fillcolor=self._colors['EVEN_SET']['RESOURCE_UNAVAILABLE'])
             for d in range(self.factor):
-                day_ = day + oneHour * d*(8 / self.factor)
+                day_ = day + oneHour * d*(HOURS_PER_DAY / self.factor)
                 if day_.hour >= 12:
                     day_ += oneHour
                 act = project.activities.select('resource', resource.id)
@@ -275,7 +276,7 @@ class ResourcesDrawer(AbstractDrawer) :
                                 fillcolor=bgcolor)
 
             for d in range(self.factor):
-                day_ = day + oneHour * d*(8 / self.factor)
+                day_ = day + oneHour * d*(HOURS_PER_DAY / self.factor)
                 if day_.hour >= 12:
                     day_ += oneHour
                 for begin, end, _, _, usage, _ in activities:

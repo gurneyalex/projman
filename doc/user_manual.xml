@@ -172,9 +172,10 @@ Please consider contributing anything useful to this package.
     <section><title>Project</title>
       <example><title>Portion of the DTD for the &project; element</title>
         <programlisting><![CDATA[
-            <!ELEMENT task (label?,link,(constraint-date |
-                               constraint-task |constraint-resource)*,
-                               (task|import-project|milestone)+)>
+            <!ELEMENT task (label?,link?,
+                           (constraint-date | constraint-task)*,
+                           constraint-resource+,
+                           (task|import-project|milestone)+)>
             <!ATTLIST project
                       id            ID                      #REQUIRED>
             
@@ -192,6 +193,8 @@ Please consider contributing anything useful to this package.
           The &importtasks; node allows the project to be composed of
           multiple other projects. Everything will work as if this
           node was replaced by the content of this imported project file. 
+      </para>
+      <para>The &constraintres; is required in the main task. It describe the set of disponible resources for the project according to the resource descriptions file.
       </para>
       <para>
           The &constraintdate;, &constrainttask; and &constraintint;
@@ -662,7 +665,7 @@ Please consider contributing anything useful to this package.
 
 </chapter>
 
-<chapter id="use"><title>Converting, scheduling and rendering</title>
+<chapter id="use"><title>Scheduling and rendering</title>
   <para>
       As we said at the beginning, three functionnalities exists for
       &projman;. Also, there is three ways of using &projman;.
@@ -670,8 +673,8 @@ Please consider contributing anything useful to this package.
       <synopsis>
         
     usage:
-       1) To convert data:
-       projman --convert [--arg=value] &lt;xml_input_file&gt; &lt;xml_output_file&gt;
+       1) To check problem:
+       projman --check [--arg=value] &lt;xml_input_file&gt; &lt;xml_output_file&gt;
        
        2) To schedule the project:
        projman schedule [--arg=value]
@@ -689,6 +692,9 @@ Please consider contributing anything useful to this package.
       The specificity of &projman; is that you can schedule a project
       a single time and then generate the diagrams from the scheduling
       results. Each result of this operation are stored in XML files. 
+      You can choose the command check to validate your projman problem: the checker detect 
+      more usual errors in the problem description (malformed xml file, bad usage of tasks
+      constaint, ...). The checker is automatically run before to schedule.
   </para>
     <para>
       Now, we will describe how works each of &projman; functionnalities
@@ -771,7 +777,7 @@ Please consider contributing anything useful to this package.
           --project-file
                      specify the project description file to use
 
-          --verbose
+         --verbose
                      display additional information during execution of projman
 
           --time
@@ -790,7 +796,7 @@ Please consider contributing anything useful to this package.
       <para>Be carefull: if you choose to use the factorized_days option, you will also 
             have to use it for futur uses of projaman. For example, if you choose to
             schedule on half days, you will use the diagram command with the option 
-            --factirized_days=2
+            --factorized_days=2
       </para>
     <section id="def_sched"><title>Default scheduling</title>
       <para>
@@ -828,20 +834,12 @@ Please consider contributing anything useful to this package.
 
   <section id="renderinggen"><title>Rendering</title>
     <para>
-        TO VALIDATE NOT SURE!!!!!!
-
-        &projman; is able to draw the Gantt diagram in the following format :
-        HTML, SVG, ARG, BMP, CUR, DCX, EPS, FLI, FPX, GBR, GIF, HTML, ICO, IM, IPTC,
-        JPEG, MIC, MPEG, MSP, PCD, PCX, PDF, PNG, PPM, PSD, SGI, SUN, SVG, TGA, TIFF,
-        WMF, XBM and XPM .
-      </para>
-      <para>
-        The diagram should look similar in all formats.
+        &projman; is able to draw the Gantt diagram in format svg.
       </para>
       <para>
         The differents options available are:
-        <synopsis>
-          diagram-type
+        <synopsis>  
+         diagram-type
                       specifies the type of diagram to generate
                       this option is required
                       - resources (describes resources activities
@@ -850,8 +848,10 @@ Please consider contributing anything useful to this package.
                       - gantt-resources (both)
 
           --verbose
-        
+	              display additional information during execution of projman
+
           --project-file
+	              specify the project description file to use
 
           --output
                       specifie output file to use when a single diagram is
@@ -866,7 +866,7 @@ Please consider contributing anything useful to this package.
                       specifies the output renderering for resources
                       diagram [default=svg] use only with schedule input
                       - html (bugs)
-                      - png  (bug)
+                      - png  (bugs)
                       - svg
             
           --timestep
@@ -887,18 +887,18 @@ Please consider contributing anything useful to this package.
 
           --factorized_days
                      choose a step to schedule (1 is day, 2 is half a day, 
-                     4 is quater of day)
+                     4 is quater of day). If you scheduled with it, this option is required
         </synopsis>
       </para>
       <para>The gantt diagram is a visualisation of project tasks along the time.
             If you use the &link; element in tasks file description, it will be 
-            possible to link an URL on task in the graph.
+            possible to link an URL on tasks in the graph.
       </para>
     </section>
 
     <section id="xmldocgen"><title>XML documents</title>
     <para>
-    	This mode of action proposes tree view to answer to call for tenders. 
+    	This mode of action proposes views to answer to call for tenders. 
 	Each view is an XML file which can be included in a global answer to call for tenders.
 	</para>
       <para>
@@ -907,20 +907,30 @@ Please consider contributing anything useful to this package.
 	
 	        type
               	      Specify the type of view generated (not updated, cf manual)
-               	      - tasks-costs:  Will create a table in which the project's
-                        tasks are listed with all the main informations 
-                        (duration, cost, resources)
-                      - tasks-list: Will dump tasks information.
-                      - tasks-dates: Will dump begin, end date and global cost for tasks.
+               	      - costs-table:  Will create a table in which the project's
+                        tasks are listed with all costs informations
+                      - tasks-list-section: Will dump tasks information and tables of
+		      main informations.
+                      - duration-table: Will dump begin, end date of each tasks.
+		      - cost-para: Dump a summerization of the cost of the project
+		      - duration-para: Dump a summerization of dates of the project
  
-<!--cost-para|duration-para|duration-table|cost-table|dates-para|duration-section|
-    rates-section|tasks-list-section-->
+<!--duration-section| rates-section-->
           --project-file
-        
+	              specify the project description file to use
+
           --verbose
-        
+                      display additional information during execution of projman
+
+          --factorized_days
+                      choose a step to schedule (1 is day, 2 is half a day, 
+                      4 is quater of day). If you scheduled with it, this option is required 
+
+
           --output
-        
+	              specifie output file to use when a single diagram is
+                      generated
+
           display-date
                      display task's begin and end date (y or n)
 

@@ -20,6 +20,7 @@ base classes for rendering
 __revision__ = "$Id: gantt.py,v 1.2 2005-09-08 14:26:06 nico Exp $"
 
 from projman.lib import date_range
+from projman.lib.constants import HOURS_PER_DAY
 from projman.renderers.abstract import \
      AbstractRenderer, AbstractDrawer, TODAY, \
      TITLE_COLUMN_WIDTH, FIELD_COLUMN_WIDTH, ROW_HEIGHT
@@ -110,7 +111,7 @@ class GanttRenderer(AbstractRenderer) :
             self.drawer.simple_content(task.title)
                 
         begin, end = project.get_task_date_range(task)
-        end -= oneHour * 8 /factor
+        end -= oneHour * HOURS_PER_DAY / factor
         self.drawer.task_timeline_bg()
         for day in self.drawer._timeline_days:
             self.drawer.task_timeline(task, True, task.children, '', day,
@@ -204,10 +205,10 @@ class GanttDrawer(AbstractDrawer) :
         """
         write a timeline day for the task (i.e. <timestep> days)
         """
-        last_day = first_day + self._timestep - (15 +8 / project.factor) * oneHour
+        last_day = first_day + self._timestep - (15 + HOURS_PER_DAY / project.factor) * oneHour
         for d in range(self._timestep):
             for i in range(project.factor):
-                day_ = d + first_day + i*(1./project.factor)*8*oneHour
+                day_ = d + first_day + i*(1./project.factor)*HOURS_PER_DAY*oneHour
                 if day_.hour >= 12:
                     day_ += oneHour
                 worked = False
