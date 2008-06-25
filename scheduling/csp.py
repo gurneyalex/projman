@@ -288,33 +288,33 @@ class CSPScheduler:
         activities = []
         for pid, days in enumerate( tasks_days ):
             num, tid, res_id = pseudo_tasks[pid]
-            time_table = oneHour * 8 / factor
+            time_table = oneHour * CST.HOURS_PER_DAY / factor
             for i, d in enumerate(days):
                 #print "debug"
                 #print "day:", d, i
                 decalage = calendar[d][resources_map[res_id]]* time_table
                 if decalage == 0:# and i+1 < len(days):
                     if i+1 < len(days) and days[i+1] != d and factor == 2:
-                        decalage += 8. * oneHour /factor #ok
+                        decalage += CST.HOURS_PER_DAY * oneHour /factor #ok
                         calendar[d][resources_map[res_id]] += 2
                     elif i+1 < len(days) and factor == 4 and days[i+1] != d:
-                        decalage += 8. * oneHour /(factor/3.)
+                        decalage += CST.HOURS_PER_DAY * oneHour /(factor/3.)
                         calendar[d][resources_map[res_id]] += 4
                     elif i+2 < len(days) and factor == 4 and days[i+2] != d:
-                        decalage += 8. * oneHour /(factor/2.)
+                        decalage += CST.HOURS_PER_DAY * oneHour /(factor/2.)
                         calendar[d][resources_map[res_id]] += 3
                     elif i+3 < len(days) and factor == 4 and days[i+3] != d:
-                        decalage += 8. * oneHour /float(factor)
+                        decalage += CST.HOURS_PER_DAY * oneHour /float(factor)
                         calendar[d][resources_map[res_id]] += 2
                     else:
                         calendar[d][resources_map[res_id]] += 1
                 else:
                     calendar[d][resources_map[res_id]] += 1
-                date = self.start_date + d + 8 * oneHour + decalage
+                date = self.start_date + d + CST.HOURS_PER_DAY * oneHour + decalage
                 if date.hour == 0:
-                    date += 8 * oneHour
+                    date += CST.HOURS_PER_DAY * oneHour
                 elif date.hour > 17:
-                    date += 8 * oneHour
+                    date += CST.HOURS_PER_DAY * oneHour
                     date += oneDay
                 elif date.hour >= 12:
                     date += oneHour
@@ -342,7 +342,7 @@ class CSPScheduler:
             if milestone>=nmilestones:
                 break
             d = SOL.get_milestone( milestone )
-            date = self.start_date + 8*oneHour +int(d / factor)
+            date = self.start_date + CST.HOURS_PER_DAY * oneHour + int(d / factor)
             if (_VERBOSE>=2):
                 print "MILESTONE", tid, date
             self.project.milestones[tid] = date
