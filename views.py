@@ -295,6 +295,8 @@ class CostTableView(XMLView):
         elif task.children and level <= self.max_level:
             self.empty_row_element(tbody, task, level)
             for child in task.children:
+                if child.TYPE == 'milestone':
+                    continue
                 if task.level == 1:
                     self.color += 1
                 self._build_task_node(tbody, child, level+1)
@@ -359,7 +361,7 @@ class CostTableView(XMLView):
         row = ET.SubElement(tbody, 'row')
         if task.level <= self.max_level and task.children:
             row.set(LDG_NS+'italic', "true")
-            string = u'\xA0 synthese '
+            string = u'\xA0 \xA0 Synthèse '
             if task.level == 1:
                  row.set(LDG_NS+'border-bottom', "true")
                  row.set(LDG_NS+'bold', "true")
@@ -425,7 +427,8 @@ class TasksListSectionView(XMLView):
                 self.add_dates(section, task)
             # print children
             for child in task.children:
-                self._build_task_node(section, child)
+                if not  child.TYPE == 'milestone':
+                    self._build_task_node(section, child)
         else:
             # task is a real task (leaf without any sub task)
             # fill description
@@ -471,6 +474,8 @@ class TasksListSectionView(XMLView):
         durations = {}
         costs = {}
         for leaf in task.leaves():
+            if leaf.TYPE == 'milestone':
+                continue
             costs_, durations_ = self.projman.get_task_costs(leaf.id, leaf.duration)
             for res in durations_:
                 if not res in durations:
@@ -482,6 +487,8 @@ class TasksListSectionView(XMLView):
             resource = self.projman.get_resource(res)
             if self.projman.resource_role_set.width() > 1: #use new definition of resources
                 for leaf in task.leaves():
+                    if leaf.TYPE == 'milestone':
+                        continue
                     role_ = self.projman.resource_role_set.get_resource_role(leaf.task_type)
                     role = role_.name
             else:  # use old definition
@@ -534,13 +541,14 @@ class TasksListSectionView(XMLView):
         tbody = ET.SubElement(layout, "tbody")
           # ligns of table
         for child in task.children:
-            self.row_element(child, tbody)
-        # table of liverables
+            if not child.TYPE == 'milestone':
+                self.row_element(child, tbody)
+        # table of liverables :
         table = ET.SubElement(section,"informaltable")
         if self.config.display_dates:
             layout = self.dbh.table_layout_node(table, 2, colspecs=('2*', '1*'))
         else:
-            layout = self.dbh.table_layout_node(table, 1, colspecs=("1*"))
+            layout = self.dbh.table_layout_node(table, 1, colspecs=('1*',))
         self.table_head_milestone(layout)
         # table body
         tbody = ET.SubElement(layout, "tbody")
@@ -578,6 +586,8 @@ class TasksListSectionView(XMLView):
             duration = 0
             resources = set()
             for child in task.children:
+                if child.TYPE == 'milestone':
+                    continue
                 duration += child.duration
                 if child.task_type: #use new project description
                     res_type = child.task_type
@@ -644,7 +654,7 @@ class DurationTableView(CostTableView):
         # indentation
         indent = u'\xA0 '*(level-1)*2
         # task title
-        self.dbh.table_cell_node(row, 'left', indent + u'Synthèse ' + task.title)
+        self.dbh.table_cell_node(row, 'left', indent+u'Synthèse ' + task.title)
         # task begin & end
         date_begin, date_end = self.projman.get_task_date_range(task)
         self.dbh.table_cell_node(row, 'center', date_begin.date)
@@ -661,6 +671,8 @@ class DurationTableView(CostTableView):
         if task.children and level < self.max_level:
             self.row_empty_element(row, task, level)
             for child in task.children:
+                if child.TYPE == 'milestone':
+                    continue
                 if task.level == 1:
                     self.color += 1
                 self._build_task_node(tbody, child, level+1)

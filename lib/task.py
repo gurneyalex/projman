@@ -314,6 +314,8 @@ class Task(TaskNode):
             return set()
         for res in set_resources:
             for leaf in self.leaves():
+                if leaf.TYPE == 'milestone':
+                    continue
                 if leaf.task_type: # according to new definition of resources
                     if leaf.task_type in res.id_role:
                         set_res.add(res.id)
