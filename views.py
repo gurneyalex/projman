@@ -369,7 +369,7 @@ class CostTableView(XMLView):
             string = u''
         if  self.color % 2 and task.level > 1: 
             row.set(LDG_NS+'background', "true")
-        indent = u'\xA0 '*(level-1)*2
+        indent = u'\xA0 '*(level-2)*2
         self.dbh.table_cell_node(row, 'left', indent+string+task.title)
         for res in self.set_res:
             durations_.setdefault(res,0)
@@ -416,7 +416,8 @@ class TasksListSectionView(XMLView):
         """return a dr:object node for the tasks list section view"""
         self.projman.update_caches()
         for child in self.projman.root_task.children:
-            self._build_task_node(parent, child)
+            if not child.TYPE == 'milestone':
+                self._build_task_node(parent, child)
 
     def _build_task_node(self, parent, task):
         section = self.dbh.section(parent, task.title, id=task.id)
@@ -453,6 +454,10 @@ class TasksListSectionView(XMLView):
             # add date constraints
             if self.config.display_dates:
                 self.add_dates(section, task)
+            if task.link:
+                para = self.dbh.formalpara(section, u'Voir aussi')
+                link = ET.SubElement(para, "ulink")
+                link.set(u'url', '%s' %task.link)
         return section
 
     def add_dates(self, parent, task):
@@ -544,20 +549,27 @@ class TasksListSectionView(XMLView):
             if not child.TYPE == 'milestone':
                 self.row_element(child, tbody)
         # table of liverables :
-        table = ET.SubElement(section,"informaltable")
-        if self.config.display_dates:
-            layout = self.dbh.table_layout_node(table, 2, colspecs=('2*', '1*'))
-        else:
-            layout = self.dbh.table_layout_node(table, 1, colspecs=('1*',))
-        self.table_head_milestone(layout)
-        # table body
-        tbody = ET.SubElement(layout, "tbody")
-        row = ET.SubElement(tbody, 'row')
-        self.dbh.table_cell_node(row, 'left', u'Version 1')
-        if self.config.display_dates:
-            # find end of tasks
-            _, end = self.projman.get_task_date_range(task)
-            self.dbh.table_cell_node(row, 'left', u'%s' %end.Format(EXT_DATE_FORMAT))
+        # find milestones
+        milestones = []
+        for child in task.children:
+            if child.TYPE == 'milestone':
+                milestones.append(child)
+        if milestones:
+            table = ET.SubElement(section,"informaltable")
+            if self.config.display_dates:
+                layout = self.dbh.table_layout_node(table, 2, colspecs=('2*', '1*'))
+            else:
+                layout = self.dbh.table_layout_node(table, 1, colspecs=('1*',))
+            self.table_head_milestone(layout)
+            # table body
+            tbody = ET.SubElement(layout, "tbody")
+        for mil_ in milestones:
+            row = ET.SubElement(tbody, 'row')
+            self.dbh.table_cell_node(row, 'left', u'%s' %mil_.title)
+            if self.config.display_dates:
+                # find end of tasks
+                _, end = self.projman.get_task_date_range(mil_)
+                self.dbh.table_cell_node(row, 'left', u'%s' %end.Format(EXT_DATE_FORMAT))
         
     def table_head_task(self, parent):
         """ create a DOM node <thead> for the task table """
@@ -571,7 +583,7 @@ class TasksListSectionView(XMLView):
         """ create a DOM node <thead> for the milestone table """
         thead = ET.SubElement(parent, 'thead')
         row = ET.SubElement(thead,'row')
-        self.dbh.table_cell_node(row, 'left', u'Livrables produits')
+        self.dbh.table_cell_node(row, 'left', u'Jalons')
         if  self.config.display_dates:
             self.dbh.table_cell_node(row, 'left', u'Date de livraison')
         return thead
@@ -652,7 +664,7 @@ class DurationTableView(CostTableView):
         begin, end = self.projman.get_task_date_range(task)
         #row =  ET.SubElement(parent, 'row')
         # indentation
-        indent = u'\xA0 '*(level-1)*2
+        indent = u'\xA0 '*(level-2)*2
         # task title
         self.dbh.table_cell_node(row, 'left', indent+u'Synthèse ' + task.title)
         # task begin & end
