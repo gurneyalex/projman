@@ -4,6 +4,7 @@ include logging.conf
 include DEPENDS 
 include TODO 
 include COPYING
+include data/projedit.glade
 
 recursive-include scheduling *
 
