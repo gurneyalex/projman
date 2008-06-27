@@ -385,7 +385,6 @@ class Project:
             # FIXME - presuming 8 hour /day work
             # FIXME - leaving behind the currency
             duration = self.compute_duration(begin, end, usage)
-            #print '+ duration : ', resource, duration
             tot_res_duration = 0
             durations[resource] += duration
             # calcul du total du temps consomme sur toutes les resources pour cette tache
@@ -396,7 +395,8 @@ class Project:
             rounded  = rounded / len(durations)
             for res in durations:
                 # using resources old definition
-                if self.resource_role_set.width() == 1:
+                task =  self.get_task(task_id)
+                if self.resource_role_set.width() == 1 and not task.task_type:
                     try:
                         cost_rate = self.get_resource(res).hourly_rate[0]
                     except NodeNotFound,ex :
@@ -404,8 +404,6 @@ class Project:
                         cost_rate = 1
                 #using new resources definition
                 else:
-                    task = self.get_task(task_id)
-                    #resource = self.get_resource(res)
                     role = task.task_type
                     cost_rate = self.get_cost_from_role(role)
                 durations[res] += rounded

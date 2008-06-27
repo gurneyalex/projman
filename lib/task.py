@@ -320,7 +320,7 @@ class Task(TaskNode):
                     if leaf.task_type in res.id_role:
                         set_res.add(res.id)
                 else: # according to old definition of resources
-                    for ctype, res_id in leaf.resource_constraints:
+                    for ctype, res_id in leaf.get_resource_constraints():
                         set_res.add(res_id)
             # if task is a leaf
             if not self.children:
