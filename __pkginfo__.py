@@ -75,7 +75,7 @@ data_files = [['share/projman',
 debian_name = 'projman'
 debian_maintainer = 'Alexandre Fayolle ' 
 debian_maintainer_email = 'alexandre.fayolle@logilab.fr'
-pyversions = ["2.4"]
+pyversions = ["2.5"]
  
 from os.path import join
 include_dirs = [join('test', 'data')]
