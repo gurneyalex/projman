@@ -466,6 +466,20 @@ class TasksListSectionView(XMLView):
 
     def _build_task_node(self, parent, task):
         section = self.dbh.section(parent, task.title, id=task.id)
+        # fill description
+        if task.description != "":
+            # create xml-like string
+            # encode it and create XML tree from it
+            # FIXME !!!
+            assert isinstance(task.description, unicode), task.description
+            desc = "<?xml version='1.0' encoding='UTF-8'?><para>%s</para>" \
+                   % task.description.encode('utf8')
+            try:
+                description_doc = ET.fromstring(desc)
+            except Exception, exc:
+                print desc
+                raise
+            section.append( description_doc )
         if task.children:
             self._build_tables(task,section)
             self.add_para_total_load(section, task)
@@ -477,20 +491,6 @@ class TasksListSectionView(XMLView):
                     self._build_task_node(section, child)
         else:
             # task is a real task (leaf without any sub task)
-            # fill description
-            if task.description != "":
-                # create xml-like string
-                # encode it and create XML tree from it
-                # FIXME !!!
-                assert isinstance(task.description, unicode), task.description
-                desc = "<?xml version='1.0' encoding='UTF-8'?><para>%s</para>" \
-                       % task.description.encode('utf8')
-                try:
-                    description_doc = ET.fromstring(desc)
-                except Exception, exc:
-                    print desc
-                    raise
-                section.append( description_doc )
             
             # add resources' info
             if task.TYPE == 'task' :
@@ -543,7 +543,7 @@ class TasksListSectionView(XMLView):
                     role = role_.name
             else:  # use old definition
                 resource = self.projman.get_resource(res)
-                role = resource.type
+                role = resource.type or resource.name
             item = ET.SubElement(list_,'listitem')
             self.dbh.para(item, u"%s (%s) : %s jour.hommes" %(role, resource.name, durations[res]))
              
