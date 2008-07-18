@@ -1,6 +1,9 @@
 ChangeLog for Projman
 =====================
 
+2008-07-18  -- 0.13.5.0	
+    * #5605 #5609 fix bugs in projman views (tasks-list)
+
 2008-06-24  -- 0.13.4.0	
     * fix bugs in projman views (cost-table)
     * fix compatibility between resources model (type or roles)
