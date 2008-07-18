@@ -524,6 +524,8 @@ class TasksListSectionView(XMLView):
         durations = {}
         costs = {}
         for leaf in task.leaves():
+            # XXX FIXME: instead of computing the load per resource, we should
+            # compute the load per role!
             if leaf.TYPE == 'milestone':
                 continue
             costs_, durations_ = self.projman.get_task_costs(leaf.id, leaf.duration)
@@ -535,17 +537,8 @@ class TasksListSectionView(XMLView):
                 costs[res] += costs_[res]
         for res in durations:
             resource = self.projman.get_resource(res)
-            if self.projman.resource_role_set.width() > 1: #use new definition of resources
-                for leaf in task.leaves():
-                    if leaf.TYPE == 'milestone':
-                        continue
-                    role_ = self.projman.resource_role_set.get_resource_role(leaf.task_type)
-                    role = role_.name
-            else:  # use old definition
-                resource = self.projman.get_resource(res)
-                role = resource.type or resource.name
             item = ET.SubElement(list_,'listitem')
-            self.dbh.para(item, u"%s (%s) : %s jour.hommes" %(role, resource.name, durations[res]))
+            self.dbh.para(item, u"%s : %s jour.hommes" %(resource.name, durations[res]))
              
             
     def resource_node(self, parent, task):
