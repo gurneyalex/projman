@@ -16,11 +16,9 @@
 http://www.logilab.fr/ -- mailto:contact@logilab.fr  
 """
 
-__revision__ = '$Id: __pkginfo__.py,v 1.25 2005-11-29 11:11:18 arthur Exp $'
-
 modname = 'projman'
 
-numversion = (0, 13, 4)
+numversion = (0, 13, 5)
 version = '.'.join([str(num) for num in numversion])
 
 
