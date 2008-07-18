@@ -535,13 +535,23 @@ class TasksListSectionView(XMLView):
                 costs[res] += costs_[res]
         for res in durations:
             resource = self.projman.get_resource(res)
-            if self.projman.resource_role_set.width() > 1: #use new definition of resources
-                for leaf in task.leaves():
+            
+            #if self.projman.resource_role_set.width() >1:  #use new definition of resources
+                #for leaf in task.leaves(): # does not work
+            #parcours des feuilles pour connaitre la liste des roles, le tps consomme
+            #est donne par duration
+            # on ne peut pas retrouver le role-type d'une tache a partir d'unr resource,
+            # car elle peut avoir plusieurs roles. On suppose donc que les feuilles
+            # auront le meme role-type
+            role = None
+            for leaf in task.leaves():
+                if leaf.task_type or task.task_type:
                     if leaf.TYPE == 'milestone':
                         continue
                     role_ = self.projman.resource_role_set.get_resource_role(leaf.task_type)
                     role = role_.name
-            else:  # use old definition
+#            else:  # use old definition
+            if not(role):
                 resource = self.projman.get_resource(res)
                 role = resource.type
             item = ET.SubElement(list_,'listitem')
