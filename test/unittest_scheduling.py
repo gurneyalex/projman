@@ -6,7 +6,6 @@ Home: http://www.logilab.org/projects/projman
 This code is released under the GNU Public Licence v2. See www.gnu.org.
 
 """
-
 from pprint import pprint
 import sys
 import os.path as osp
@@ -28,7 +27,8 @@ DATADIR = osp.abspath(osp.join(osp.dirname(__file__), "data"))
 
 class RawSchedulingTC(TestCase):
 
-    def skip_test_solve_simple(self):
+    def test_solve_simple(self):
+        self.skip()
         # 2 tasks, no time -> no solution        
         variables = []
         domains = {}
@@ -46,7 +46,8 @@ class RawSchedulingTC(TestCase):
         #print_solutions(solutions)
         self.assertEquals(len(solutions), 0)
 
-    def skip_test_solve_harder(self):
+    def test_solve_harder(self):
+        self.skip()
         variables = []
         domains = {}
         constraints = []
@@ -64,7 +65,8 @@ class RawSchedulingTC(TestCase):
         #print_solutions(solutions)
         self.assertEquals(len(solutions), 1)
 
-    def skip_test_solve_harder2(self):
+    def test_solve_harder2(self):
+        self.skip()
         variables = []
         domains = {}
         constraints = []
@@ -90,13 +92,14 @@ class RawSchedulingTC(TestCase):
 
 class CSPSchedulerTC(TestCase):
 
-    def setUp(self):
+    def skipped_setUp(self):
         filename = osp.join(DATADIR, "csp_scheduling_projman.xml")
         reader = ProjectXMLReader(filename)
         self.project, files = reader.read()
 
         
-    def skip_test_visit(self):
+    def test_visit(self):
+        self.skip()
         scheduler = CSPScheduler(self.project)
         scheduler.schedule()
         self.assertEquals(len(scheduler.variables), 4)
@@ -112,14 +115,16 @@ class CSPSchedulerTC(TestCase):
 
 class CmpTasksTC(TestCase):
         
-    def skip_test_cmp(self):
+    def test_cmp(self):
+        self.skip()
         t0 = Task('0')
         t1 = Task('1')
         self.assertEquals( cmp_tasks(t0,None),  1)
         t1.add_task_constraint('begin-after-end', '0')
         self.assertEquals( cmp_tasks(t0,t1),  -1)
 
-    def skip_test_cmp2(self):
+    def test_cmp2(self):
+        self.skip()
         t0 = Task('0')
         t1 = Task('1')
         self.assertEquals( cmp_tasks(t0,None),  1)
@@ -133,12 +138,13 @@ class CmpTasksTC(TestCase):
         
 class SimpleSchedulerTC(TestCase):
 
-    def setUp(self):
+    def skipped_setUp(self):
         filename = osp.join(DATADIR, "csp_scheduling_projman.xml")
         reader = ProjectXMLReader(filename)
         self.project, files = reader.read()
         
-    def skip_test_visit1(self):
+    def test_visit1(self):
+        self.skip()
         scheduler = SimpleScheduler(self.project)
         ordered_buckets = scheduler.get_ordered_buckets()
         self.assertEquals(len(ordered_buckets), 3)
@@ -147,8 +153,11 @@ class SimpleSchedulerTC(TestCase):
         self.assertEquals(len(ordered_buckets[2]), 1)
 
     def skip_test_visit2(self):
+        self.skip()
         scheduler = SimpleScheduler(self.project)
         scheduler.schedule()
 
 if __name__ == '__main__':
+    print "bob"
     unittest_main()
+    print "is not dead"
