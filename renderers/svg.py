@@ -71,7 +71,7 @@ def test():
     renderer.finish()
     svgwriter.close()
 
-from pil import COLORS, delta_color as _delta_color
+from colorutils import COLORS, delta_color as _delta_color
 
 def _color( icol ):
     """Convert (r,g,b) with range 0..255 to
