@@ -1,4 +1,4 @@
-# Copyright (c) 2000-2005 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2000-2008 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -17,14 +17,15 @@
 external access point to projman base classes
 """
 
-__revision__ = "$Id: __init__.py,v 1.3 2005-09-06 17:07:21 nico Exp $"
-
 from abstract import AbstractRenderer, AbstractDrawer
 from gantt import GanttRenderer
 from resource import ResourcesRenderer
 from ganttresource import GanttResourcesRenderer
+
+# load backends
 from pil import PILHandler, FORMATS as PIL_FORMATS
-from svg import SVGHandler
+#from svg import SVGHandler
+from svg_cairo import SVGHandler
 
 def HandlerFactory(format):
     format = format.upper()
