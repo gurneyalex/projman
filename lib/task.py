@@ -87,7 +87,10 @@ class TaskNode(VNode):
         else:
             done = [leaf.progress * leaf.maximum_duration()
                     for leaf in self.leaves()]
-            return sum(done) / self.maximum_duration()
+            
+            if self.maximum_duration() > 1e-5:
+                return sum(done) / self.maximum_duration()
+            return 1.0
         
     def set_progress(self, value):
         """used by the 'progress' property"""
