@@ -212,7 +212,7 @@ class RatesSectionView(XMLView):
                     task_types.append(resource.type)
                     hourly_cost.append(resource.hourly_rate[0])
         for i, role in enumerate(task_types):
-            if type(role) ==str:
+            if isinstance(role, basestring):
                 r_info = '%s : %s' %(role, format_monetary(hourly_cost[i] * HOURS_PER_DAY))
             else:
                 r_info = '%s (%s) : %s' %(role.name, role.id, format_monetary(role.hourly_cost * HOURS_PER_DAY))     

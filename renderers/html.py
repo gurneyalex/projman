@@ -1,4 +1,4 @@
-# Copyright (c) 2000-2005 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2000-2008 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -19,8 +19,6 @@ Home: http://www.logilab.org/projman
 
 Render a Project to HTML.
 """
-
-__revision__ = "$Id: html.py,v 1.1 2005-09-06 17:07:26 nico Exp $"
 
 from projman.lib import *
 from projman.renderers.resource import *
