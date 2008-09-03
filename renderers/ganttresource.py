@@ -1,4 +1,4 @@
-# Copyright (c) 2000-2003 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2000-2008 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -14,8 +14,6 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """ base classes for rendering """
-
-__revision__ = "$Id: ganttresource.py,v 1.1 2005-09-06 17:07:24 nico Exp $"
 
 from projman.renderers.resource import ResourcesRenderer, ResourcesDrawer
 from projman.renderers.gantt import GanttRenderer, GanttDrawer

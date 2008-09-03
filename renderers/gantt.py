@@ -1,4 +1,4 @@
-# Copyright (c) 2000-2005 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2000-2008 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -14,10 +14,8 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """
-base classes for rendering
+base classes for rendering Gantt diagrams
 """
-
-__revision__ = "$Id: gantt.py,v 1.2 2005-09-08 14:26:06 nico Exp $"
 
 from projman.lib import date_range
 from projman.lib.constants import HOURS_PER_DAY
@@ -26,6 +24,7 @@ from projman.renderers.abstract import \
      TITLE_COLUMN_WIDTH, FIELD_COLUMN_WIDTH, ROW_HEIGHT
 from logilab.common.tree import NodeNotFound
 from mx.DateTime import oneHour
+
 class GanttRenderer(AbstractRenderer) :
     """
     Render a Gantt diagram
@@ -315,7 +314,7 @@ class GanttDrawer(AbstractDrawer) :
         # draw... what?
         elif worked and is_container:
             x = self._x
-            line_width = round(ROW_HEIGHT/12.)
+            line_width = (ROW_HEIGHT/12.)
             y = self._y+5*line_width
             end_width = ROW_HEIGHT/4
             r_x = x
@@ -375,10 +374,10 @@ class GanttDrawer(AbstractDrawer) :
         if draw:
             x, y = self._x, self._y
             self._tasks_slots.setdefault(self._ctask, []).append((x, y))
-            self._handler.draw_poly(((x+(width-2)/factor, y+ROW_HEIGHT/2), #coin droit
-                                     (x+width/(2*factor), y+ROW_HEIGHT*3/4), #haut
-                                     (x+2, y+ROW_HEIGHT/2), #gauche
-                                     (x+width/(2*factor), y+ROW_HEIGHT/4)), # bas
+            self._handler.draw_poly(((x+(width-1)/factor, y+ROW_HEIGHT/2), # right
+                                     (x+width/(2*factor), y+ROW_HEIGHT*3/4), # top
+                                     (x+1, y+ROW_HEIGHT/2), # left
+                                     (x+width/(2*factor), y+ROW_HEIGHT/4)), # bottom
                                     fillcolor=self._colors['CONSTRAINT'])
         # record position
         self._x += width
@@ -413,56 +412,19 @@ class GanttDrawer(AbstractDrawer) :
         # just for a better visibility
         if x1 > x2:
             x_ = (x1+x2) / 2
-            self._handler.draw_line(x1, y1, x_, y1,
-                                    color=self._colors['CONSTRAINT'])
-            self._handler.draw_line(x_, y2, x2, y2,
-                                    color=self._colors['CONSTRAINT'])
-            self._handler.draw_line(x_, y1, x_, y2,
-                                    color=self._colors['CONSTRAINT'])
-        elif y2 <= y1:
-            self._handler.draw_line(x2, y2,
-                              x2+FIELD_COLUMN_WIDTH/3, y2,
-                              color=self._colors['CONSTRAINT'])
-            self._handler.draw_line(x2+FIELD_COLUMN_WIDTH/3, y2,
-                              x2+FIELD_COLUMN_WIDTH/3, y1-ROW_HEIGHT/2,
-                              color=self._colors['CONSTRAINT'])
-            self._handler.draw_line(x2+FIELD_COLUMN_WIDTH/3, y1-ROW_HEIGHT/2,
-                              x1, y1-ROW_HEIGHT/2,
-                              color=self._colors['CONSTRAINT'])
-            self._handler.draw_line(x1, y1-ROW_HEIGHT/2,
-                              x2-FIELD_COLUMN_WIDTH/3, y1-ROW_HEIGHT/2,
-                              color=self._colors['CONSTRAINT'])
-            self._handler.draw_line(x1, y1-ROW_HEIGHT/2,
-                              x1-FIELD_COLUMN_WIDTH/3, y1-ROW_HEIGHT/2,
-                              color=self._colors['CONSTRAINT'])
-            self._handler.draw_line(x1-FIELD_COLUMN_WIDTH/3, y1-ROW_HEIGHT/2,
-                              x1-FIELD_COLUMN_WIDTH/3, y1,
-                              color=self._colors['CONSTRAINT'])
-            self._handler.draw_line(x1-FIELD_COLUMN_WIDTH/3, y1,
-                              x1, y1,
-                              color=self._colors['CONSTRAINT'])
+            points = ((x1,y1), (x_,y1), (x_,y2), (x2,y2))
         else:
-            self._handler.draw_line(x2, y2,
-                              x2+FIELD_COLUMN_WIDTH/3, y2,
-                              color=self._colors['CONSTRAINT'])
-            self._handler.draw_line(x2+FIELD_COLUMN_WIDTH/3, y2,
-                              x2+FIELD_COLUMN_WIDTH/3, y1+ROW_HEIGHT/2,
-                              color=self._colors['CONSTRAINT'])
-            self._handler.draw_line(x2+FIELD_COLUMN_WIDTH/3, y1+ROW_HEIGHT/2,
-                              x1, y1+ROW_HEIGHT/2,
-                              color=self._colors['CONSTRAINT'])
-            self._handler.draw_line(x1, y1+ROW_HEIGHT/2,
-                              x2-FIELD_COLUMN_WIDTH/3, y1+ROW_HEIGHT/2,
-                              color=self._colors['CONSTRAINT'])
-            self._handler.draw_line(x1, y1+ROW_HEIGHT/2,
-                              x1-FIELD_COLUMN_WIDTH/3, y1+ROW_HEIGHT/2,
-                              color=self._colors['CONSTRAINT'])
-            self._handler.draw_line(x1-FIELD_COLUMN_WIDTH/3, y1+ROW_HEIGHT/2,
-                              x1-FIELD_COLUMN_WIDTH/3, y1,
-                              color=self._colors['CONSTRAINT'])
-            self._handler.draw_line(x1-FIELD_COLUMN_WIDTH/3, y1,
-                              x1, y1,
-                              color=self._colors['CONSTRAINT'])
-            
+            if y2 <= y1:
+                sign = -1.0
+            else:
+                sign = +1.0
+            points = ((x2,y2),
+                      (x2+FIELD_COLUMN_WIDTH/3, y2),
+                      (x2+FIELD_COLUMN_WIDTH/3, y1 + sign*ROW_HEIGHT/2),
+                      (x1-FIELD_COLUMN_WIDTH/3, y1 + sign*ROW_HEIGHT/2),
+                      (x1-FIELD_COLUMN_WIDTH/3, y1),
+                      (x1, y1))
+        self._handler.draw_poly(points, color=self._colors['CONSTRAINT'], close=False)
         self._handler.draw_poly(((x1+2, y1), (x1-4, y1+4), (x1-4, y1-4)),
-                          fillcolor=self._colors['CONSTRAINT'])
+                                fillcolor=self._colors['CONSTRAINT'],
+                                close=True)

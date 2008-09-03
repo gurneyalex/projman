@@ -1,4 +1,4 @@
-# Copyright (c) 2000-2003 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2000-2008 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -15,8 +15,6 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """ Abstract classes for Abstract classes for rendering """
 
-__revision__ = "$Id: abstract.py,v 1.1 2005-09-06 17:07:22 nico Exp $"
-
 from mx.DateTime import now
 from projman import ENCODING
 from projman.lib import date_range
@@ -25,7 +23,7 @@ TITLE_COLUMN_WIDTH  = 260
 FIELD_COLUMN_WIDTH  = 40
 TIME_COLUMN_WIDTH   = 40.
 LEGEND_COLUMN_WIDTH = 80
-ROW_HEIGHT          = 24
+ROW_HEIGHT          = 20
 
 TODAY = now()
 
@@ -243,7 +241,7 @@ class AbstractDrawer :
         """
         draw a text with some alignement
         """
-        self._handler.draw_text(self._x+3, self._y+18, text, **attrs)
+        self._handler.draw_text(self._x+3, self._y+ROW_HEIGHT-6, text, **attrs)
         
     def _draw_rect(self, width, height, **attrs):
         """
@@ -389,12 +387,13 @@ class AbstractDrawer :
     def _legend_task(self) :
         """ write the diagram's legend of tasks """
         self._draw_text('Tasks Legend', style='italic', weight='bold')
-        self._x += FIELD_COLUMN_WIDTH*2
+        self._x += FIELD_COLUMN_WIDTH*2 + 10
         for status, color in self._colors['TASK_SET'].items():
-            self._draw_rect(FIELD_COLUMN_WIDTH-10,
+            self._draw_rect(ROW_HEIGHT, #FIELD_COLUMN_WIDTH-10,
                             ROW_HEIGHT, fillcolor=color)
-            self._x += FIELD_COLUMN_WIDTH-10
+            #self._x += FIELD_COLUMN_WIDTH-10
+            self._x += ROW_HEIGHT
             self._draw_text(status, weight='bold')
-            self._x += FIELD_COLUMN_WIDTH+10
+            self._x += FIELD_COLUMN_WIDTH+20
 
 
