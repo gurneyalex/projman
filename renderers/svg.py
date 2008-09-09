@@ -188,7 +188,7 @@ class SVGHandler:
         y = self.height-y-height
         gc = self.get_gc( **args )
         rgbFace = _color( args['fillcolor'] )
-        self._rend.draw_rectangle(gc, rgbFace, x, y, width, height)
+        self._rend.draw_rect(gc, rgbFace, x, y, width, height)
 
     def draw_poly(self, point_list, **args):
         """ draw a polygon """
