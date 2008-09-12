@@ -105,7 +105,7 @@ class ProjectXMLReader(AbstractXMLReader) :
                       " schedule file '%s' declared in project but file is missing. " \
                       "Command completed without scheduling information."% filename
             else:
-                self.read_schedule( sched )
+                self.read_schedule(sched)
         return self.project
 
     def read_schedule(self, fname):

@@ -1,4 +1,4 @@
-# Copyright (c) 2000-2004 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2000-2008 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-"""Projman - (c)2004 Logilab - All rights reserved."""
+"""Projman - (c) 2004-2008 Logilab - All rights reserved."""
 
 import shutil, os, tempfile
 import os.path as osp
@@ -40,7 +40,7 @@ class AbstractCommandTest(testlib.TestCase):
     
     def tearDown(self):
         shutil.rmtree(self.tmpdir) 
-    
+        
 class ScheduleTest(AbstractCommandTest):
     """testing """
 
@@ -75,7 +75,7 @@ class DiagramTest(AbstractCommandTest):
         gantt = osp.join(self.tmpdir, 'out_gantt.svg')
         cmd_run('diagram', '--timestep', 'week', '-f', XML_SCHEDULED_PROJMAN, 'gantt')
         self.assert_(osp.exists('gantt.svg'))
-        os.remove('gantt.svg')
+        #os.remove('gantt.svg')
         cmd_run('diagram', '--timestep', 'week', '-f', XML_SCHEDULED_PROJMAN, '-o',
                 gantt, 'gantt')
         self.assert_(osp.exists(gantt))

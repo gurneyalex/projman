@@ -15,23 +15,23 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """ Abstract classes for Abstract classes for rendering """
 
-from mx.DateTime import now
+from mx.DateTime import now, today, oneDay
 from projman import ENCODING
 from projman.lib import date_range
 
-TITLE_COLUMN_WIDTH  = 260
+TITLE_COLUMN_WIDTH  = 220
 FIELD_COLUMN_WIDTH  = 40
 TIME_COLUMN_WIDTH   = 40.
 LEGEND_COLUMN_WIDTH = 80
 ROW_HEIGHT          = 20
 
-TODAY = now()
+TODAY = today()
 
 DEFAULT_COLORS = {
     'HEAD'       : 'lightgrey',
     'CONSTRAINT' : 'black',
     # for odd row
-    'ODD_SET' : {'TITLE'  : 'white',
+    'ODD_SET' : {'TITLE'  : 'wheat',
                  'FIELD'  : 'darkseagreen',
                  'WEEKDAY': 'wheat',
                  'WEEKEND': 'cornsilk',
@@ -40,7 +40,7 @@ DEFAULT_COLORS = {
                  'RESOURCE_UNAVAILABLE' : 'cornsilk',
                  },
     # for even row
-    'EVEN_SET' : {'TITLE'  : 'wheat',
+    'EVEN_SET' : {'TITLE'  : 'cornsilk',
                   'FIELD'  : 'teal',
                   'WEEKDAY': 'cornsilk',
                   'WEEKEND': 'wheat',
@@ -51,7 +51,7 @@ DEFAULT_COLORS = {
     # task background according to its status
     'TASK_SET' : { 'todo'   : 'orange',   #'#7485f6',
                    'current': 'darkblue', #'#ffa703',
-                   'done'   : 'darkgray', #'#818181',
+                  'done'   : 'darkgray', #'#818181',
                    'problem': 'red'       #'#ff0a4f',
                    }
     }
@@ -328,6 +328,9 @@ class AbstractDrawer :
         open a new time line in the table
         """
         self._timeline_days = list(date_range(begin, end, self._timestep))
+        days = list(date_range(begin, end, oneDay))
+        #days = [d for d in days if d.day_of_week-5 < 0]
+        self._timeline_all_days = days
         self.view_begin = begin
         self.view_end = end
 
@@ -384,16 +387,22 @@ class AbstractDrawer :
         self._draw_text(content, style='italic', weight='bold')
         self._x += TITLE_COLUMN_WIDTH
 
+    def text_width(self, s):
+        return self._handler._text_width(s)
+    
     def _legend_task(self) :
         """ write the diagram's legend of tasks """
         self._draw_text('Tasks Legend', style='italic', weight='bold')
         self._x += FIELD_COLUMN_WIDTH*2 + 10
         for status, color in self._colors['TASK_SET'].items():
-            self._draw_rect(ROW_HEIGHT, #FIELD_COLUMN_WIDTH-10,
-                            ROW_HEIGHT, fillcolor=color)
-            #self._x += FIELD_COLUMN_WIDTH-10
-            self._x += ROW_HEIGHT
-            self._draw_text(status, weight='bold')
-            self._x += FIELD_COLUMN_WIDTH+20
+            self._draw_rect(FIELD_COLUMN_WIDTH+20,
+                            ROW_HEIGHT,
+                            fillcolor=color)
+            width = self.text_width(status)
+            x = self._x
+            self._x += (FIELD_COLUMN_WIDTH+10 - width)/2
+            self._draw_text(status, color=(100,100,100,120), weight='bold', linewidth=2, border=True)
+            self._draw_text(status, color='white', weight='bold', border=False)
+            self._x = x + FIELD_COLUMN_WIDTH+25
 
 

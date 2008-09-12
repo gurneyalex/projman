@@ -32,6 +32,8 @@ def _color(icol):
         icol = COLORS[icol]
     if isinstance(icol, (int,float)):
         icol = (icol,icol,icol)
+    if len(icol) == 3:
+        icol = icol + (255,)
     return tuple([c/255. for c in icol])
 
 class SVGHandler:
@@ -39,6 +41,8 @@ class SVGHandler:
     _weights = {"bold": cairo.FONT_WEIGHT_BOLD}
     _slants = {"italic": cairo.FONT_SLANT_ITALIC,
                "oblique": cairo.FONT_SLANT_OBLIQUE}
+    _size = 8
+    
     def __init__(self, format):
         pass
 
@@ -48,6 +52,7 @@ class SVGHandler:
         self._surf = cairo.SVGSurface(self._buffer, width, height)
         self._ctx = cairo.Context(self._surf)
         self._ctx.set_line_width(self._linewidth)
+        self._ctx.set_font_size(self._size)
         self.width = width
         self.height = height
 
@@ -59,22 +64,22 @@ class SVGHandler:
         """ return the current picture as a str buffer """
         self._surf.finish()
         return self._buffer.getvalue()
-
+    
     def save_result(self, stream):
         """ write the current picture in stream (file-like object) """
-        self._surf.finish()
-        data = self._buffer.getvalue()
-        stream.write(data)
+        stream.write(self.get_result())
 
     def _set_style(self, x, y, **args):
+        #print "new path",x,y,args
         self._ctx.save()
         self._ctx.new_path()
         self._ctx.move_to(x, y)
         if 'color' in args:
-            self._ctx.set_source_rgb(*_color(args['color']))
-        elif 'delta_color' in args:
-            self._ctx.set_source_rgb(*delta_color(args['color'], int(args['delta_color'])))
-            
+            self._ctx.set_source_rgba(*_color(args['color']))
+        if 'delta_color' in args:
+            self._ctx.set_source_rgba(*delta_color(args['color'], int(args['delta_color'])))
+        if 'linewidth' in args:
+            self._ctx.set_line_width(args['linewidth'])
         if 'fillcolor' in args:
             pattern = cairo.SolidPattern(*_color(args['fillcolor']))
             self._ctx.set_source(pattern)
@@ -82,14 +87,22 @@ class SVGHandler:
             w = self._weights.get(args.get('weight'), cairo.FONT_WEIGHT_NORMAL)
             s = self._slants.get(args.get('style'), cairo.FONT_SLANT_NORMAL)
             face = self._ctx.select_font_face("sans-serif", s, w)
-                                              
-        
+        if 'size' in args:
+            self._ctx.set_font_size(args['size'])
+            
+    def open_link(self, url):
+        # FIXME
+        pass
+    
     def draw_text(self, x, y, text, **args):
         """ draw a text """
         #print "draw_text", x, y, text, args
         self._set_style(x, y, **args)
         self._ctx.text_path(text)
-        self._ctx.fill()
+        if args.get('border'):
+            self._ctx.stroke()
+        else:
+            self._ctx.fill()
         self._ctx.restore()
         
     def draw_line(self, x1, y1, x2, y2, **args):
@@ -132,3 +145,7 @@ class SVGHandler:
 
     def get_output(self, fname):
         return  codecs.open(fname, "w", "utf-8")
+
+    def _text_width(self, s):
+        return self._ctx.text_extents(s)[2]
+
