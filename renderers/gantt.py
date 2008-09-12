@@ -21,7 +21,7 @@ from projman.lib import date_range
 from projman.lib.constants import HOURS_PER_DAY
 from projman.renderers.abstract import \
      AbstractRenderer, AbstractDrawer, TODAY, \
-     TITLE_COLUMN_WIDTH, FIELD_COLUMN_WIDTH, ROW_HEIGHT
+     TITLE_COLUMN_WIDTH, FIELD_COLUMN_WIDTH, ROW_HEIGHT, oneDay
 from logilab.common.tree import NodeNotFound
 from mx.DateTime import oneHour
 
@@ -40,7 +40,7 @@ class GanttRenderer(AbstractRenderer) :
         """
         AbstractRenderer.render(self, task, stream)
         self.drawer._handler.save_result(stream)
-    
+
     def _render_body(self, project) :
         """
         generate events to draw a Gantt diagram for the task description
@@ -49,11 +49,23 @@ class GanttRenderer(AbstractRenderer) :
         to return the generated content.
         """
         self.drawer.main_title('Gantt diagram')
+        # XXX TODO: get rid of these coords hacks in self.drawer
+        # we must *not* use a state machine anymore, IMHO
+        x_ = self.drawer._x
         self.drawer.draw_timeline()
         self.drawer.close_line()
 
-        begin_p, end_p = project.get_task_date_range(project.root_task)
-        self.render_node(project.root_task, project, begin_p, end_p)
+        y_min = self.drawer._y
+
+        self.render_node(project.root_task, project)
+
+        y_max = self.drawer._y
+        first_day = self.drawer._timeline_days[0]
+        last_day = self.drawer._timeline_days[-1]+self.drawer._timestep
+        rnge = self.drawer._timeline_all_days
+        self.drawer.draw_separator_gantt(rnge, x_, y_min, y_max)
+        self.drawer.draw_weekends_bg(rnge, x_, y_min, y_max)
+
         for task in self._pending_constraints:
             for c_type, c_id, priority in task.task_constraints:
                 try:
@@ -63,28 +75,29 @@ class GanttRenderer(AbstractRenderer) :
                 if ct and ct in self._visible_tasks:
                     self.drawer.task_constraints(c_type, task, ct, project.factor)        
 
-    def render_node(self, node, project, begin_p, end_p):
+    def render_node(self, node, project):
         """
         render self and children
         """
-        if node.TYPE == 'milestone':
-            self.render_milestone(node, project)
-        else:
-            self.render_task(node, project)
         # hide task under the depth limit
         if self.options.depth and node.depth() >= self.options.depth :
             return
         
+        begin_p, end_p = project.get_task_date_range(node)
         # hide task out of the time line
         if begin_p and end_p:
             if end_p < self.drawer._timeline_days[0] or \
                    begin_p > self.drawer._timeline_days[-1]: 
                 return
             
+        if node.TYPE == 'milestone':
+            self.render_milestone(node, project)
+        else:
+            self.render_task(node, project)
         # render subtasks
         if node.children:
             for node_child in node.children:
-                self.render_node(node_child, project, begin_p, end_p)
+                self.render_node(node_child, project)
                 
     def render_task(self, task, project):
         """
@@ -109,18 +122,25 @@ class GanttRenderer(AbstractRenderer) :
         if self.options.showids :
             self.drawer.simple_content(task.title)
                 
-        begin, end = project.get_task_date_range(task)
-        end -= oneHour * HOURS_PER_DAY / factor
+        task_begin, task_end = project.get_task_date_range(task)
+        task_end -= oneHour * HOURS_PER_DAY / factor
+        x = self.drawer._x
         self.drawer.task_timeline_bg()
-        for day in self.drawer._timeline_days:
-            self.drawer.task_timeline(task, True, task.children, '', day,
-                                          begin, end, project)
+        if not task.children:
+            self.drawer._x = x
+            self.drawer.render_leaf_task(task, task_begin, task_end, project)
+            
+        if task.children:
+            self.drawer._x = x
+            self.drawer.render_root_task(task, task_begin, task_end, project)
+
         self.drawer.close_timeline()
         if self.options.rappel:
             self.drawer.main_content(task.title or task.id,
                                      project, task.depth(), task)
         # close table row
         self.drawer.close_line()
+
 
     def render_milestone(self, milestone, project):
         """
@@ -186,7 +206,6 @@ class GanttDrawer(AbstractDrawer) :
         width += len(self._timeline_days)*self._timestepwidth
         #calculate height
         height = ROW_HEIGHT * (5 + project.get_nb_tasks())
-        
         return (width, height)
     
     # project table head/tail #################################################
@@ -199,144 +218,134 @@ class GanttDrawer(AbstractDrawer) :
 
     # project table content ###################################################
 
-    def task_timeline(self, task, worked, is_container, text, first_day,
-                      begin, end, project):
-        """
-        write a timeline day for the task (i.e. <timestep> days)
-        """
-        last_day = first_day + self._timestep - (15 + HOURS_PER_DAY / project.factor) * oneHour
-        for d in range(self._timestep):
-            for i in range(project.factor):
-                day_ = d + first_day + i*(1./project.factor)*HOURS_PER_DAY*oneHour
-                if day_.hour >= 12:
-                    day_ += oneHour
-                worked = False
-                if begin and end and begin <= day_ <= end:
-                    if is_container or project.is_in_allocated_time(task.id, day_):
-                        worked = True
-                if task.link and begin == day_:
-                    self.open_link(task.link)
-                self._task_timeline(worked, is_container,
-                                        day_ == begin,
-                                        day_ == end,
-                                        day_ == first_day,
-                                        day_ == end,
-                                        day_,
-                                        project.factor)
-                if task.link and end == day_:
-                    self.close_link()
-                
+    def render_leaf_task(self, task, task_begin, task_end, project):
+        factor = project.factor
+        width = self._daywidth / factor
+        ddays = (task_begin - self._timeline_days[0]).days
+        x = self._x + width * (ddays * factor) 
+        w = ((task_end-task_begin).days + 1) * width * factor
+        self._handler.draw_rect(x,
+                                self._y+0+ROW_HEIGHT*0.125,
+                                max(w+0, 0),
+                                ROW_HEIGHT*0.75+0, fillcolor=self._color)
+        coords = self._tasks_slots.setdefault(self._ctask, [])
+        coords.extend( [(x-width/2, self._y), (x-width/1+max(w+0, 0), self._y)] )
 
-    def task_timeline_bg( self ):
+        # be sure weekends do not seems to be working days
+        day = task_begin
+        while day <= task_end:
+            if day.day_of_week in (5,6):
+                self._handler.draw_rect(x,
+                                        self._y+1,
+                                        self._daywidth,
+                                        ROW_HEIGHT-2, fillcolor=self._color_set['WEEKDAY'])
+            day += oneDay
+            x += self._daywidth
+                
+            
+        
+    def render_root_task(self, task, task_begin, task_end, project):
+        factor = project.factor
+        width = self._daywidth / factor
+        ddays = (task_begin - self._timeline_days[0]).days
+        x = self._x + width * (ddays * factor) 
+        w = ((task_end-task_begin).days + 1) * width * factor
+
+        line_width = (ROW_HEIGHT/12.)
+        y = self._y+5*line_width
+        end_width = ROW_HEIGHT/4
+        r_x = x
+        r_width = w
+
+        # XXX TODO
+        #if task.link:
+        #    self.open_link(task.link)
+
+        # XXX TODO: merge these 3 paths in one poly
+        self._handler.draw_rect(r_x, y, max(r_width, 0),
+                                ROW_HEIGHT-10*line_width, fillcolor=self._color)
+
+        self._handler.draw_poly(((x, y),
+                                 (x+end_width, y),
+                                 (x, y+ROW_HEIGHT*7/12)),
+                                fillcolor=self._color)
+        r_width -= 5
+        r_x = x + r_width + width * factor
+        self._handler.draw_poly(((r_x, y),
+                                 (r_x-end_width, y),
+                                 (r_x, y+ROW_HEIGHT*7/12)),
+                                fillcolor=self._color)
+
+        #if task.link:
+        #    self.close_link()
+        coords = self._tasks_slots.setdefault(self._ctask, [])
+        coords.extend( [(x-width/2, self._y), (x + r_width, self._y)] )
+
+    def task_timeline_bg(self):
         """Draw the background of a timeline"""
-        first_day = self._timeline_days[0]
-        last_day = self._timeline_days[-1]+self._timestep
-        rnge = list( date_range( first_day, last_day ) )
+        rnge = self._timeline_all_days
+        first_day = rnge[0]
+        last_day = rnge[-1]+self._timestep
+        # XXX This is useless...
         daywidth = self._daywidth
+        # first draw one big rectangle
         self._handler.draw_rect(self._x, self._y+1, daywidth*len(rnge),
                                 ROW_HEIGHT-2, fillcolor=self._color_set['WEEKDAY'])
-        # draw week-end days-
-        for n, day in enumerate(rnge):
-            if day.date == TODAY.date :
-                bgcolor = self._color_set['TODAY']
-            elif day.day_of_week in (5, 6):
-                bgcolor = self._color_set['WEEKEND']
-            else:
-                continue
-            self._handler.draw_rect(self._x+n*daywidth, self._y+1, daywidth,
-                                    ROW_HEIGHT-2, fillcolor=bgcolor)
-
-        # affichage separateurs
-        self.draw_separator_gantt(rnge)
-
-    def draw_separator_gantt(self, rnge):
+        # draw today
+        if TODAY.day_of_week not in (5,6) and first_day <= TODAY <= last_day:
+            n = int((TODAY - first_day).days)
+            self._handler.draw_rect(self._x+n*daywidth, self._y+1,
+                                    daywidth, ROW_HEIGHT-2,
+                                    fillcolor=self._color_set['TODAY'])
+            
+    def draw_weekends_bg(self, rnge, x_min, y_min, y_max):
         daywidth = self._daywidth
+        #bgcolor = self._color_set['WEEKEND']
+        bgcolor = (100,0,0,50)
+        first_day = rnge[0]
+        last_day = rnge[-1]
+        n0 = (12 - first_day.day_of_week)%7
+        for i in range(n0, len(rnge), 7):
+            self._handler.draw_rect(x_min+i*daywidth, y_min,
+                                    2*daywidth, y_max-y_min,
+                                    fillcolor=bgcolor)
+
+    def draw_separator_gantt(self, rnge, x_min, y_min, y_max):
+        daywidth = self._daywidth
+        color = (204,204,204)
         if self._timestep == 1:
             for n in range(len(rnge)):
-                self._handler.draw_line(self._x+n*daywidth, self._y,
-                                  self._x+n*daywidth, self._y+ROW_HEIGHT,
-                                  color=(204,204,204))
-                self._handler.draw_dot(self._x+(n+0.5)*daywidth, self._y,
-                                  self._x+(n+0.5)*daywidth, self._y+ROW_HEIGHT,
-                                  4,
-                                  color=(204,204,204))
+                self._handler.draw_line(x_min+n*daywidth, y_min-ROW_HEIGHT,
+                                        x_min+n*daywidth, y_max+ROW_HEIGHT,
+                                        color=color)
+                self._handler.draw_dot(x_min+(n+0.5)*daywidth, y_min,
+                                       x_min+(n+0.5)*daywidth, y_max,
+                                       4,
+                                       color=color)
         elif self._timestep == 7:
             for n,day in enumerate(rnge):
                 if day.day_of_week == 0:
-                    self._handler.draw_line(self._x+n*daywidth, self._y,
-                                       self._x+n*daywidth, self._y+ROW_HEIGHT,
-                                       color=(204,204,204))
+                    self._handler.draw_line(x_min+n*daywidth, y_min-ROW_HEIGHT,
+                                            x_min+n*daywidth, y_max+ROW_HEIGHT,
+                                            color=color)
                 else:
-                    self._handler.draw_dot(self._x+n*daywidth, self._y,
-                                       self._x+n*daywidth, self._y+ROW_HEIGHT,
-                                       4,
-                                       color=(204,204,204))          
+                    self._handler.draw_dot(x_min+n*daywidth, y_min,
+                                           x_min+n*daywidth, y_max,
+                                           4,
+                                           color=color)          
 
         else: # timestep == month
             for n,day in enumerate(rnge):
                 if day.day == 1:
-                    self._handler.draw_line(self._x+n*daywidth, self._y,
-                                      self._x+n*daywidth, self._y+ROW_HEIGHT,
-                                      color=(204,204,204))
+                    self._handler.draw_line(x_min+n*daywidth, y_min-ROW_HEIGHT,
+                                            x_min+n*daywidth, y_max+ROW_HEIGHT,
+                                            color=color)
                 #elif day.day_of_week == 0:
                 #    self._handler.draw_dot(self._x+n*daywidth, self._y,
                 #                       self._x+n*daywidth, self._y+ROW_HEIGHT,
                 #                       4,
                 #                       color=(204,204,204))          
                 # les pointilles genent la lecture du graphe
-
-    def _task_timeline(self, worked, is_container, first, last, begin, end, day, factor):
-        """
-        write a day for a task
-        """
-        width = self._daywidth / factor
-        if not worked:
-            self._x += width
-            return
-
-        OFFSETS = {
-            (True,True)  : (0, 0, 0, 0),
-            (True,False) : (1, 1, -1, -2),
-            (False,True) : (0, 1, -1, -2),
-            (False,False): (0, 1, 0, -2), }
-        dx, dy, dw, dh = OFFSETS[ (begin,end) ]
-
-        color = self._color
-        coords = self._tasks_slots.setdefault(self._ctask, [])
-        coords.append( (self._x, self._y) )
-
-        # draw bg and fg rectangles
-        if worked and not is_container:
-            self._handler.draw_rect(self._x+dx,
-                                    self._y+dy+ROW_HEIGHT*0.125,
-                                    max(width+dw, 0),
-                                    ROW_HEIGHT*0.75+dh, fillcolor=color)
-        # draw... what?
-        elif worked and is_container:
-            x = self._x
-            line_width = (ROW_HEIGHT/12.)
-            y = self._y+5*line_width
-            end_width = ROW_HEIGHT/4
-            r_x = x
-            r_width = width
-            self._handler.draw_rect(r_x, y, max(r_width, 0),
-                           ROW_HEIGHT-10*line_width, fillcolor=color)
-
-            if first:
-                self._handler.draw_poly(((x, y),
-                                         (x+end_width, y),
-                                         (x, y+ROW_HEIGHT*7/12)),
-                                        fillcolor=color)
-                r_x = r_x +5
-                r_width -= 5
-            if last:
-                x = x + width
-                self._handler.draw_poly(((x, y),
-                                         (x-end_width, y),
-                                         (x, y+ROW_HEIGHT*7/12)),
-                                        fillcolor=color)
-                r_width -= 5
-        self._x += width
 
     def milestone_timeline(self, day, milestone, project):
         """
