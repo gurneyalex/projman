@@ -351,9 +351,14 @@ class CostTableView(XMLView):
                 self.dbh.table_cell_node(row)
             else:
                 duration = 0
+                ### Bug: here we should group the resources that have the same
+                ### role for this task into the same column... How do we know
+                ### the role played by a resource into this task, well that's a
+                ### problem, and solving this problem requires changing the
+                ### heart of projman.
                 for res in durations:
                     resource = self.projman.get_resource(res)
-                    if not type(role) == str: # according to new resqoiurces definition
+                    if not type(role) == str: # according to new resources definition
                         if role.id in resource.id_role:
                             duration = durations[res]                                
                             self.dbh.table_cell_node(row, 'center', "%s" %duration)
