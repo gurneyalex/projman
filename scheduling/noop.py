@@ -29,7 +29,7 @@ for task in project_tasks.getiterator('task'):
       <cost idref='%(res_id)s'>%(cost)s</cost>
     </costs_list>
     <report-list>
-      <report usage='%(load)s' to='2000-09-07' idref='ingenieur' from='2000-09-07'/>
+      <report usage='%(load)s' to='2000-09-07' idref='%(res_id)s' from='2000-09-07'/>
     </report-list>
     </task>
     ''' % {'id': task.attrib['id'],
