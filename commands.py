@@ -108,7 +108,7 @@ class ScheduleCommand(ProjmanCommand):
          {'type' : 'choice', 'metavar': '<schedule type>',
           'choices': ('dumb', 'simple', 'csp'),
           'default': 'csp',
-          'help': 'scheduling method',
+          'help': 'scheduling method (dumb, simple or csp)',
           }
          ),
         ('time', 
