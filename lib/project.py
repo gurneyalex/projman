@@ -205,7 +205,7 @@ class Project:
             res = self.get_resource(res)
             for i in range(len(res.id_role)):
                 if res.id_role[i] == task.task_type:
-                    task.set_resources.append(res.id)
+                    task.set_resources.add(res.id)
       
     # tasks methods ###########################################################
 

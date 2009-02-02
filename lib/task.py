@@ -61,7 +61,7 @@ class TaskNode(VNode):
         self.duration = 0
         self.load_type = 0
         self.task_type = None
-        self.set_resources = []
+        self.set_resources = set()
         self.can_interrupt = [True, 1] # the integer represent the priority of the constraint
         self.link = None
         self.level = 1
