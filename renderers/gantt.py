@@ -377,7 +377,7 @@ class GanttDrawer(AbstractDrawer) :
         rnge = list( date_range( first_day, last_day ) )
         self._handler.draw_rect(self._x, self._y, max(width, 0),
                           ROW_HEIGHT, fillcolor=bgcolor)
-        self.draw_separator_gantt([day])
+        self.draw_separator_gantt([day], self._x, self._y, self._y)
 
         # draw milestone as diamond
         if draw:
