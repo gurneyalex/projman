@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<task id="project2">
+  <constraint-resource idref="ing_1"/>
+  <constraint-resource idref="ing_3"/>
+  <constraint-resource idref="ing_4"/>
+  <label>Trivial Project</label>
+  <constraint-date type='begin-after-date'>2008-05-01</constraint-date>
+  <description><para>Blabla bla</para></description>
+
+  <task id="t2_2" load-type="sameforall" load="2" resource-role="cdp">
+    <label>Conclusion</label>
+    <constraint-task  type="begin-after-end" idref="t2_1" priority='1'/>
+    <constraint-task  type="begin-after-end" idref="t2_3" priority='1'/>
+    <!--constraint-date type='begin-after-date' priority='1'>2008-05-22</constraint-date-->
+  </task>
+
+  <task id="t2_1">
+    <label>Développement</label>
+
+    <task id="t2_11" load-type="shared" load="5.5" resource-role="ing">
+    <!--<constraint-task  type="begin-after-end" idref="t2_12"/-->
+    <!--constraint-interruptible type="False" priority='1'/-->
+      <label>Réalisation</label>
+      <link url="http://www.logilab.org/"/>
+    </task>
+
+    <task id="t2_12" load-type="oneof" load="4" resource-role="exp">
+      <label>Validation</label>
+      <constraint-task  type="begin-after-end" idref="t2_11" priority='1'/>
+      <constraint-interruptible type="True" priority='1'/>
+    </task>
+  </task>
+
+  <milestone id="t2_3">
+    <label>Recette</label>
+	<constraint-task idref="t2_12" type="begin-after-end" priority='1'/>
+  </milestone>
+</task>

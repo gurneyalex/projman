@@ -15,7 +15,7 @@
     <task id="t2_11" load-type="shared" load="5.5">
       <label>Réalisation</label>
     </task>
-    <task id="t2_12" load-type="oneof" load="5">
+    <task id="t2_12" load-type="oneof" load="5" resource-role="engineer">
       <label>Validation</label>
       <constraint-task  type="begin-after-end" idref="t2_11"/>
     </task>

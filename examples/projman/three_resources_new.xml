@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources-list id="rss_2">
+
+  <resource id="ing_1">
+    <role idref='ing' />
+    <label>Alexandre Dumas</label>
+    <use-calendar idref="typic_cal"/>
+  </resource>
+  <!--resource id="ing_2">
+    <label>Victor Hugo</label>
+    <use-calendar idref="typic_cal"/>
+    <id-type id='ing'/>
+  </resource-->
+  <resource id="ing_3">
+    <role idref='exp'/>
+    <role idref='ing' />
+    <label>Victor Hugo</label>
+    <use-calendar idref="typic_cal"/>
+  </resource>
+  <resource id="ing_4">
+    <label>Cosette</label>
+    <role idref='cdp'/>
+    <use-calendar idref="typic_cal"/>
+  </resource>
+
+<!-- new way to describe projman probleme -->
+  <resource-role id="cdp" hourly-cost="100" cost-unit='EUR'>
+    <label>chef de projet</label>
+  </resource-role>
+  <resource-role id="ing" hourly-cost="50" cost-unit='EUR'>
+    <label>ingenieur</label>
+  </resource-role>
+  <resource-role id="exp" hourly-cost="75" cost-unit='EUR'>
+    <label>expert</label>
+  </resource-role>
+
+  <calendar id="typic_cal">
+    <label>Calendrier Francais</label>
+    <!-- define types -->
+    <day-types default="working">
+      <day-type id="working">
+        <label>DefautWorking</label>
+        <interval start="0800" end="1200"/>
+        <interval start="1300" end="1700"/>
+      </day-type>
+      <day-type id="non_working">
+        <label>DefautNonworking</label>
+      </day-type>
+    </day-types>
+    <!-- constructs calendar -->
+    <!-- week -->
+    <day type="non_working">sat</day>
+    <day type="non_working">sun</day>
+    <!-- feast days -->
+    <day type="non_working">01-01</day>
+    <day type="non_working">05-01</day>
+    <day type="non_working">05-08</day>
+    <day type="non_working">07-14</day>
+    <day type="non_working">08-15</day>
+    <day type="non_working">11-01</day>
+    <day type="non_working">11-11</day>
+    <day type="non_working">12-25</day>
+    <!-- holidays -->
+    <timeperiod to="2002-12-31" from="2002-12-26" type="non_working"/>
+    <timeperiod to="2003-03-14" from="2003-03-10" type="non_working"/>
+    <timeperiod to="2003-08-18" from="2003-08-14" type="non_working"/>
+    <timeperiod to="2004-05-21" from="2004-05-20" type="non_working"/>
+  </calendar>
+</resources-list>
