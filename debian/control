@@ -11,7 +11,7 @@ Vcs-Browser: http://www.logilab.org/cgi-bin/hgwebdir.cgi/projman
 Package: projman
 Architecture: any
 XB-Python-Version: ${python:Versions}
-Depends: python, python-logilab-common (>=0.21.0), python-imaging, sgml-base, python-cairo, python-elementtree, ${shlibs:Depends}
+Depends: python, logilab-doctools, python-logilab-common (>=0.21.0), python-imaging, sgml-base, python-cairo, python-elementtree, ${shlibs:Depends}
 Conflicts: projman-test (<< 0.11.0)
 Homepage: http://www.logilab.org/projects/projman
 Description: tool for project management

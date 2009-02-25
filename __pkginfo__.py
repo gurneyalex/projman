@@ -18,7 +18,7 @@ http://www.logilab.fr/ -- mailto:contact@logilab.fr
 
 modname = 'projman'
 
-numversion = (0, 13, 5)
+numversion = (0, 13, 6)
 version = '.'.join([str(num) for num in numversion])
 
 

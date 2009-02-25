@@ -1,5 +1,10 @@
 ChangeLog for Projman
 =====================
+	
+2009-02-25  -- 0.13.6.0	
+    * fix bugs in projman views
+    * add new examples
+    * #5875: fix dependency on debian package
 
 2008-07-18  -- 0.13.5.0	
     * #5605 #5609 fix bugs in projman views (tasks-list)
