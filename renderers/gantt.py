@@ -270,7 +270,7 @@ class GanttDrawer(AbstractDrawer) :
                                  (x, y+ROW_HEIGHT*7/12)),
                                 fillcolor=self._color)
         r_width -= 5
-        r_x = x + r_width + width * factor
+        r_x = x + w
         self._handler.draw_poly(((r_x, y),
                                  (r_x-end_width, y),
                                  (r_x, y+ROW_HEIGHT*7/12)),
