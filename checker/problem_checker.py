@@ -55,14 +55,14 @@ class Checker:
         for task_id in self.real_tasks:
             task = self.project.get_task(task_id)
             print task.title, '(id =', task.id, '; duration = ',task.duration,')' 
-        print "\n#  Avaliable resources for the project #"
+        print "\n#  Available resources for the project #"
         for res in self.resources:
             res = self.project.get_resource(res)
             print res.name, " (",res.id_role,")"
         print "\n#  Set of constraints #"
         for task in self.project.root_task.leaves():
             for c_type, date, priority in task.get_date_constraints():
-                print task.id, c_type, date, "(priority",priority,")"
+                print task.id, c_type, date, "(priority %s)" % priority
         for constraint in self.constraints:
             set_tasks = self.constraints.get(constraint)
             print constraint,":"
