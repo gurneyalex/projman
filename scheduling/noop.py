@@ -6,6 +6,9 @@ def dict_by(element, key):
                 for node in element.getiterator()
                 if key in node.attrib)
 
+if len(sys.argv) == 1:
+    sys.argv.append('project_resources.xml')
+    sys.argv.append('project_tasks.xml')
 project_resources = ET.parse(sys.argv[1])
 pr_by_id = dict_by(project_resources, 'id')
 pr_by_idref = dict_by(project_resources, 'idref')
