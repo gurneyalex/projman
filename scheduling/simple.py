@@ -41,12 +41,12 @@ def cmp_tasks(task_a, task_b):
     res = 0
     family_a = [task.id for task in task_a.lineage()]
     family_b = [task.id for task in task_b.lineage()]
-    for constraint_type, task_id in task_a.get_task_constraints():
+    for constraint_type, task_id, priority in task_a.get_task_constraints():
         if constraint_type == BEGIN_AFTER_END:
             if task_id in family_b:
                 res = 1
                 break
-    for constraint_type, task_id in task_b.get_task_constraints():
+    for constraint_type, task_id, priority in task_b.get_task_constraints():
         if constraint_type == BEGIN_AFTER_END:
             if task_id in family_a:
                 if res:
@@ -75,18 +75,21 @@ class SimpleScheduler:
 
     def earliest_begin(self, node):
         begin = None
-        for constraint_type, task_id in node.get_task_constraints():
+        for constraint_type, task_id, priority in node.get_task_constraints():
             if constraint_type == BEGIN_AFTER_END:
                 b,e = self.project.get_task_date_range(self.project.get_task(task_id))
                 begin = max(begin or e, e)
-        for c_type, date in node.get_date_constraints():
+        for c_type, date, priority in node.get_date_constraints():
             if c_type == BEGIN_AFTER_DATE :
                 begin = max(begin or date, date)
         return begin
         
     def _process_node(self, node):
         # get dates
-        begin = self.earliest_begin(node) or today()
+        try:
+            begin = self.earliest_begin(node) or today()
+        except ValueError:
+            begin = today()
         duration = max(0, node.duration-1)
         #if begin and not end:
         #    end = begin + duration

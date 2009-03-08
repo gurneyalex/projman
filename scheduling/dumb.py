@@ -36,7 +36,7 @@ class DumbScheduler:
     def _process_node(self, node):
         # get dates
         begin, end = None, None
-        for c_type, date in node.get_date_constraints():
+        for c_type, date, priority in node.get_date_constraints():
             if c_type == BEGIN_AFTER_DATE :
                 begin = date # FIXME what if more than one ?
             elif c_type == END_BEFORE_DATE :
