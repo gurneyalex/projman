@@ -41,9 +41,9 @@ def not_empty(attrib, attr):
 
 def iso_date(dt):
     if len(dt) == 10:
-        return mx.DateTime.strptime( dt, "%F" )
+        return mx.DateTime.strptime( dt, "%Y-%m-%d" )
     elif len(dt) == 22:
-        return mx.DateTime.strptime( dt, "%F %H:%M:%S.%S" )
+        return mx.DateTime.strptime( dt, "%Y-%m-%d %H:%M:%S.00" )
     else:
         print "date = ", dt, "lg=", len(dt)
         raise RuntimeError("date non valide")
