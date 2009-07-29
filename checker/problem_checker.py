@@ -18,8 +18,8 @@
 from projman.scheduling import schedule
 from projman.scheduling.csp import CSPScheduler
 
-class Checker:
-    
+class Checker(object):
+
     def __init__(self, project, verbose=0, **kw):
         scheduler = CSPScheduler(project)
         self.project=project

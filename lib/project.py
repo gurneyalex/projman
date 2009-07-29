@@ -37,7 +37,7 @@ from logilab.common.tree import NodeNotFound
 from projman.lib.constants import *
 from projman.lib.constants import HOURS_PER_DAY
 
-class Project:
+class Project(object):
     """A project is made a hierachy of tasks, a set of calendars and
     resources, and can optionally include a list of activities and a
     list of scheduled activities

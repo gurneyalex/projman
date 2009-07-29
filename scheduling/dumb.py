@@ -22,7 +22,7 @@ from mx.DateTime import today
 
 from projman.lib.constants import *
 
-class DumbScheduler:
+class DumbScheduler(object):
     """
     schedule project without caring about resource conflicts
     nor task constraints

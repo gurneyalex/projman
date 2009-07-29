@@ -82,7 +82,7 @@ def _color( icol ):
         icol = (icol,icol,icol)
     return tuple([ c/255. for c in icol])
 
-class SVGHandler:
+class SVGHandler(object):
     def __init__(self, format):
         pass
 
