@@ -17,6 +17,9 @@ problem definition for projman solver
 #include "gecode/search.hh"
 
 #define PM_VERSION(a,b,c) ((a<<16)+(b<<8)+(c))
+// There is no way to test for gecode version here
+// so the build system must pass GE_VERSION accordingly
+// by default we build for 3.1.0 or above
 #ifndef GE_VERSION
 #define GE_VERSION PM_VERSION(3,1,0)
 #endif
