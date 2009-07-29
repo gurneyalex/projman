@@ -42,7 +42,7 @@ def problem( max_duration ):
     pb.begin_after_end( 2, 4 )
     pb.begin_after_end( 3, 4 )
     pb.begin_after_begin( 4, 5 )
-    
+
 
     for nw in NW0:
         pb.add_not_working_day( 0, nw )

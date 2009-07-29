@@ -73,7 +73,7 @@ class ProjectXMLReader(AbstractXMLReader) :
         else:
             raise ValueError('unknown source %s' % self.source)
         return self.fromTree(tree, filename, base_uri), self.files
-        
+
     def get_file(self, tree, ftype, default=None):
         node = tree.find("import-"+ftype)
         if node is None:
@@ -100,10 +100,9 @@ class ProjectXMLReader(AbstractXMLReader) :
         if sched and not self.skip_schedule:
             try:
                 file(sched,"r")
-            except IOError:
-                print colorize_ansi("WARNING!", "red"), \
-                      " schedule file '%s' declared in project but file is missing. " \
-                      "Command completed without scheduling information."% filename
+            except IOError, exc:
+                print colorize_ansi("WARNING!", "red"),
+                print (" %s. Proceeding without scheduling information." % exc)
             else:
                 self.read_schedule(sched)
         return self.project
@@ -113,7 +112,7 @@ class ProjectXMLReader(AbstractXMLReader) :
         checker = ScheduleChecker()
         if not checker.validate(schedule, fname):
             raise MalformedProjectFile(str(checker))
-        
+
         activities = Table(default_value=None,
                            col_names=['begin', 'end', 'resource', 'task',
                                       'usage', 'src'])
@@ -237,7 +236,7 @@ class ProjectXMLReader(AbstractXMLReader) :
             t.add_task_constraint( ct.get("type"), ct.get("idref"), priority)
         for cr in task.findall("constraint-resource"):
             t.add_resource_constraint( cr.get("type"), cr.get("idref"))
-        
+
         desc = task.find("description")
         txt_fmt = "none"
         if desc is None:
@@ -351,7 +350,7 @@ class ProjectXMLReader(AbstractXMLReader) :
             cal = self.read_calendar_definition( cal_node )
             res_set.append(cal)
         return res_set
-    
+
     def read_activities(self, fname):
         tree = ET.parse(fname)
         root_node = tree.getroot()

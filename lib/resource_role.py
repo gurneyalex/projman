@@ -25,23 +25,20 @@ Manipulate a xml project description.
 This code is released under the GNU Public Licence v2. See www.gnu.org.
 """
 
-__revision__ = "$Id: resource.py,v 1.4 2005-09-06 17:07:00 nico Exp $"
-
-
-from logilab.common.tree import VNode 
+from logilab.common.tree import VNode
 
 class ResourceRole(VNode):
-    """A resource_role i used to decribe skills of a resource, and the 
+    """A resource_role i used to decribe skills of a resource, and the
         hourly cost, depending of the skill
-    
-        attributes: 
+
+        attributes:
             - type : qualifiacations (engineer, ...)
-            - hourly cost: cost of one hour of work by the resource associated 
+            - hourly cost: cost of one hour of work by the resource associated
               to this resource_role
-            
+
     """
     TYPE = 'resource_role'
-    
+
     def __init__(self, id, name=u'', hourly_cost=0.0, unit='EUR'):
         VNode.__init__(self, id)
         self.id = id

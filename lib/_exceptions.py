@@ -16,8 +16,6 @@
 """ Exceptions used in the base model
 """
 
-__revision__ = "$Id: _exceptions.py,v 1.2 2005-06-14 15:22:25 arthur Exp $"
-
 from logilab.common.tree import NodeNotFound
 
 

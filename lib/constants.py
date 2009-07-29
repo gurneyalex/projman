@@ -15,8 +15,6 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """Projman - (c)2004 Logilab - All rights reserved."""
 
-__revision__ = "$Id: constants.py,v 1.3 2005-06-29 23:31:21 nico Exp $"
-
 # needed for calculation with floats
 FLOAT_ZERO = 0.000001
 HOURS_PER_DAY = 8.

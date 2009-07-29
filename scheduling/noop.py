@@ -2,7 +2,7 @@ import sys
 from xml.etree import ElementTree as ET
 
 def dict_by(element, key):
-    return dict((node.attrib[key], node) 
+    return dict((node.attrib[key], node)
                 for node in element.getiterator()
                 if key in node.attrib)
 

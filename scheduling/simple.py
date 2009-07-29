@@ -83,7 +83,7 @@ class SimpleScheduler:
             if c_type == BEGIN_AFTER_DATE :
                 begin = max(begin or date, date)
         return begin
-        
+
     def _process_node(self, node):
         # get dates
         try:

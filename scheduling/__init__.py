@@ -15,8 +15,6 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """library that enables the scheduling of a project"""
 
-__revision__ = "$Id: __init__.py,v 1.22 2005-09-07 23:51:01 nico Exp $"
-
 import sys
 from logging import getLogger
 

@@ -18,8 +18,6 @@
 schedule project without caring about resource conflicts
 """
 
-__revision__ = "$Id: dumb.py,v 1.3 2005-11-10 11:34:21 arthur Exp $"
-
 from mx.DateTime import today
 
 from projman.lib.constants import *
@@ -29,10 +27,10 @@ class DumbScheduler:
     schedule project without caring about resource conflicts
     nor task constraints
     """
-    
+
     def __init__(self, project):
         self.project = project
-        
+
     def _process_node(self, node):
         # get dates
         begin, end = None, None
@@ -80,8 +78,8 @@ class DumbScheduler:
                     days[resource] = date - 1
                 duration -= 1
         return activities
-    
-                
+
+
     def schedule(self, verbose=0, **kw):
         """
         Update the project's schedule

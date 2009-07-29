@@ -16,8 +16,6 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """ schedule project using Constraint Solving Programing """
 
-__revision__ = "$Id: csp.py,v 1.2 2005-09-07 23:51:01 nico Exp $"
-
 from mx.DateTime import oneDay, oneHour, today
 from logilab.common.compat import set
 import projman.lib.constants as CST
@@ -33,7 +31,7 @@ _VERBOSE=1
 class CSPScheduler:
     """
     schedule a project using constraint programming
-    
+
     variables = leaf tasks of the project
     values = (timeslotsset, resource)
     """
@@ -65,7 +63,7 @@ class CSPScheduler:
         if not self.start_date:
             # We take the earliest date constraint as a start date
             if begins:
-                self.start_date = min(begins) 
+                self.start_date = min(begins)
             elif ends:
                 self.start_date = min(ends)
             else:
@@ -75,7 +73,7 @@ class CSPScheduler:
         self.first_day = 0
         while True:
             # this really should be the list of resources working
-            # on those task that *could* begin at the start of the project 
+            # on those task that *could* begin at the start of the project
             for res_id in self.project.get_resources():
                 res = self.project.get_resource(res_id)
                 if res.is_available( d ):
@@ -123,7 +121,7 @@ class CSPScheduler:
         if _VERBOSE>2:
             print node.id, 'range=', rnge
         # collect resources
-            # 
+            #
             # on utilise task.set_resources pour obtenir l ensemble des
             # resources disponibles pour une tache
             #
@@ -194,7 +192,7 @@ class CSPScheduler:
             print "Dur", self.max_duration
             print "Factor", factor
         pb = ProjmanProblem( int(self.max_duration * factor ) )
-        pb.set_first_day( self.first_day * factor) 
+        pb.set_first_day( self.first_day * factor)
         real_tasks_items = self.real_tasks.items()
         real_tasks_items.sort( key = lambda x:x[1][0] )
         dt = []
@@ -247,7 +245,7 @@ class CSPScheduler:
                 continue
             for res_id in sorted(resources):
                 res_num = resources_map[res_id]
-                pseudo_id = pb.add_resource_to_task( task_num, res_num ) 
+                pseudo_id = pb.add_resource_to_task( task_num, res_num )
                 pseudo_tasks.append( (pseudo_id, tid, res_id) )
 
         # register constraints
@@ -264,7 +262,7 @@ class CSPScheduler:
         pb.set_verbosity( _VERBOSE )
         pb.set_max_nb_solutions(4000)
         solve( pb )
-        
+
         self.project.nb_solution = pb.get_number_of_solutions()
         if self.project.nb_solution==0:
             return []
@@ -283,7 +281,7 @@ class CSPScheduler:
         for i in range(duration/factor):
             calendar.append([])
             for j in range(len(resources_map)):
-                calendar[i].append(0) 
+                calendar[i].append(0)
 
         activities = []
         for pid, days in enumerate( tasks_days ):
@@ -321,14 +319,14 @@ class CSPScheduler:
                 if calendar[d][resources_map[res_id]]> factor:
                     raise Exception("found non valid solution")
                 delta = self.real_tasks[tid][2] * factor - \
-                    self.activity_usage_counter_by_task( activities, tid )* factor 
-                # duree (initiale) tache * factor - nb de jours 
+                    self.activity_usage_counter_by_task( activities, tid )* factor
+                # duree (initiale) tache * factor - nb de jours
                 #                        deja ecoules pr cette tache
                 if delta > 1.0 / factor or delta <= 0:
                     usage = 1.0 / factor
                 else:
                     usage = delta
-                activities.append((date, date + time_table, res_id, 
+                activities.append((date, date + time_table, res_id,
                                 tid, max(usage,1./factor)))
         if _VERBOSE > 0:
             print "\nactivites :"
@@ -373,7 +371,7 @@ class CSPScheduler:
 
 def solution_cost(solution):
     """cost function
-    
+
     we try to minimize the end date of the project, so the cost of a
     solution maybe represented by the end date of the last task
     """

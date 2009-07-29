@@ -17,8 +17,6 @@
 rendering resources diagrams
 """
 
-__revision__ = "$Id: resource.py,v 1.4 2006-04-13 13:07:27 nico Exp $"
-
 import logging
 log = logging.getLogger()
 
@@ -34,7 +32,7 @@ from mx.DateTime import oneHour
 class ResourcesRenderer(AbstractRenderer) :
 
     AbstractRenderer.DEFAULT_OPTIONS.update({'selected-resource' : None})
-    
+
     def __init__(self, options, handler,
                  colors_file=None, colors_stream=None):
         """
@@ -45,18 +43,18 @@ class ResourcesRenderer(AbstractRenderer) :
         self.drawer = ResourcesDrawer(options,
                                       handler, colors_file, colors_stream)
         self._draw_resources = {}
-       
+
     def render(self, project, stream):
         """
         render the task as a resources diagram
         """
         AbstractRenderer.render(self, project, stream)
         self.drawer._handler.save_result(stream)
-     
+
     def _render_body(self, project) :
         """
         Generate events to draw a diagram for the resources activities description.
-        
+
         concrete renderer should use the 'write' method or override this method
         to return the generated content.
         """
@@ -64,14 +62,14 @@ class ResourcesRenderer(AbstractRenderer) :
         self.drawer.draw_timeline()
         self.drawer.close_line()
         # print the resources informations
-        resources = [resource for resource in project.resource_set.children 
+        resources = [resource for resource in project.resource_set.children
                      if resource.TYPE == 'resource']
         if self.options.selected_resource:
             resources = [resource for resource in resources
                          if resource.id == self.options.selected_resource]
         for resource in resources:
             self.render_resource(resource, project)
-        
+
     def render_resource(self, resource, project) :
         """
         generate events for a given resource
@@ -133,12 +131,12 @@ class ResourcesRenderer(AbstractRenderer) :
         self.drawer.occupation_timeline(project, resource)
         self.drawer.close_timeline()
         self.drawer.close_line()
-        
+
 class ResourcesDrawer(AbstractDrawer) :
     """
     Concrete renderer which uses a std handler to draw a Resources diagram
     """
-        
+
     def _get_table_dimension(self, project):
         """
         calculate dimension of the table
@@ -161,7 +159,7 @@ class ResourcesDrawer(AbstractDrawer) :
         nb_tasks = len(project.root_task.flatten())
         height = ROW_HEIGHT*(nb_tasks*nb_resources)
         return (width, height)
- 
+
     # table heads #############################################################
 
     def legend(self):
@@ -171,7 +169,7 @@ class ResourcesDrawer(AbstractDrawer) :
         self.close_line()
         self._legend_resource()
         self.close_line()
-        
+
     def _legend_resource(self):
         """ write the diagram's legend of resources """
         self._draw_text('Resources Legend', style='italic', weight='bold')
@@ -179,9 +177,9 @@ class ResourcesDrawer(AbstractDrawer) :
         self._draw_rect(FIELD_COLUMN_WIDTH-10,
                   ROW_HEIGHT,
                   fillcolor=self._colors['EVEN_SET']['RESOURCE_UNAVAILABLE'])
-        self._handler.draw_line(self._x + 1 , self._y + 1, 
+        self._handler.draw_line(self._x + 1 , self._y + 1,
                           self._x + FIELD_COLUMN_WIDTH - 10,
-                          self._y + ROW_HEIGHT, 
+                          self._y + ROW_HEIGHT,
                           color=self._colors['CONSTRAINT'])
         self._x += FIELD_COLUMN_WIDTH-10
         self._draw_text('unavailable', weight='bold')
@@ -208,9 +206,9 @@ class ResourcesDrawer(AbstractDrawer) :
             timestep = 7
         elif self.options.timestep == 'month':
             timestep = 31
-        self._handler.draw_line(self._x, self._y, 
+        self._handler.draw_line(self._x, self._y,
                                     self._x + FIELD_COLUMN_WIDTH/timestep,
-                                    self._y, 
+                                    self._y,
                                     color=(204, 204, 204))
 
     def occupation_timeline(self, project, resource):
@@ -237,13 +235,13 @@ class ResourcesDrawer(AbstractDrawer) :
             #draw separators
             self.draw_separator_resources()
             # update abscisse
-            self._x += self._daywidth 
+            self._x += self._daywidth
 
     def _occupation_timeline(self, available, usage, day, d):
         """
         write a day for a resource occupation
         """
-        width = self._daywidth        
+        width = self._daywidth
         height = 0
         color = None
         if not available:
