@@ -9,14 +9,46 @@ problem definition for projman solver
 
 #include <vector>
 #include <stdexcept>
+#include <ctime>
+#include <cmath>
 #include "gecode/set.hh"
 #include "gecode/kernel.hh"
 #include "gecode/int.hh"
 #include "gecode/search.hh"
 
+#define PM_VERSION(a,b,c) ((a<<16)+(b<<8)+(c))
+#ifndef GE_VERSION
+#define GE_VERSION PM_VERSION(3,1,0)
+#endif
+#if GE_VERSION < PM_VERSION(3,0,0)
+#define SELF this
+#define SET_VAR_SIZE_MAX SET_VAR_MAX_CARD
+#define SET_VAL_MIN_INC SET_VAL_MIN
+#else
+#define SELF (*this)
+#define convexHull convex
+#endif
+
 using namespace Gecode;
 
 class ProjmanProblem;
+
+class Timer {
+private:
+  clock_t t0;
+public:
+  void start(void);
+  double stop(void);
+};
+
+forceinline void
+Timer::start(void) {
+  t0 = clock();
+}
+forceinline double
+Timer::stop(void) {
+  return (static_cast<double>(clock()-t0) / CLOCKS_PER_SEC) * 1000.0;
+}
 
 class ProjmanSolver : public Space {
 protected:
@@ -41,6 +73,7 @@ public:
     virtual void debug(const ProjmanProblem& pb, std::string s, SetVarArray& _tasks);
 
 protected:
+    void show_status(const std::string&);
     void register_order( const ProjmanProblem& pb, SetVarArray& real_tasks);
     void register_convex_tasks(const ProjmanProblem& pb, SetVarArray& real_tasks);
 };

@@ -2,7 +2,7 @@
 
 #include "projman_problem.hh"
 #include "projman_gecode.hh"
-#include "timer.hh"
+//#include "timer.hh"
 #include <iostream>
 #include <algorithm>
 #include <iomanip>
@@ -10,25 +10,23 @@
 using namespace std;
 
 ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
-    : res_tasks(this,pb.res_tasks.size(),IntSet::empty,0,pb.max_duration-1),
-      last_day(this,0,pb.max_duration),
-      eta_cost(this,0,pb.max_duration*pb.res_tasks.size()),
-      last_days(this,pb.tasks.size(),0,pb.max_duration),
-      milestones(this,pb.milestones.size(),0,pb.max_duration-1)
+    : res_tasks(SELF,pb.res_tasks.size(),IntSet::empty,0,pb.max_duration-1),
+      last_day(SELF,0,pb.max_duration),
+      eta_cost(SELF,0,pb.max_duration*pb.res_tasks.size()),
+      last_days(SELF,pb.tasks.size(),0,pb.max_duration),
+      milestones(SELF,pb.milestones.size(),0,pb.max_duration-1)
 {
-	int st=0;
-	unsigned long pn=0;
     /* here: real task means a task as defined by the project_task.xml
              pseudo task is used to designate the part of a real task done by
              a specific resource
     */
     uint_t i,j;
     /* real_tasks: the day-print of each real (user defined) tasks */
-    SetVarArray real_tasks(this, pb.tasks.size(), IntSet::empty,0,pb.max_duration-1);
+    SetVarArray real_tasks(SELF, pb.tasks.size(), IntSet::empty,0,pb.max_duration-1);
     /* hull:  */
-    SetVarArray hull(this, pb.res_tasks.size(), IntSet::empty,0,pb.max_duration-1);
+    SetVarArray hull(SELF, pb.res_tasks.size(), IntSet::empty,0,pb.max_duration-1);
     /* task_plus_nw_cvx: the pseudo-task plus the non-working days between start and end of the task */
-    SetVarArray task_plus_nw_cvx(this, pb.res_tasks.size(),
+    SetVarArray task_plus_nw_cvx(SELF, pb.res_tasks.size(),
 				 IntSet::empty,0,pb.max_duration-1);
     /* not_working_res: set of non-working days for each resource  */
     IntSet not_working_res[pb.resources.size()];
@@ -44,18 +42,18 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
 
     for(i=0;i<pb.res_tasks.size();++i) {
 	uint_t res_id = pb.res_tasks[i].res_id;
-	SetVar task_plus_nw(this);
+	SetVar task_plus_nw(SELF);
 
-	convexHull(this, res_tasks[i], hull[i]);
-	rel(this, res_tasks[i], SOT_UNION, not_working_res[res_id], SRT_EQ, task_plus_nw );
-	rel(this, task_plus_nw, SOT_INTER, hull[i], SRT_EQ, task_plus_nw_cvx[i]);
+	convexHull(SELF, res_tasks[i], hull[i]);
+	rel(SELF, res_tasks[i], SOT_UNION, not_working_res[res_id], SRT_EQ, task_plus_nw );
+	rel(SELF, task_plus_nw, SOT_INTER, hull[i], SRT_EQ, task_plus_nw_cvx[i]);
 	if (pb.convexity) {
-	    // this imposes a (pseudo-task) is convex when including not-working days
-	    convex(this, task_plus_nw_cvx[i]);
+	    // SELF imposes a (pseudo-task) is convex when including not-working days
+	    convex(SELF, task_plus_nw_cvx[i]);
 	}
 
 	// imposes resource res_id not working days on task i
-	dom(this, res_tasks[i], SRT_DISJ, not_working_res[res_id]);
+	dom(SELF, res_tasks[i], SRT_DISJ, not_working_res[res_id]);
     }
 
     if (pb.verbosity>3) {
@@ -73,21 +71,21 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
 	}
 	if (task.resources.size()==1) {
 	    uint_t pseudo_id = task.res_tasks_id.front();
-	    cardinality(this, res_tasks[pseudo_id], load, load);
+	    cardinality(SELF, res_tasks[pseudo_id], load, load);
 	    if (pb.verbosity>3) {
 		cout << pseudo_id << ") duration=" << load;
 	    }
-	    rel(this, res_tasks[pseudo_id], SRT_EQ, real_tasks[task_id] );
-	    cardinality(this, real_tasks[task_id], load, load);
+	    rel(SELF, res_tasks[pseudo_id], SRT_EQ, real_tasks[task_id] );
+	    cardinality(SELF, real_tasks[task_id], load, load);
 	} else if (task.resources.size()>1) {
-	    IntVarArray res_tasks_duration(this,task.resources.size(), 0, load);
-	    IntVar real_task_duration(this,0, pb.max_duration);
+	    IntVarArray res_tasks_duration(SELF,task.resources.size(), 0, load);
+	    IntVar real_task_duration(SELF,0, pb.max_duration);
 	    SetVarArgs the_tasks(task.resources.size());
 	    SetVarArgs the_tasks_nw(task.resources.size());
 	    for(j=0;j<task.resources.size();++j) {
  		uint_t pseudo_id = task.res_tasks_id[j];
-		cardinality(this, res_tasks[pseudo_id], 0, load);
-		cardinality(this, res_tasks[pseudo_id], res_tasks_duration[j]);
+		cardinality(SELF, res_tasks[pseudo_id], 0, load);
+		cardinality(SELF, res_tasks[pseudo_id], res_tasks_duration[j]);
 		if (pb.verbosity>3) {
 		    cout << pseudo_id << ",";
 		}
@@ -101,19 +99,19 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
 		if (pb.verbosity>3) {
 		    cout << ") duration=" << min_duration << "..."<<load;
 		}
-		linear(this, res_tasks_duration, IRT_EQ, load);
-		cardinality(this, real_tasks[task_id], min_duration, load);
+		linear(SELF, res_tasks_duration, IRT_EQ, load);
+		cardinality(SELF, real_tasks[task_id], min_duration, load);
 	    } else if (task.load_type==TASK_ONEOF) {
-		cardinality(this, real_tasks[task_id], load, load);
+		cardinality(SELF, real_tasks[task_id], load, load);
 		if (pb.verbosity>3) {
 		    cout << ") duration=" <<load;
 		}
 		int load_set_values[2] = { 0, load };
 		IntSet load_set( load_set_values, 2);
 		for(j=0;j<task.resources.size();++j) {
-		    dom(this, res_tasks_duration[j], load_set );
+		    dom(SELF, res_tasks_duration[j], load_set );
 		}
-		linear(this, res_tasks_duration, IRT_EQ, load);
+		linear(SELF, res_tasks_duration, IRT_EQ, load);
 	    } else if (task.load_type==TASK_SAMEFORALL) {
 		int tmax = 0;
 		for(j=0;j<task.resources.size();++j) {
@@ -122,18 +120,18 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
 		    if (load>tmax) {
 			tmax = load;
 		    }
-		    cardinality(this, res_tasks[pseudo_id], real_load, real_load);
+		    cardinality(SELF, res_tasks[pseudo_id], real_load, real_load);
 		}
-		cardinality(this, real_tasks[task_id], tmax, tmax);
+		cardinality(SELF, real_tasks[task_id], tmax, tmax);
 	    }
 
-	    rel(this,SOT_UNION,the_tasks,real_tasks[task_id]);
+	    rel(SELF,SOT_UNION,the_tasks,real_tasks[task_id]);
 
 	    if (task.convex) {
 		// make sure the task isn't interrupted
-		SetVar task_total(this);
-		rel(this,SOT_UNION,the_tasks_nw,task_total);
-		convex(this,task_total);
+		SetVar task_total(SELF);
+		rel(SELF,SOT_UNION,the_tasks_nw,task_total);
+		convex(SELF,task_total);
 	    }
 
 	} else if (task.load_type==TASK_MILESTONE) {
@@ -141,13 +139,13 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
 	    if (pb.verbosity>3) {
 		cout  << ") M"<< task.milestone ;
 	    }
-	    cardinality(this, real_tasks[task_id], 0, 0);
-	    dom(this, milestones[task.milestone], task.range_low, task.range_high );
+	    cardinality(SELF, real_tasks[task_id], 0, 0);
+	    dom(SELF, milestones[task.milestone], task.range_low, task.range_high );
 	}
 	if (pb.verbosity>3) {
 	    cout << " range=" << task.range_low << ".." << task.range_high << endl;
 	}
-	dom(this, real_tasks[task_id], SRT_SUB, task.range_low, task.range_high );
+	dom(SELF, real_tasks[task_id], SRT_SUB, task.range_low, task.range_high );
 
     } 
     
@@ -167,27 +165,26 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
 	    // the non overlapping is for all task couples i<j that are associated with resource res_id 
 	    for(i=0;i<res.res_tasks_id.size();++i) {
 		for(j=i+1;j<res.res_tasks_id.size();++j) {
-		    rel(this, res_tasks[res.res_tasks_id[i]], SRT_DISJ, res_tasks[res.res_tasks_id[j]]);
+		    rel(SELF, res_tasks[res.res_tasks_id[i]], SRT_DISJ, res_tasks[res.res_tasks_id[j]]);
 		}
 	    }
 	    // XXX consider using rel( SOT_DUNION )
 #if 1
 	    SetVarArgs  this_res_tasks_var(res.tasks.size());
-	    SetVar      this_res_overload(this);
+	    SetVar      this_res_overload(SELF);
 	    for(i=0;i<res.res_tasks_id.size();++i) {
 		this_res_tasks_var[i] = res_tasks[ res.res_tasks_id[i] ];
 	    }
-	    rel(this, SOT_UNION, this_res_tasks_var, this_res_overload );
+	    rel(SELF, SOT_UNION, this_res_tasks_var, this_res_overload );
 	    // this is a global constraint which means it's supposed to
 	    // propagate better than the n*(n-1)/2 disjoint constraints above
-	    rel(this, SOT_DUNION, this_res_tasks_var, this_res_overload );
+	    rel(SELF, SOT_DUNION, this_res_tasks_var, this_res_overload );
 #endif
 	}
     }
     if (pb.verbosity>3) {
-    st = status( pn );
-	cout << "1 Propagation status="<<st<<" pn="<<pn<<endl;	
-    cout << "Before convex" << endl;
+	show_status("1");
+	cout << "Before convex" << endl;
 	debug(pb, "Pseudo tasks", res_tasks);
 	cout << "------------------" << endl;
     }
@@ -195,58 +192,53 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
     // union of tasks is convex
     // and contains 0
     //SetVar all_days(this);
-    SetVar all_days(this);
-    //rel(this, SOT_UNION, task_plus_nw_cvx, all_days );
-    //dom(this, all_days, SRT_SUP, pb.first_day );
-    rel(this, SOT_UNION, res_tasks, all_days ); // all_w_days = union (res_tasks)
-    dom(this, all_days, SRT_SUP, pb.first_day );
-    max(this, all_days, last_day);
+    SetVar all_days(SELF);
+    //rel(SELF, SOT_UNION, task_plus_nw_cvx, all_days );
+    //dom(SELF, all_days, SRT_SUP, pb.first_day );
+    rel(SELF, SOT_UNION, res_tasks, all_days ); // all_w_days = union (res_tasks)
+    dom(SELF, all_days, SRT_SUP, pb.first_day );
+    max(SELF, all_days, last_day);
 
     if (pb.verbosity>3) {
-    	st = status( pn );
-    	cout << "2 Propagation status="<<st<<" pn="<<pn<<endl;
-	    debug(pb, "Pseudo tasks", res_tasks);    
+	show_status("2");
+	debug(pb, "Pseudo tasks", res_tasks);    
     }
 
 #if 0
     for(uint_t task_id=0;task_id<pb.tasks.size();++task_id) {
-	max(this, real_tasks[task_id], last_days[task_id] );
+	max(SELF, real_tasks[task_id], last_days[task_id] );
     }
-	st = status( pn );
-	cout << "2xPropagation status="<<st<<" pn="<<pn<<endl;
-    linear(this, last_days, IRT_EQ, eta_cost );
+    show_status("2x");
+    linear(SELF, last_days, IRT_EQ, eta_cost );
 #endif
 #if 0
     // si on a des trous, ça merdoie...
     // on peut avoir des trous avec les contraintes de dates
-    convex(this, all_days);
+    convex(SELF, all_days);
 #endif
     
-	if (pb.verbosity>3) {
-    	st = status( pn );
-    	cout << "3 Propagation status="<<st<<" pn="<<pn<<endl;
+    if (pb.verbosity>3) {
+	show_status("3");
         cout << "eta_cost:" << eta_cost << endl;
     	debug(pb, "Pseudo tasks", res_tasks);    
     }
 
-	if (pb.verbosity>3) {
+    if (pb.verbosity>3) {
         for(uint_t task_id=0;task_id<pb.tasks.size();++task_id) {
             cout << "last_day[" << task_id << "]=" << last_days[task_id] << endl;
         }
     } 
     register_order( pb, real_tasks );
 
-	if (pb.verbosity>3) {
-    	st = status( pn );
-    	cout << "4 Propagation status="<<st<<" pn="<<pn<<endl;
+    if (pb.verbosity>3) {
+	show_status("4");
         debug(pb, "Pseudo tasks", res_tasks);    
     }
     // add convexity constraints
     register_convex_tasks( pb, real_tasks);
 
-	if (pb.verbosity>3) {
-    	st = status( pn );
-    	cout << "5 Propagation status="<<st<<" pn="<<pn<<endl;
+    if (pb.verbosity>3) {
+	show_status("5");
         debug(pb, "Pseudo tasks", res_tasks);
     }
 
@@ -255,8 +247,7 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
 	        cout << "Current Res" << endl;
 	        debug(pb, "Pseudo tasks", res_tasks);
 	        cout << "------------------" << endl;
-	        st = status( pn );
-    	    cout << "Propagation status="<<st<<" pn="<<pn<<endl;
+		show_status("6");
         }
 	
     	cout << "After first propagation" << endl;
@@ -268,9 +259,27 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
 
     	cout << "ALL DAYS:" << all_days << endl;
     }
-    branch(this, res_tasks, SET_VAR_MAX_CARD, SET_VAL_MIN);
-    branch(this, milestones, INT_VAR_NONE, INT_VAL_MIN);
+    branch(SELF, res_tasks, SET_VAR_SIZE_MAX, SET_VAL_MIN_INC);
+    branch(SELF, milestones, INT_VAR_NONE, INT_VAL_MIN);
 }
+
+#if GE_VERSION < PM_VERSION(3,0,0)
+void ProjmanSolver::show_status(const string& str)
+{
+    unsigned long pn=0;
+    int st=0;
+    st = status( pn );
+    cout << str << " Propagation status="<<st<<" pn="<<pn<<endl;	
+}
+#else
+void ProjmanSolver::show_status(const string& str)
+{
+    StatusStatistics pn;
+    int st=0;
+    st = status( pn );
+    cout << str << " Propagation status="<<st<<" pn="<<pn.propagate<<endl;
+}
+#endif
 
 
 void ProjmanSolver::debug(const ProjmanProblem& pb, std::string s, SetVarArray& _tasks)
@@ -369,7 +378,7 @@ void ProjmanSolver::print(ProjmanProblem& pb)
 template <template<class> class Engine>
 void ProjmanSolver::run( ProjmanProblem& pb, Search::Stop *stop )
 {
-    double t0;
+    double t0 = 0.0;
     int i = pb.solutions;
     Timer t;
     ProjmanSolver* s = new ProjmanSolver( pb );
@@ -407,8 +416,13 @@ void ProjmanSolver::run( ProjmanProblem& pb, Search::Stop *stop )
 	     << "\tsolutions:     " << abs(static_cast<int>(pb.solutions) - i) << endl
 	     << "\tpropagations:  " << stat.propagate << endl
 	     << "\tfailures:      " << stat.fail << endl
+#if GE_VERSION < PM_VERSION(3,0,0)
 	     << "\tclones:        " << stat.clone << endl
 	     << "\tcommits:       " << stat.commit << endl
+#else
+	     << "\tdepth:        " << stat.depth << endl
+	     << "\tnode:       " << stat.node << endl
+#endif
 	     << "\tpeak memory:   "
 	     << static_cast<int>((stat.memory+1023) / 1024) << " KB"
 	     << endl;
@@ -425,9 +439,9 @@ void ProjmanSolver::constrain(Space* s)
 
 #if 1
     /* constraint 1 : finish all tasks earliest */
-    dom(this, last_day, 0, day );
+    dom(SELF, last_day, 0, day );
     for(int i=0;i<res_tasks.size();++i) {
-	dom(this,res_tasks[i],SRT_SUB,0,day);
+	dom(SELF,res_tasks[i],SRT_SUB,0,day);
     }
 #endif
 #if 1
@@ -438,17 +452,17 @@ void ProjmanSolver::constrain(Space* s)
     }
     //cout << "ETA SUM:" << _eta_cost << "/" << day << endl;
     /* post constraint that next sum of last days must be less than or equal to current */
-    dom(this, eta_cost,0,_eta_cost);
+    dom(SELF, eta_cost,0,_eta_cost);
 #endif
 }
 
 ProjmanSolver::ProjmanSolver(bool share, ProjmanSolver& s) : Space(share,s)
 {
-    res_tasks.update(this, share, s.res_tasks);
-    last_day.update(this, share, s.last_day);
-    eta_cost.update(this, share, s.eta_cost);
-    last_days.update(this, share, s.last_days);
-    milestones.update(this, share, s.milestones);
+    res_tasks.update(SELF, share, s.res_tasks);
+    last_day.update(SELF, share, s.last_day);
+    eta_cost.update(SELF, share, s.eta_cost);
+    last_days.update(SELF, share, s.last_days);
+    milestones.update(SELF, share, s.milestones);
 }
 
 Space* ProjmanSolver::copy(bool share)
@@ -466,8 +480,8 @@ void ProjmanSolver::register_order( const ProjmanProblem& pb,
 	const task_t& task0 = pb.tasks[p0];
 	const task_t& task1 = pb.tasks[p1];
 	constraint_type_t type=it->type;
-	IntVar bound0(this,task0.range_low,task0.range_high);
-	IntVar bound1(this,task1.range_low,task1.range_high);
+	IntVar bound0(SELF,task0.range_low,task0.range_high);
+	IntVar bound1(SELF,task1.range_low,task1.range_high);
 	IntRelType rel_type = IRT_GR;
 
 	if (pb.verbosity>0) {
@@ -492,14 +506,14 @@ void ProjmanSolver::register_order( const ProjmanProblem& pb,
 	    switch(type) {
 	    case BEGIN_AFTER_BEGIN:
 	    case BEGIN_AFTER_END:
-		min(this, real_tasks[p0], bound0);
+		min(SELF, real_tasks[p0], bound0);
 		break;
 	    case END_AFTER_END:
 	    case END_AFTER_BEGIN:
-		max(this, real_tasks[p0], bound0);
+		max(SELF, real_tasks[p0], bound0);
 	    }
 	} else {
-	  rel(this, bound0, IRT_EQ, milestones[task0.milestone]);
+	  rel(SELF, bound0, IRT_EQ, milestones[task0.milestone]);
 	    rel_type = IRT_GQ;
 	}
 
@@ -507,19 +521,19 @@ void ProjmanSolver::register_order( const ProjmanProblem& pb,
 	    switch(type) {
 	    case BEGIN_AFTER_BEGIN:
 	    case END_AFTER_BEGIN:
-		min(this, real_tasks[p1], bound1);
+		min(SELF, real_tasks[p1], bound1);
 		break;
 	    case BEGIN_AFTER_END:
 	    case END_AFTER_END:
-		max(this, real_tasks[p1], bound1);
+		max(SELF, real_tasks[p1], bound1);
 		break;
 	    }
 	} else {
-	  rel(this, bound1, IRT_EQ, milestones[task1.milestone]);
+	  rel(SELF, bound1, IRT_EQ, milestones[task1.milestone]);
 	  //rel_type = IRT_GQ;
 	}
 
-	rel(this, bound0, rel_type, bound1);
+	rel(SELF, bound0, rel_type, bound1);
     }
 }
 
@@ -531,7 +545,7 @@ void ProjmanSolver::register_convex_tasks( const ProjmanProblem& pb,
     {
         if (pb.tasks[i].can_interrupt==0)
         {
-            convex(this, real_tasks[i]);
+            convex(SELF, real_tasks[i]);
         }
     }
 }

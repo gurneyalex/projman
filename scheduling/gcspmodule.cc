@@ -6,7 +6,7 @@
 
 #include "projman_problem.hh"
 #include "projman_gecode.hh"
-#include "timer.hh"
+//#include "timer.hh"
 
 using namespace boost::python;
 
@@ -22,6 +22,8 @@ public:
 	    fs = new Search::FailStop(fails);
 	}
     }
+#if GE_VERSION < PM_VERSION(3,1,0)
+    /* gecode 3.0.0 and below */
     bool stop(const Search::Statistics& s) {
 	int sigs = PyErr_CheckSignals();
 	bool fs_stop = false;
@@ -34,6 +36,21 @@ public:
 	}
 	return sigs || fs_stop || ts_stop;
     }
+#else
+    /* from gecode 3.1.0 */
+    bool stop(const Search::Statistics& s, const Search::Options &o) {
+	int sigs = PyErr_CheckSignals();
+	bool fs_stop = false;
+	bool ts_stop = false;
+	if (fs) {
+	    fs_stop = fs->stop(s,o);
+	}
+	if (ts) {
+	    ts_stop = ts->stop(s,o);
+	}
+	return sigs || fs_stop || ts_stop;
+    }
+#endif
     /// Create appropriate stop-object
     static Search::Stop* create(int fails, int time) {
 	return new FailTimeStop(fails, time);
