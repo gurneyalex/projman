@@ -25,12 +25,10 @@ Manipulate a xml project description.
 This code is released under the GNU Public Licence v2. See www.gnu.org.
 """
 
-__revision__ = "$Id: resource.py,v 1.4 2005-09-06 17:07:00 nico Exp $"
-
 from mx.DateTime import Time
 from logilab.common.deprecation import deprecated_function
 
-from logilab.common.tree import VNode 
+from logilab.common.tree import VNode
 from projman.lib.calendar import Calendar
 
 class Resource(VNode):
@@ -64,8 +62,8 @@ class Resource(VNode):
         else:
             return 8
 
-    def is_available(self, datetime): 
-        """ 
+    def is_available(self, datetime):
+        """
         tell if the resource may work on a given day
         """
         if self.calendar:
@@ -77,7 +75,7 @@ class Resource(VNode):
         else:
             return True
     work_on = deprecated_function(is_available)
-    
+
     def get_worktime(self, datetime):
         """
         return the number of seconds of availability on a given day

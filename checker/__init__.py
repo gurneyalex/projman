@@ -15,5 +15,3 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """ external access point to projman base classes """
 
-__revision__ = "$Id: __init__.py,v 1.4 2005-09-06 17:06:52 nico Exp $"
-

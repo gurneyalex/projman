@@ -13,9 +13,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-""" xml exportation utilities """
-
-__revision__ = "$Id: projman_writer.py,v 1.17 2005-11-11 15:53:21 nico Exp $"
+"""xml exportation utilities"""
 
 import logging
 from logilab.common.visitor import Visitor
@@ -133,7 +131,7 @@ class TasksVisitor:
         for rtype, rid in node.resource_constraints:
             ET.SubElement( elem, "constraint-resource",
                            idref=rid, type=rtype )
-        
+
         self.parents.append(elem)
         for c in node.children:
             c.accept( self )
@@ -148,7 +146,7 @@ class TasksVisitor:
         for rtype, rid in node.resource_constraints:
             ET.SubElement( elem, "constraint-resource",
                            idref=rid, type=rtype )
-        
+
         self.parents.append( elem )
         for c in node.children:
             c.accept( self )

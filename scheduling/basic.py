@@ -17,8 +17,6 @@
 base scheduling visitors
 """
 
-__revision__ = "$Id: basic.py,v 1.2 2005-09-08 14:26:06 nico Exp $"
-
 import sys
 
 from logilab.common.visitor import Visitor
@@ -27,9 +25,9 @@ from logilab.common.tree import PostfixedDepthFirstIterator
 from projman.lib import date_range
 from projman.lib.constants import *
 from mx.DateTime import now, DateTimeFromAbsDateTime
-                
 
-def add_week_days(date, days):    
+
+def add_week_days(date, days):
     """
     adds a number of days taking into account weekends
     """
@@ -57,7 +55,7 @@ def sub_week_days(date, days):
 
 def split_to_fit_disponibility(activity, resource, a_seq=None):
     """
-    Takes an activity and returns a sequence of activities that 
+    Takes an activity and returns a sequence of activities that
     take into account the days the resource cannot work
     """
     if a_seq is None:
@@ -66,9 +64,9 @@ def split_to_fit_disponibility(activity, resource, a_seq=None):
     date = begin
     end = activity.end
     while date <= end :
-        if resource.is_available(date): 
+        if resource.is_available(date):
             date += 1
-        else: 
+        else:
             if date != activity.begin:
                 a_seq.append( (begin, date-1, activity.usage) )
             begin = date
@@ -81,10 +79,10 @@ def split_to_fit_disponibility(activity, resource, a_seq=None):
 class BasicScheduler(Visitor):
     """
     The first step schedule visitor
-    
+
     get the ASAP begin and end date for each task of the tree
     """
-    
+
     def __init__(self, project):
         """
         create a BasicScheduler. Use open_visit() to start.
@@ -100,7 +98,7 @@ class BasicScheduler(Visitor):
         """
         Try to update the current_schedule using data from project
         and activities.
-        
+
         Return project_errors
         """
         self.errors = []
@@ -108,40 +106,40 @@ class BasicScheduler(Visitor):
         return self.visit(self.project.root_task)
 
     # visitor API #############################################################
-    
+
     def open_visit(self, node):
         self._root = node
 
     def close_visit(self, result):
         return self.errors
-    
+
     def visit_project(self, node):
         # FIXME - is this really useful?
         if node.parent is None:
-            schedule = self.project.get_schedule(node.id) 
+            schedule = self.project.get_schedule(node.id)
             assert schedule is not None
-            
+
         self.visit_task(node)
-       
+
         if node.parent is None:
             begin, end = self.project.get_date_range(node)
             schedule.global_begin = begin
             schedule.global_end = end
-    
+
     def visit_milestone(self, node):
         if hasattr(node, 'scheduled'):
             return
         node.scheduled = 1
-        
+
         if node.children:
             raise ValueError , "Milestone can't have children"
         else :
             self.schedule_milestone(node)
-   
+
     def visit_task(self, node):
         if hasattr(node, 'scheduled'):
             return
-        node.scheduled = 1        
+        node.scheduled = 1
         if node.children:
             self.schedule_container(node)
         else :
@@ -179,7 +177,7 @@ class BasicScheduler(Visitor):
             # update cost in resource
             task_cost_by_resource = self._current_schedule.tasks_cost_by_r.setdefault(node.id, {})
             task_cost_by_resource[r_id] = task_cost_by_resource.get(r_id, 0) + nb_days
-            
+
         # update cost in schedule
         if node.id not in self._current_schedule.tasks_global_cost:
             if global_cost != 0:
@@ -197,27 +195,27 @@ class BasicScheduler(Visitor):
         set begin and end for a container task according to its children tasks
         """
         # simply define begin and end
-        begin, end = self.project.get_container_date_range(node, 
-                                                   self._current_schedule) 
+        begin, end = self.project.get_container_date_range(node,
+                                                   self._current_schedule)
         if begin and end:
             self._current_schedule.tasks_timeslot[node.id] = [begin, end]
         else:
             sys.stderr.write('warning... unscheduled leaves!\n')
-        
-        
+
+
     def schedule_milestone(self, node) :
-        """ 
+        """
         get node begin / end date
         set time slots according to estimated begin and end of the task
         """
         for tc_type in TASK_CONSTRAINTS:
             n_cons = self.project.get_task_constraints(node.id,
-                                                        fill = TASK_CONSTRAINTS) 
+                                                        fill = TASK_CONSTRAINTS)
             if tc_type in n_cons:
                 for task_id in n_cons[tc_type]:
                     if node.get_node_by_id(task_id) is not None:
                         v = BasicScheduler(self.project)
-                        v.visit(node.get_node_by_id(task_id), 
+                        v.visit(node.get_node_by_id(task_id),
                                 self._past_activities,
                                 self._current_schedule)
                         self.errors += v.errors
@@ -226,9 +224,9 @@ class BasicScheduler(Visitor):
         # FIXME is activity really necessary? check usage by renderer
         self._current_schedule.planned_activities.add_activity(node.id, '',
                                                                Activity(100, date, date))
-    
+
     def schedule_leaf(self, node) :
-        """ 
+        """
         get node begin / end date
         set time slots according to estimated begin and end of the task
         """
@@ -261,14 +259,14 @@ class BasicScheduler(Visitor):
             while date <= end_limit:
                 # calculate global disponibility at 'date'
                 dispo = {}
-                for resource in res_seq: 
+                for resource in res_seq:
                     dispo[resource] = min(
                         self.project.get_general_disponibility(resource, date),
                         node.get_resource_dispo(resource))
                 sum_d = sum(dispo.values())
                 # dispo sufficient to finish task: spread out activity among resources
                 if nb_days - sum_d < -FLOAT_ZERO:
-                    #FIXME TODO : if a resource available less than spread out 
+                    #FIXME TODO : if a resource available less than spread out
                     #value... then you have more on the others (end up needing
                     #an extra day etc...)
                     used_resources = dispo.keys()
@@ -293,14 +291,14 @@ class BasicScheduler(Visitor):
                                    % (node.id, nb_days))
                 self._current_schedule.tasks_status[node.id] = 'problem'
                 node.problem = True
-           
+
     def get_possible_begin(self, node):
         """
         return the possible begin date of the task
-        
+
         check for constraints inconsistency, remove broken constraints
         """
-        pl_act = self._current_schedule.planned_activities 
+        pl_act = self._current_schedule.planned_activities
         begin = None
         date_cs = node.get_date_constraints(fill = DATE_CONSTRAINTS)
         # set this variable to 1 if the begin date can not be later
@@ -324,7 +322,7 @@ class BasicScheduler(Visitor):
             date = date_cs[END_AT_DATE]
             if node.TYPE == 'milestone':
                 begin_est = date
-            else : 
+            else :
                 begin_est = sub_week_days(date, \
                         node.remaining_duration()) #self.project))
             if begin is not None and not begin_est == begin or begin < TODAY:
@@ -337,7 +335,7 @@ class BasicScheduler(Visitor):
 
         if begin is None:
             begin = TODAY
-                
+
         # check other begin-date constraints
         if date_cs[BEGIN_AFTER_DATE] is not None:
             if begin < date_cs[BEGIN_AFTER_DATE] and strict is not None:
@@ -360,7 +358,7 @@ class BasicScheduler(Visitor):
         #self.logger.debug(" -- [%s] task constraints=%s"% (node.id, str(node_cons)))
         new = []
         for task_id in node_cons[BEGIN_AFTER_END]:
-            task = node.get_node_by_id(task_id) 
+            task = node.get_node_by_id(task_id)
             if task is not None:
                 date_end = self.adjust(pl_act.get_end(task), task) or now()
                 task_end = date_end
@@ -369,7 +367,7 @@ class BasicScheduler(Visitor):
                         self.remove_constraint(node, BEGIN_AFTER_END, task_id)
                     else:
                         new.append(task_id)
-                        begin = task_end 
+                        begin = task_end
                 else:
                     new.append(task_id)
             else:
@@ -382,12 +380,12 @@ class BasicScheduler(Visitor):
         for task_id in node_cons[BEGIN_AFTER_BEGIN]:
             if node.get_node_by_id(task_id) is not None:
                 task = node.get_node_by_id(task_id)
-                date_begin = pl_act.get_begin(task) or now() 
+                date_begin = pl_act.get_begin(task) or now()
                 task_begin = date_begin
                 if begin < task_begin:
                     if strict is not None:
-                        self.remove_constraint(node, 
-                                               BEGIN_AFTER_BEGIN, 
+                        self.remove_constraint(node,
+                                               BEGIN_AFTER_BEGIN,
                                                task_id)
                     else:
                         new.append(task_id)
@@ -405,17 +403,17 @@ class BasicScheduler(Visitor):
     def get_possible_end(self, node):
         """
         return the estimated end of the task
-        
+
         check for constraints inconsistency, remove broken constraints
         you must call get_possible_begin before get_possible_end
         """
         assert node.scheduled
-        pl_act = self._current_schedule.planned_activities 
+        pl_act = self._current_schedule.planned_activities
         date_cs = node.get_date_constraints(fill = DATE_CONSTRAINTS)
         end = node.scheduled + max(0, node.remaining_duration()) #self.project))
         # set this variable to 1 if the begin date can not be latter
         strict = None
-            
+
         # check date constraints
         if date_cs[END_AFTER_DATE] is not None:
             if end < date_cs[END_AFTER_DATE]:
@@ -432,13 +430,13 @@ class BasicScheduler(Visitor):
                                    date_cs[END_BEFORE_DATE])
             date_cs[END_BEFORE_DATE] = None
         #XXX TODO:  END_AT_DATE ???
-                    
+
         # check task constraints
-        node_cons = self.project.get_task_constraints(node.id, 
+        node_cons = self.project.get_task_constraints(node.id,
                                             fill = TASK_CONSTRAINTS)
         new = []
         for task_id in node_cons[END_AFTER_END]:
-            task = node.get_node_by_id(task_id) 
+            task = node.get_node_by_id(task_id)
             if task is not None:
                 date_end = pl_act.get_end(task) or now()
                 task_end = date_end
@@ -451,7 +449,7 @@ class BasicScheduler(Visitor):
                 else:
                     new.append(task_id)
         node_cons[END_AFTER_END] = new
-        
+
         new = []
         for task_id in node_cons[END_AFTER_BEGIN]:
             if node.get_node_by_id(task_id) is not None:
@@ -467,7 +465,7 @@ class BasicScheduler(Visitor):
                     new.append(task_id)
         node_cons[END_AFTER_BEGIN] = new
         return end, strict
-            
+
     def remove_constraint(self, node, c_type, c_value):
         """
         notify that an unsatisfable constraint has been removed
@@ -476,10 +474,10 @@ class BasicScheduler(Visitor):
             c_type, c_value, node.id))
         self._current_schedule.tasks_status[node.id] = 'problem'
         node.problem = True
-    
+
     def adjust(self, date, task):
         """
-        checks preceding days if resources are fully used, if not 
+        checks preceding days if resources are fully used, if not
         return previous day
         """
         # define result var in order to ease logging

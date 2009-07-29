@@ -17,7 +17,6 @@
 """
 reader generate a model from xml file (see dtd/project.dtd)
 """
-__revision__ = "$Id: base_reader.py,v 1.2 2005-11-09 16:47:35 arthur Exp $"
 
 from os.path import dirname, abspath
 from xml.sax import make_parser, ContentHandler
@@ -33,15 +32,15 @@ from projman.lib._exceptions import ProjectValidationError, MalformedProjectFile
 
 class ModelProjectFactory:
     """ a factory which create Projman model's objects """
-    
+
     def create_project(self):
         """ create a new projman node """
         return Project()
-        
+
     def create_milestone(self, m_id):
         """ create a new milestone node """
         return MileStone(m_id)
-        
+
     def create_milestone_from_task(self, task):
         """ create a new milestone node """
         stone = self.create_milestone(task.id)
@@ -91,7 +90,7 @@ MODEL_FACTORY = ModelProjectFactory()
 
 class AbstractXMLReader(ContentHandler):
     """ generic abstract reader """
-    
+
     def __init__(self, factory=MODEL_FACTORY):
         self._factory = factory
         # default type used for resources list
@@ -109,22 +108,22 @@ class AbstractXMLReader(ContentHandler):
         self._buffer = []
         # buffer of formatting errors
         self._errors = []
-       
+
     def fromFile(self, file):
-        """ 
+        """
         import and return a project from a xml file
         """
         return self.fromStream(open(file),
                                file, dirname(abspath(file)))
-        
+
     def fromStream(self, stream,
                    filename="input_stream", base_uri=''):
-        """ 
+        """
         import and return a project from a xml stream
         """
         # create a xml parser
         p = make_parser()
-        # do not perform Namespace processing 
+        # do not perform Namespace processing
         p.setFeature(feature_namespaces, 0)
         p.setContentHandler(self)
         p.reset()
@@ -182,7 +181,7 @@ class AbstractXMLReader(ContentHandler):
 
     def _start_element(self, tag, attr):
         pass
-    
+
     def endElement(self, tag):
         try:
             self._end_element(tag)
@@ -200,7 +199,7 @@ class AbstractXMLReader(ContentHandler):
                 print '\n'.join(self._errors)
             raise
         self._tags.pop()
-        
+
 
     def _end_element(self, tag):
         pass
@@ -214,7 +213,7 @@ class AbstractXMLReader(ContentHandler):
         elif not self._tags[-1] in tags:
             raise ProjectValidationError('file %%s line %%s : %%s should be child of '
                                          '%s not %s' % (tags, self._tags[-1]))
-        
+
     def assert_has_attrs(self, attrs):
         for attr in attrs:
             if attr not in self._attrs.keys():

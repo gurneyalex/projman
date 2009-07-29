@@ -25,8 +25,6 @@ Manipulate a xml project description.
 This code is released under the GNU Public Licence v2. See www.gnu.org.
 """
 
-__revision__ = "$Id: project.py,v 1.6 2005-11-10 11:34:20 arthur Exp $"
-
 import md5
 from warnings import warn
 from pprint import pprint

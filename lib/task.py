@@ -25,9 +25,7 @@ Manipulate a xml project description.
 This code is released under the GNU Public Licence v2. See www.gnu.org.
 """
 
-__revision__ = "$Id: task.py,v 1.4 2006-02-24 10:39:38 nico Exp $"
-
-from logilab.common.tree import VNode 
+from logilab.common.tree import VNode
 from logilab.common.compat import set
 
 from mx.DateTime import now
@@ -65,10 +63,10 @@ class TaskNode(VNode):
         self.can_interrupt = [True, 1] # the integer represent the priority of the constraint
         self.link = None
         self.level = 1
-        
+
     def __repr__(self):
         return "<Task id=%s at %s>" % (self.id, id(self))
-    
+
     def get_task(self, task_id):
         """
         return the task with id task_id
@@ -76,7 +74,7 @@ class TaskNode(VNode):
         return self.get_node_by_id(task_id)
 
     # properties ####################################################
-    
+
     def get_progress(self):
         """used by the 'progress' property"""
         if self.is_leaf():
@@ -87,11 +85,11 @@ class TaskNode(VNode):
         else:
             done = [leaf.progress * leaf.maximum_duration()
                     for leaf in self.leaves()]
-            
+
             if self.maximum_duration() > 1e-5:
                 return sum(done) / self.maximum_duration()
             return 1.0
-        
+
     def set_progress(self, value):
         """used by the 'progress' property"""
         if not self.is_leaf():
@@ -100,7 +98,7 @@ class TaskNode(VNode):
             self._progress = value
         else:
             raise ValueError("progress is a percentage (between 0 and 1, got %s)" % value)
-    
+
     progress = property(get_progress, set_progress,
                         doc="task progress (percentage)")
 
@@ -124,24 +122,24 @@ class TaskNode(VNode):
         self.date_constraints.add((constraint_type, date, priority))
 
     def add_task_constraint(self, constraint_type, task_id, priority=1):
-        """ add a task constraint to the milestone """ 
+        """ add a task constraint to the milestone """
         assert constraint_type in TASK_CONSTRAINTS, constraint_type
         self.task_constraints.add((constraint_type, task_id, priority))
 
     # Manipulation functions #############################################
-    
+
     def maximum_duration(self):
         """
-        returns the duration of task taking into account all the durations of 
+        returns the duration of task taking into account all the durations of
         its children
         /!\ duration is in man-days.
         """
         if self.is_leaf():
             return self.duration
         else:
-            assert not self.duration, "Only leaves should have duration ! %s" % self.id 
+            assert not self.duration, "Only leaves should have duration ! %s" % self.id
             return sum([node.maximum_duration() for node in self.children])
-    
+
     def remaining_duration(self):
         """
         return an estimation of the number of days required to close this task
@@ -154,7 +152,7 @@ class TaskNode(VNode):
                 raise NotImplementedError()
         else:
             return sum([child.remaining_duration() for child in self.children])
-        
+
     def is_ready(self):
         """
         a task is ready when all the tasks it depends on are finished
@@ -165,7 +163,7 @@ class TaskNode(VNode):
                 if task.progress != 1:
                     return False
         return True
-        
+
     def is_finished(self):
         """
         return True if task is finished
@@ -178,10 +176,10 @@ class TaskNode(VNode):
                 if not each.is_finished():
                     return False
             return True
-        
+
     def get_task_constraints(self):
         """
-        get all task constraints taking into account the constraints 
+        get all task constraints taking into account the constraints
         on the parents
         """
         # FIXME: Cache result (or modify in-place)
@@ -192,7 +190,7 @@ class TaskNode(VNode):
 
     def get_date_constraints(self):
         """
-        get the date constraints propagating the appropriate 
+        get the date constraints propagating the appropriate
         date constraints from parent nodes
         """
         # FIXME: Cache result (or modify in-place)
@@ -248,7 +246,7 @@ class TaskNode(VNode):
 
 class Task(TaskNode):
     """a Task in the Project
-    
+
     A Task instance is identified by its 'id' attribute. It can
     contain other tasks and/or milestone and/or imported projects,
     or it can be a leaf. If it's a leaf, the 'duration' attribute
@@ -265,11 +263,11 @@ class Task(TaskNode):
         resource
       - hide: boolean, used to render partial graphs (e.g. for a
         given resource)
-        
+
     invariant:
         0. <= self.progress <= 1. # percentage of progress
-    """ 
-    
+    """
+
     TYPE = 'task'
 
     def __init__(self, t_id):
@@ -298,7 +296,7 @@ class Task(TaskNode):
         else:
             self.get_task_type()
             return set()
-        
+
     def get_resources(self):
         """
         return a sequence of the resources in resource_constraints
@@ -306,7 +304,7 @@ class Task(TaskNode):
         # according to old resources definition
         self.set_resources = set([id_res for type_c, id_res in
                     self.get_resource_constraints()])
-        
+
         return self.set_resources
 
     def get_linked_resources(self, set_resources):
@@ -330,18 +328,18 @@ class Task(TaskNode):
                 if self.task_type and not self.children: # according to new definition of resources
                     if self.task_type in res.id_role:
                         set_res.add(res.id)
-                else: # according to old definition of resources 
+                else: # according to old definition of resources
                     for ctype, res_id in self.resource_constraints:
                         set_res.add(res_id)
         return set_res
 
-        
+
 #    def get_resource_dispo(self, res_id):
 #        """
 #        get the resource disponibility required for this task
 #        """
 #        for type_c, id_res in self.get_resource_constraints():
-#            if id_res == res_id:    
+#            if id_res == res_id:
 #                return usage
 #        return 0
 
@@ -352,14 +350,14 @@ class Task(TaskNode):
 
 class MileStone(TaskNode):
     """A milestone in the project
-    
+
     A milestone represents an event occuring at a specific date, but
     without any specific information about duration or timing.
 
     Subclasses of MileStone are Task and Project.
 
     """
-    
+
     TYPE = 'milestone'
 
     def append(self, node):
@@ -369,7 +367,7 @@ class MileStone(TaskNode):
         if self.is_ready():
             return 1.
         return 0.
-    
+
     progress = property(get_progress, doc="milestone progress (percentage)")
 
     def get_resource_constraints(self):

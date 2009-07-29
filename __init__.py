@@ -18,8 +18,6 @@ projman is a python package to schedule and transform xml project file to
 gantt diagram, resource diagrams, etc.
 """
 
-__revision__ = "$Id: __init__.py,v 1.12 2005-11-10 11:34:18 arthur Exp $"
-
 import math
 
 ENCODING = "ISO-8859-1"
@@ -36,14 +34,14 @@ DAY_WEEK = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
 #  >>> locale.format("%.2f", 121212.01, grouping=True)
 #  121212,01
 def format_monetary(str_number, nb_decimal=2, space_gap=3):
-    """takes a string or number and return it formatted in a monetary way. 
+    """takes a string or number and return it formatted in a monetary way.
     ex: 121212.01 as u'121 212,01'
 
     nb_decimal sets the number of decimal to display space_gap sets
-    
+
     the gap (ie, number of numbers) between two of the spaces. It is 3
     in the previous example.
-    
+
     raises a TypeError in case of bad format
     """
     # FIXME REFACTOR to
@@ -53,7 +51,7 @@ def format_monetary(str_number, nb_decimal=2, space_gap=3):
     #     final.append(fmt[:space_gap])
     #     fmt = fmt[space_gap:]
     # output = '\xA0'.join(reversed(final))
-    # 
+    #
     # FIXME: decide whether or not we should call round here
     fractval, intval = math.modf(float(str_number))
     intval = int(intval)
@@ -76,7 +74,7 @@ def format_monetary(str_number, nb_decimal=2, space_gap=3):
         return fmt % (int_part, fract_part)
     return int_part
 
-   
+
 
 def extract_extension(name):
     """returns a couple (file_name, ext) from file_name.ext"""

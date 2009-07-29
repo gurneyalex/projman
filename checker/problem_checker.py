@@ -54,7 +54,7 @@ class Checker:
         print "\n#  Set of real tasks (no container) #"
         for task_id in self.real_tasks:
             task = self.project.get_task(task_id)
-            print task.title, '(id =', task.id, '; duration = ',task.duration,')' 
+            print task.title, '(id =', task.id, '; duration = ',task.duration,')'
         print "\n#  Available resources for the project #"
         for res in self.resources:
             res = self.project.get_resource(res)
@@ -96,7 +96,7 @@ class Checker:
         for couple in arcs:
             self.predecessors[couple[1]].append(couple[0])
             self.successors[couple[0]].append(couple[1])
-            
+
         if self.verbosity > 1:
             print "arcs", arcs
             print "tasks", tasks
@@ -121,7 +121,7 @@ class Checker:
 
         for key in self.predecessors:
             # detect fisrt task
-            tag = []            
+            tag = []
             values = self.predecessors.get(key)
             if values == []:
                 first = key
@@ -156,7 +156,7 @@ class Checker:
                         if self.verbosity > 2:
                             print '  successors:', v_prime
                         if not v_prime in Q:
-                            Q.append(v_prime)                    
+                            Q.append(v_prime)
             trees.append(tag)
             for elt in tag:
                 set_tag.add(elt)
@@ -200,4 +200,4 @@ class Checker:
                 duration = leaf.duration / float(count)
                 if duration > 5:
                     self.errors.append('Uninterruptible task %s with duration in excess of one week:\n\t-> reduce duration or associate the task to more resources' %leaf.id)
-                
+
