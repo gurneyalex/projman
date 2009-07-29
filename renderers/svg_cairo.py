@@ -36,13 +36,13 @@ def _color(icol):
         icol = icol + (255,)
     return tuple([c/255. for c in icol])
 
-class SVGHandler:
+class SVGHandler(object):
     _linewidth = 0.5
     _weights = {"bold": cairo.FONT_WEIGHT_BOLD}
     _slants = {"italic": cairo.FONT_SLANT_ITALIC,
                "oblique": cairo.FONT_SLANT_OBLIQUE}
     _size = 8
-    
+
     def __init__(self, format):
         pass
 
@@ -64,7 +64,7 @@ class SVGHandler:
         """ return the current picture as a str buffer """
         self._surf.finish()
         return self._buffer.getvalue()
-    
+
     def save_result(self, stream):
         """ write the current picture in stream (file-like object) """
         stream.write(self.get_result())
@@ -89,11 +89,11 @@ class SVGHandler:
             face = self._ctx.select_font_face("sans-serif", s, w)
         if 'size' in args:
             self._ctx.set_font_size(args['size'])
-            
+
     def open_link(self, url):
         # FIXME
         pass
-    
+
     def draw_text(self, x, y, text, **args):
         """ draw a text """
         #print "draw_text", x, y, text, args
@@ -104,14 +104,14 @@ class SVGHandler:
         else:
             self._ctx.fill()
         self._ctx.restore()
-        
+
     def draw_line(self, x1, y1, x2, y2, **args):
         """ draw a line """
         self._set_style(x1, y1, **args)
         self._ctx.line_to(x2, y2)
         self._ctx.stroke()
         self._ctx.restore()
-        
+
     def draw_dot(self, x1, y1, x2, y2, n, **args):
         """ draw a dot line """
         self._set_style(x1, y1, **args)

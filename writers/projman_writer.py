@@ -121,7 +121,7 @@ def schedule_as_dom(project):
                 act_element.set('to', str(end) )
     return doc
 
-class TasksVisitor:
+class TasksVisitor(object):
     def __init__(self):
         self.parents = []
 

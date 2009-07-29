@@ -104,16 +104,16 @@ def load_colors_from_stream(stream, colors=DEFAULT_COLORS):
     return colors
 
 
-class AbstractRenderer :
+class AbstractRenderer(object):
     """
     Implements methods common to all renderers.
-    
+
     generates events according to the given options
     concrete renderer must implements corresponding hooks
     (see the IRender)
     """
-    
-    DEFAULT_OPTIONS = {'timestep' : 'day', 
+
+    DEFAULT_OPTIONS = {'timestep' : 'day',
                        'detail' : 2,
                        'depth' : 0,
                        'view_begin' : None,
@@ -121,7 +121,7 @@ class AbstractRenderer :
                        'showids' : False,
                        'rappel' : False
                        }
-    
+
     def __init__(self, options) :
         """
         Initialise all fields and tools needed for rendering,
@@ -147,7 +147,7 @@ class AbstractRenderer :
         self._render_init(project)
         self._render_body(project)
         self._render_end()
-    
+
     def _render_init(self, project):
         """
         Method called in first place by render to set up display
@@ -174,12 +174,12 @@ class AbstractRenderer :
         self.drawer.open_timeline(view_begin, view_end)
         #open table for display
         self.drawer.open_table(project)
-            
+
     def _render_end(self):
         """
         Method called by render when it ends to finish display
         """
-        # print table tail 
+        # print table tail
         self.drawer.open_line()
         self.drawer.main_title("Generated on %s" % (
             now().strftime("%Y/%m/%d %H:%M:%S")))
@@ -193,11 +193,11 @@ class AbstractRenderer :
         # close
         self.drawer.close_drawing()
 
-class AbstractDrawer :
+class AbstractDrawer(object):
     """
     Implements all hooks method called by the abstract renderer and do nothing
     """
-    
+
     def __init__(self, options, handler, colors_file=None, colors_stream = None):
         """
         defines colors and initializes colors_set
@@ -222,10 +222,10 @@ class AbstractDrawer :
             self._timestep = 13   # maximum possible value
         # x and y coordinate for current element location
         self._x = 0
-        self._y = 0        
+        self._y = 0
         self._max_x = 0
         self._max_y = 0
-        
+
     def set_color_set(self, parity):
         """
         Defines which color_set to use, EVEN or ODD form _colors
@@ -234,7 +234,7 @@ class AbstractDrawer :
             self._color_set = self._colors['ODD_SET']
         else:
             self._color_set = self._colors['EVEN_SET']
-    
+
     # low level methods ######################################################
 
     def _draw_text(self, text, **attrs):
@@ -242,7 +242,7 @@ class AbstractDrawer :
         draw a text with some alignement
         """
         self._handler.draw_text(self._x+3, self._y+ROW_HEIGHT-6, text, **attrs)
-        
+
     def _draw_rect(self, width, height, **attrs):
         """
         draw a rectangle with some alignement
@@ -257,7 +257,7 @@ class AbstractDrawer :
 
     # generic events ##########################################################
 
-    def close_drawing(self): 
+    def close_drawing(self):
         self._handler.close_drawing( (0,0,self._max_x,self._max_y) )
 
     def open_table(self, project):
@@ -275,13 +275,13 @@ class AbstractDrawer :
 
         # number of optional fields
         self._fields = 0
-        
+
     def _init_table(self):
         """
         abstract method used for specific initialisation
         """
-    
-    def close_table(self): 
+
+    def close_table(self):
         """
         close the table where the diagram is located
         """
@@ -292,7 +292,7 @@ class AbstractDrawer :
         open a new line in the table
         """
         # nothing to be done, close line does all the work
-        
+
     def close_line(self):
         """close a table's line"""
         self._max_x = max(self._max_x, self._x)
@@ -322,7 +322,7 @@ class AbstractDrawer :
             else:
                 step = float(self._timestep)
             self._x += self._timestepwidth / step
-        
+
     def open_timeline(self, begin, end):
         """
         open a new time line in the table
@@ -339,7 +339,7 @@ class AbstractDrawer :
         close a table's time line
         """
         # nothing to be done
-        
+
     # project table head/tail #################################################
 
     def main_title(self, title):
@@ -358,7 +358,7 @@ class AbstractDrawer :
             if title:
                 self._draw_text(title, weight='bold')
         self._x += FIELD_COLUMN_WIDTH
-        
+
     # standard table content ###################################################
 
     def simple_content(self, content):
@@ -389,7 +389,7 @@ class AbstractDrawer :
 
     def text_width(self, s):
         return self._handler._text_width(s)
-    
+
     def _legend_task(self) :
         """ write the diagram's legend of tasks """
         self._draw_text('Tasks Legend', style='italic', weight='bold')

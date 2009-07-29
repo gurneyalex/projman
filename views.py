@@ -24,7 +24,7 @@ try:
     import xml.etree.ElementTree as ET
 except ImportError:
     import elementtree.ElementTree as ET
-    
+
 # dom utilities ################################################################
 
 DR_NS = "{http://www.logilab.org/2004/Documentor}"
@@ -39,7 +39,7 @@ def document(root=None):
     root = ET.Element(DR_NS + (root or "root") )
     return ET.ElementTree(root)
 
-class DocbookHelper:
+class DocbookHelper(object):
     """a helper class to generate docboock"""
 
     def __init__(self, lang='fr'):
@@ -108,7 +108,7 @@ def get_daily_labor(number):
     else:
         return TOTAL_DURATION_UNITS % number
 
-class CostData:
+class CostData(object):
     """handle global calculation: cost, duration, ressources' rate
     """
 
@@ -142,7 +142,7 @@ class CostData:
         return [self.projman.get_resource(rid) for rid in self._used_resources if rid]
 
 
-class XMLView:
+class XMLView(object):
     name = None
 
     def __init__(self, config):
@@ -163,7 +163,7 @@ class XMLView:
         obj = self.dbh.object_node(root, self.unique_id(self.name))
         self.add_content_nodes(obj)
         return obj
-    
+
     def _init(self, projman, xmldoc=None, dbh=None):
         """initialize view members necessary for content generation"""
         self.projman = projman
@@ -188,7 +188,7 @@ class XMLView:
 
 class RatesSectionView(XMLView):
     name = 'rates-section'
-    
+
     def add_content_nodes(self, parent):
         section = self.dbh.section(parent, u"Tarifs journaliers", id=self.unique_id('rate-section'))
         self.dbh.para(section, u"Coût pour une journée type de travail:")
@@ -215,7 +215,7 @@ class RatesSectionView(XMLView):
             if isinstance(role, basestring):
                 r_info = '%s : %s' %(role, format_monetary(hourly_cost[i] * HOURS_PER_DAY))
             else:
-                r_info = '%s (%s) : %s' %(role.name, role.id, format_monetary(role.hourly_cost * HOURS_PER_DAY))     
+                r_info = '%s (%s) : %s' %(role.name, role.id, format_monetary(role.hourly_cost * HOURS_PER_DAY))
             item = ET.SubElement(list_items, "listitem")
             self.dbh.para( item, r_info )
 
@@ -260,7 +260,7 @@ class CostTableView(XMLView):
         resources = self.projman.get_resources()
         set_res = []
         for res in resources:
-            set_res.append( self.projman.get_resource(res)) 
+            set_res.append( self.projman.get_resource(res))
         root_resources = root.get_linked_resources(set_res)
         self.set_res = []
         for i in range(len(root_resources)):
@@ -282,8 +282,8 @@ class CostTableView(XMLView):
         for i in range(len_):
             specs.append(u'1*')
         specs.append(u'1*')
-        
-        # create table 
+
+        # create table
         layout = self.dbh.table_layout_node(table, len_+2, colspecs=specs)
         head = self.table_head(layout, len_+2)
         # table body
@@ -360,11 +360,11 @@ class CostTableView(XMLView):
                     resource = self.projman.get_resource(res)
                     if not type(role) == str: # according to new resources definition
                         if role.id in resource.id_role:
-                            duration = durations[res]                                
+                            duration = durations[res]
                             self.dbh.table_cell_node(row, 'center', "%s" %duration)
                     else: #old definition of resource type
                         if role == resource.type:
-                            duration = durations[res]                                
+                            duration = durations[res]
                             self.dbh.table_cell_node(row, 'center', "%s" %duration)
                 if duration == 0:
                     self.dbh.table_cell_node(row)
@@ -408,7 +408,7 @@ class CostTableView(XMLView):
                  row.set(LDG_NS+'bold', "true")
         else:
             string = u''
-        if  self.color % 2 and task.level > 1: 
+        if  self.color % 2 and task.level > 1:
             row.set(LDG_NS+'background', "true")
         indent = u'\xA0 '*(level-1)*2
         self.dbh.table_cell_node(row, 'left', indent+string+task.title)
@@ -438,16 +438,16 @@ class CostTableView(XMLView):
                 resource = self.projman.get_resource(res)
                 if not type(role) == str: # according to new resqoiurces definition
                     if role.id in resource.id_role:
-                        duration = durations_[res]                                
+                        duration = durations_[res]
                         self.dbh.table_cell_node(row, 'center', "%s" %duration)
                 else: #old definition of resource type
                     if role == resource.type:
-                        duration = durations_[res]                                
+                        duration = durations_[res]
                         self.dbh.table_cell_node(row, 'center', "%s" %duration)
             if duration == 0:
                 self.dbh.table_cell_node(row)
         self.dbh.table_cell_node(row,'right', u'%s' %format_monetary(costs_))
-        
+
 class CostParaView(XMLView):
     name = 'cost-para'
     TOTAL_COST = u"Le coût total se chiffre à %s euros HT, soit %s euros TTC en appliquant les taux actuellement en vigueur."
@@ -496,7 +496,7 @@ class TasksListSectionView(XMLView):
                     self._build_task_node(section, child)
         else:
             # task is a real task (leaf without any sub task)
-            
+
             # add resources' info
             if task.TYPE == 'task' :
                 self.resource_node(section, task)
@@ -520,7 +520,7 @@ class TasksListSectionView(XMLView):
         self.dbh.para(item, u"Date de début : %s" %debut.Format(EXT_DATE_FORMAT))
         item = ET.SubElement(list_,'listitem')
         self.dbh.para(item, u"Date de fin :   %s" %fin.Format(EXT_DATE_FORMAT))
-            
+
     def add_para_total_load(self, parent, task):
         """print total load (load for each resources)"""
         para = self.dbh.formalpara(parent,u'Charge totale')
@@ -540,7 +540,7 @@ class TasksListSectionView(XMLView):
                 costs[res] += costs_[res]
         for res in durations:
             resource = self.projman.get_resource(res)
-            
+
             #if self.projman.resource_role_set.width() >1:  #use new definition of resources
                 #for leaf in task.leaves(): # does not work
             #parcours des feuilles pour connaitre la liste des roles, le tps consomme
@@ -561,8 +561,8 @@ class TasksListSectionView(XMLView):
                 role = resource.type
             item = ET.SubElement(list_,'listitem')
             self.dbh.para(item, u"%s (%s) : %s jour.hommes" %(role, resource.name, durations[res]))
-             
-            
+
+
     def resource_node(self, parent, task):
         """ create a DOM node
         <formalpara>
@@ -629,7 +629,7 @@ class TasksListSectionView(XMLView):
                 # find end of tasks
                 _, end = self.projman.get_task_date_range(mil_)
                 self.dbh.table_cell_node(row, 'left', u'%s' %end.Format(EXT_DATE_FORMAT))
-        
+
     def table_head_task(self, parent):
         """ create a DOM node <thead> for the task table """
         thead = ET.SubElement(parent, 'thead')
@@ -697,7 +697,7 @@ class TasksListSectionView(XMLView):
             self.dbh.table_cell_node(row, 'left', u'%s : %s j.h' %(role, duration))
             # compute end of the task (used in second table)
             return row
-    
+
 class DurationTableView(CostTableView):
     name = 'duration-table'
     ENTETE = u"Tableau récapitulatif des dates."
@@ -713,7 +713,7 @@ class DurationTableView(CostTableView):
         # table body
         tbody = ET.SubElement(layout, "tbody")
         # add tbody attributes
-        self.set_tbody(tbody)        
+        self.set_tbody(tbody)
         for child in self.projman.root_task.children:
             if child.TYPE == 'task':
                 self.color = 0
@@ -735,7 +735,7 @@ class DurationTableView(CostTableView):
     def _build_task_node(self, tbody, task, level=0):
         """format a task in as a row in the table"""
         row = ET.SubElement(tbody, 'row')
-        if self.color % 2: 
+        if self.color % 2:
             row.set(LDG_NS+'background', "true")
         if level == 1:
             self.set_row(row)
@@ -756,11 +756,11 @@ class DurationTableView(CostTableView):
                 row.set(LDG_NS+'bold', "true")
             self.synthesis_row_element(row, task, level+1)
         else:
-            #row.set(LDG_NS+'border-bottom', "true")            
+            #row.set(LDG_NS+'border-bottom', "true")
             self.row_element(row, task, level)
-            
+
     def table_head(self, table):
-        """ create a DOM node <thead> """ 
+        """ create a DOM node <thead> """
         thead = ET.SubElement(table, "thead")
         row = ET.SubElement(thead,"row")
         self.dbh.table_cell_node(row, 'leaf', u'Tâches')
@@ -781,7 +781,7 @@ class DurationTableView(CostTableView):
         # task begin & end
         date_begin, date_end = self.projman.get_task_date_range(task)
         self.dbh.table_cell_node(row, 'center', date_begin.date)
-        
+
         self.dbh.table_cell_node(row, 'center', date_end.date)
         return row
 
@@ -807,4 +807,4 @@ for klass in (RatesSectionView,
               CostTableView, CostParaView,
               TasksListSectionView):
     ALL_VIEWS[klass.name] = klass
-    
+

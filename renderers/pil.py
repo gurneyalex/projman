@@ -35,9 +35,9 @@ for font_dir in DEFAULT_FONT_DIRS:
 else:
     FONT_DIR = None
 
-FORMATS = ("ARG", "BMP", "CUR", "DCX", "EPS", "FLI", "FPX", "GBR", 
+FORMATS = ("ARG", "BMP", "CUR", "DCX", "EPS", "FLI", "FPX", "GBR",
            "GIF", "ICO", "IM", "IPTC", "JPEG", "MIC", "MPEG", "MSP",
-           "PCD", "PCX", "PDF", "PNG", "PPM", "PSD", "SGI", "SUN", 
+           "PCD", "PCX", "PDF", "PNG", "PPM", "PSD", "SGI", "SUN",
            "TGA", "TIFF", "WMF", "XBM", "XPM")
 
 def load_font(weight='', style=''):
@@ -53,34 +53,34 @@ def load_font(weight='', style=''):
     #print >>sys.stderr, FONT_DIR, font_name
     return ImageFont.load(os.path.join(FONT_DIR, font_name))
 
-class PILHandler:
+class PILHandler(object):
     """ handler for the Python Imaging Library """
-    
+
     def __init__(self, format):
         format = format.upper()
         assert format in FORMATS, 'Unknown format %s' % format
         self._format = format
-        
+
     def init_drawing(self, width, height):
         """ initialize a new picture """
         #print 'diagram pixel size', width, height
         self._im = Image.new('RGB', (width, height), 0xFFFFFF)
         self._d = ImageDraw.Draw(self._im)
         self._default_font = load_font()
-        
+
     def close_drawing(self, cropbox=None):
         """ close the current picture """
         if cropbox:
             self._im = self._im.crop(cropbox)
         # print 'diagram pixel size', width, height
-    
+
     def get_result(self):
         """ return the current picture """
         print 'Deprecated'
         _buffer = StringIO()
         self._im.save(_buffer, self._format)
         return _buffer.getvalue()
-        
+
     def save_result(self, stream):
         """ return the current picture """
         self._im.save(stream, self._format)
@@ -92,24 +92,24 @@ class PILHandler:
         attrs = self._get_attrs(args)
         self._d.text((x, y-12), text.encode(projman.ENCODING), \
                      font=self._font, **attrs)
-        
+
     def draw_line(self, x1, y1, x2, y2, **args):
         """ draw a line """
         attrs = self._get_attrs(args)
         self._d.line((x1, y1, x2, y2), **attrs)#fill=128)
-        
+
     def draw_rect(self, x, y, width, height, **args):
         """ draw a rectangle """
         attrs = self._get_attrs(args)
         self._d.rectangle((x, y, x+width, y+height), **attrs)
-        
+
     def draw_poly(self, point_list, close=True, **args):
         """ draw a polygon """
         attrs = self._get_attrs(args)
         if close:
             point_list = list(point_list) + [point_list[0]]
         self._d.polygon(point_list, **attrs)
-        
+
     def _get_attrs(self, args):
         """ convert standard styles arguments to PIL attributes"""
         attrs = {}

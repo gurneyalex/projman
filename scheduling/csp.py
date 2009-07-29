@@ -19,7 +19,8 @@
 from mx.DateTime import oneDay, oneHour, today
 from logilab.common.compat import set
 import projman.lib.constants as CST
-from gcsp import ProjmanProblem, solve, constraint_types as GCSP_CST, load_types
+from projman.scheduling.gcsp import (ProjmanProblem, solve,
+                                     constraint_types as GCSP_CST, load_types)
 
 GCSPMAP = {}
 for t in CST.TASK_CONSTRAINTS:
@@ -28,7 +29,7 @@ for t in CST.TASK_CONSTRAINTS:
 
 _VERBOSE=1
 
-class CSPScheduler:
+class CSPScheduler(object):
     """
     schedule a project using constraint programming
 

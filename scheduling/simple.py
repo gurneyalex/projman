@@ -65,7 +65,7 @@ def cmp_tasks(task_a, task_b):
     log.debug('%s %s %s'%(task_a, {-1:'<',0:'=',1:'>'}[res], task_b))
     return res
 
-class SimpleScheduler:
+class SimpleScheduler(object):
     """
     schedule simple projects by ordering tasks and splitting resources
     """

@@ -30,7 +30,7 @@ from projman.lib.calendar import Calendar
 from projman.lib._exceptions import ProjectValidationError, MalformedProjectFile
 
 
-class ModelProjectFactory:
+class ModelProjectFactory(object):
     """ a factory which create Projman model's objects """
 
     def create_project(self):

@@ -19,7 +19,7 @@ from projman.readers import ProjectXMLReader
 from projman.lib._exceptions import MalformedProjectFile
 from projman.test import DATADIR
 
-class DummyConfig:
+class DummyConfig(object):
     def __init__(self):
         self.task_root = None
 
