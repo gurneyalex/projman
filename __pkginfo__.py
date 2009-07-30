@@ -79,7 +79,20 @@ from os.path import join
 include_dirs = [join('test', 'data')]
 
 from distutils.core import Extension
-GECODE_VERSION = ((2<<16)+(1<<8)+1) # for version 2.1.1
+
+def gecode_version():
+    import os, subprocess
+    res=os.system("g++ -o gecode_version data/gecode_version.cc")
+    p=subprocess.Popen("./gecode_version",stdout=subprocess.PIPE)
+    vers = p.stdout.read()
+    return [int(c) for c in vers.strip().split('.')]
+
+vers = gecode_version()
+
+def encode_version(a,b,c):
+    return ((a<<16)+(b<<8)+c)
+
+GECODE_VERSION = encode_version(*vers)
 
 ext_modules = [Extension('projman.scheduling.gcsp',
                          sources = ['scheduling/gcspmodule.cc',
