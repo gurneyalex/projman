@@ -14,10 +14,10 @@ from logilab.common import testlib
 
 from projman.lib import Resource, Calendar, ResourcesSet
 from mx.DateTime import DateTime, Time
-    
+
 class ResourceTest(testlib.TestCase):
     """
-    Resource represents 
+    Resource represents
     """
     def setUp(self):
         """ called before each test from this class """
@@ -32,13 +32,13 @@ class ResourceTest(testlib.TestCase):
         self.date_tomorrow = DateTime(2004, 10, 8)
         self.date_next_week = DateTime(2004, 10, 13)
         self.date_next_score = DateTime(2004, 10, 26)
-        # set up calendar 1      
+        # set up calendar 1
         self.c1 = Calendar('c_1', 'Defaut')
         type_working_days_c1 = {0:['Working', [(Time(8., 0.), Time(12., 0.)),
                                                (Time(13., 0.), Time(17., 0.))]],
                                 1:['HalfDay', [(Time(9., 0., 0.), Time(15., 0., 0.))]]}
         type_nonworking_days_c1 = {0:'Use base',
-                                   1:'Nonworking'} 
+                                   1:'Nonworking'}
         self.c1.type_working_days = type_working_days_c1
         self.c1.type_nonworking_days = type_nonworking_days_c1
         self.c1.add_timeperiod(self.date_last_week, self.date_last_week, 'Nonworking')
@@ -51,7 +51,7 @@ class ResourceTest(testlib.TestCase):
         self.c1.weekday['fri'] = 'Working'
         self.c1.weekday['sat'] = 'Nonworking'
         self.c1.weekday['sun'] = 'Nonworking'
-        # set up calendar 2        
+        # set up calendar 2
         type_working_days_c2 = {}
         type_nonworking_days_c2 = {0:'Use base',
                                    1:'Nonworking'}
@@ -72,7 +72,7 @@ class ResourceTest(testlib.TestCase):
         self.rss.add_resource(self.r1)
         self.rss.add_resource(self.r2)
         self.rss.add_calendar(self.c1)
-        
+
     def test_get_resource(self):
         """
         """
@@ -89,6 +89,6 @@ class ResourceTest(testlib.TestCase):
         """
         self.assertEquals(self.rss.get_calendar('c_1'), self.c1)
         self.assertEquals(self.rss.get_calendar('c_2'), self.c2)
-    
+
 if __name__ == '__main__':
     testlib.unittest_main()

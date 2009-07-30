@@ -13,7 +13,7 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """Copyright (c) 2000-2009 LOGILAB S.A. (Paris, FRANCE).
-http://www.logilab.fr/ -- mailto:contact@logilab.fr  
+http://www.logilab.fr/ -- mailto:contact@logilab.fr
 """
 
 modname = 'projman'
@@ -66,15 +66,15 @@ data_files = [['share/projman',
                  'scheduling/projman_problem.hh',
                  'scheduling/timer.hh',
                 ]
-               ] 
+               ]
               ]
              ]
 
 debian_name = 'projman'
-debian_maintainer = 'Alexandre Fayolle ' 
+debian_maintainer = 'Alexandre Fayolle '
 debian_maintainer_email = 'alexandre.fayolle@logilab.fr'
 pyversions = ["2.5"]
- 
+
 from os.path import join
 include_dirs = [join('test', 'data')]
 
@@ -92,5 +92,3 @@ ext_modules = [Extension('projman.scheduling.gcsp',
                          language='c++',
                         )
              ]
-
-

@@ -31,6 +31,6 @@ class Test(testlib.TestCase):
         self.assertEquals(("foo", ""), extract_extension("foo"))
         self.assertEquals(("foo", "txt"), extract_extension("foo.txt"))
         self.assertEquals(("foo", "txt.old"), extract_extension("foo.txt.old"))
-        
+
 if __name__ == "__main__":
     testlib.unittest_main()

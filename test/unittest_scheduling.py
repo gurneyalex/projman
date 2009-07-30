@@ -29,7 +29,7 @@ class RawSchedulingTC(TestCase):
 
     def test_solve_simple(self):
         self.skip()
-        # 2 tasks, no time -> no solution        
+        # 2 tasks, no time -> no solution
         variables = []
         domains = {}
         constraints = []
@@ -97,7 +97,7 @@ class CSPSchedulerTC(TestCase):
         reader = ProjectXMLReader(filename)
         self.project, files = reader.read()
 
-        
+
     def test_visit(self):
         self.skip()
         scheduler = CSPScheduler(self.project)
@@ -114,7 +114,7 @@ class CSPSchedulerTC(TestCase):
 
 
 class CmpTasksTC(TestCase):
-        
+
     def test_cmp(self):
         self.skip()
         t0 = Task('0')
@@ -135,14 +135,14 @@ class CmpTasksTC(TestCase):
         t0.priority = 1
         self.assertEquals( cmp_tasks(t0,t1),  0)
 
-        
+
 class SimpleSchedulerTC(TestCase):
 
     def skipped_setUp(self):
         filename = osp.join(DATADIR, "csp_scheduling_projman.xml")
         reader = ProjectXMLReader(filename)
         self.project, files = reader.read()
-        
+
     def test_visit1(self):
         self.skip()
         scheduler = SimpleScheduler(self.project)

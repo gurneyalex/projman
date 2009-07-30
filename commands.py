@@ -63,8 +63,8 @@ class ProjmanCommand(Command):
         ('factorized_days',
          {'type' : 'int', 'metavar' : '<1, 2 or 4>',
           'default': 1,
-          'help' : 'schedule and display task in day(1), half day(2) or quarter of day(4).' 
-                   'Attention: if you decide to use this option, be coherent ' 
+          'help' : 'schedule and display task in day(1), half day(2) or quarter of day(4).'
+                   'Attention: if you decide to use this option, be coherent '
                    'for next projman commands ! '
           }
          ),
@@ -111,7 +111,7 @@ class ScheduleCommand(ProjmanCommand):
           'help': 'scheduling method (dumb, simple or csp)',
           }
          ),
-        ('time', 
+        ('time',
          {'type' : 'int', 'metavar': '<1...>',
           'default': 400000,
           'help': 'stop the programm after time'
@@ -283,8 +283,8 @@ class DiagramCommand(ProjmanCommand):
                 raise BadCommandUsage('unknown diagram %s' % diagram)
         if self.config.timestep:
             if not self.config.timestep in ['day', 'month', 'week']:
-                raise BadCommandUsage('non valid timestep %s' %self.config.timestep) 
-            
+                raise BadCommandUsage('non valid timestep %s' %self.config.timestep)
+
             output = self.config.output or '%s.%s' % (diagram, self.config.format)
             stream = handler.get_output(output)
             renderer.render(self.project, stream)

@@ -29,11 +29,11 @@ class GanttRenderer(AbstractRenderer) :
     """
     Render a Gantt diagram
     """
-    
+
     def __init__(self, options, handler, colors_file=None, colors_stream=None) :
         AbstractRenderer.__init__(self, options)
         self.drawer = GanttDrawer(options, handler, colors_file, colors_stream)
-        
+
     def render(self, task, stream):
         """
         render the task as a gantt diagram
@@ -44,7 +44,7 @@ class GanttRenderer(AbstractRenderer) :
     def _render_body(self, project) :
         """
         generate events to draw a Gantt diagram for the task description
-        
+
         concrete renderer should use the 'write' method or override this method
         to return the generated content.
         """
@@ -73,7 +73,7 @@ class GanttRenderer(AbstractRenderer) :
                 except NodeNotFound :
                     ct = None
                 if ct and ct in self._visible_tasks:
-                    self.drawer.task_constraints(c_type, task, ct, project.factor)        
+                    self.drawer.task_constraints(c_type, task, ct, project.factor)
 
     def render_node(self, node, project):
         """
@@ -82,14 +82,14 @@ class GanttRenderer(AbstractRenderer) :
         # hide task under the depth limit
         if self.options.depth and node.depth() >= self.options.depth :
             return
-        
+
         begin_p, end_p = project.get_task_date_range(node)
         # hide task out of the time line
         if begin_p and end_p:
             if end_p < self.drawer._timeline_days[0] or \
-                   begin_p > self.drawer._timeline_days[-1]: 
+                   begin_p > self.drawer._timeline_days[-1]:
                 return
-            
+
         if node.TYPE == 'milestone':
             self.render_milestone(node, project)
         else:
@@ -98,10 +98,10 @@ class GanttRenderer(AbstractRenderer) :
         if node.children:
             for node_child in node.children:
                 self.render_node(node_child, project)
-                
+
     def render_task(self, task, project):
         """
-        generate event for a given task 
+        generate event for a given task
         """
         project.get_factor()
         factor = project.factor
@@ -118,10 +118,10 @@ class GanttRenderer(AbstractRenderer) :
         self.drawer.open_line()
         self.drawer.main_content(task.title or task.id,
                                  project, task.depth(), task)
-        
+
         if self.options.showids :
             self.drawer.simple_content(task.title)
-                
+
         task_begin, task_end = project.get_task_date_range(task)
         task_end -= oneHour * HOURS_PER_DAY / factor
         x = self.drawer._x
@@ -129,7 +129,7 @@ class GanttRenderer(AbstractRenderer) :
         if not task.children:
             self.drawer._x = x
             self.drawer.render_leaf_task(task, task_begin, task_end, project)
-            
+
         if task.children:
             self.drawer._x = x
             self.drawer.render_root_task(task, task_begin, task_end, project)
@@ -176,9 +176,9 @@ class GanttDrawer(AbstractDrawer) :
     """
     Draw a Gantt diagram
     """
-    
+
     ## AbstractDrawer interface #############################################
-    
+
     def _init_table(self):
         """
         initialize fields needed by the table
@@ -188,7 +188,7 @@ class GanttDrawer(AbstractDrawer) :
         self._tasks_slots = {}
         # current task
         self._ctask = None
-        
+
     def _get_table_dimension(self, project):
         """
         calculate dimension of the table
@@ -207,7 +207,7 @@ class GanttDrawer(AbstractDrawer) :
         #calculate height
         height = ROW_HEIGHT * (5 + project.get_nb_tasks())
         return (width, height)
-    
+
     # project table head/tail #################################################
 
     def legend(self):
@@ -222,7 +222,7 @@ class GanttDrawer(AbstractDrawer) :
         factor = project.factor
         width = self._daywidth / factor
         ddays = (task_begin - self._timeline_days[0]).days
-        x = self._x + width * (ddays * factor) 
+        x = self._x + width * (ddays * factor)
         w = ((task_end-task_begin).days + 1) * width * factor
         self._handler.draw_rect(x,
                                 self._y+0+ROW_HEIGHT*0.125,
@@ -241,14 +241,14 @@ class GanttDrawer(AbstractDrawer) :
                                         ROW_HEIGHT-2, fillcolor=self._color_set['WEEKDAY'])
             day += oneDay
             x += self._daywidth
-                
-            
-        
+
+
+
     def render_root_task(self, task, task_begin, task_end, project):
         factor = project.factor
         width = self._daywidth / factor
         ddays = (task_begin - self._timeline_days[0]).days
-        x = self._x + width * (ddays * factor) 
+        x = self._x + width * (ddays * factor)
         w = ((task_end-task_begin).days + 1) * width * factor
 
         line_width = (ROW_HEIGHT/12.)
@@ -297,7 +297,7 @@ class GanttDrawer(AbstractDrawer) :
             self._handler.draw_rect(self._x+n*daywidth, self._y+1,
                                     daywidth, ROW_HEIGHT-2,
                                     fillcolor=self._color_set['TODAY'])
-            
+
     def draw_weekends_bg(self, rnge, x_min, y_min, y_max):
         daywidth = self._daywidth
         #bgcolor = self._color_set['WEEKEND']
@@ -332,7 +332,7 @@ class GanttDrawer(AbstractDrawer) :
                     self._handler.draw_dot(x_min+n*daywidth, y_min,
                                            x_min+n*daywidth, y_max,
                                            4,
-                                           color=color)          
+                                           color=color)
 
         else: # timestep == month
             for n,day in enumerate(rnge):
@@ -344,7 +344,7 @@ class GanttDrawer(AbstractDrawer) :
                 #    self._handler.draw_dot(self._x+n*daywidth, self._y,
                 #                       self._x+n*daywidth, self._y+ROW_HEIGHT,
                 #                       4,
-                #                       color=(204,204,204))          
+                #                       color=(204,204,204))
                 # les pointilles genent la lecture du graphe
 
     def milestone_timeline(self, day, milestone, project):
@@ -390,7 +390,7 @@ class GanttDrawer(AbstractDrawer) :
                                     fillcolor=self._colors['CONSTRAINT'])
         # record position
         self._x += width
-        
+
     def task_constraints(self, type_constraint, task, constraint_task, factor):
         """
         draw a constraint between from task to constraint_task

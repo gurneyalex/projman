@@ -18,7 +18,7 @@ from projman.lib import MileStone, Task
 from projman.lib.constants import *
 
 class TaskTC(TestCase):
-    
+
     def setUp(self):
         """called before each test from this class
 
@@ -28,7 +28,7 @@ class TaskTC(TestCase):
           |
           |--- child2
           |      |
-          |      |--- child2_1 (inge1/0.6), 5 
+          |      |--- child2_1 (inge1/0.6), 5
           |      |
           |      `--- child2_2 (inge2/1), 12
           |
@@ -72,7 +72,7 @@ class TaskTC(TestCase):
         self.assertEquals(self.parent.get_task('stone'), self.stone)
         self.assertEquals(self.parent.get_task('child2_1'), self.child2_1)
         self.assertEquals(self.parent.get_task('child2_2'), self.child2_2)
-    
+
     def test_get_resource_constraints(self):
         """test rsource is found, even within parents
         """
@@ -81,7 +81,7 @@ class TaskTC(TestCase):
         self.assertEquals(self.child1.get_resource_constraints(), set([('worker', 'inge1')]))
         self.assertEquals(self.child2_1.get_resource_constraints(), set([('worker', 'inge1')]))
         self.assertEquals(self.child2_2.get_resource_constraints(), set([('worker', 'inge2')]))
-        
+
     def test_get_resources(self):
         """check that array of all resource id returned
         """
@@ -91,7 +91,7 @@ class TaskTC(TestCase):
         self.assertEquals(self.child2_1.get_resources(), set(['inge1']))
         self.assertEquals(self.child2_2.get_resources(), set(['inge2']))
 
-    
+
     def test_get_priority(self):
         """test value returned
         """
@@ -112,8 +112,8 @@ class TaskTC(TestCase):
         self.assertEquals(self.child2.get_priority(), 1)
         self.assertEquals(self.child2_1.get_priority(), 1)
         self.assertEquals(self.child2_2.get_priority(), 1)
-        
-        
+
+
     def test_is_finished(self):
         """test achievement state
         """
@@ -141,8 +141,8 @@ class TaskTC(TestCase):
 ##         self.assertEquals(self.parent.is_finished(), True)
 ##         self.assertEquals(self.single_task.is_finished(), True)
 ##         self.assertEquals(self.child_task.is_finished(), True)
-        
-        
+
+
     def test_remaining_duration(self):
         """check returned number of days, and its right calculation
         according to progress
@@ -161,7 +161,7 @@ class TaskTC(TestCase):
         self.assertEquals(self.child2.progress, 14.5/17)
         self.assertEquals(self.parent.progress, 19.5/27)
 
-    
+
     def test_maximum_duration(self):
         """test that all children are taken into account
         """
@@ -186,7 +186,7 @@ class ConsistencyTC(testlib.TestCase):
         self.child_begin_at = Task('child_begin_at')
         self.child_begin_at.add_date_constraint(BEGIN_AT_DATE, date2)
         self.parent.append(self.child_begin_at)
-        
+
         self.child_begin_after = Task('child_begin_after')
         self.child_begin_after.add_date_constraint(BEGIN_AFTER_DATE, date2)
         self.parent.append(self.child_begin_after)
@@ -198,7 +198,7 @@ class ConsistencyTC(testlib.TestCase):
         self.child_end_at = Task('child_end_at')
         self.child_end_at.add_date_constraint(END_AT_DATE, date3)
         self.parent.append(self.child_end_at)
-        
+
         self.child_end_after = Task('child_end_after')
         self.child_end_after.add_date_constraint(END_AFTER_DATE, date3)
         self.parent.append(self.child_end_after)
@@ -212,7 +212,7 @@ class ConsistencyTC(testlib.TestCase):
         self.assertEquals(self.parent.check_consistency(), [])
         self.parent.add_date_constraint(BEGIN_AT_DATE, self.date2)
         self.assertEquals(len(self.parent.check_consistency()), 1)
-        
+
     def test_parent_begin_at2(self):
         self.parent.add_date_constraint(BEGIN_AT_DATE, self.date2)
         self.assertEquals(self.parent.check_consistency(), [])
@@ -226,14 +226,14 @@ class ConsistencyTC(testlib.TestCase):
         self.assertEquals(self.parent.check_consistency(), [])
 
     # FIXME etc.
-    
+
 class DateConstraintsTC(testlib.TestCase):
 
     def setUp(self):
         self.parent = Task('parent')
         self.child = Task('child')
         self.parent.append(self.child)
-        
+
     def test_parent_begin_at(self):
         self.assertEquals(self.child.get_date_constraints(), set())
         self.parent.add_date_constraint(BEGIN_AT_DATE, DateTime(2005, 01, 01))
@@ -270,7 +270,7 @@ class ProgressTC(testlib.TestCase):
         t.duration = 10
         self.assertEquals(t.progress, 0.)
         #activity = [100, DateTime(2005, 8, 1), DateTime(2005, 8, 4)]
-        # 
+        #
         #self.assertEquals(t.progress, 0.4)
         t.progress = 0.8
         self.assertEquals(t.progress, 0.8)
@@ -282,6 +282,6 @@ class ProgressTC(testlib.TestCase):
         self.assertRaises(ValueError, setattr, t, 'progress', -1)
         t.progress = 1
         self.assertEquals(t.progress, 1.)
-    
+
 if __name__ == '__main__':
     testlib.unittest_main()

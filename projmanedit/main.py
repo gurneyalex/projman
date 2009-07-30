@@ -125,7 +125,7 @@ class MainApp(gobject.GObject):
         renderer.render(self.project, stream)
         self.taskeditor.w("image1").set_from_file(output)
         self.emit("project-changed")
-        
+
     def on_save_cmd_activate(self,*args):
         print "save", args
         basedir = osp.dirname( self.project_file )
@@ -166,5 +166,3 @@ if len(sys.argv)>1:
     app.load_project( sys.argv[1] )
 
 gtk.main()
-
-

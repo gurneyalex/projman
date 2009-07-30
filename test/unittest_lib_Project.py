@@ -26,7 +26,7 @@ class ProjectTC(testlib.TestCase):
           |
           |--- child2
           |      |
-          |      |--- child2_1 (inge1/0.6), 5 
+          |      |--- child2_1 (inge1/0.6), 5
           |      |
           |      `--- child2_2 (inge2/1), 12
           |
@@ -86,7 +86,7 @@ class ProjectTC(testlib.TestCase):
         self.assertEquals(self.project.has_resource('Jean'), False)
         self.assertEquals(self.project.get_resource('inge1'), jean)
         self.assertEquals(self.project.get_resources(), ['inge1', 'inge2'])
-    
+
     def test_tasks(self):
         self.assertEquals(self.project.get_task('stone'), self.stone)
         self.assertEquals(self.project.get_nb_tasks(), 6)
@@ -94,10 +94,10 @@ class ProjectTC(testlib.TestCase):
 
     def _test_activities(self):
         pass
-    
+
     def _test_usage(self):
         pass
-    
+
     def _test_total_usage(self):
         pass
 
@@ -106,15 +106,14 @@ class ProjectTC(testlib.TestCase):
 
     def _test_task_date_range(self):
         pass
-    
+
     def _test_duration_worked_for(self):
         pass
 
     def _test_task_cost(self):
         pass
 
-    
+
 
 if __name__ == '__main__':
     testlib.unittest_main()
-

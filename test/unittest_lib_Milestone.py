@@ -44,8 +44,8 @@ class MilestoneTest(TestCase):
         self.other_id = 'other_id'
         self.another_id = 'another_id'
         self.last_id = 'last_id'
-        
-        
+
+
     def test_add_date_constraint(self):
         """No validation over which parameter is given.
         """
@@ -54,7 +54,7 @@ class MilestoneTest(TestCase):
                           self.stone.add_date_constraint, 'fake', self.date_tomorrow)
         self.assertSetEqual(self.stone.get_date_constraints(),
                             [(BEGIN_AT_DATE, self.date_today, 1)])
-        
+
     def test_add_task_constraint(self):
         """No validation over which parameter is given.
         """
@@ -64,13 +64,13 @@ class MilestoneTest(TestCase):
                           [(BEGIN_AFTER_BEGIN,self.good_id, 1)])
 
 #     def __test_get_range_at(self):
-#         """get date range after setting constraints of type 'at' with 
+#         """get date range after setting constraints of type 'at' with
 #         """
 #         for cst, date in self.at_constraints.items():
 #             self.stone.add_date_constraint(cst, date)
 #         self.assertEquals(self.stone.get_date_range(),
 #                           (self.date_yesterday, self.date_tomorrow))
-        
+
 #     def __test_get_range_before(self):
 #         """get date range after setting constraints of type 'before' with today, tomorrow
 #         """
@@ -78,7 +78,7 @@ class MilestoneTest(TestCase):
 #             self.stone.add_date_constraint(cst, date)
 #         self.assertEquals(self.stone.get_date_range(),
 #                           (self.date_today, self.date_tomorrow))
-        
+
 #     def __test_get_range_after(self):
 #         """get date range after setting constraints of type 'after' with yesterday, today
 #         """
@@ -86,7 +86,7 @@ class MilestoneTest(TestCase):
 #             self.stone.add_date_constraint(cst, date)
 #         self.assertEquals(self.stone.get_date_range(),
 #                           (self.date_yesterday, self.date_today))
-        
+
 #     def __test_get_range_before_after(self):
 #         """get date range after setting constraints of type 'before, after' with today, yesterday
 #         """
@@ -121,7 +121,7 @@ class MilestoneTest(TestCase):
 #             all_constraints[key].sort()
 #             result[key].sort()
 #             self.assertEquals(all_constraints[key], result[key])
-        
+
 #     def ___test_get_date_constraints(self):
 #         """Create a child and checks inheritance of date constraints
 #            BEWARE: begin-at-date & end-at-date ar inherited as

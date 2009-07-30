@@ -116,7 +116,7 @@ class ResourcesXMLReaderTest(TestCase):
 class ErrorXMLReaderTest(TestCase):
     def setUp(self):
         self.reader = ProjectXMLReader(None)
-    
+
     def test_error_project(self):
         self.assertRaises(Exception, self.reader.read_resources, osp.join(DATADIR, 'error_project.xml'))
 
@@ -124,7 +124,7 @@ class ErrorXMLReaderTest(TestCase):
         root = self.reader.read_tasks(osp.join(DATADIR, 'error_doubletask.xml'))
         self.assertEquals(root.check_consistency(), ['Duplicate task id: double_t1_1'])
 
-      
+
     def test_error_dtd_project(self):
         self.assertRaises(MalformedProjectFile, self.reader.read_tasks, osp.join(DATADIR, 'error_dtd_project.xml'))
         reader = ProjectXMLReader(osp.join(DATADIR, 'error_dtd_projman.xml'))

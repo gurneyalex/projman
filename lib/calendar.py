@@ -25,7 +25,7 @@ Manipulate a xml project description.
 This code is released under the GNU Public Licence v2. See www.gnu.org.
 """
 
-from logilab.common.tree import VNode 
+from logilab.common.tree import VNode
 from mx.DateTime import Time, TimeDelta
 
 from projman import DAY_WEEK
@@ -38,7 +38,7 @@ class Calendar(VNode):
     """
 
     TYPE = 'calendar'
-    
+
     def __init__(self, id, name=u''):
         VNode.__init__(self, id)
         self.name = name
@@ -54,11 +54,11 @@ class Calendar(VNode):
         # ex : {day_of_week:type, ...} and day_of_week
         # in {mon, tue, wed, thu, fri, sat, sun}
         self.weekday = {}
-        # list of periods associated to its type 
+        # list of periods associated to its type
         #ex: [(from_date, to_date, type), ...]
         # with from_date and to_date as DateTime object
         self.timeperiods = []
-        # register the national day, so a relative date 
+        # register the national day, so a relative date
         # available each year (mm/dd)
         self.national_days = []
         self.start_on = None
@@ -104,9 +104,9 @@ class Calendar(VNode):
                 new_timeperiods.append((from_datetime, to_datetime, type))
         else:
             new_timeperiods.append((from_datetime, to_datetime, type))
-           
+
         self.timeperiods = new_timeperiods
-        
+
         # check that timeperiods can merge together
         new_timeperiods = []
         merged_index = []
@@ -117,27 +117,27 @@ class Calendar(VNode):
                     if self.timeperiods[i][0].date == self.timeperiods[k][1].date \
                            and self.timeperiods[i][2] == self.timeperiods[k][2]:
                         new_timeperiods.append(
-                            (self.timeperiods[k][0], 
-                             self.timeperiods[i][1], 
+                            (self.timeperiods[k][0],
+                             self.timeperiods[i][1],
                              self.timeperiods[i][2]))
                         flag = 1
                         merged_index.append(k)
                     elif self.timeperiods[i][1].date == self.timeperiods[k][0].date \
                              and self.timeperiods[i][2] == self.timeperiods[k][2]:
                         new_timeperiods.append(
-                            (self.timeperiods[i][0], 
-                             self.timeperiods[k][1], 
+                            (self.timeperiods[i][0],
+                             self.timeperiods[k][1],
                              self.timeperiods[i][2]))
                         flag = 1
                         merged_index.append(k)
             if flag == 0 and i not in merged_index:
-                new_timeperiods.append( 
-                    (self.timeperiods[i][0], 
-                     self.timeperiods[i][1], 
+                new_timeperiods.append(
+                    (self.timeperiods[i][0],
+                     self.timeperiods[i][1],
                      self.timeperiods[i][2]))
 
         self.timeperiods = new_timeperiods
-                    
+
 
     def availability(self, datetime):
         """
@@ -165,7 +165,7 @@ class Calendar(VNode):
                 return True
             cal = cal.parent
         return False
-    
+
     def after_start(self, datetime):
         cal = self
         while isinstance(cal, Calendar):
@@ -186,8 +186,8 @@ class Calendar(VNode):
 		else:
                     return False
             cal = cal.parent
-        return True 
- 
+        return True
+
     def _get_intervals(self, daytype):
         cal = self
         while isinstance(cal, Calendar):
@@ -206,10 +206,10 @@ class Calendar(VNode):
         if daytype is None:
             daytype = self.get_default_daytype()
         if daytype is None:
-            raise Exception('Unable to compute daytype for "%s" in calendar "%s"' 
+            raise Exception('Unable to compute daytype for "%s" in calendar "%s"'
                             % (datetime, self.name))
         return daytype
-    
+
     def _get_daytype_timeperiods(self, datetime):
         cal = self
         while isinstance(cal, Calendar):
@@ -249,6 +249,3 @@ class Calendar(VNode):
         for from_time, to_time in intervals:
             res += to_time - from_time
         return res
-
-
-

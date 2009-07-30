@@ -19,7 +19,7 @@ Utility functions and constants for managing colors.
 
 COLORS = {
     'aqua':         (0x00, 0xFF, 0xFF),
-    'black':        0,    
+    'black':        0,
     'blue':         (0x00, 0x00, 0xFF),
     'blueviolet':   (0x8A, 0x2B, 0xE2),
     'brown':        (0xA5, 0x2A, 0x2A),
