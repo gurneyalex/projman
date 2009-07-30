@@ -52,16 +52,16 @@ class MilestoneTest(TestCase):
         self.stone.add_date_constraint(BEGIN_AT_DATE, self.date_today)
         self.assertRaises(AssertionError,
                           self.stone.add_date_constraint, 'fake', self.date_tomorrow)
-        self.assertSetEqual(self.stone.get_date_constraints(),
-                            [(BEGIN_AT_DATE, self.date_today, 1)])
+        self.assertUnorderedIterableEquals(self.stone.get_date_constraints(),
+                                           [(BEGIN_AT_DATE, self.date_today, 1)])
 
     def test_add_task_constraint(self):
         """No validation over which parameter is given.
         """
         self.stone.add_task_constraint(BEGIN_AFTER_BEGIN, self.good_id)
         self.assertRaises(AssertionError, self.stone.add_task_constraint, 'fake', 'dumb_id')
-        self.assertSetEqual(self.stone.get_task_constraints(),
-                          [(BEGIN_AFTER_BEGIN,self.good_id, 1)])
+        self.assertUnorderedIterableEquals(self.stone.get_task_constraints(),
+                                           [(BEGIN_AFTER_BEGIN,self.good_id, 1)])
 
 #     def __test_get_range_at(self):
 #         """get date range after setting constraints of type 'at' with
