@@ -67,7 +67,7 @@ class ProjectTC(testlib.TestCase):
         """tests inconsistent projects"""
         # expliclity add duplicate node id
         self.parent.append(Task('child1'))
-        self.project.root_task = self.parent
+        self.project._root_task = self.parent
         self.assertEquals(self.project.check_consistency(), ['Duplicate task id: child1'])
 
     def _test_schedule(self):
