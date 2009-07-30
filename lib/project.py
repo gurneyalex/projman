@@ -54,7 +54,7 @@ class Project(object):
     TYPE = 'project'
 
     def __init__(self):
-        self.root_task = None
+        self._root_task = None
         self.resource_set = None
         self.resource_role_set = None
         self._is_scheduled = False
