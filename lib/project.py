@@ -91,7 +91,7 @@ class Project(object):
 #                    if mod >= 0.13:
 #                        factor_ = (leaf.duration % 1 ) - 0.5
 #            factor = min(factor, factor_)
-            
+
 #        dist=abs(factor-1.)
 #        _factor = 1.
 #        for f in [1., 0.5, 0.25]:
@@ -170,7 +170,7 @@ class Project(object):
                 pass #print 'x',
             else:
                 pass #print '.',
-                
+
         grouped = self.activities.groupby('task', 'resource')
         for task_id, resources in grouped.iteritems():
             for res_id, rows in resources.iteritems():
@@ -204,7 +204,7 @@ class Project(object):
             for i in range(len(res.id_role)):
                 if res.id_role[i] == task.task_type:
                     task.set_resources.add(res.id)
-      
+
     # tasks methods ###########################################################
 
     def get_task(self, task_id):
@@ -278,7 +278,7 @@ class Project(object):
         return begin, end
 
     # activities methods ######################################################
-    
+
     def add_activity(self, begin, end, resource_id, task_id,
                      usage=1., src='past'):
         """add an activity"""
@@ -291,7 +291,7 @@ class Project(object):
         for row in rows:
             self.add_activity(*row)
         self.update_caches()
-           
+
     def has_activity(self, t_id):
         return len(self.activities.select('task', t_id)) > 0
 
@@ -315,7 +315,7 @@ class Project(object):
             result[r_id] = duration
         return result
 
-    
+
     def get_usage(self, resource_id, task_id, date):
         """
         get the usage in percentage for the specified task, resource and date
@@ -342,11 +342,11 @@ class Project(object):
             if begin <= date <= end:
                 total_usage += usage
         return total_usage
-    
+
     def get_resource_disponibility(self, resource_id, date):
         """get disponibility of a resource on a given date"""
         return 1 - self.get_total_usage(resource_id, date)
-    
+
     def get_duration_worked_for_t(self, task_id):
         """gets the duration of work in days (float) of a given task"""
         warn('Project.get_duration_worked_for_t() is to be removed soon',
@@ -357,7 +357,7 @@ class Project(object):
             duration += self.compute_duration(begin, end, usage)
         return duration
 
-    
+
     def get_task_total_cost(self, task_id ,task_tot_duration):
         """
         obtain concatenation of costs for a task

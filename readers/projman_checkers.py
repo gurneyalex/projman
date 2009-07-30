@@ -71,7 +71,7 @@ class convertible(attribute_checker):
         try:
             self.cvt(val)
         except:
-            
+
             return self.msg % {'attr':attr, 'val':val}
 
 class depends(object):
@@ -249,7 +249,7 @@ class BaseEtreeChecker(object):
             self._error(msg % {'txt':repr(txt)})
             import traceback
             traceback.print_exc()
-            
+
     def _empty(self):
         pos, node = self.stack[-1]
         def isempty(txt):
@@ -310,7 +310,7 @@ class ScheduleChecker(BaseEtreeChecker):
         else:
             self._attributes( {"type" : one_of(*DATE_CONSTRAINT)} )
         self._content( iso_date )
-        
+
     def check_constraint_task(self):
         self._empty()
         self._children()
@@ -359,7 +359,7 @@ class ResourcesChecker(BaseEtreeChecker):
         self._attributes( { "id?" : not_empty } )
         self._children("resource+","calendar+","resource-role*")
         self._empty()
-        
+
     def check_resource(self):
         self._is_child_of( "resources-list" )
         self._children("label","use-calendar","hourly-rate?", "role*")
@@ -450,7 +450,7 @@ class ResourcesChecker(BaseEtreeChecker):
         self._content(iso_date)
         self._children()
         self._noattr()
-    
+
 class TasksChecker(BaseEtreeChecker):
     def check_task(self):
         self._is_child_of("task",None)
@@ -475,7 +475,7 @@ class TasksChecker(BaseEtreeChecker):
             self._children("label", "link?", "description?","constraint-date*",
                            "constraint-resource*","constraint-task*",
                            "constraint-interruptible?")
-            
+
     def check_milestone(self):
         self._is_child_of( "task" )
         self._attributes( {"id":not_empty} )

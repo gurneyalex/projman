@@ -20,20 +20,20 @@ from projman.renderers.gantt import GanttRenderer, GanttDrawer
 from projman.renderers.abstract import AbstractRenderer, ROW_HEIGHT
 
 class GanttResourcesRenderer(ResourcesRenderer, GanttRenderer):
-    
+
     def __init__(self, options, handler, colors_file=None, colors_stream=None):
         AbstractRenderer.__init__(self, options)
         self.drawer = GanttResourcesDrawer(options, handler, colors_file,
                                            colors_stream)
         self._draw_resources = {}
-        
+
     def render(self, project, stream):
         """
         render the task as a gantt & resources diagram
         """
         AbstractRenderer.render(self, project, stream)
         self.drawer._handler.save_result(stream)
-       
+
     def _render_body(self, project) :
         GanttRenderer._render_body(self, project)
         ResourcesRenderer._render_body(self, project)
@@ -49,13 +49,13 @@ class GanttResourcesRenderer(ResourcesRenderer, GanttRenderer):
 class GanttResourcesDrawer(ResourcesDrawer, GanttDrawer):
     def _init_table(self):
         """ initialize fields needed by the table"""
-        GanttDrawer._init_table(self) 
+        GanttDrawer._init_table(self)
         ResourcesDrawer._init_table(self)
 
     def _get_table_dimension(self, project):
         """ calculate dimension of the table"""
         #retreive attributes from mother classes
-        width_gantt, height_gantt = GanttDrawer._get_table_dimension(self, project) 
+        width_gantt, height_gantt = GanttDrawer._get_table_dimension(self, project)
         width_res, height_res = ResourcesDrawer._get_table_dimension(self, project)
         #calculate height_resource_reduced
         nb_resources = len(project.resource_set.get_resources())
@@ -64,4 +64,3 @@ class GanttResourcesDrawer(ResourcesDrawer, GanttDrawer):
         width = max(width_gantt, width_res)
         height = height_gantt+height_resource_reduced
         return width, height
-                    

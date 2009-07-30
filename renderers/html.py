@@ -90,7 +90,7 @@ HTML_NOCSS = {
 
 class ResourcesHTMLRenderer(ResourcesRenderer) :
     """render a project to a gantt HTML diagram"""
-    
+
     def __init__(self, options, css=None):
         ResourcesRenderer.__init__(self, options)
         if css:
@@ -102,7 +102,7 @@ class ResourcesHTMLRenderer(ResourcesRenderer) :
         """ open the table where the resources diagram will be located """
         self._resource = None
         self.write("<table border='0'>\n")
-        
+
     def close_table(self):
         """ close the table where the resources diagram is located """
         self.write("</table>\n")
@@ -113,7 +113,7 @@ class ResourcesHTMLRenderer(ResourcesRenderer) :
     def close_line(self):
         """ close a table's line """
         self.write("</tr>")
-        
+
 
     # project heads ######################################################
     def main_title(self, title):
@@ -121,15 +121,15 @@ class ResourcesHTMLRenderer(ResourcesRenderer) :
         self.write("<th colspan='2' %s>%s %s%s</th>\n" % (
             self._ref['project'][0], self._ref['project'][1],
             title, self._ref['project'][2]))
-        
+
     def simple_title(self, title, tail=0):
         """ write a simple description column's title """
         self.write("<th>%s</th>" % (title or '&nbsp;'))
-            
+
     def timeline_title(self, date, today=0):
         """ write a timeline column title """
         if today:
-            classe = 'today'                
+            classe = 'today'
         else :
             classe = 'timeline'
         self.write("<th %s>%s%s%s</th>" % (self._ref[classe][0],
@@ -143,7 +143,7 @@ class ResourcesHTMLRenderer(ResourcesRenderer) :
             attrs = self._ref['leaf_date_%s'%t]
             self.write("<td %s>%s%s%s</td>" % (attrs[0], attrs[1], t, attrs[2]))
         self.write("</tr></table>")
-        
+
     # project table content ###################################################
     def main_content(self, content, depth=0, activities=None):
         """ write a main cell's content """
@@ -153,7 +153,7 @@ class ResourcesHTMLRenderer(ResourcesRenderer) :
             classe = 'project'
         else:
             classe = status_class = 'resource'
-        self._colspan = 0    
+        self._colspan = 0
         self._attrs = attrs = self._ref[classe]
         self.write("<tr valign='top'><td %s>%s&nbsp;%s</td><td %s>%s%s%s</td>" \
                    % (self._ref[status_class][0], self._ref[status_class][1],
@@ -181,7 +181,7 @@ class ResourcesHTMLRenderer(ResourcesRenderer) :
             self.write("<td colspan='%s' %s>%s%s%s</td>" % (
                 self._colspan, _attrs[0], _attrs[1],
                 (text or '&nbsp;'), _attrs[2]))
-        
+
     # resources table content ##################################################
 
     def flush_resource_cells(self):

@@ -155,7 +155,7 @@ class SVGHandler(object):
         self._rend.draw_text( gc, x, y,
                               text, prop,
                               angle=0, ismath=False)
-        
+
     def draw_line(self, x1, y1, x2, y2, **args):
         """ draw a line """
         y1 = self.height-y1

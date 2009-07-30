@@ -239,7 +239,7 @@ class TaskEditor(gobject.GObject):
             # select the task
             itr = self.get_task_iter_from_id( sel_task_id )
             tree.get_selection().select_iter( itr )
-    
+
     def get_iter_by_task_activity_id(self, id):
         model = self.activities_model
         itr = model.get_iter_first()
@@ -324,7 +324,7 @@ class TaskEditor(gobject.GObject):
         self.setup_project_files_path()
         self.refresh_task_list()
         self.refresh_activities_list()
-        
+
 
     def on_task_selection_changed(self, sel):
         model, itr = sel.get_selected()
@@ -389,12 +389,12 @@ class TaskEditor(gobject.GObject):
             child = task
         else:
             # Milestones don't have resources
-            child = None 
+            child = None
         color = "black"
         while child and not child.resource_constraints:
             child = child.parent
             color = "gray"
-        
+
         self.resources_model.clear()
         if child:
             for res_type, res_id, res_usage in child.resource_constraints:
@@ -404,7 +404,7 @@ class TaskEditor(gobject.GObject):
         for activity in self.app.project.activities:
             if activity[2] == rid and activity[3] == tid:
                 return activity
-        return None    
+        return None
 
     def get_activity_by_line_id(self, line_id):
         ligne = 0
@@ -456,7 +456,7 @@ class TaskEditor(gobject.GObject):
         task_id = entry.get_text()
         self.current_task.id = task_id
         self.task_model.set_value( itr, 1, task_id )
-        
+
     def on_spinbutton_duration_changed(self, spin):
         dur = self.w("spinbutton_duration").get_adjustment().get_value()
         self.current_task.duration = dur
@@ -501,9 +501,9 @@ class TaskEditor(gobject.GObject):
         parent_task = self.get_task_from_path( path )
 
         if not parent_task.children:
-            dlg = gtk.MessageDialog(parent=None, flags=0, 
-                    type=gtk.MESSAGE_QUESTION, 
-                    buttons=gtk.BUTTONS_YES_NO, 
+            dlg = gtk.MessageDialog(parent=None, flags=0,
+                    type=gtk.MESSAGE_QUESTION,
+                    buttons=gtk.BUTTONS_YES_NO,
                     message_format= "Warning : Adding a Task as a child of Task(%s) will reset the load value of it. \n Are you sure ?" % parent_task.id);
             ret = dlg.run()
             dlg.destroy()
@@ -535,9 +535,9 @@ class TaskEditor(gobject.GObject):
         parent_task = self.get_task_from_path( path )
 
         if not parent_task.children:
-            dlg = gtk.MessageDialog(parent=None, flags=0, 
-                    type=gtk.MESSAGE_QUESTION, 
-                    buttons=gtk.BUTTONS_YES_NO, 
+            dlg = gtk.MessageDialog(parent=None, flags=0,
+                    type=gtk.MESSAGE_QUESTION,
+                    buttons=gtk.BUTTONS_YES_NO,
                     message_format= "Warning : Adding a Milestone as a child of Task(%s) will reset the load value of it. \n Are you sure ?" % parent_task.id);
             ret = dlg.run()
             dlg.destroy()
@@ -618,4 +618,3 @@ class TaskEditor(gobject.GObject):
                 self.current_task = self.app.project.root_task
             self.refresh_task_list(sel_task=self.current_task)
             self.update_task_info()
-

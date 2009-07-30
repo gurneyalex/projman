@@ -20,12 +20,12 @@ def mk_calendar1():
     cal = Calendar('c_1', 'Calendrier 1')
     cal.day_types = {'nonworking': ['Non working', []],
                      'working':    ['Working', [MORNING, AFTERNOON]],
-                     
+
                          'halfday':    ['HalfDay', [HALFDAY]],
                          }
     cal.default_day_type = 'working'
     cal.national_days = [(1,1), (12,25), (11,11)]
-    cal.start_on = DateTime(2004,01,06) 
+    cal.start_on = DateTime(2004,01,06)
     cal.stop_on = DateTime(2006,12,29)
     cal.weekday['mon'] = 'working'
     cal.weekday['tue'] = 'working'
@@ -44,7 +44,7 @@ def mk_calendar1():
     return cal
 
 def mk_calendar2():
-    cal = Calendar('c_2', 'Calendrier 2') 
+    cal = Calendar('c_2', 'Calendrier 2')
     from_date = DateTime(2004, 06, 12)
     to_date = DateTime(2004, 06, 23)
     cal.add_timeperiod(from_date, to_date, 'nonworking')
@@ -65,12 +65,12 @@ class CalendarTC(testlib.TestCase):
         self.r1.calendar = 'c_1'
         self.r1.type = '1'
         self.rss.add_resource(self.r1)
-        
+
         self.r2 = Resource('r_2', 'Resource 2')
         self.r2.calendar = 'c_2'
         self.r2.type = '1'
         self.rss.add_resource(self.r2)
-        
+
         self.c1 = mk_calendar1()
         self.c2 = mk_calendar2()
         self.c1.append(self.c2)
@@ -110,6 +110,6 @@ class CalendarTC(testlib.TestCase):
     def test_get_daytype(self):
         self.assertEquals(self.c1.get_default_daytype(), 'working')
         self.assertEquals(self.c2.get_default_daytype(), 'working')
-        
+
 if __name__ == '__main__':
     testlib.unittest_main()

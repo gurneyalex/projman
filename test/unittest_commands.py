@@ -34,13 +34,13 @@ TAR_PROJMAN = osp.join(DATADIR, TAR_PROJMAN)
 
 class AbstractCommandTest(testlib.TestCase):
     """testing """
-    
+
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp()
-    
+
     def tearDown(self):
-        shutil.rmtree(self.tmpdir) 
-        
+        shutil.rmtree(self.tmpdir)
+
 class ScheduleTest(AbstractCommandTest):
     """testing """
 
@@ -70,7 +70,7 @@ class ScheduleTest(AbstractCommandTest):
         #self.assert_(osp.exists(self.sched))
 
 class DiagramTest(AbstractCommandTest):
-    
+
     def test_gantt(self):
         gantt = osp.join(self.tmpdir, 'out_gantt.svg')
         cmd_run('diagram', '--timestep', 'week', '-f', XML_SCHEDULED_PROJMAN, 'gantt')
@@ -79,7 +79,7 @@ class DiagramTest(AbstractCommandTest):
         cmd_run('diagram', '--timestep', 'week', '-f', XML_SCHEDULED_PROJMAN, '-o',
                 gantt, 'gantt')
         self.assert_(osp.exists(gantt))
-        
+
 #    def test_gantt2(self):
 #        gantt = osp.join(self.tmpdir, 'out_gantt.svg')
 #        cmd_run('diagram', '--timestep', 'week',
@@ -98,7 +98,7 @@ class DiagramTest(AbstractCommandTest):
         cmd_run('diagram', '-f', XML_SCHEDULED_PROJMAN, '--format', 'svg',
                 'resources', '-o', resources)
         self.assert_(osp.exists(resources))
-    
+
     def test_gantt_resources(self):
         img = osp.join(self.tmpdir, 'gantt-resources')
         cmd_run('diagram', '-f', XML_SCHEDULED_PROJMAN, 'gantt-resources',
@@ -107,23 +107,23 @@ class DiagramTest(AbstractCommandTest):
 
 
 class XmlTest(AbstractCommandTest):
-    
+
     def test_all(self):
         cmd_run('view', '-f', XML_SCHEDULED_PROJMAN,
                 'duration-table', 'duration-section', 'tasks-list-section',
                 'cost-para', 'cost-table', 'rates-section')
         self.assert_(osp.exists("output.xml"))
-        
+
     def test_duration_table(self):
         out = osp.join(self.tmpdir, 'out_duration.xml')
         cmd_run('view', '-f', XML_SCHEDULED_PROJMAN, '-o', out, 'duration-table')
         self.assert_(osp.exists(out))
-        
+
     def test_duration_section(self):
         out = osp.join(self.tmpdir, 'out_duration.xml')
         cmd_run('view', '-f', XML_SCHEDULED_PROJMAN, '-o', out, 'duration-section')
         self.assert_(osp.exists(out))
-    
+
     def test_tasks_list_section(self):
         out = osp.join(self.tmpdir, 'out_duration.xml')
         cmd_run('view', '-f', XML_SCHEDULED_PROJMAN,
