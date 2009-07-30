@@ -79,6 +79,8 @@ from os.path import join
 include_dirs = [join('test', 'data')]
 
 from distutils.core import Extension
+GECODE_VERSION = ((2<<16)+(1<<8)+1) # for version 2.1.1
+
 ext_modules = [Extension('projman.scheduling.gcsp',
                          sources = ['scheduling/gcspmodule.cc',
                                     'scheduling/projman_gecode.cc',
@@ -90,5 +92,6 @@ ext_modules = [Extension('projman.scheduling.gcsp',
                                   'scheduling/projman_problem.hh',
                                   ],
                          language='c++',
+                         extra_compile_args=['-DGE_VERSION=%s' % GECODE_VERSION],
                         )
              ]
