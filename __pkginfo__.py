@@ -82,10 +82,14 @@ from distutils.core import Extension
 
 def gecode_version():
     import os, subprocess
-    res=os.system("g++ -o gecode_version data/gecode_version.cc")
-    p=subprocess.Popen("./gecode_version",stdout=subprocess.PIPE)
-    vers = p.stdout.read()
-    return [int(c) for c in vers.strip().split('.')]
+    try:
+        res=os.system("g++ -o gecode_version data/gecode_version.cc")
+        p=subprocess.Popen("./gecode_version",stdout=subprocess.PIPE)
+        vers = p.stdout.read()
+        return [int(c) for c in vers.strip().split('.')]
+    except OSError:
+        # We can't check return latest version
+        return [3,1,0]
 
 vers = gecode_version()
 
