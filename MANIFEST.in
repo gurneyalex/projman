@@ -5,6 +5,7 @@ include DEPENDS
 include TODO 
 include COPYING
 include data/projedit.glade
+include data/gecode_version.cc
 
 recursive-include scheduling *
 

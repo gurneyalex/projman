@@ -18,7 +18,7 @@ http://www.logilab.fr/ -- mailto:contact@logilab.fr
 
 modname = 'projman'
 
-numversion = (0, 13, 6)
+numversion = (0, 13, 7)
 version = '.'.join([str(num) for num in numversion])
 
 
@@ -82,21 +82,21 @@ from distutils.core import Extension
 
 def gecode_version():
     import os, subprocess
-    try:
-        res=os.system("g++ -o gecode_version data/gecode_version.cc")
-        p=subprocess.Popen("./gecode_version",stdout=subprocess.PIPE)
-        vers = p.stdout.read()
-        return [int(c) for c in vers.strip().split('.')]
-    except OSError:
-        # We can't check return latest version
-        return [3,1,0]
-
-vers = gecode_version()
+    version = [0,0,0]
+    if os.path.exists('data/gecode_version.cc'):
+        try:
+            res=os.system("g++ -o gecode_version data/gecode_version.cc")
+            p=subprocess.Popen("./gecode_version",stdout=subprocess.PIPE)
+            vers = p.stdout.read()
+            version = [int(c) for c in vers.strip().split('.')]
+        except OSError:
+            pass
+    return version
 
 def encode_version(a,b,c):
     return ((a<<16)+(b<<8)+c)
 
-GECODE_VERSION = encode_version(*vers)
+GECODE_VERSION = encode_version(*gecode_version())
 
 ext_modules = [Extension('projman.scheduling.gcsp',
                          sources = ['scheduling/gcspmodule.cc',
