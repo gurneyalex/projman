@@ -1,3 +1,9 @@
+projman (0.13.7-1) unstable; urgency=low
+
+  * new upstream release
+
+ -- Nicolas Chauvat <nicolas.chauvat@logilab.fr>  Mon, 07 Sep 2009 15:19:37 +0200
+
 projman (0.13.6-1) unstable; urgency=low
 
   * new upstream release
@@ -12,25 +18,25 @@ projman (0.13.5-1) unstable; urgency=low
 
 projman (0.13.4-1) unstable; urgency=low
 
-  * new upstream release 
+  * new upstream release
 
  -- Charlotte.leCalvez <charlotte.lecalvez@logilab.fr>  Fri, 27 Jun 2008 12:11:20 +0200
 
 projman (0.13.3-1) unstable; urgency=low
 
-  * new upstream release 
+  * new upstream release
 
  -- Charlotte.leCalvez <charlotte.lecalvez@logilab.fr>  Tue, 26 Jun 2008 15:38:20 +0200
 
 projman (0.13.2-1) unstable; urgency=low
 
-  * new upstream release 
+  * new upstream release
 
  -- Charlotte.leCalvez <charlotte.lecalvez@logilab.fr>  Tue, 24 Jun 2008 16:38:20 +0200
 
 projman (0.13.1-1) unstable; urgency=low
 
-  * new upstream release 
+  * new upstream release
 
  -- Charlotte.leCalvez <charlotte.lecalvez@logilab.fr>  Mon, 23 Jun 2008 10:28:20 +0200
 
@@ -91,7 +97,7 @@ projman (0.11.0-1) unstable; urgency=low
 
 projman (0.10.0-2) unstable; urgency=low
 
-  * reorganization to install into site-python, removing the need for 
+  * reorganization to install into site-python, removing the need for
     pythonX.X- packages
 
  -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Tue, 10 Jan 2006 18:03:47 +0100
@@ -124,7 +130,7 @@ projman (0.9.1-1) unstable; urgency=low
 projman (0.9.0-1) unstable; urgency=low
 
   * added depedancy to xmldiff
-  
+
   * changed source
 
  -- emb <emb@logilab.fr>  Fri, 11 Feb 2005 12:29:30 +0100
@@ -201,7 +207,7 @@ projman (0.8.0-0) unstable; urgency=low
 
   * BUG Duration calculation: was 0.0 when usage not 100. fix bug and calculate good value
 
-  * BUG Vue task-list: print '1 jour.homme' 'x jours.homme' if x>1 
+  * BUG Vue task-list: print '1 jour.homme' 'x jours.homme' if x>1
 
   * BUG Vue task-cost/task-date: print empty row instead of row full of zero
 
@@ -212,11 +218,11 @@ projman (0.8.0-0) unstable; urgency=low
 projman (0.7.0-1) unstable; urgency=low
 
   * mkview (xml/docbook): task listings with their attribute
-  
+
   * mkview (xml/docbook): dates / cost table
-  
+
   * mkview (xml/docbook): resources / cost table
-  
+
   * Bug fix : planner conversion compatible with the "as soon" constraint
 
  -- emb <emb@logilab.fr>  Thu,  3 Jun 2004 16:09:03 +0200
@@ -224,13 +230,13 @@ projman (0.7.0-1) unstable; urgency=low
 projman (0.6.0-1) unstable; urgency=low
 
   * Diagram combining gantt and resources diagrams.
-  
+
   * Fix bugs when timestep > 1 for diagram.
-  
+
   * Changes in activities.dtd: task element no longer exists, replace by task-id attributes in reports-list element.
-  
+
   * Add smoke_test.
-  
+
   * Add a global file for output and all files generated in the same directory.
 
  -- emb <emb@logilab.fr>  Wed, 26 May 2004 17:13:00 +0200
