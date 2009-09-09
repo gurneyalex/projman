@@ -21,12 +21,11 @@ modname = 'projman'
 numversion = (0, 13, 7)
 version = '.'.join([str(num) for num in numversion])
 
-
 license = 'GPL'
 copyright = '''Copyright © 2000-2009 LOGILAB S.A. (Paris, FRANCE).
 http://www.logilab.fr/ -- mailto:contact@logilab.fr'''
 
-short_desc = "tool for project management"
+short_desc = "project management tool"
 
 long_desc = """projman is a tool for project management and diagrams creation,
 as Gantt diagram and resources activities diagram.
@@ -46,7 +45,6 @@ author_email = "devel@logilab.fr"
 web = "http://www.logilab.org/projects/%s" % modname
 ftp = "ftp://ftp.logilab.org/pub/%s" % modname
 mailinglist = "http://lists.logilab.org/mailman/listinfo/management-projects"
-
 
 scripts = ['bin/projman', ]
 data_files = [['share/projman',
@@ -74,6 +72,9 @@ debian_name = 'projman'
 debian_maintainer = 'Alexandre Fayolle '
 debian_maintainer_email = 'alexandre.fayolle@logilab.fr'
 pyversions = ["2.5"]
+
+__depends__ = {'logilab-common': '>= 0.44.0',
+               }
 
 from os.path import join
 include_dirs = [join('test', 'data')]
