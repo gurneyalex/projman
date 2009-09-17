@@ -30,7 +30,8 @@ from projman.lib._exceptions import MalformedProjectFile
 from projman.scheduling.csp import CSPScheduler
 
 from projman.projmanedit.gui.taskedit import TaskEditor
-from projman.projmanedit.gui.editors import ProjectEditor, ResourceEditor
+from projman.projmanedit.gui.editors import (ProjectEditor, ResourceEditor,
+                                             ActivitiesEditor)
 
 GLADE=projman.projmanedit.GLADE
 
@@ -74,6 +75,7 @@ class MainApp(gobject.GObject):
         self.taskeditor = TaskEditor( self )
         self.resourceeditor = ResourceEditor( self )
         self.projecteditor = ProjectEditor( self )
+        self.activitieseditor = ActivitiesEditor( self )
 
     def get_project_path(self):
         return osp.dirname(osp.abspath(self.project_file))
