@@ -26,7 +26,7 @@ This code is released under the GNU Public Licence v2. See www.gnu.org.
 """
 
 from mx.DateTime import Time
-from logilab.common.deprecation import deprecated_function
+from logilab.common.deprecation import deprecated
 
 from logilab.common.tree import VNode
 from projman.lib.calendar import Calendar
@@ -74,7 +74,7 @@ class Resource(VNode):
                 return False
         else:
             return True
-    work_on = deprecated_function(is_available)
+    work_on = deprecated(is_available)
 
     def get_worktime(self, datetime):
         """
