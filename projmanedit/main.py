@@ -71,7 +71,7 @@ class MainApp(gobject.GObject):
         self.taskeditor = TaskEditor( self )
 
     def get_project_path(self):
-        return self.project_file[0:self.project_file.rindex("/")+1]
+        return osp.dirname(osp.abspath(self.project_file))
 
     def on_new_cmd_activate(self,*args):
         print "new", args
