@@ -25,7 +25,6 @@ class TaskEditor(BaseEditor):
         BaseEditor.__init__(self, app)
         self.current_task = None
         self.current_task_path = None
-        self.current_activity_path = None
         self.task_popup = None
         self.setup_ui()
         app.ui.signal_autoconnect(self)
@@ -36,7 +35,6 @@ class TaskEditor(BaseEditor):
         for v in TASK_CONSTRAINTS:
             self.constraints_type_model.append( (v,) )
         self.setup_task_tree()
-        self.setup_activities_tree()
         self.setup_constraints_tree()
         self.setup_resources_tree()
 
@@ -124,15 +122,6 @@ class TaskEditor(BaseEditor):
         tree.connect("drag-data-received", self.drag_task_received )
         tree.connect("drag-data-get", self.drag_task_get )
         tree.connect("drag-data-delete", self.drag_task_deleted )
-
-    def setup_activities_tree(self):
-        self.activities_model = gtk.TreeStore(gobject.TYPE_STRING)
-        tree = self.w('treeview_all_activities')
-        col = gtk.TreeViewColumn( u"Activities", gtk.CellRendererText(), text=0 )
-        tree.append_column(col)
-        tree.set_model( self.activities_model )
-        sel = tree.get_selection()
-        sel.connect("changed", self.on_activities_selection_changed )
 
     def drag_task_received(self, treeview, context, x, y, selection, info, timestamp):
         print "DRAG RECEIVED:", x, y, info
@@ -231,50 +220,6 @@ class TaskEditor(BaseEditor):
             itr = self.get_task_iter_from_id( sel_task_id )
             tree.get_selection().select_iter( itr )
 
-    def get_iter_by_task_activity_id(self, id):
-        model = self.activities_model
-        itr = model.get_iter_first()
-        while itr != None:
-            if id == model.get_value(itr,0):
-                return itr
-            else:
-                itr = model.iter_next(itr)
-        return itr
-
-    def get_res_iter_from_id_sublevels(self, res_id, itr):
-        if itr !=  None:
-            rid = self.activities_model.get_value( itr, 0 )
-            if res_id == rid:
-                return itr
-            else:
-                return self.get_res_iter_from_id_sublevels(res_id,self.activities_model.iter_next(itr))
-        else:
-            return None
-
-    def get_iter_by_res_activity_id(self, res_id, itr):
-        itr_ = self.get_res_iter_from_id_sublevels(res_id,self.activities_model.iter_children(itr))
-        if itr_ != None:
-            return itr_
-        else:
-            return None
-
-    def refresh_activities_list(self, sel_activity_id=None):
-        model = self.activities_model
-        model.clear()
-        ligne=0
-        for activity in self.app.project.activities:
-            if activity[5]=="past":
-                itr = self.get_iter_by_task_activity_id(activity[3])
-                if itr is None:
-                    itr_ = model.append( itr, [activity[3]])
-                    model.append( itr_, [activity[2]])
-                else:
-                    if self.get_iter_by_res_activity_id(activity[2],itr) != None:
-                        model.append( itr, [str( str(activity[2]) + " (" + str(ligne) + ")" )])
-                    else:
-                        model.append( itr_, [activity[2]])
-            ligne = ligne + 1
-
     def get_task_from_path(self, path):
         root_task = self.app.project.root_task
         itr = self.task_model.get_iter( path )
@@ -313,7 +258,6 @@ class TaskEditor(BaseEditor):
         print "X X X project_changed :" ,
         print app.project, app.files
         self.refresh_task_list()
-        self.refresh_activities_list()
 
     def on_task_selection_changed(self, sel):
         model, itr = sel.get_selected()
@@ -323,14 +267,6 @@ class TaskEditor(BaseEditor):
         self.current_task = self.app.project.root_task.get_task(task_id)
         self.current_task_path = model.get_path( itr )
         self.update_task_info()
-
-    def on_activities_selection_changed(self, sel):
-        model, itr = sel.get_selected()
-        if not itr:
-            return
-        self.current_activity_path = model.get_path( itr )
-        self.current_activity_itr = itr
-        self.update_activities_info()
 
     def update_task_info(self):
         task = self.current_task
@@ -392,51 +328,6 @@ class TaskEditor(BaseEditor):
                 self.resources_model.append( (res_type, res_id, res_usage,
                                               color, color=='black') )
 
-    def get_activity_by_res_task_id(self, rid, tid):
-        for activity in self.app.project.activities:
-            if activity[2] == rid and activity[3] == tid:
-                return activity
-        return None
-
-    def get_activity_by_line_id(self, line_id):
-        ligne = 0
-        for activity in self.app.project.activities:
-            if str(ligne) == str(line_id):
-                return activity
-            ligne = ligne + 1
-        return None
-
-    def update_activities_info(self):
-        model = self.activities_model
-        type_activity = model.iter_depth(model.get_iter(self.current_activity_path))
-
-        if type_activity == 0:
-            self.w("entry_activities_id").set_text(model.get_value(self.current_activity_itr,0))
-            self.w("entry_activities_from").set_sensitive(False)
-            self.w("entry_activities_to").set_sensitive(False)
-            self.w("spinbutton_activities_usage").set_sensitive(False)
-            self.w("combobox_activities_resource").set_sensitive(False)
-            self.w("entry_activities_from").set_text("")
-            self.w("entry_activities_to").set_text("")
-            self.w("spinbutton_activities_usage").set_value(0)
-
-        if type_activity == 1:
-            res_id = model.get_value(self.current_activity_itr,0)
-            if res_id.find("(")>0:
-                line = res_id[res_id.find("(")+1:res_id.find(")")]
-                res_id = res_id[0:res_id.find("(")]
-                activity = self.get_activity_by_line_id(line)
-            else:
-                iii = self.activities_model.iter_parent(self.current_activity_itr)
-                activity = self.get_activity_by_res_task_id(res_id, self.activities_model.get_value( iii ,0) )
-            self.w("entry_activities_id").set_text(res_id)
-            self.w("entry_activities_from").set_sensitive(True)
-            self.w("entry_activities_to").set_sensitive(True)
-            self.w("spinbutton_activities_usage").set_sensitive(True)
-            self.w("combobox_activities_resource").set_sensitive(False)
-            self.w("entry_activities_from").set_text(str(activity[0].date))
-            self.w("entry_activities_to").set_text(str(activity[1].date))
-            self.w("spinbutton_activities_usage").set_value(int(activity[4]))
 
     def on_entry_task_title_changed(self, entry):
         itr = self.task_model.get_iter( self.current_task_path )
