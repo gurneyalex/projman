@@ -87,7 +87,7 @@ class MainApp(gobject.GObject):
         res = dlg.run()
         fname = dlg.get_filename()
         dlg.destroy()
-        if res!=gtk.RESPONSE_OK:
+        if res != gtk.RESPONSE_OK:
             return
         self.load_project( fname )
 
@@ -106,8 +106,8 @@ class MainApp(gobject.GObject):
         scheduler.schedule()
         self.project = scheduler.project
         from projman.writers.projman_writer import write_schedule_as_xml
-        schedule_file=str(self.get_project_path())+str(self.files["schedule"])
-        write_schedule_as_xml(self.get_project_path()+self.files["schedule"],self.project)
+        schedule_file = str(self.get_project_path()) + str(self.files["schedule"])
+        write_schedule_as_xml(self.get_project_path() + self.files["schedule"], self.project)
 
         from projman.renderers import GanttRenderer, HandlerFactory
         handler = HandlerFactory("svg")
@@ -127,9 +127,12 @@ class MainApp(gobject.GObject):
         options.del_empty = False
         # end of mystic code ...
         renderer = GanttRenderer(options, handler)
-        output = self.get_project_path()+"gantt.svg"
+        output = self.get_project_path() + "gantt.svg"
         stream = handler.get_output(output)
-        renderer.render(self.project, stream)
+        try:
+            renderer.render(self.project, stream)
+        except AttributeError, exc:
+            print "ERROR [could not render Gantt; skipping]:", exc
         self.taskeditor.w("image1").set_from_file(output)
         self.emit("project-changed")
 

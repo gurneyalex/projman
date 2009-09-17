@@ -1,4 +1,4 @@
-
+# -*- coding:utf-8 -*-
 import os
 import gtk
 import gobject
@@ -319,8 +319,8 @@ class TaskEditor(gobject.GObject):
     def on_project_changed(self, app):
         """Propagates the fact that the project file
         has changed"""
-        print app.project
-        print app.files
+        print "X X X project_changed :" ,
+        print app.project, app.files
         self.setup_project_files_path()
         self.refresh_task_list()
         self.refresh_activities_list()
@@ -397,8 +397,11 @@ class TaskEditor(gobject.GObject):
 
         self.resources_model.clear()
         if child:
-            for res_type, res_id, res_usage in child.resource_constraints:
-                self.resources_model.append( (res_type, res_id, res_usage, color, color=='black') )
+            for constraint in child.resource_constraints:
+                print repr(constraint)
+                res_type, res_id, res_usage = constraint
+                self.resources_model.append( (res_type, res_id, res_usage,
+                                              color, color=='black') )
 
     def get_activity_by_res_task_id(self, rid, tid):
         for activity in self.app.project.activities:
@@ -435,7 +438,8 @@ class TaskEditor(gobject.GObject):
                 res_id = res_id[0:res_id.find("(")]
                 activity = self.get_activity_by_line_id(line)
             else:
-                activity = self.get_activity_by_res_task_id(res_id,self.activities_model.get_value(self.activities_model.iter_parent(self.current_activity_itr),0))
+                iii = self.activities_model.iter_parent(self.current_activity_itr)
+                activity = self.get_activity_by_res_task_id(res_id, self.activities_model.get_value( iii ,0) )
             self.w("entry_activities_id").set_text(res_id)
             self.w("entry_activities_from").set_sensitive(True)
             self.w("entry_activities_to").set_sensitive(True)
@@ -601,6 +605,7 @@ class TaskEditor(gobject.GObject):
         self.constraints_model.set_value( itr, 1, new_text )
 
     def on_button_project_resources_show_button_press_event(self, button, evt):
+        print "go to resource page ?"
         self.w("notebook1").set_current_page(1)
 
     def on_button_project_activities_show_button_press_event(self, button, evt):
@@ -613,8 +618,10 @@ class TaskEditor(gobject.GObject):
         self.w("notebook1").set_current_page(4)
 
     def on_notebook1_switch_page(self, notebook, page, page_index):
+        print "notebook switch to page %s" % page
         if notebook.get_tab_label(notebook.get_nth_page(page_index)).get_text() == "Tasks":
             if self.current_task is None:
+                print dir(self.app.project)
                 self.current_task = self.app.project.root_task
             self.refresh_task_list(sel_task=self.current_task)
             self.update_task_info()
