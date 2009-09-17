@@ -23,9 +23,12 @@ except ImportError:
     import projman.projmanedit
 
 from projman.readers import ProjectXMLReader
-from projman.writers.projman_writer import write_tasks_as_xml
+from projman.renderers import GanttRenderer, HandlerFactory
+from projman.writers.projman_writer import write_tasks_as_xml, write_schedule_as_xml
 from projman.projmanedit.gui.taskedit import TaskEditor
 from projman.lib._exceptions import MalformedProjectFile
+from projman.scheduling.csp import CSPScheduler
+
 
 GLADE=projman.projmanedit.GLADE
 
@@ -101,15 +104,12 @@ class MainApp(gobject.GObject):
             print "%s: Could not load project %s : %s" % (exc, fname, msg)
             return # do something ...
         self.project_file = fname
-        from projman.scheduling.csp import CSPScheduler
         scheduler = CSPScheduler(self.project)
         scheduler.schedule()
         self.project = scheduler.project
-        from projman.writers.projman_writer import write_schedule_as_xml
-        schedule_file = str(self.get_project_path()) + str(self.files["schedule"])
-        write_schedule_as_xml(self.get_project_path() + self.files["schedule"], self.project)
+        schedule_file = osp.join(self.get_project_path(), self.files["schedule"])
+        write_schedule_as_xml(schedule_file, self.project)
 
-        from projman.renderers import GanttRenderer, HandlerFactory
         handler = HandlerFactory("svg")
         # it works !! but HOW  ??? ......
         options = handler
@@ -127,13 +127,13 @@ class MainApp(gobject.GObject):
         options.del_empty = False
         # end of mystic code ...
         renderer = GanttRenderer(options, handler)
-        output = self.get_project_path() + "gantt.svg"
+        output = osp.join(self.get_project_path(),  "gantt.svg")
         stream = handler.get_output(output)
         try:
             renderer.render(self.project, stream)
         except AttributeError, exc:
             print "ERROR [could not render Gantt; skipping]:", exc
-        self.taskeditor.w("image1").set_from_file(output)
+        self.taskeditor.w("gantt_image").set_from_file(output)
         self.emit("project-changed")
 
     def on_save_cmd_activate(self,*args):
