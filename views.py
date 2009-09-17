@@ -350,24 +350,30 @@ class CostTableView(XMLView):
             if task.children:
                 self.dbh.table_cell_node(row)
             else:
-                duration = 0
-                ### Bug: here we should group the resources that have the same
-                ### role for this task into the same column... How do we know
-                ### the role played by a resource into this task, well that's a
-                ### problem, and solving this problem requires changing the
-                ### heart of projman.
-                for res in durations:
+                tot_duration = 0
+                # XXX Bug: here we should group the resources that
+                # have the same role for this task into the same
+                # column... How do we know the role played by a
+                # resource into this task, well that's a problem, and
+                # solving this problem requires changing the heart of
+                # projman.
+                #
+                # However, this should work in most of the
+                # everyday-life cases: when a resource have one and
+                # only one role...
+                for res, duration in durations.items():
                     resource = self.projman.get_resource(res)
                     if not type(role) == str: # according to new resources definition
                         if role.id in resource.id_role:
-                            duration = durations[res]
-                            self.dbh.table_cell_node(row, 'center', "%s" %duration)
-                    else: #old definition of resource type
+                            tot_duration += duration
+                    else: # old definition of resource type
                         if role == resource.type:
-                            duration = durations[res]
-                            self.dbh.table_cell_node(row, 'center', "%s" %duration)
-                if duration == 0:
+                            tot_duration += duration
+                if tot_duration == 0:
                     self.dbh.table_cell_node(row)
+                else:
+                    self.dbh.table_cell_node(row, 'center', str(tot_duration))
+                    
         # task cost by resources
         if task.children:
             self.dbh.table_cell_node(row)
