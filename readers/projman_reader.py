@@ -36,11 +36,19 @@ try:
     import xml.etree.ElementTree as ET
 except ImportError:
     import elementtree.ElementTree as ET
+from xml.parsers.expat import ExpatError
 
 def js(txt):
     """join and split"""
     return u' '.join(txt.split())
 
+def xml_parse(source):
+    """catch xml parsing errors"""
+    try:
+        return ET.parse( source )
+    except ExpatError, exc:
+        print 'print', ExpatError, exc
+        raise MalformedProjectFile(ExpatError, exc)
 
 class ProjectXMLReader(AbstractXMLReader) :
 
@@ -58,11 +66,11 @@ class ProjectXMLReader(AbstractXMLReader) :
 
     def read(self):
         if isinstance(self.source, str):
-            tree = ET.parse( file(self.source) )
+            tree = xml_parse( file(self.source) )
             filename = self.source
             base_uri = dirname(abspath(filename))
         elif isinstance(self.source, file):
-            tree = ET.parse(self.source)
+            tree = xml_parse(self.source)
             filename = 'input_stream'
             base_uri = ''
         elif isinstance(self.source, ET.ElementTree):
@@ -107,7 +115,7 @@ class ProjectXMLReader(AbstractXMLReader) :
         return self.project
 
     def read_schedule(self, fname):
-        schedule = ET.parse( fname )
+        schedule = xml_parse( fname )
         checker = ScheduleChecker()
         if not checker.validate(schedule, fname):
             raise MalformedProjectFile(str(checker))
@@ -156,7 +164,7 @@ class ProjectXMLReader(AbstractXMLReader) :
         self.project.costs = costs
 
     def read_tasks(self, fname):
-        tasks = ET.parse( fname )
+        tasks = xml_parse( fname )
         checker = TasksChecker()
         if not checker.validate(tasks, fname):
             raise MalformedProjectFile(str(checker))
@@ -261,7 +269,7 @@ class ProjectXMLReader(AbstractXMLReader) :
         return res
 
     def read_resource_role(self, fname):
-        tree = ET.parse(fname)
+        tree = xml_parse(fname)
         root_node = tree.getroot()
         res_role_set = self._factory.create_resource_role_set('all_resource_role')
         for res_role in root_node.findall('resource-role'):
@@ -318,7 +326,7 @@ class ProjectXMLReader(AbstractXMLReader) :
 
     def read_resources(self, fname):
 
-        tree = ET.parse(fname)
+        tree = xml_parse(fname)
         checker = ResourcesChecker()
         if not checker.validate(tree, fname):
             raise MalformedProjectFile(str(checker))
@@ -333,7 +341,7 @@ class ProjectXMLReader(AbstractXMLReader) :
         return res_set
 
     def read_activities(self, fname):
-        tree = ET.parse(fname)
+        tree = xml_parse(fname)
         root_node = tree.getroot()
         activities = []
         for reports in root_node.findall('reports-list'):
