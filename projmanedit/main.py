@@ -6,6 +6,7 @@ import os.path as osp
 import gtk
 import gtk.glade
 import gobject
+import gtksourceview2
 
 _main_module = sys.modules[__name__]
 _main_dir = osp.dirname( _main_module.__file__)
@@ -25,10 +26,11 @@ except ImportError:
 from projman.readers import ProjectXMLReader
 from projman.renderers import GanttRenderer, HandlerFactory
 from projman.writers.projman_writer import write_tasks_as_xml, write_schedule_as_xml
-from projman.projmanedit.gui.taskedit import TaskEditor
 from projman.lib._exceptions import MalformedProjectFile
 from projman.scheduling.csp import CSPScheduler
 
+from projman.projmanedit.gui.taskedit import TaskEditor
+from projman.projmanedit.gui.editors import ProjectEditor, ResourceEditor
 
 GLADE=projman.projmanedit.GLADE
 
@@ -38,8 +40,6 @@ XMLFILTER.add_pattern("*.xml")
 ANYFILTER = gtk.FileFilter()
 ANYFILTER.set_name("Any file")
 ANYFILTER.add_pattern("*")
-
-import gtksourceview2
 
 
 def glade_custom_handler(glade, function_name, widget_name,
@@ -72,6 +72,8 @@ class MainApp(gobject.GObject):
         self.ui.signal_autoconnect(self)
         # build specific ui controlers
         self.taskeditor = TaskEditor( self )
+        self.resourceeditor = ResourceEditor( self )
+        self.projecteditor = ProjectEditor( self )
 
     def get_project_path(self):
         return osp.dirname(osp.abspath(self.project_file))
@@ -104,6 +106,7 @@ class MainApp(gobject.GObject):
             print "%s: Could not load project %s : %s" % (exc, fname, msg)
             return # do something ...
         self.project_file = fname
+        # XXX move scheduler / Gantt stuff to some function / class ?
         scheduler = CSPScheduler(self.project)
         scheduler.schedule()
         self.project = scheduler.project

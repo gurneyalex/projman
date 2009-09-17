@@ -1,11 +1,12 @@
 # -*- coding:utf-8 -*-
 import os
 import gtk
+import gtksourceview2
 import gobject
 from projman.lib.constants import LOAD_TYPE_MAP, TASK_CONSTRAINTS
 from projman.lib.task import Task
 from projman.readers.base_reader import MODEL_FACTORY
-import gtksourceview2
+from projman.projmanedit.gui.editors import BaseEditor
 
 LANGUAGES = gtksourceview2.language_manager_get_default().get_language_ids()
 LANGUAGES.sort()
@@ -13,7 +14,7 @@ assert "docbook" in LANGUAGES
 XMLLANG = gtksourceview2.language_manager_get_default().get_language("docbook")
 print LANGUAGES
 
-class TaskEditor(gobject.GObject):
+class TaskEditor(BaseEditor):
 
     __gsignals__ = {'task-changed': (gobject.SIGNAL_RUN_FIRST,
                                      gobject.TYPE_NONE,
@@ -21,16 +22,13 @@ class TaskEditor(gobject.GObject):
                     }
 
     def __init__(self, app):
-        gobject.GObject.__init__(self)
-        self.app = app
-        self.w = app.ui.get_widget
+        BaseEditor.__init__(self, app)
         self.current_task = None
         self.current_task_path = None
         self.current_activity_path = None
         self.task_popup = None
         self.setup_ui()
         app.ui.signal_autoconnect(self)
-        app.connect("project-changed", self.on_project_changed )
         self.w("spinbutton_duration").get_adjustment().set_all(0,0,100000,0.1,1,1)
 
     def setup_ui(self):
@@ -41,13 +39,6 @@ class TaskEditor(gobject.GObject):
         self.setup_activities_tree()
         self.setup_constraints_tree()
         self.setup_resources_tree()
-
-    def setup_project_files_path(self):
-        self.w("entry_project_tasks_file").set_text(self.app.files['tasks'])
-        self.w("entry_project_activites_file").set_text(self.app.files['activities'])
-        self.w("entry_project_resources_file").set_text(self.app.files['resources'])
-        self.w("entry_project_schedule_file").set_text(self.app.files['schedule'])
-        self.w("window_main").set_title("Projman - "+str(self.app.project_file))
 
     def build_task_tree_popup(self, task_path, del_task=True):
         task_popup = gtk.Menu()
@@ -321,10 +312,8 @@ class TaskEditor(gobject.GObject):
         has changed"""
         print "X X X project_changed :" ,
         print app.project, app.files
-        self.setup_project_files_path()
         self.refresh_task_list()
         self.refresh_activities_list()
-
 
     def on_task_selection_changed(self, sel):
         model, itr = sel.get_selected()

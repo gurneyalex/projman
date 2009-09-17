@@ -189,7 +189,7 @@
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkEntry" id="entry_project_activites_file">
+                              <widget class="GtkEntry" id="entry_project_activities_file">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                               </widget>
