@@ -25,6 +25,7 @@ except ImportError:
 from projman.readers import ProjectXMLReader
 from projman.writers.projman_writer import write_tasks_as_xml
 from projman.projmanedit.gui.taskedit import TaskEditor
+from projman.lib._exceptions import MalformedProjectFile
 
 GLADE=projman.projmanedit.GLADE
 
@@ -91,9 +92,15 @@ class MainApp(gobject.GObject):
         self.load_project( fname )
 
     def load_project(self, fname):
-        self.project_file = fname
+        print "load project", fname
         reader = ProjectXMLReader( fname, None, True )
-        self.project, self.files = reader.read()
+        try:
+            self.project, self.files = reader.read()
+        except MalformedProjectFile, infos:
+            exc, msg = infos
+            print "%s: Could not load project %s : %s" % (exc, fname, msg)
+            return # do something ...
+        self.project_file = fname
         from projman.scheduling.csp import CSPScheduler
         scheduler = CSPScheduler(self.project)
         scheduler.schedule()
