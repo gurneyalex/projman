@@ -245,7 +245,7 @@ class ProjectXMLReader(AbstractXMLReader) :
         else:
             if desc.get("format")=="docbook":
                 txt_fmt = "docbook"
-            txt = unicode(desc.text) or u""
+            txt = desc.text and unicode(desc.text) or u""
             for n in desc:
                 txt+=unicode(ET.tostring(n,"utf-8"),"utf-8")
             raw_txt = txt
