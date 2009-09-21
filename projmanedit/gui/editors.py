@@ -1,6 +1,9 @@
 # -*- coding:utf-8 -*-
 import gtk
 import gobject
+from projman.lib.task import Task
+from projman.lib.resource import Resource
+from projman.lib.resource_role import ResourceRole
 
 
 class BaseEditor(gobject.GObject):
@@ -22,7 +25,6 @@ class ProjectEditor(BaseEditor):
     def __init__(self, app):
         BaseEditor.__init__(self, app)
 
-
     def on_project_changed(self, app):
         self.schedule_project()
         self.setup_project_files_path()
@@ -40,9 +42,67 @@ class ResourceEditor(BaseEditor):
 
     def __init__(self, app):
         BaseEditor.__init__(self, app)
+        self.resources_model = None # defined in setup_resources_list as gtk.ListStore
 
     def on_project_changed(self, app):
-        print  "call 'ResourceEditor.on_project_changed'"
+        self.setup_resources_list()
+        self.setup_resource_roles_list()
+        self.update_resources_info()
+        self.update_resource_roles_info()
+
+    def setup_resources_list(self):
+        tree = self.w("treeview_resources")
+        self.resources_model = gtk.ListStore(gobject.TYPE_STRING, # type
+                                             gobject.TYPE_STRING, # id
+                                             gobject.TYPE_STRING, # usage
+                                             gobject.TYPE_STRING, # cost
+                                             gobject.TYPE_STRING, # color
+                                             gobject.TYPE_BOOLEAN, # editable
+                                             )
+        for name, text_num in [('Type', 0), ('ID', 1), ('Usage', 2), ('Cost/h', 3)]:
+            tree.append_column( gtk.TreeViewColumn( name, gtk.CellRendererText(),
+                         text=text_num, foreground=4 ) )
+        tree.set_model( self.resources_model )
+        tree.get_selection().connect("changed", self.update_resources_info )
+
+    def setup_resource_roles_list(self):
+        tree = self.w("treeview_resource_roles")
+        self.resource_roles_model = gtk.ListStore(gobject.TYPE_STRING, # type
+                                                  gobject.TYPE_STRING, # id
+                                                  gobject.TYPE_STRING, # usage
+                                                  gobject.TYPE_STRING, # cost
+                                                  gobject.TYPE_STRING, # color
+                                                  gobject.TYPE_BOOLEAN, # editable
+                                                 )
+        #('Type', 0),
+        for name, text_num in [('ID', 1), ('Usage', 2), ('Cost/h', 3)]:
+            tree.append_column( gtk.TreeViewColumn( name, gtk.CellRendererText(),
+                         text=text_num, foreground=4 ) )
+        tree.set_model( self.resource_roles_model )
+        tree.get_selection().connect("changed", self.update_resource_roles_info )
+
+    def update_resources_info(self):
+        res_set = self.app.project.resource_set
+        editable = False # TODO
+        self.resources_model.clear()
+        for res in res_set.children:
+            if isinstance(res, Resource):
+                rate = '%s %s' % tuple(res.hourly_rate)
+                self.resources_model.append( (res.type, str(res.id_role), res.name,
+                                              rate, "blue", editable) )
+            else:
+                self.resources_model.append( ("X", "???", str(res),
+                                              "?", "red", editable) )
+
+    def update_resource_roles_info(self):
+        model = self.resource_roles_model
+        res_set = self.app.project.resource_role_set
+        editable = False # TODO
+        model.clear()
+        for role in res_set.children:
+            if isinstance(role, ResourceRole):
+                rate = '%s %s' % (role.hourly_cost, role.unit)
+                model.append( (None, role.id, role.name, rate, "blue", editable) )
 
 
 class ActivitiesEditor(BaseEditor):
