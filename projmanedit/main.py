@@ -103,9 +103,8 @@ class MainApp(gobject.GObject):
         reader = ProjectXMLReader( fname, None, True )
         try:
             self.project, self.files = reader.read()
-        except MalformedProjectFile, infos:
-            exc, msg = infos
-            print "%s: Could not load project %s : %s" % (exc, fname, msg)
+        except MalformedProjectFile, exc:
+            print "ERROR: Could not load project %s : %s" % (fname, exc)
             return # do something ...
         self.project_file = fname
         # XXX move scheduler / Gantt stuff to some function / class ?
