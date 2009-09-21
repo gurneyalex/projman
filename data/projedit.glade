@@ -387,39 +387,10 @@
                         <property name="visible">True</property>
                         <property name="label_xalign">0.5</property>
                         <child>
-                          <widget class="GtkVBox" id="vbox6">
+                          <widget class="GtkTreeView" id="treeview_resources">
                             <property name="visible">True</property>
-                            <property name="spacing">10</property>
-                            <child>
-                              <widget class="GtkEntry" id="resource_more">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="editable">False</property>
-                                <property name="shadow_type">GTK_SHADOW_ETCHED_OUT</property>
-                              </widget>
-                            </child>
-                            <child>
-                              <widget class="GtkEntry" id="resource_1">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="editable">False</property>
-                                <property name="shadow_type">GTK_SHADOW_ETCHED_OUT</property>
-                              </widget>
-                              <packing>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="GtkEntry" id="resource_2">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="editable">False</property>
-                                <property name="shadow_type">GTK_SHADOW_ETCHED_OUT</property>
-                              </widget>
-                              <packing>
-                                <property name="position">2</property>
-                              </packing>
-                            </child>
+                            <property name="can_focus">True</property>
+                            <property name="headers_clickable">True</property>
                           </widget>
                         </child>
                         <child>
@@ -439,39 +410,10 @@
                         <property name="visible">True</property>
                         <property name="label_xalign">0.5</property>
                         <child>
-                          <widget class="GtkVBox" id="vbox8">
+                          <widget class="GtkTreeView" id="treeview_resource_roles">
                             <property name="visible">True</property>
-                            <property name="spacing">15</property>
-                            <child>
-                              <widget class="GtkEntry" id="role_1">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="editable">False</property>
-                                <property name="shadow_type">GTK_SHADOW_ETCHED_OUT</property>
-                              </widget>
-                            </child>
-                            <child>
-                              <widget class="GtkEntry" id="role_2">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="editable">False</property>
-                                <property name="shadow_type">GTK_SHADOW_ETCHED_OUT</property>
-                              </widget>
-                              <packing>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="GtkEntry" id="role_3">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="editable">False</property>
-                                <property name="shadow_type">GTK_SHADOW_ETCHED_OUT</property>
-                              </widget>
-                              <packing>
-                                <property name="position">2</property>
-                              </packing>
-                            </child>
+                            <property name="can_focus">True</property>
+                            <property name="headers_clickable">True</property>
                           </widget>
                         </child>
                         <child>
@@ -503,10 +445,9 @@
                         <property name="visible">True</property>
                         <property name="label_xalign">0.5</property>
                         <child>
-                          <widget class="GtkTreeView" id="treeview_offdays">
+                          <widget class="GtkLabel" id="label9">
                             <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="headers_clickable">True</property>
+                            <property name="label" translatable="yes">[TODO]</property>
                           </widget>
                         </child>
                         <child>
@@ -853,70 +794,115 @@
                           <placeholder/>
                         </child>
                         <child>
-                          <widget class="GtkComboBox" id="combobox_description_format">
-                            <property name="visible">True</property>
-                            <property name="items" translatable="yes">Docbook
-Rest
-None</property>
-                            <signal name="changed" handler="on_combobox_description_format_changed"/>
-                          </widget>
-                          <packing>
-                            <property name="left_attach">1</property>
-                            <property name="right_attach">2</property>
-                            <property name="top_attach">4</property>
-                            <property name="bottom_attach">5</property>
-                            <property name="x_options">GTK_FILL</property>
-                            <property name="y_options">GTK_FILL</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="GtkLabel" id="label3">
+                          <widget class="GtkLabel" id="label20">
                             <property name="visible">True</property>
                             <property name="xalign">0</property>
-                            <property name="label" translatable="yes">Format</property>
+                            <property name="label" translatable="yes">Task id</property>
                           </widget>
                           <packing>
-                            <property name="top_attach">4</property>
-                            <property name="bottom_attach">5</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
                         </child>
                         <child>
-                          <widget class="GtkExpander" id="expander2">
+                          <widget class="GtkLabel" id="label19">
+                            <property name="visible">True</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">Scheduling type</property>
+                          </widget>
+                          <packing>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
+                            <property name="x_options">GTK_FILL</property>
+                            <property name="y_options"></property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="GtkLabel" id="label18">
+                            <property name="visible">True</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">Load</property>
+                          </widget>
+                          <packing>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
+                            <property name="x_options">GTK_FILL</property>
+                            <property name="y_options"></property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="GtkEntry" id="entry_task_id">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="expanded">True</property>
-                            <child>
-                              <widget class="GtkScrolledWindow" id="scrolledwindow4">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="shadow_type">GTK_SHADOW_IN</property>
-                                <child>
-                                  <widget class="GtkTreeView" id="treeview_task_constraints">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                  </widget>
-                                </child>
-                              </widget>
-                            </child>
-                            <child>
-                              <widget class="GtkLabel" id="label4">
-                                <property name="visible">True</property>
-                                <property name="label" translatable="yes">Constraints</property>
-                              </widget>
-                              <packing>
-                                <property name="type">label_item</property>
-                              </packing>
-                            </child>
+                            <signal name="changed" handler="on_entry_task_id_changed"/>
+                          </widget>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="x_options"></property>
+                            <property name="y_options"></property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="GtkComboBox" id="combobox_scheduling_type">
+                            <property name="visible">True</property>
+                            <property name="items" translatable="yes">shared
+oneof
+sameforall
+spread
+milestone</property>
+                            <signal name="changed" handler="on_combobox_scheduling_type_changed"/>
+                          </widget>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
+                            <property name="x_options"></property>
+                            <property name="y_options">GTK_FILL</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="GtkSpinButton" id="spinbutton_duration">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="adjustment">0 0 100 0.10000000000000001 10 10</property>
+                            <property name="climb_rate">1</property>
+                            <property name="digits">1</property>
+                            <signal name="value_changed" handler="on_spinbutton_duration_changed"/>
+                          </widget>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
+                            <property name="x_options"></property>
+                            <property name="y_options"></property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="GtkLabel" id="label7">
+                            <property name="visible">True</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">Title</property>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
-                            <property name="right_attach">4</property>
-                            <property name="top_attach">3</property>
-                            <property name="bottom_attach">4</property>
+                            <property name="right_attach">3</property>
                             <property name="x_options">GTK_FILL</property>
-                            <property name="y_options">GTK_FILL</property>
+                            <property name="y_options"></property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="GtkEntry" id="entry_task_title">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <signal name="changed" handler="on_entry_task_title_changed"/>
+                          </widget>
+                          <packing>
+                            <property name="left_attach">3</property>
+                            <property name="right_attach">4</property>
+                            <property name="y_options"></property>
                           </packing>
                         </child>
                         <child>
@@ -957,115 +943,70 @@ None</property>
                           </packing>
                         </child>
                         <child>
-                          <widget class="GtkEntry" id="entry_task_title">
+                          <widget class="GtkExpander" id="expander2">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <signal name="changed" handler="on_entry_task_title_changed"/>
-                          </widget>
-                          <packing>
-                            <property name="left_attach">3</property>
-                            <property name="right_attach">4</property>
-                            <property name="y_options"></property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="GtkLabel" id="label7">
-                            <property name="visible">True</property>
-                            <property name="xalign">0</property>
-                            <property name="label" translatable="yes">Title</property>
+                            <property name="expanded">True</property>
+                            <child>
+                              <widget class="GtkScrolledWindow" id="scrolledwindow4">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="shadow_type">GTK_SHADOW_IN</property>
+                                <child>
+                                  <widget class="GtkTreeView" id="treeview_task_constraints">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                  </widget>
+                                </child>
+                              </widget>
+                            </child>
+                            <child>
+                              <widget class="GtkLabel" id="label4">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Constraints</property>
+                              </widget>
+                              <packing>
+                                <property name="type">label_item</property>
+                              </packing>
+                            </child>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
-                            <property name="right_attach">3</property>
+                            <property name="right_attach">4</property>
+                            <property name="top_attach">3</property>
+                            <property name="bottom_attach">4</property>
                             <property name="x_options">GTK_FILL</property>
-                            <property name="y_options"></property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="GtkSpinButton" id="spinbutton_duration">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 100 0.10000000000000001 10 10</property>
-                            <property name="climb_rate">1</property>
-                            <property name="digits">1</property>
-                            <signal name="value_changed" handler="on_spinbutton_duration_changed"/>
-                          </widget>
-                          <packing>
-                            <property name="left_attach">1</property>
-                            <property name="right_attach">2</property>
-                            <property name="top_attach">2</property>
-                            <property name="bottom_attach">3</property>
-                            <property name="x_options"></property>
-                            <property name="y_options"></property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="GtkComboBox" id="combobox_scheduling_type">
-                            <property name="visible">True</property>
-                            <property name="items" translatable="yes">shared
-oneof
-sameforall
-spread
-milestone</property>
-                            <signal name="changed" handler="on_combobox_scheduling_type_changed"/>
-                          </widget>
-                          <packing>
-                            <property name="left_attach">1</property>
-                            <property name="right_attach">2</property>
-                            <property name="top_attach">1</property>
-                            <property name="bottom_attach">2</property>
-                            <property name="x_options"></property>
                             <property name="y_options">GTK_FILL</property>
                           </packing>
                         </child>
                         <child>
-                          <widget class="GtkEntry" id="entry_task_id">
+                          <widget class="GtkLabel" id="label3">
                             <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <signal name="changed" handler="on_entry_task_id_changed"/>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">Format</property>
+                          </widget>
+                          <packing>
+                            <property name="top_attach">4</property>
+                            <property name="bottom_attach">5</property>
+                            <property name="x_options">GTK_FILL</property>
+                            <property name="y_options"></property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="GtkComboBox" id="combobox_description_format">
+                            <property name="visible">True</property>
+                            <property name="items" translatable="yes">Docbook
+Rest
+None</property>
+                            <signal name="changed" handler="on_combobox_description_format_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
-                            <property name="x_options"></property>
-                            <property name="y_options"></property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="GtkLabel" id="label18">
-                            <property name="visible">True</property>
-                            <property name="xalign">0</property>
-                            <property name="label" translatable="yes">Load</property>
-                          </widget>
-                          <packing>
-                            <property name="top_attach">2</property>
-                            <property name="bottom_attach">3</property>
+                            <property name="top_attach">4</property>
+                            <property name="bottom_attach">5</property>
                             <property name="x_options">GTK_FILL</property>
-                            <property name="y_options"></property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="GtkLabel" id="label19">
-                            <property name="visible">True</property>
-                            <property name="xalign">0</property>
-                            <property name="label" translatable="yes">Scheduling type</property>
-                          </widget>
-                          <packing>
-                            <property name="top_attach">1</property>
-                            <property name="bottom_attach">2</property>
-                            <property name="x_options">GTK_FILL</property>
-                            <property name="y_options"></property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="GtkLabel" id="label20">
-                            <property name="visible">True</property>
-                            <property name="xalign">0</property>
-                            <property name="label" translatable="yes">Task id</property>
-                          </widget>
-                          <packing>
-                            <property name="x_options">GTK_FILL</property>
-                            <property name="y_options"></property>
+                            <property name="y_options">GTK_FILL</property>
                           </packing>
                         </child>
                       </widget>
