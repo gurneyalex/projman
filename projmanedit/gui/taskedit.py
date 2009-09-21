@@ -14,6 +14,11 @@ assert "docbook" in LANGUAGES
 XMLLANG = gtksourceview2.language_manager_get_default().get_language("docbook")
 print LANGUAGES
 
+ADD_TASK_MSG = ("Warning : Adding a Task as a child of Task(%s) will reset"
+" the load value of it. \n Are you sure ?")
+ADD_MILESTONE = ("Warning : Adding a Milestone as a child of Task(%s) will "
+" reset the load value of it. \n Are you sure ?")
+
 class TaskEditor(BaseEditor):
 
     __gsignals__ = {'task-changed': (gobject.SIGNAL_RUN_FIRST,
@@ -204,9 +209,9 @@ class TaskEditor(BaseEditor):
     def refresh_task_list(self, sel_task_id=None, sel_task=None):
         model = self.task_model
         model.clear()
-        tasks = [ (self.app.project.root_task,None) ]
+        tasks = [ (self.app.project.root_task, None) ]
         while tasks:
-            task,parent = tasks.pop(0)
+            task, parent = tasks.pop(0)
             row = task.title, task.id
             itr = model.append( parent, row )
             for t in task.children:
@@ -229,24 +234,27 @@ class TaskEditor(BaseEditor):
         else:
             return None
 
-    def get_task_iter_from_id_sublevels(self, task_id, itr):
+    def _get_sublevel_tasks(self, task_id, itr):
         retour = None
-        if itr:
-            tid = self.task_model.get_value( itr, 1 )
-            if task_id == tid:
-                return itr
-            else:
-                if self.task_model.iter_has_child(itr):
-                    retour = self.get_task_iter_from_id_sublevels(task_id,self.task_model.iter_children(itr))
-                    if retour != None:
-                        return retour
-                retour = self.get_task_iter_from_id_sublevels(task_id,self.task_model.iter_next(itr))
+        if not itr:
+            return
+        tid = self.task_model.get_value( itr, 1 )
+        if task_id == tid:
+            return itr
+        else:
+            if self.task_model.iter_has_child(itr):
+                retour = self._get_sublevel_tasks(task_id,
+                                                  self.task_model.iter_children(itr))
                 if retour != None:
                     return retour
+            retour = self._get_sublevel_tasks(task_id,
+                                              self.task_model.iter_next(itr))
+            if retour != None:
+                return retour
 
     def get_task_iter_from_id(self, task_id):
         itr = self.task_model.get_iter_first()
-        itr_ = self.get_task_iter_from_id_sublevels(task_id,itr)
+        itr_ = self._get_sublevel_tasks(task_id, itr)
         if itr_ != None:
             return itr_
         else:
@@ -289,11 +297,11 @@ class TaskEditor(BaseEditor):
         #securité acces load si taches filles
         has_child = task.children
         if has_child:
-            task.duration=0.0
+            task.duration = 0.0
         self.w("spinbutton_duration").set_sensitive(not has_child)
         self.w("combobox_scheduling_type").set_sensitive(not has_child)
 
-        if task.TYPE=="milestone":
+        if task.TYPE == "milestone":
             self.w("combobox_scheduling_type").set_sensitive(False)
             self.w("spinbutton_duration").set_sensitive(False)
 
@@ -306,25 +314,26 @@ class TaskEditor(BaseEditor):
         color = "black"
         while child:
             for constraint_type, arg in child.task_constraints:
-                self.constraints_model.append( (constraint_type, arg, color, color=='black' ) )
+                self.constraints_model.append( (constraint_type, arg, color,
+                                                color=='black' ) )
             child = child.parent
             color = "gray"
-
         if isinstance(task, Task):
-            child = task
-        else:
             # Milestones don't have resources
-            child = None
+            self._update_resources_view(task)
+
+    def _update_resources_view(self, task):
         color = "black"
-        while child and not child.resource_constraints:
-            child = child.parent
+        while task and not task.resource_constraints:
+            task = task.parent
             color = "gray"
 
         self.resources_model.clear()
-        if child:
-            for constraint in child.resource_constraints:
+        if task:
+            for constraint in task.resource_constraints:
                 print repr(constraint)
-                res_type, res_id, res_usage = constraint
+                res_type, res_id = constraint
+                res_usage = None # FIXME
                 self.resources_model.append( (res_type, res_id, res_usage,
                                               color, color=='black') )
 
@@ -386,9 +395,9 @@ class TaskEditor(BaseEditor):
 
         if not parent_task.children:
             dlg = gtk.MessageDialog(parent=None, flags=0,
-                    type=gtk.MESSAGE_QUESTION,
-                    buttons=gtk.BUTTONS_YES_NO,
-                    message_format= "Warning : Adding a Task as a child of Task(%s) will reset the load value of it. \n Are you sure ?" % parent_task.id);
+                                    type=gtk.MESSAGE_QUESTION,
+                                    buttons=gtk.BUTTONS_YES_NO,
+                                    message_format= ADD_TASK_MSG % parent_task.id)
             ret = dlg.run()
             dlg.destroy()
             if ret == gtk.RESPONSE_NO:
@@ -420,9 +429,9 @@ class TaskEditor(BaseEditor):
 
         if not parent_task.children:
             dlg = gtk.MessageDialog(parent=None, flags=0,
-                    type=gtk.MESSAGE_QUESTION,
-                    buttons=gtk.BUTTONS_YES_NO,
-                    message_format= "Warning : Adding a Milestone as a child of Task(%s) will reset the load value of it. \n Are you sure ?" % parent_task.id);
+                                    type=gtk.MESSAGE_QUESTION,
+                                    buttons=gtk.BUTTONS_YES_NO,
+                                    message_format= ADD_MILESTONE % parent_task.id)
             ret = dlg.run()
             dlg.destroy()
             if ret == gtk.RESPONSE_NO:
@@ -451,12 +460,18 @@ class TaskEditor(BaseEditor):
         task = self.get_task_from_path( path )
         parent = task.parent
         if not parent:
-            dlg = gtk.MessageDialog(parent=None, flags=0, type=gtk.MESSAGE_WARNING, buttons=gtk.BUTTONS_OK, message_format= "Error : Root task can't be deleted.")
+            dlg = gtk.MessageDialog(parent=None, flags=0,
+                                    type=gtk.MESSAGE_WARNING,
+                                    buttons=gtk.BUTTONS_OK,
+                                    message_format= "Error : Root task can't be deleted.")
             dlg.run()
             dlg.destroy()
             return
         if task.children:
-            dlg = gtk.MessageDialog(parent=None, flags=0, type=gtk.MESSAGE_WARNING, buttons=gtk.BUTTONS_OK, message_format= "Error : Can't delete task(%s), task has children." % task.id)
+            dlg = gtk.MessageDialog(parent=None, flags=0,
+                                    type=gtk.MESSAGE_WARNING,
+                                    buttons=gtk.BUTTONS_OK,
+                                    message_format= "Error : Can't delete task(%s), task has children." % task.id)
             dlg.run()
             dlg.destroy()
             return
