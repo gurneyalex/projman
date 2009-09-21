@@ -146,7 +146,7 @@ class CSPScheduler(object):
                         print "Resource", r_type, r_id
                     self.resources.add( r_id )
                     task_resources.append( r_id )
-                    node.set_resources.append(r_id)
+                    node.set_resources.add(r_id)
 
     def add_priorities_as_constraints(self):
         """
