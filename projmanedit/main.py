@@ -117,7 +117,7 @@ class MainApp(gobject.GObject):
         handler = HandlerFactory("svg")
         # it works !! but HOW  ??? ......
         options = handler
-        options.timestep = 1
+        options.timestep = "day"
         options.detail = 2
         options.depth = 0
         options.view_begin = None
