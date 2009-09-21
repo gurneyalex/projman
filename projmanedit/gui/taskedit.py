@@ -86,7 +86,8 @@ class TaskEditor(BaseEditor):
     def setup_constraints_tree(self):
         tree = self.w("treeview_task_constraints")
         self.constraints_model = gtk.ListStore(gobject.TYPE_STRING, # type
-                                               gobject.TYPE_STRING, # date or res_id
+                                               gobject.TYPE_STRING, # task_id
+                                               gobject.TYPE_INT, # priority
                                                gobject.TYPE_STRING, # color (inherited or not)
                                                gobject.TYPE_BOOLEAN, # editable
                                                )
@@ -95,13 +96,16 @@ class TaskEditor(BaseEditor):
         rend.set_property('has-entry', False)
         rend.set_property('text-column', 0)
         rend.connect('edited', self.on_constraint_type_edited )
-        col = gtk.TreeViewColumn( u"Type", rend, text=0, foreground=2, editable=3 )
+        col = gtk.TreeViewColumn( u"Type", rend, text=0, foreground=3, editable=4 )
         tree.append_column( col )
         rend = gtk.CellRendererCombo()
         rend.set_property('model', self.task_model)
         rend.set_property('text-column', 1)
         rend.connect('edited', self.on_constraint_arg_edited )
-        col = gtk.TreeViewColumn( u"Arg", rend, text=1, foreground=2, editable=3 )
+        col = gtk.TreeViewColumn( u"Task", rend, text=1, foreground=3, editable=4 )
+        tree.append_column( col )
+        col = gtk.TreeViewColumn( u"Priority", gtk.CellRendererText(), text=2,
+                                 foreground=3, editable=4 )
         tree.append_column( col )
         tree.set_model( self.constraints_model )
         tree.enable_model_drag_dest( [ ("task", gtk.TARGET_SAME_APP, 0) ],
@@ -313,9 +317,9 @@ class TaskEditor(BaseEditor):
         child = task
         color = "black"
         while child:
-            for constraint_type, arg in child.task_constraints:
-                self.constraints_model.append( (constraint_type, arg, color,
-                                                color=='black' ) )
+            for c_type, task_id, priority in child.task_constraints:
+                self.constraints_model.append( (c_type, task_id, priority,
+                                                color, color=='black' ) )
             child = child.parent
             color = "gray"
         if isinstance(task, Task):
