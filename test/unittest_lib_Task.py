@@ -8,11 +8,10 @@ Home: http://www.logilab.org/projman
 This code is released under the GNU Public Licence v2. See www.gnu.org.
 """
 
-from logilab.common import testlib
 from mx.DateTime import DateTime
 
 from logilab.common.compat import set
-from logilab.common.testlib import TestCase
+from logilab.common.testlib import TestCase, unittest_main
 
 from projman.lib import MileStone, Task
 from projman.lib.constants import *
@@ -172,7 +171,7 @@ class TaskTC(TestCase):
         self.assertEquals(self.child2_2.maximum_duration(), 12)
 
 
-class ConsistencyTC(testlib.TestCase):
+class ConsistencyTC(TestCase):
 
     def setUp(self):
         self.date1 = DateTime(2005, 01, 01)
@@ -227,7 +226,7 @@ class ConsistencyTC(testlib.TestCase):
 
     # FIXME etc.
 
-class DateConstraintsTC(testlib.TestCase):
+class DateConstraintsTC(TestCase):
 
     def setUp(self):
         self.parent = Task('parent')
@@ -262,7 +261,7 @@ class DateConstraintsTC(testlib.TestCase):
         expected = set([(END_BEFORE_DATE, DateTime(2005, 01, 01), 1)])
         self.assertEquals(constraints, expected)
 
-class ProgressTC(testlib.TestCase):
+class ProgressTC(TestCase):
 
     def test_get_progress(self):
         """tests progress' getter"""
@@ -284,4 +283,4 @@ class ProgressTC(testlib.TestCase):
         self.assertEquals(t.progress, 1.)
 
 if __name__ == '__main__':
-    testlib.unittest_main()
+    unittest_main()
