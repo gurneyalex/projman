@@ -44,6 +44,10 @@ class ResourceEditor(BaseEditor):
     def __init__(self, app):
         BaseEditor.__init__(self, app)
         self.resources_model = None # defined in setup_resources_list as gtk.ListStore
+        self.resources_role_model = None # defined in setup_resource_roles_list
+        self.calendar_model = None # defined in setup_calendar_list
+        self.offday_model = None # defined in setup_offdays_list
+        self.current_cal = None # set dynamically
         self.setup_ui()
 
     def setup_ui(self):
@@ -113,7 +117,7 @@ class ResourceEditor(BaseEditor):
                                              )
         for name, col in (('Month', 0), ('Day', 1)):
             tree.append_column( gtk.TreeViewColumn( name, gtk.CellRendererText(),
-                           text=col, foreground=1 ) )
+                           text=col, foreground=2 ) )
         tree.set_model( self.offday_model )
 
     def update_resources_info(self):
@@ -155,19 +159,23 @@ class ResourceEditor(BaseEditor):
         cal_id = model.get_value(itr, 0)
         cal = self.app.project.get_resource(cal_id)
         print 'cal id:', cal_id, cal
+        # update weekdays
         for day, val in cal.weekday.items():
             working = (val=="working")
             self.w('checkbutton_%s' %day).set_active(working)
+        # update offdays
+        offdays = self.offday_model
+        offdays.clear()
+        for month, day in cal.national_days:
+            offdays.append( (str(month), str(day), False) )
+        # XXX use cal.timeperiods (which are DateTime.DateTime objects)
+        offdays.append( ('XXX : Movable', 'Days', False) )
 
     def on_calendar_type_edited(self):
         print "# update calendar type"
 
     def update_working_days(self, cal):
         print """show working days of the given calendar"""
-
-    def update_offday_list(self, cal):
-        print """show offdays of the given calendar"""
-
 
 class ActivitiesEditor(BaseEditor):
 
