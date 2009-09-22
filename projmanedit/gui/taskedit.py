@@ -71,15 +71,12 @@ class TaskEditor(BaseEditor):
         tree = self.w("treeview_task_resources")
         self.resources_model = gtk.ListStore(gobject.TYPE_STRING, # type
                                              gobject.TYPE_STRING, # id
-                                             gobject.TYPE_INT,    # usage
                                              gobject.TYPE_STRING, # color
                                              gobject.TYPE_BOOLEAN, # editable
                                              )
-        col = gtk.TreeViewColumn( u"Type", gtk.CellRendererText(), text=0, foreground=3 )
+        col = gtk.TreeViewColumn( u"Type", gtk.CellRendererText(), text=0, foreground=2 )
         tree.append_column( col )
-        col = gtk.TreeViewColumn( u"ID", gtk.CellRendererText(), text=1, foreground=3 )
-        tree.append_column( col )
-        col = gtk.TreeViewColumn( u"Usage", gtk.CellRendererText(), text=2, foreground=3 )
+        col = gtk.TreeViewColumn( u"ID", gtk.CellRendererText(), text=1, foreground=2 )
         tree.append_column( col )
         tree.set_model( self.resources_model )
 
@@ -337,8 +334,7 @@ class TaskEditor(BaseEditor):
             for constraint in task.resource_constraints:
                 print repr(constraint)
                 res_type, res_id = constraint
-                res_usage = None # FIXME
-                self.resources_model.append( (res_type, res_id, res_usage,
+                self.resources_model.append( (res_type, res_id,
                                               color, color=='black') )
 
 

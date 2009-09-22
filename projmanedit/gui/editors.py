@@ -1,9 +1,10 @@
 # -*- coding:utf-8 -*-
 import gtk
 import gobject
-from projman.lib.task import Task
+from projman.lib.calendar import Calendar
 from projman.lib.resource import Resource
 from projman.lib.resource_role import ResourceRole
+from projman.lib.task import Task
 
 
 class BaseEditor(gobject.GObject):
@@ -43,27 +44,37 @@ class ResourceEditor(BaseEditor):
     def __init__(self, app):
         BaseEditor.__init__(self, app)
         self.resources_model = None # defined in setup_resources_list as gtk.ListStore
+        self.setup_ui()
 
-    def on_project_changed(self, app):
+    def setup_ui(self):
+        self.calendar_ids = gtk.ListStore(gobject.TYPE_STRING)
         self.setup_resources_list()
         self.setup_resource_roles_list()
+        self.setup_calendar_list()
+        self.setup_offday_list()
+
+    def on_project_changed(self, app):
+        self.update_calendar_info()
         self.update_resources_info()
         self.update_resource_roles_info()
 
     def setup_resources_list(self):
         tree = self.w("treeview_resources")
-        self.resources_model = gtk.ListStore(gobject.TYPE_STRING, # type
-                                             gobject.TYPE_STRING, # id
-                                             gobject.TYPE_STRING, # usage
-                                             gobject.TYPE_STRING, # cost
+        self.resources_model = gtk.ListStore(gobject.TYPE_STRING, # cal_id
+                                             gobject.TYPE_STRING, # name
                                              gobject.TYPE_STRING, # color
                                              gobject.TYPE_BOOLEAN, # editable
                                              )
-        for name, text_num in [('Type', 0), ('ID', 1), ('Usage', 2), ('Cost/h', 3)]:
-            tree.append_column( gtk.TreeViewColumn( name, gtk.CellRendererText(),
-                         text=text_num, foreground=4 ) )
+        rend = gtk.CellRendererCombo()
+        rend.set_property('model', self.calendar_ids )
+        rend.set_property('has-entry', False)
+        rend.set_property('text-column', 0)
+        rend.connect('edited', self.on_calendar_type_edited )
+        tree.append_column( gtk.TreeViewColumn( u"Cal_ID", rend, text=0,
+                            foreground=2, editable=3 ) )
+        tree.append_column( gtk.TreeViewColumn( 'Name', gtk.CellRendererText(),
+                           text=1, foreground=2 ) )
         tree.set_model( self.resources_model )
-        tree.get_selection().connect("changed", self.update_resources_info )
 
     def setup_resource_roles_list(self):
         tree = self.w("treeview_resource_roles")
@@ -74,35 +85,88 @@ class ResourceEditor(BaseEditor):
                                                   gobject.TYPE_STRING, # color
                                                   gobject.TYPE_BOOLEAN, # editable
                                                  )
-        #('Type', 0),
         for name, text_num in [('ID', 1), ('Usage', 2), ('Cost/h', 3)]:
             tree.append_column( gtk.TreeViewColumn( name, gtk.CellRendererText(),
                          text=text_num, foreground=4 ) )
         tree.set_model( self.resource_roles_model )
-        tree.get_selection().connect("changed", self.update_resource_roles_info )
+
+    def setup_calendar_list(self):
+        tree = self.w("treeview_calendars")
+        self.calendar_model = gtk.ListStore(gobject.TYPE_STRING, # cal_id
+                                             gobject.TYPE_STRING, # cal_name
+                                             gobject.TYPE_STRING, # color
+                                             gobject.TYPE_BOOLEAN, # editable
+                                             )
+        tree.append_column( gtk.TreeViewColumn( 'Cal_ID', gtk.CellRendererText(),
+                           text=0, foreground=2 ) )
+        tree.append_column( gtk.TreeViewColumn( 'Name', gtk.CellRendererText(),
+                           text=1, foreground=2 ) )
+        tree.set_model( self.calendar_model )
+
+        tree.get_selection().connect("changed", self.on_calendar_selection_changed )
+
+    def setup_offday_list(self):
+        tree = self.w("treeview_offdays")
+        self.offday_model = gtk.ListStore(gobject.TYPE_STRING, # month
+                                             gobject.TYPE_STRING, # day
+                                             gobject.TYPE_BOOLEAN, # editable
+                                             )
+        for name, col in (('Month', 0), ('Day', 1)):
+            tree.append_column( gtk.TreeViewColumn( name, gtk.CellRendererText(),
+                           text=col, foreground=1 ) )
+        tree.set_model( self.offday_model )
 
     def update_resources_info(self):
         res_set = self.app.project.resource_set
-        editable = False # TODO
+        resources = [res for res in res_set.children if isinstance(res, Resource)]
+        editable = True # TODO
         self.resources_model.clear()
-        for res in res_set.children:
-            if isinstance(res, Resource):
-                rate = '%s %s' % tuple(res.hourly_rate)
-                self.resources_model.append( (res.type, str(res.id_role), res.name,
-                                              rate, "blue", editable) )
-            else:
-                self.resources_model.append( ("X", "???", str(res),
-                                              "?", "red", editable) )
+        for res in resources:
+            self.resources_model.append( (res.calendar, res.name, "blue", editable) )
 
     def update_resource_roles_info(self):
         model = self.resource_roles_model
         res_set = self.app.project.resource_role_set
-        editable = False # TODO
+        editable = True # XXX
         model.clear()
         for role in res_set.children:
             if isinstance(role, ResourceRole):
                 rate = '%s %s' % (role.hourly_cost, role.unit)
                 model.append( (None, role.id, role.name, rate, "blue", editable) )
+
+    def update_calendar_info(self):
+        "print update calendar infos"
+        resources = self.app.project.resource_set
+        cal_ids = self.calendar_ids
+        cal_ids.clear()
+        #for cal in set(res.calendar for res in resources if isinstance(res, Resource)):
+            #cal_ids.append( (cal,) )
+        for cal in set(res.id for res in resources if isinstance(res, Calendar)):
+            cal_ids.append( (cal,) )
+        cal_ids.append( ('<new>',) )
+        proj_cals = [res for res in self.app.project.resource_set.children
+                if isinstance(res, Calendar)]
+        for cal in proj_cals:
+            self.calendar_model.append( (cal.id, cal.name, "darkgreen", False ))
+
+    def on_calendar_selection_changed(self, sel):
+        model, itr = sel.get_selected()
+        print "show new calendar", model, itr
+        cal_id = model.get_value(itr, 0)
+        cal = self.app.project.get_resource(cal_id)
+        print 'cal id:', cal_id, cal
+        for day, val in cal.weekday.items():
+            working = (val=="working")
+            self.w('checkbutton_%s' %day).set_active(working)
+
+    def on_calendar_type_edited(self):
+        print "# update calendar type"
+
+    def update_working_days(self, cal):
+        print """show working days of the given calendar"""
+
+    def update_offday_list(self, cal):
+        print """show offdays of the given calendar"""
 
 
 class ActivitiesEditor(BaseEditor):
