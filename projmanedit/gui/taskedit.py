@@ -41,7 +41,6 @@ class TaskEditor(BaseEditor):
             self.constraints_type_model.append( (v,) )
         self.setup_task_tree()
         self.setup_constraints_tree()
-        self.setup_resources_tree()
 
     def build_task_tree_popup(self, task_path, del_task=True):
         task_popup = gtk.Menu()
@@ -66,19 +65,6 @@ class TaskEditor(BaseEditor):
 
         task_popup.show_all()
         return task_popup
-
-    def setup_resources_tree(self):
-        tree = self.w("treeview_task_resources")
-        self.resources_model = gtk.ListStore(gobject.TYPE_STRING, # type
-                                             gobject.TYPE_STRING, # id
-                                             gobject.TYPE_STRING, # color
-                                             gobject.TYPE_BOOLEAN, # editable
-                                             )
-        col = gtk.TreeViewColumn( u"Type", gtk.CellRendererText(), text=0, foreground=2 )
-        tree.append_column( col )
-        col = gtk.TreeViewColumn( u"ID", gtk.CellRendererText(), text=1, foreground=2 )
-        tree.append_column( col )
-        tree.set_model( self.resources_model )
 
     def setup_constraints_tree(self):
         tree = self.w("treeview_task_constraints")
@@ -319,24 +305,6 @@ class TaskEditor(BaseEditor):
                                                 color, color=='black' ) )
             child = child.parent
             color = "gray"
-        if isinstance(task, Task):
-            # Milestones don't have resources
-            self._update_resources_view(task)
-
-    def _update_resources_view(self, task):
-        color = "black"
-        while task and not task.resource_constraints:
-            task = task.parent
-            color = "gray"
-
-        self.resources_model.clear()
-        if task:
-            for constraint in task.resource_constraints:
-                print repr(constraint)
-                res_type, res_id = constraint
-                self.resources_model.append( (res_type, res_id,
-                                              color, color=='black') )
-
 
     def on_entry_task_title_changed(self, entry):
         itr = self.task_model.get_iter( self.current_task_path )
