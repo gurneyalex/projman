@@ -902,9 +902,9 @@
                     <child>
                       <widget class="GtkTable" id="table1">
                         <property name="visible">True</property>
-                        <property name="n_rows">5</property>
-                        <property name="n_columns">4</property>
-                        <property name="column_spacing">4</property>
+                        <property name="n_rows">3</property>
+                        <property name="n_columns">5</property>
+                        <property name="column_spacing">20</property>
                         <property name="row_spacing">4</property>
                         <child>
                           <placeholder/>
@@ -919,10 +919,39 @@
                           <placeholder/>
                         </child>
                         <child>
-                          <placeholder/>
+                          <widget class="GtkLabel" id="label7">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Title</property>
+                          </widget>
+                          <packing>
+                            <property name="left_attach">2</property>
+                            <property name="right_attach">3</property>
+                          </packing>
                         </child>
                         <child>
-                          <placeholder/>
+                          <widget class="GtkComboBox" id="combobox_role">
+                            <property name="visible">True</property>
+                          </widget>
+                          <packing>
+                            <property name="left_attach">4</property>
+                            <property name="right_attach">5</property>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="GtkLabel" id="label27">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Role</property>
+                          </widget>
+                          <packing>
+                            <property name="left_attach">3</property>
+                            <property name="right_attach">4</property>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
+                            <property name="x_options">GTK_FILL</property>
+                            <property name="y_options"></property>
+                          </packing>
                         </child>
                         <child>
                           <widget class="GtkLabel" id="label20">
@@ -1012,19 +1041,6 @@ milestone</property>
                           </packing>
                         </child>
                         <child>
-                          <widget class="GtkLabel" id="label7">
-                            <property name="visible">True</property>
-                            <property name="xalign">0</property>
-                            <property name="label" translatable="yes">Title</property>
-                          </widget>
-                          <packing>
-                            <property name="left_attach">2</property>
-                            <property name="right_attach">3</property>
-                            <property name="x_options">GTK_FILL</property>
-                            <property name="y_options"></property>
-                          </packing>
-                        </child>
-                        <child>
                           <widget class="GtkEntry" id="entry_task_title">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
@@ -1032,95 +1048,61 @@ milestone</property>
                           </widget>
                           <packing>
                             <property name="left_attach">3</property>
-                            <property name="right_attach">4</property>
+                            <property name="right_attach">5</property>
                             <property name="y_options"></property>
                           </packing>
                         </child>
+                      </widget>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="padding">10</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="GtkExpander" id="expander_constraints">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="expanded">True</property>
                         <child>
-                          <widget class="GtkExpander" id="expander1">
+                          <widget class="GtkScrolledWindow" id="scrolledwindow4">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="expanded">True</property>
+                            <property name="shadow_type">GTK_SHADOW_IN</property>
                             <child>
-                              <widget class="GtkScrolledWindow" id="scrolledwindow3">
-                                <property name="height_request">130</property>
+                              <widget class="GtkTreeView" id="treeview_task_constraints">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="shadow_type">GTK_SHADOW_IN</property>
-                                <child>
-                                  <widget class="GtkTreeView" id="treeview_task_resources">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                  </widget>
-                                </child>
                               </widget>
-                            </child>
-                            <child>
-                              <widget class="GtkLabel" id="label8">
-                                <property name="visible">True</property>
-                                <property name="label" translatable="yes">Resources</property>
-                              </widget>
-                              <packing>
-                                <property name="type">label_item</property>
-                              </packing>
                             </child>
                           </widget>
-                          <packing>
-                            <property name="right_attach">2</property>
-                            <property name="top_attach">3</property>
-                            <property name="bottom_attach">4</property>
-                            <property name="x_options">GTK_FILL</property>
-                            <property name="y_options">GTK_FILL</property>
-                          </packing>
                         </child>
                         <child>
-                          <widget class="GtkExpander" id="expander2">
+                          <widget class="GtkLabel" id="label4">
                             <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="expanded">True</property>
-                            <child>
-                              <widget class="GtkScrolledWindow" id="scrolledwindow4">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="shadow_type">GTK_SHADOW_IN</property>
-                                <child>
-                                  <widget class="GtkTreeView" id="treeview_task_constraints">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                  </widget>
-                                </child>
-                              </widget>
-                            </child>
-                            <child>
-                              <widget class="GtkLabel" id="label4">
-                                <property name="visible">True</property>
-                                <property name="label" translatable="yes">Constraints</property>
-                              </widget>
-                              <packing>
-                                <property name="type">label_item</property>
-                              </packing>
-                            </child>
+                            <property name="label" translatable="yes">Constraints</property>
                           </widget>
                           <packing>
-                            <property name="left_attach">2</property>
-                            <property name="right_attach">4</property>
-                            <property name="top_attach">3</property>
-                            <property name="bottom_attach">4</property>
-                            <property name="x_options">GTK_FILL</property>
-                            <property name="y_options">GTK_FILL</property>
+                            <property name="type">label_item</property>
                           </packing>
                         </child>
+                      </widget>
+                      <packing>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="GtkHBox" id="hbox14">
+                        <property name="visible">True</property>
+                        <property name="spacing">10</property>
                         <child>
                           <widget class="GtkLabel" id="label3">
                             <property name="visible">True</property>
                             <property name="xalign">0</property>
-                            <property name="label" translatable="yes">Format</property>
+                            <property name="label" translatable="yes">Format  for task editing</property>
                           </widget>
                           <packing>
-                            <property name="top_attach">4</property>
-                            <property name="bottom_attach">5</property>
-                            <property name="x_options">GTK_FILL</property>
-                            <property name="y_options"></property>
+                            <property name="expand">False</property>
                           </packing>
                         </child>
                         <child>
@@ -1132,22 +1114,20 @@ None</property>
                             <signal name="changed" handler="on_combobox_description_format_changed"/>
                           </widget>
                           <packing>
-                            <property name="left_attach">1</property>
-                            <property name="right_attach">2</property>
-                            <property name="top_attach">4</property>
-                            <property name="bottom_attach">5</property>
-                            <property name="x_options">GTK_FILL</property>
-                            <property name="y_options">GTK_FILL</property>
+                            <property name="expand">False</property>
+                            <property name="position">1</property>
                           </packing>
                         </child>
                       </widget>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
+                        <property name="padding">10</property>
+                        <property name="position">2</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkScrolledWindow" id="scrolledwindow2">
+                      <widget class="GtkScrolledWindow" id="scrolledwindow_edit_task">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="shadow_type">GTK_SHADOW_IN</property>
@@ -1164,7 +1144,7 @@ None</property>
                         </child>
                       </widget>
                       <packing>
-                        <property name="position">1</property>
+                        <property name="position">3</property>
                       </packing>
                     </child>
                   </widget>
@@ -1190,25 +1170,134 @@ None</property>
               </packing>
             </child>
             <child>
-              <widget class="GtkScrolledWindow" id="scrolledwindow_scheduling">
+              <widget class="GtkVBox" id="vbox12">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-                <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                <property name="spacing">10</property>
                 <child>
-                  <widget class="GtkViewport" id="viewport2">
+                  <widget class="GtkFrame" id="schedule_control">
                     <property name="visible">True</property>
-                    <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                    <property name="resize_mode">GTK_RESIZE_QUEUE</property>
+                    <property name="label_xalign">0.5</property>
                     <child>
-                      <widget class="GtkImage" id="gantt_image">
+                      <widget class="GtkHBox" id="hbox13">
+                        <property name="visible">True</property>
+                        <property name="spacing">10</property>
+                        <child>
+                          <widget class="GtkLabel" id="label24">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Max number of solutions</property>
+                          </widget>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="GtkSpinButton" id="spinbutton_solution_max">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="adjustment">0 0 100 1 10 10</property>
+                          </widget>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="GtkLabel" id="label25">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Maximum time</property>
+                          </widget>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="GtkSpinButton" id="spinbutton_time_max">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="adjustment">0 0 100 1 10 10</property>
+                          </widget>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">3</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="GtkLabel" id="label26">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Schedule</property>
+                          </widget>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">4</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="GtkButton" id="schedule_start">
+                            <property name="width_request">50</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                            <property name="border_width">4</property>
+                            <property name="label" translatable="yes">OK</property>
+                            <property name="use_underline">True</property>
+                            <property name="response_id">0</property>
+                          </widget>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="padding">10</property>
+                            <property name="position">5</property>
+                          </packing>
+                        </child>
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkLabel" id="label22">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">&lt;b&gt;TODO : Generate Scheduling&lt;/b&gt;</property>
+                        <property name="use_markup">True</property>
+                      </widget>
+                      <packing>
+                        <property name="type">label_item</property>
+                      </packing>
+                    </child>
+                  </widget>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="padding">10</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="GtkScrolledWindow" id="scrolledwindow5">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                    <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                    <child>
+                      <widget class="GtkViewport" id="viewport2">
                         <property name="visible">True</property>
                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                        <property name="stock">gtk-missing-image</property>
+                        <property name="resize_mode">GTK_RESIZE_QUEUE</property>
+                        <child>
+                          <widget class="GtkImage" id="gantt_image">
+                            <property name="visible">True</property>
+                            <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                            <property name="stock">gtk-missing-image</property>
+                          </widget>
+                        </child>
                       </widget>
                     </child>
                   </widget>
+                  <packing>
+                    <property name="position">1</property>
+                  </packing>
                 </child>
               </widget>
               <packing>
