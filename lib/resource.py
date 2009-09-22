@@ -74,7 +74,7 @@ class Resource(VNode):
                 return False
         else:
             return True
-    work_on = deprecated(is_available)
+    work_on = deprecated()(is_available)
 
     def get_worktime(self, datetime):
         """
