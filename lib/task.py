@@ -58,7 +58,7 @@ class TaskNode(VNode):
         self._priority = None
         self.duration = 0
         self.load_type = 0
-        self.task_type = None
+        self.resources_role = None
         self.set_resources = set()
         self.can_interrupt = [True, 1] # the integer represent the priority of the constraint
         self.link = None
@@ -275,8 +275,8 @@ class Task(TaskNode):
         self.resource_constraints = set()
 
     def get_task_type(self):
-        if self.task_type:
-                return self.task_type
+        if self.resources_role:
+                return self.resources_role
         elif self.parent:
             return self.parent.get_task_type()
         else:
@@ -286,7 +286,7 @@ class Task(TaskNode):
         """
         get real resource constraints using parent resource constraints
         """
-        if not self.task_type:
+        if not self.resources_role:
             if self.resource_constraints:
                 return self.resource_constraints
             elif self.parent:
@@ -317,16 +317,16 @@ class Task(TaskNode):
             for leaf in self.leaves():
                 if leaf.TYPE == 'milestone':
                     continue
-                if leaf.task_type: # according to new definition of resources
-                    if leaf.task_type in res.id_role:
+                if leaf.resources_role: # according to new definition of resources
+                    if leaf.resources_role in res.id_role:
                         set_res.add(res.id)
                 else: # according to old definition of resources
                     for ctype, res_id in leaf.get_resource_constraints():
                         set_res.add(res_id)
             # if task is a leaf
             if not self.children:
-                if self.task_type and not self.children: # according to new definition of resources
-                    if self.task_type in res.id_role:
+                if self.resources_role and not self.children: # according to new definition of resources
+                    if self.resources_role in res.id_role:
                         set_res.add(res.id)
                 else: # according to old definition of resources
                     for ctype, res_id in self.resource_constraints:

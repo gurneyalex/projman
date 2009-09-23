@@ -183,7 +183,7 @@ class ProjectXMLReader(AbstractXMLReader) :
         t = self._factory.create_task( task.get("id") )
         t.level = niveau
         if task.get("resource-role"):
-            t.task_type = task.get("resource-role")
+            t.resources_role = task.get("resource-role")
         self.task_milestone_common( t, task )
         for child in task:
             if child.tag == 'constraint-interruptible':

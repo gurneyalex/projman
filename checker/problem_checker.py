@@ -195,7 +195,7 @@ class Checker(object):
                 count = 0
                 for res_id in self.resources:
                     resource = self.project.get_resource(res_id)
-                    if leaf.task_type in resource.id_role:
+                    if leaf.resources_role in resource.id_role:
                         count += 1
                 duration = leaf.duration / float(count)
                 if duration > 5:
