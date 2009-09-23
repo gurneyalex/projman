@@ -113,12 +113,28 @@ class ResourceEditor(BaseEditor):
         tree = self.w("treeview_offdays")
         self.offday_model = gtk.ListStore(gobject.TYPE_STRING, # month
                                              gobject.TYPE_STRING, # day
+                                             gobject.TYPE_STRING, # color
                                              gobject.TYPE_BOOLEAN, # editable
                                              )
-        for name, col in (('Month', 0), ('Day', 1)):
-            tree.append_column( gtk.TreeViewColumn( name, gtk.CellRendererText(),
-                           text=col, foreground=2 ) )
+        for name, col in (('From', 0), ('To', 1)):
+            column = gtk.TreeViewColumn( name, gtk.CellRendererText(),
+                           text=col, foreground=2, editable=3 )
+            tree.append_column( column )
+            column.set_sort_column_id(col)
+            column.set_expand(True)
+            column.set_sort_order(gtk.SORT_ASCENDING )
+            column.set_clickable(True)
+            column.set_sort_indicator(True)
+            column.connect("clicked", self.reorder_offday)
         tree.set_model( self.offday_model )
+
+    def reorder_offday(self, col):
+        order = col.get_sort_order()
+        if order==gtk.SORT_ASCENDING:
+            order = gtk.SORT_DESCENDING
+        else:
+            order = gtk.SORT_ASCENDING
+        col.set_sort_order(order)
 
     def update_resources_info(self):
         res_set = self.app.project.resource_set
@@ -139,12 +155,9 @@ class ResourceEditor(BaseEditor):
                 model.append( (None, role.id, role.name, rate, "blue", editable) )
 
     def update_calendar_info(self):
-        "print update calendar infos"
         resources = self.app.project.resource_set
         cal_ids = self.calendar_ids
         cal_ids.clear()
-        #for cal in set(res.calendar for res in resources if isinstance(res, Resource)):
-            #cal_ids.append( (cal,) )
         for cal in set(res.id for res in resources if isinstance(res, Calendar)):
             cal_ids.append( (cal,) )
         cal_ids.append( ('<new>',) )
@@ -155,10 +168,8 @@ class ResourceEditor(BaseEditor):
 
     def on_calendar_selection_changed(self, sel):
         model, itr = sel.get_selected()
-        print "show new calendar", model, itr
         cal_id = model.get_value(itr, 0)
         cal = self.app.project.get_resource(cal_id)
-        print 'cal id:', cal_id, cal
         # update weekdays
         for day, val in cal.weekday.items():
             working = (val=="working")
@@ -167,15 +178,18 @@ class ResourceEditor(BaseEditor):
         offdays = self.offday_model
         offdays.clear()
         for month, day in cal.national_days:
-            offdays.append( (str(month), str(day), False) )
-        # XXX use cal.timeperiods (which are DateTime.DateTime objects)
-        offdays.append( ('XXX : Movable', 'Days', False) )
+            date = "20**-%d-%d" % (month, day)
+            offdays.append( (date, date, 'blue', False) )
+        for begin, end, work_or_not in cal.timeperiods:
+            if work_or_not != "non_working":
+                print "? non 'non_working' timeperiod", begin, end, work_or_not
+                continue # ???
+            offdays.append( ('%d-%d-%d' % begin.timetuple()[:3],
+                             '%d-%d-%d' % end.timetuple()[:3], 'blue', False) )
 
     def on_calendar_type_edited(self):
         print "# update calendar type"
 
-    def update_working_days(self, cal):
-        print """show working days of the given calendar"""
 
 class ActivitiesEditor(BaseEditor):
 
