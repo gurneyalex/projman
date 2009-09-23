@@ -202,7 +202,7 @@ class Project(object):
         for res in res_set:
             res = self.get_resource(res)
             for i in range(len(res.id_role)):
-                if res.id_role[i] == task.task_type:
+                if res.id_role[i] == task.resources_role:
                     task.set_resources.add(res.id)
 
     # tasks methods ###########################################################
@@ -394,7 +394,7 @@ class Project(object):
             for res in durations:
                 # using resources old definition
                 task =  self.get_task(task_id)
-                if self.resource_role_set.width() == 1 and not task.task_type:
+                if self.resource_role_set.width() == 1 and not task.resources_role:
                     try:
                         cost_rate = self.get_resource(res).hourly_rate[0]
                     except NodeNotFound,ex :
@@ -402,7 +402,7 @@ class Project(object):
                         cost_rate = 1
                 #using new resources definition
                 else:
-                    role = task.task_type
+                    role = task.resources_role
                     cost_rate = self.get_cost_from_role(role)
                 durations[res] += rounded
                 costs[res] += durations[res] * cost_rate * HOURS_PER_DAY
