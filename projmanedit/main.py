@@ -140,13 +140,17 @@ class MainApp(gobject.GObject):
         self.taskeditor.w("gantt_image").set_from_file(output)
         self.emit("project-changed")
 
+    def on_notebook1_switch_page(self, notebook, page, page_index):
+        if notebook.get_tab_label(notebook.get_nth_page(page_index)).get_text() == "Tasks":
+            self.taskeditor.update_on_switch_page()
+
     def on_save_cmd_activate(self,*args):
         print "save", args
         basedir = osp.dirname( self.project_file )
         task_file = osp.join( basedir, self.files['tasks'] )
+        # XXX should write all files, not only task file
         write_tasks_as_xml( task_file, self.project )
         self.load_project(self.project_file)
-
 
     def on_save_as_cmd_activate(self,*args):
         print "save as", args

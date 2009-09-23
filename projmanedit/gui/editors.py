@@ -39,6 +39,19 @@ class ProjectEditor(BaseEditor):
         self.w("window_main").set_title("Projman - " + str(self.app.project_file))
 
 
+    def on_button_project_resources_show_button_press_event(self, button, evt):
+        self.w("notebook1").set_current_page(1)
+
+    def on_button_project_activities_show_button_press_event(self, button, evt):
+        self.w("notebook1").set_current_page(2)
+
+    def on_button_project_tasks_show_button_press_event(self, button, evt):
+        self.w("notebook1").set_current_page(3)
+
+    def on_button_project_schedule_show_button_press_event(self, button, evt):
+        self.w("notebook1").set_current_page(4)
+
+
 class ResourceEditor(BaseEditor):
 
     def __init__(self, app):

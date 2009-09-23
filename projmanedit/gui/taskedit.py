@@ -35,6 +35,8 @@ class TaskEditor(BaseEditor):
         app.ui.signal_autoconnect(self)
         self.w("spinbutton_duration").get_adjustment().set_all(0,0,100000,0.1,1,1)
 
+    # UI setup methods ########################################################
+
     def setup_ui(self):
         self.constraints_type_model = gtk.ListStore(gobject.TYPE_STRING)
         for v in TASK_CONSTRAINTS:
@@ -70,7 +72,7 @@ class TaskEditor(BaseEditor):
         tree = self.w("treeview_task_constraints")
         self.constraints_model = gtk.ListStore(gobject.TYPE_STRING, # type
                                                gobject.TYPE_STRING, # task_id
-                                               gobject.TYPE_INT, # priority
+                                               gobject.TYPE_STRING, # task title
                                                gobject.TYPE_STRING, # color (inherited or not)
                                                gobject.TYPE_BOOLEAN, # editable
                                                )
@@ -85,9 +87,9 @@ class TaskEditor(BaseEditor):
         rend.set_property('model', self.task_model)
         rend.set_property('text-column', 1)
         rend.connect('edited', self.on_constraint_arg_edited )
-        col = gtk.TreeViewColumn( u"Task", rend, text=1, foreground=3, editable=4 )
+        col = gtk.TreeViewColumn( u"Task ID", rend, text=1, foreground=3, editable=4 )
         tree.append_column( col )
-        col = gtk.TreeViewColumn( u"Priority", gtk.CellRendererText(), text=2,
+        col = gtk.TreeViewColumn( u"Task Title", gtk.CellRendererText(), text=2,
                                  foreground=3, editable=4 )
         tree.append_column( col )
         tree.set_model( self.constraints_model )
@@ -114,6 +116,8 @@ class TaskEditor(BaseEditor):
         tree.connect("drag-data-received", self.drag_task_received )
         tree.connect("drag-data-get", self.drag_task_get )
         tree.connect("drag-data-delete", self.drag_task_deleted )
+
+    # task drag methods #######################################################
 
     def drag_task_received(self, treeview, context, x, y, selection, info, timestamp):
         print "DRAG RECEIVED:", x, y, info
@@ -193,6 +197,8 @@ class TaskEditor(BaseEditor):
         tid = model.get_value(iter, 1)
         selection.set(selection.target, 8, tid)
 
+    # refresh methods #########################################################
+
     def refresh_task_list(self, sel_task_id=None, sel_task=None):
         model = self.task_model
         model.clear()
@@ -247,20 +253,12 @@ class TaskEditor(BaseEditor):
         else:
             return itr
 
-    def on_project_changed(self, app):
-        """Propagates the fact that the project file
-        has changed"""
-        print "X X X project_changed :" ,
-        print app.project, app.files
-        self.refresh_task_list()
+    # update methods ##########################################################
 
-    def on_task_selection_changed(self, sel):
-        model, itr = sel.get_selected()
-        if not itr:
-            return
-        task_id = model.get_value(itr, 1)
-        self.current_task = self.app.project.root_task.get_task(task_id)
-        self.current_task_path = model.get_path( itr )
+    def update_on_switch_page(self):
+        if self.current_task is None:
+            self.current_task = self.app.project.root_task
+        self.refresh_task_list(sel_task=self.current_task)
         self.update_task_info()
 
     def update_task_info(self):
@@ -296,15 +294,48 @@ class TaskEditor(BaseEditor):
         self.w("spinbutton_duration").get_adjustment().set_value( task.duration )
         self.w("combobox_scheduling_type").set_active( task.load_type )
 
+        self._update_role_combobox( task )
+
         self.constraints_model.clear()
-        child = task
         color = "black"
-        while child:
-            for c_type, task_id, priority in child.task_constraints:
-                self.constraints_model.append( (c_type, task_id, priority,
+        proj = self.app.project
+        # loop over the parents of the task and append constraints
+        while task:
+            for c_type, task_id, priority in task.task_constraints:
+                title = proj.get_task(task_id).title
+                self.constraints_model.append( (c_type, task_id, title,
                                                 color, color=='black' ) )
-            child = child.parent
-            color = "gray"
+            task = task.parent
+            color = "gray" # parent dependencies are grey
+
+    def _update_role_combobox(self, task ):
+        box = self.w('combobox_role')
+        resources = list(task.get_resources())
+        if resources:
+            box.set_title( resources[0] )
+        else:
+            box.set_title( '[Please choose a role]')
+        roles = self.app.project.resource_role_set.children
+        box.clear()
+        for role in roles:
+            box.append_text( role.id )
+
+    # event methods ###########################################################
+
+    def on_project_changed(self, app):
+        """Propagates the fact that the project file has changed"""
+        print "X X X project_changed :" ,
+        print app.project, app.files
+        self.refresh_task_list()
+
+    def on_task_selection_changed(self, sel):
+        model, itr = sel.get_selected()
+        if not itr:
+            return
+        task_id = model.get_value(itr, 1)
+        self.current_task = self.app.project.root_task.get_task(task_id)
+        self.current_task_path = model.get_path( itr )
+        self.update_task_info()
 
     def on_entry_task_title_changed(self, entry):
         itr = self.task_model.get_iter( self.current_task_path )
@@ -354,6 +385,29 @@ class TaskEditor(BaseEditor):
         self.task_popup = self.build_task_tree_popup(path)
         self.task_popup.popup( None, None, None, event.button, time)
         return 1
+
+    def on_textview_task_description_changed(self, buf):
+        _beg = buf.get_start_iter()
+        _end = buf.get_end_iter()
+        txt = buf.get_text( _beg, _end )
+        self.current_task.description_raw = txt
+
+    def on_constraint_type_edited(self, renderer, path, new_text):
+        itr = self.constraints_model.get_iter( path )
+        constr, value = self.constraints_model.get( itr, 0, 1 )
+        assert constr in TASK_CONSTRAINTS
+        self.current_task.task_constraints.remove( (constr, value) )
+        self.current_task.add_task_constraint( new_text, value )
+        self.constraints_model.set_value( itr, 0, new_text )
+
+    def on_constraint_arg_edited(self, renderer, path, new_text):
+        itr = self.constraints_model.get_iter( path )
+        constr, value = self.constraints_model.get( itr, 0, 1 )
+        self.current_task.task_constraints.remove( (constr, value) )
+        self.current_task.add_task_constraint( constr, new_text )
+        self.constraints_model.set_value( itr, 1, new_text )
+
+    # task popup methods ########################################
 
     def popup_add_task(self, item, path):
         if path is None:
@@ -446,45 +500,3 @@ class TaskEditor(BaseEditor):
         parent.remove( task )
         self.refresh_task_list(sel_task=parent)
 
-    def on_textview_task_description_changed(self, buf):
-        _beg = buf.get_start_iter()
-        _end = buf.get_end_iter()
-        txt = buf.get_text( _beg, _end )
-        self.current_task.description_raw = txt
-
-    def on_constraint_type_edited(self, renderer, path, new_text):
-        itr = self.constraints_model.get_iter( path )
-        constr, value = self.constraints_model.get( itr, 0, 1 )
-        assert constr in TASK_CONSTRAINTS
-        self.current_task.task_constraints.remove( (constr, value) )
-        self.current_task.add_task_constraint( new_text, value )
-        self.constraints_model.set_value( itr, 0, new_text )
-
-    def on_constraint_arg_edited(self, renderer, path, new_text):
-        itr = self.constraints_model.get_iter( path )
-        constr, value = self.constraints_model.get( itr, 0, 1 )
-        self.current_task.task_constraints.remove( (constr, value) )
-        self.current_task.add_task_constraint( constr, new_text )
-        self.constraints_model.set_value( itr, 1, new_text )
-
-    def on_button_project_resources_show_button_press_event(self, button, evt):
-        print "go to resource page ?"
-        self.w("notebook1").set_current_page(1)
-
-    def on_button_project_activities_show_button_press_event(self, button, evt):
-        self.w("notebook1").set_current_page(2)
-
-    def on_button_project_tasks_show_button_press_event(self, button, evt):
-        self.w("notebook1").set_current_page(3)
-
-    def on_button_project_schedule_show_button_press_event(self, button, evt):
-        self.w("notebook1").set_current_page(4)
-
-    def on_notebook1_switch_page(self, notebook, page, page_index):
-        print "notebook switch to page %s" % page
-        if notebook.get_tab_label(notebook.get_nth_page(page_index)).get_text() == "Tasks":
-            if self.current_task is None:
-                print dir(self.app.project)
-                self.current_task = self.app.project.root_task
-            self.refresh_task_list(sel_task=self.current_task)
-            self.update_task_info()
