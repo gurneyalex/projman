@@ -128,25 +128,26 @@ class TasksVisitor(object):
     def visit_root(self, node):
         elem = ET.Element('task', id=node.id)
         self.set_common_attr( node, elem )
-        for rtype, rid in node.resource_constraints:
-            ET.SubElement( elem, "constraint-resource",
-                           idref=rid, type=rtype )
-
+        self._handle_resource_constraints(elem, node)
         self.parents.append(elem)
         for c in node.children:
             c.accept( self )
         return elem
+
+    def _handle_resource_constraints(self, elem, node):
+        for rtype, rid in node.resource_constraints:
+            if rtype == None:
+                ET.SubElement( elem, "constraint-resource", idref=rid )
+            else:
+                ET.SubElement( elem, "constraint-resource",
+                               idref=rid, type=rtype )
 
     def visit_task(self, node):
         elem = ET.SubElement( self.parents[-1], 'task', id=node.id )
         elem.set("load-type", REVERSE_LOAD_TYPE_MAP[node.load_type] )
         elem.set("load", str(node.duration) )
         self.set_common_attr( node, elem )
-
-        for rtype, rid in node.resource_constraints:
-            ET.SubElement( elem, "constraint-resource",
-                           idref=rid, type=rtype )
-
+        self._handle_resource_constraints(elem, node)
         self.parents.append( elem )
         for c in node.children:
             c.accept( self )
