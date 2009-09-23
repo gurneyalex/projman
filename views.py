@@ -364,7 +364,7 @@ class CostTableView(XMLView):
                 for res, duration in durations.items():
                     resource = self.projman.get_resource(res)
                     if not type(role) == str: # according to new resources definition
-                        if role.id in resource.id_role:
+                        if role.id in resource.role_ids:
                             tot_duration += duration
                     else: # old definition of resource type
                         if role == resource.type:
@@ -443,7 +443,7 @@ class CostTableView(XMLView):
             for res in durations_:
                 resource = self.projman.get_resource(res)
                 if not type(role) == str: # according to new resqoiurces definition
-                    if role.id in resource.id_role:
+                    if role.id in resource.role_ids:
                         duration = durations_[res]
                         self.dbh.table_cell_node(row, 'center', "%s" %duration)
                 else: #old definition of resource type

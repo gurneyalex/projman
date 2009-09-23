@@ -123,7 +123,7 @@ class CSPScheduler(object):
             print node.id, 'range=', rnge
         # collect resources
             #
-            # on utilise task.set_resources pour obtenir l ensemble des
+            # on utilise task.resources_set pour obtenir l ensemble des
             # resources disponibles pour une tache
             #
         # -> using new projman definition
@@ -133,7 +133,7 @@ class CSPScheduler(object):
                 if self.project.priority >= int(priority):
                     self.resources.add( r_id )
                     task_resources.append( r_id )
-            self.project.get_resources_from_task_type(node)
+            node.compute_resources(self.project)
             #trouver les resources correspondantes
             task_type = node.get_task_type()
             if _VERBOSE>1:
@@ -146,7 +146,7 @@ class CSPScheduler(object):
                         print "Resource", r_type, r_id
                     self.resources.add( r_id )
                     task_resources.append( r_id )
-                    node.set_resources.add(r_id)
+                    node.resources_set.add(r_id)
 
     def add_priorities_as_constraints(self):
         """
@@ -224,7 +224,7 @@ class CSPScheduler(object):
         for tid, (num, _type, duration, resources) in real_tasks_items:
 
             task = self.project.get_task(tid)
-            resources = task.set_resources # set resources according to new definition
+            resources = task.resources_set # set resources according to new definition
             duration_ = duration * factor
             if (duration * factor) % 1 > 0 :
                 duration_ = duration * factor - ((duration * factor) % 1) + 1
