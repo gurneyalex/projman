@@ -196,15 +196,6 @@ class Project(object):
     def get_resource(self, resource_id):
         return self.resource_set.get_resource(resource_id)
 
-    def get_resources_from_task_type(self, task):
-        """add all the resources with type abilities in task.set_resources"""
-        res_set = self.get_resources()
-        for res in res_set:
-            res = self.get_resource(res)
-            for i in range(len(res.id_role)):
-                if res.id_role[i] == task.resources_role:
-                    task.set_resources.add(res.id)
-
     # tasks methods ###########################################################
 
     def get_task(self, task_id):

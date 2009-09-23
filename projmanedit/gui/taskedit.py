@@ -310,9 +310,8 @@ class TaskEditor(BaseEditor):
 
     def _update_role_combobox(self, task ):
         box = self.w('combobox_role')
-        resources = list(task.get_resources())
-        if resources:
-            box.set_title( resources[0] )
+        if task.resources_role:
+            box.set_title( task.resources_role )
         else:
             box.set_title( '[Please choose a role]')
         roles = self.app.project.resource_role_set.children

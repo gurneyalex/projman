@@ -265,7 +265,7 @@ class ProjectXMLReader(AbstractXMLReader) :
             elif n.tag == 'use-calendar':
                 res.calendar = n.get('idref')
             elif n.tag == 'role':
-                res.id_role.append(n.get('idref'))
+                res.role_ids.append(n.get('idref'))
         return res
 
     def read_resource_role(self, fname):
