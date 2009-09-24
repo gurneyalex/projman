@@ -104,8 +104,8 @@ class MainApp(gobject.GObject):
         try:
             self.project, self.files = reader.read()
         except MalformedProjectFile, exc:
-            print "ERROR: Could not load project %s : %s" % (fname, exc)
-            return # do something ...
+            self.pop_up_bad_project(fname, exc)
+            return
         self.project_file = fname
         # XXX move scheduler / Gantt stuff to some function / class ?
         scheduler = CSPScheduler(self.project)
@@ -139,6 +139,15 @@ class MainApp(gobject.GObject):
             print "ERROR [could not render Gantt; skipping]:", exc
         self.taskeditor.w("gantt_image").set_from_file(output)
         self.emit("project-changed")
+
+    def pop_up_bad_project(self, fname, exc):
+        msg = "Could not open malformed project '%s' : %s" % (fname, exc)
+        dlg = gtk.MessageDialog(parent=None, flags=0,
+                                type=gtk.MESSAGE_WARNING,
+                                buttons=gtk.BUTTONS_OK,
+                                message_format= msg)
+        dlg.run()
+        dlg.destroy()
 
     def on_notebook1_switch_page(self, notebook, page, page_index):
         if notebook.get_tab_label(notebook.get_nth_page(page_index)).get_text() == "Tasks":

@@ -47,8 +47,8 @@ def xml_parse(source):
     try:
         return ET.parse( source )
     except ExpatError, exc:
-        print 'print', ExpatError, exc
-        raise MalformedProjectFile(ExpatError, exc)
+        msg = "%s : %s" % (ExpatError, exc)
+        raise MalformedProjectFile(msg)
 
 class ProjectXMLReader(AbstractXMLReader) :
 
