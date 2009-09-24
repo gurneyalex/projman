@@ -204,7 +204,7 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
 	debug(pb, "Pseudo tasks", res_tasks);    
     }
 
-#if 0
+#if 1
     for(uint_t task_id=0;task_id<pb.tasks.size();++task_id) {
 	max(SELF, real_tasks[task_id], last_days[task_id] );
     }
@@ -259,7 +259,7 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
 
     	cout << "ALL DAYS:" << all_days << endl;
     }
-    branch(SELF, res_tasks, SET_VAR_SIZE_MAX, SET_VAL_MIN_INC);
+    branch(SELF, res_tasks, SET_VAR_MAX_MIN, SET_VAL_MIN_INC);
     branch(SELF, milestones, INT_VAR_NONE, INT_VAL_MIN);
 }
 
@@ -432,10 +432,16 @@ void ProjmanSolver::run( ProjmanProblem& pb, Search::Stop *stop )
 // explicit instantiation
 template void ProjmanSolver::run<BAB>(ProjmanProblem& pb, Search::Stop *stop);
 
+#if GE_VERSION < PM_VERSION(3,0,0)
 void ProjmanSolver::constrain(Space* s)
 {
-    ProjmanSolver* solver = static_cast<ProjmanSolver*>(s);
-    uint_t day = solver->last_day.val(); // XXX -1 make it an option?
+    const ProjmanSolver& solver = *static_cast<ProjmanSolver*>(s);
+#else
+void ProjmanSolver::constrain(const Space& s)
+{
+    const ProjmanSolver& solver = dynamic_cast<const ProjmanSolver&>(s);
+#endif
+    uint_t day = solver.last_day.val(); // XXX -1 make it an option?
 
 #if 1
     /* constraint 1 : finish all tasks earliest */
@@ -448,7 +454,7 @@ void ProjmanSolver::constrain(Space* s)
     int _eta_cost=0;
     /* constraint 2 : the sum of finish time for all tasks must be smallest */
     for(int i=0;i<last_days.size();++i) {
-	_eta_cost+=solver->last_days[i].val();
+	_eta_cost+=solver.last_days[i].val();
     }
     //cout << "ETA SUM:" << _eta_cost << "/" << day << endl;
     /* post constraint that next sum of last days must be less than or equal to current */
