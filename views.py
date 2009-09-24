@@ -201,8 +201,8 @@ class RatesSectionView(XMLView):
         task_types = []
         hourly_cost = [] # used only in case of old resources type definition
         for task in self.projman.root_task.leaves():
-            if task.task_type: #new resources role definition
-                role = self.projman.resource_role_set.get_resource_role(task.task_type)
+            if task.resources_role: #new resources role definition
+                role = self.projman.resource_role_set.get_resource_role(task.resources_role)
                 if not role in task_types:
                     task_types.append(role)
         if not task_types: # old resource type definition
@@ -268,8 +268,8 @@ class CostTableView(XMLView):
             self.set_res.append(res)
         self.roles = []
         for task in self.projman.root_task.leaves():
-            if task.task_type: #according to new definition of roles resources
-                role_ = self.projman.resource_role_set.get_resource_role(task.task_type)
+            if task.resources_role: #according to new definition of roles resources
+                role_ = self.projman.resource_role_set.get_resource_role(task.resources_role)
                 if not role_ in self.roles:
                     self.roles.append(role_)
         if self.roles == []: # old definition of resources type
@@ -364,7 +364,7 @@ class CostTableView(XMLView):
                 for res, duration in durations.items():
                     resource = self.projman.get_resource(res)
                     if not type(role) == str: # according to new resources definition
-                        if role.id in resource.id_role:
+                        if role.id in resource.role_ids:
                             tot_duration += duration
                     else: # old definition of resource type
                         if role == resource.type:
@@ -443,7 +443,7 @@ class CostTableView(XMLView):
             for res in durations_:
                 resource = self.projman.get_resource(res)
                 if not type(role) == str: # according to new resqoiurces definition
-                    if role.id in resource.id_role:
+                    if role.id in resource.role_ids:
                         duration = durations_[res]
                         self.dbh.table_cell_node(row, 'center', "%s" %duration)
                 else: #old definition of resource type
@@ -556,10 +556,10 @@ class TasksListSectionView(XMLView):
             # auront le meme role-type
             role = None
             for leaf in task.leaves():
-                if leaf.task_type or task.task_type:
+                if leaf.resources_role or task.resources_role:
                     if leaf.TYPE == 'milestone':
                         continue
-                    role_ = self.projman.resource_role_set.get_resource_role(leaf.task_type)
+                    role_ = self.projman.resource_role_set.get_resource_role(leaf.resources_role)
                     role = role_.name
 #            else:  # use old definition
             if not(role):
@@ -590,8 +590,8 @@ class TasksListSectionView(XMLView):
         duration_ = {}
         for res in duration:
                 resource = self.projman.get_resource(res)
-                if task.task_type:  # use new resources definition
-                    res_role =  self.projman.resource_role_set.get_resource_role(task.task_type)
+                if task.resources_role:  # use new resources definition
+                    res_role =  self.projman.resource_role_set.get_resource_role(task.resources_role)
                     role = res_role.name
                 else:  # use old definition of resource roles
                     role = resource.type
@@ -666,8 +666,8 @@ class TasksListSectionView(XMLView):
                 if child.TYPE == 'milestone':
                     continue
                 duration += child.duration
-                if child.task_type: #use new project description
-                    res_type = child.task_type
+                if child.resources_role: #use new project description
+                    res_type = child.resources_role
                     # get role title
                     res_role = self.projman.resource_role_set.get_resource_role(res_type)
                     role = res_role.name
@@ -688,8 +688,8 @@ class TasksListSectionView(XMLView):
             self.dbh.table_cell_node(row, 'left', task.title)
             # task duration and role of resources
             duration = task.duration and unicode(task.duration) or u''
-            if task.task_type: #use new project description
-                res_type = task.task_type
+            if task.resources_role: #use new project description
+                res_type = task.resources_role
                 # get role title
                 res_role = self.projman.resource_role_set.get_resource_role(res_type)
                 role = res_role.name

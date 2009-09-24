@@ -18,7 +18,6 @@
 """
 reader generate a model from xml file (see dtd/project.dtd)
 """
-from curses.ascii import isascii
 from projman.readers.base_reader import AbstractXMLReader
 from projman.readers.projman_checkers import ProjectChecker, ScheduleChecker, ResourcesChecker
 from projman.readers.projman_checkers import TasksChecker
@@ -37,11 +36,19 @@ try:
     import xml.etree.ElementTree as ET
 except ImportError:
     import elementtree.ElementTree as ET
+from xml.parsers.expat import ExpatError
 
 def js(txt):
     """join and split"""
     return u' '.join(txt.split())
 
+def xml_parse(source):
+    """catch xml parsing errors"""
+    try:
+        return ET.parse( source )
+    except ExpatError, exc:
+        msg = "%s : %s" % (ExpatError, exc)
+        raise MalformedProjectFile(msg)
 
 class ProjectXMLReader(AbstractXMLReader) :
 
@@ -59,11 +66,11 @@ class ProjectXMLReader(AbstractXMLReader) :
 
     def read(self):
         if isinstance(self.source, str):
-            tree = ET.parse( file(self.source) )
+            tree = xml_parse( file(self.source) )
             filename = self.source
             base_uri = dirname(abspath(filename))
         elif isinstance(self.source, file):
-            tree = ET.parse(self.source)
+            tree = xml_parse(self.source)
             filename = 'input_stream'
             base_uri = ''
         elif isinstance(self.source, ET.ElementTree):
@@ -108,7 +115,7 @@ class ProjectXMLReader(AbstractXMLReader) :
         return self.project
 
     def read_schedule(self, fname):
-        schedule = ET.parse( fname )
+        schedule = xml_parse( fname )
         checker = ScheduleChecker()
         if not checker.validate(schedule, fname):
             raise MalformedProjectFile(str(checker))
@@ -156,25 +163,15 @@ class ProjectXMLReader(AbstractXMLReader) :
         self.project.tasks = tasks
         self.project.costs = costs
 
-    def id_checker(self, id_):
-        checker = True
-        for c in id_:
-            checker = checker and  isascii(c)
-        return checker
-
     def read_tasks(self, fname):
-        tasks = ET.parse( fname )
+        tasks = xml_parse( fname )
         checker = TasksChecker()
         if not checker.validate(tasks, fname):
             raise MalformedProjectFile(str(checker))
         self.tasks_file = fname
         rt = tasks.getroot()
-        if not self.id_checker(rt.get("id")):
-            raise MalformedId("Task %s has non-ascii ID." %(t.get("id")))
         if self.task_root and rt.get("id") != self.task_root:
             for t in rt.findall(".//task"):
-                if not self.id_checker(t.get("id")):
-                    raise MalformedId("Task %s has non-ascii ID." %(t.get("id")))
                 if t.get("id") == self.task_root:
                     rt = t
                     break
@@ -185,10 +182,8 @@ class ProjectXMLReader(AbstractXMLReader) :
     def read_task(self, task, niveau):
         t = self._factory.create_task( task.get("id") )
         t.level = niveau
-        if not self.id_checker(task.get("id")):
-            raise MalformedId("Task %s has non-ascii ID." %(t.get("id")))
         if task.get("resource-role"):
-            t.task_type = task.get("resource-role")
+            t.resources_role = task.get("resource-role")
         self.task_milestone_common( t, task )
         for child in task:
             if child.tag == 'constraint-interruptible':
@@ -207,8 +202,6 @@ class ProjectXMLReader(AbstractXMLReader) :
         return t
 
     def read_milestone(self, mstone):
-        if not self.id_checker(mstone.get("id")):
-            raise MalformedProjectFile()
         m = self._factory.create_milestone( mstone.get("id") )
         self.task_milestone_common( m, mstone )
         return m
@@ -261,8 +254,6 @@ class ProjectXMLReader(AbstractXMLReader) :
 
 
     def read_resource_definition(self, res_node):
-        if not self.id_checker(res_node.get("id")):
-            raise MalformedId("Task %s has non-ascii ID." %(t.get("id")))
         res = self._factory.create_resource( res_node.get('id'), u'',
                                              res_node.get('type'), u'' )
         for n in res_node:
@@ -274,16 +265,14 @@ class ProjectXMLReader(AbstractXMLReader) :
             elif n.tag == 'use-calendar':
                 res.calendar = n.get('idref')
             elif n.tag == 'role':
-                res.id_role.append(n.get('idref'))
+                res.role_ids.append(n.get('idref'))
         return res
 
     def read_resource_role(self, fname):
-        tree = ET.parse(fname)
+        tree = xml_parse(fname)
         root_node = tree.getroot()
         res_role_set = self._factory.create_resource_role_set('all_resource_role')
         for res_role in root_node.findall('resource-role'):
-            if not self.id_checker(res_role.get("id")):
-                raise MalformedId("Task %s has non-ascii ID." %(t.get("id")))
             res = self._factory.create_resource_role( res_role.get('id'), u'')
             res.hourly_cost = float(res_role.get("hourly-cost"))
             res.unit = res_role.get("cost-unit")
@@ -337,7 +326,7 @@ class ProjectXMLReader(AbstractXMLReader) :
 
     def read_resources(self, fname):
 
-        tree = ET.parse(fname)
+        tree = xml_parse(fname)
         checker = ResourcesChecker()
         if not checker.validate(tree, fname):
             raise MalformedProjectFile(str(checker))
@@ -352,7 +341,7 @@ class ProjectXMLReader(AbstractXMLReader) :
         return res_set
 
     def read_activities(self, fname):
-        tree = ET.parse(fname)
+        tree = xml_parse(fname)
         root_node = tree.getroot()
         activities = []
         for reports in root_node.findall('reports-list'):

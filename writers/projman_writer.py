@@ -57,7 +57,8 @@ def write_schedule_as_xml(filename, project):
     tree.write(filename, encoding="UTF-8")
 
 def write_tasks_as_xml(filename, project):
-    root = tasks_as_dom(project)
+    visitor = TasksVisitor()
+    root = visitor.visit_root( project.root_task )
     indent(root)
     tree = ET.ElementTree(root)
     tree.write(filename, encoding="UTF-8")
@@ -127,26 +128,31 @@ class TasksVisitor(object):
 
     def visit_root(self, node):
         elem = ET.Element('task', id=node.id)
+        elem.set("xmlns:ldg", "http://www.logilab.org/2005/DocGenerator")
         self.set_common_attr( node, elem )
-        for rtype, rid in node.resource_constraints:
-            ET.SubElement( elem, "constraint-resource",
-                           idref=rid, type=rtype )
-
+        self._handle_resource_constraints(elem, node)
         self.parents.append(elem)
         for c in node.children:
             c.accept( self )
         return elem
 
+    def _handle_resource_constraints(self, elem, node):
+        for rtype, rid in node.resource_constraints:
+            if rtype == None:
+                ET.SubElement( elem, "constraint-resource", idref=rid )
+            else:
+                ET.SubElement( elem, "constraint-resource",
+                               idref=rid, type=rtype )
+
     def visit_task(self, node):
         elem = ET.SubElement( self.parents[-1], 'task', id=node.id )
-        elem.set("load-type", REVERSE_LOAD_TYPE_MAP[node.load_type] )
-        elem.set("load", str(node.duration) )
+        if node.duration is not None:
+            elem.set("load-type", REVERSE_LOAD_TYPE_MAP[node.load_type] )
+            elem.set("load", str(node.duration) )
+        if node.resources_role:
+            elem.set("resource-role", node.resources_role)
         self.set_common_attr( node, elem )
-
-        for rtype, rid in node.resource_constraints:
-            ET.SubElement( elem, "constraint-resource",
-                           idref=rid, type=rtype )
-
+        self._handle_resource_constraints(elem, node)
         self.parents.append( elem )
         for c in node.children:
             c.accept( self )
@@ -160,6 +166,8 @@ class TasksVisitor(object):
         if node.title:
             el = ET.SubElement( elem, "label")
             el.text = node.title
+        for ctype, tid, priority in node.task_constraints:
+            ET.SubElement( elem, "constraint-task", idref=tid,  type=ctype)
         if node.description_raw:
             if node.description_format=='docbook':
                 text = u"<description format='docbook'>%s</description>" % node.description_raw
@@ -172,16 +180,8 @@ class TasksVisitor(object):
                 text = u"<description>%s</description>" % node.description_raw
                 el = ET.fromstring(text.encode("utf-8"))
                 elem.append( el )
-        for ctype, tid, priority in node.task_constraints:
-            ET.SubElement( elem, "constraint-task", type=ctype, idref=tid )
 
         for ctype, date, priority in node.date_constraints:
             el = ET.SubElement( elem, "constraint-date", type=ctype )
             el.text = date.strftime("%F")
 
-def tasks_as_dom(project):
-    """
-    returns dom representation of project's schedule
-    """
-    visitor = TasksVisitor()
-    return visitor.visit_root( project.root_task )
