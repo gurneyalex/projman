@@ -26,6 +26,7 @@ problem definition for projman solver
 #if GE_VERSION < PM_VERSION(3,0,0)
 #define SELF this
 #define SET_VAR_SIZE_MAX SET_VAR_MAX_CARD
+#define SET_VAR_MAX_MIN SET_VAR_MIN_UNKNOWN_ELEM
 #define SET_VAL_MIN_INC SET_VAL_MIN
 #else
 #define SELF (*this)
@@ -67,7 +68,11 @@ public:
     template <template<class> class Engine>
     static void run( ProjmanProblem& pb, Search::Stop* stop );
     /// Additionnal constrain for Branch And Bound
+#if GE_VERSION < PM_VERSION(3,0,0)
     void constrain(Space* s);
+#else
+    void constrain(const Space& s);
+#endif
     /// Constructor for cloning \a s
     ProjmanSolver(bool share, ProjmanSolver& s);
     /// Perform copying during cloning
