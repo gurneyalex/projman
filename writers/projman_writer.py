@@ -146,7 +146,7 @@ class TasksVisitor(object):
 
     def visit_task(self, node):
         elem = ET.SubElement( self.parents[-1], 'task', id=node.id )
-        if node.load_type is not None:
+        if node.duration is not None:
             elem.set("load-type", REVERSE_LOAD_TYPE_MAP[node.load_type] )
             elem.set("load", str(node.duration) )
         if node.resources_role:
