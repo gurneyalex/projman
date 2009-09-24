@@ -54,11 +54,11 @@ class Checker(object):
         print "\n#  Set of real tasks (no container) #"
         for task_id in self.real_tasks:
             task = self.project.get_task(task_id)
-            print task.title, '(id =', task.id, '; duration = ',task.duration,')'
+            print '%s (id = %s; duration = %s)' % (task.title, task.id, task.duration)
         print "\n#  Available resources for the project #"
         for res in self.resources:
             res = self.project.get_resource(res)
-            print res.name, " (",res.id_role,")"
+            print res.name, " (",res.role_ids,")"
         print "\n#  Set of constraints #"
         for task in self.project.root_task.leaves():
             for c_type, date, priority in task.get_date_constraints():
@@ -195,7 +195,7 @@ class Checker(object):
                 count = 0
                 for res_id in self.resources:
                     resource = self.project.get_resource(res_id)
-                    if leaf.task_type in resource.id_role:
+                    if leaf.resources_role in resource.role_ids:
                         count += 1
                 duration = leaf.duration / float(count)
                 if duration > 5:

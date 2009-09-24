@@ -6,6 +6,7 @@ import os.path as osp
 import gtk
 import gtk.glade
 import gobject
+import gtksourceview2
 
 _main_module = sys.modules[__name__]
 _main_dir = osp.dirname( _main_module.__file__)
@@ -23,8 +24,14 @@ except ImportError:
     import projman.projmanedit
 
 from projman.readers import ProjectXMLReader
-from projman.writers.projman_writer import write_tasks_as_xml
+from projman.renderers import GanttRenderer, HandlerFactory
+from projman.writers.projman_writer import write_tasks_as_xml, write_schedule_as_xml
+from projman.lib._exceptions import MalformedProjectFile
+from projman.scheduling.csp import CSPScheduler
+
 from projman.projmanedit.gui.taskedit import TaskEditor
+from projman.projmanedit.gui.editors import (ProjectEditor, ResourceEditor,
+                                             ActivitiesEditor)
 
 GLADE=projman.projmanedit.GLADE
 
@@ -34,8 +41,6 @@ XMLFILTER.add_pattern("*.xml")
 ANYFILTER = gtk.FileFilter()
 ANYFILTER.set_name("Any file")
 ANYFILTER.add_pattern("*")
-
-import gtksourceview2
 
 
 def glade_custom_handler(glade, function_name, widget_name,
@@ -68,9 +73,12 @@ class MainApp(gobject.GObject):
         self.ui.signal_autoconnect(self)
         # build specific ui controlers
         self.taskeditor = TaskEditor( self )
+        self.resourceeditor = ResourceEditor( self )
+        self.projecteditor = ProjectEditor( self )
+        self.activitieseditor = ActivitiesEditor( self )
 
     def get_project_path(self):
-        return self.project_file[0:self.project_file.rindex("/")+1]
+        return osp.dirname(osp.abspath(self.project_file))
 
     def on_new_cmd_activate(self,*args):
         print "new", args
@@ -86,27 +94,30 @@ class MainApp(gobject.GObject):
         res = dlg.run()
         fname = dlg.get_filename()
         dlg.destroy()
-        if res!=gtk.RESPONSE_OK:
+        if res != gtk.RESPONSE_OK:
             return
         self.load_project( fname )
 
     def load_project(self, fname):
-        self.project_file = fname
+        print "load project", fname
         reader = ProjectXMLReader( fname, None, True )
-        self.project, self.files = reader.read()
-        from projman.scheduling.csp import CSPScheduler
+        try:
+            self.project, self.files = reader.read()
+        except MalformedProjectFile, exc:
+            self.pop_up_bad_project(fname, exc)
+            return
+        self.project_file = fname
+        # XXX move scheduler / Gantt stuff to some function / class ?
         scheduler = CSPScheduler(self.project)
         scheduler.schedule()
         self.project = scheduler.project
-        from projman.writers.projman_writer import write_schedule_as_xml
-        schedule_file=str(self.get_project_path())+str(self.files["schedule"])
-        write_schedule_as_xml(self.get_project_path()+self.files["schedule"],self.project)
+        schedule_file = osp.join(self.get_project_path(), self.files["schedule"])
+        write_schedule_as_xml(schedule_file, self.project)
 
-        from projman.renderers import GanttRenderer, HandlerFactory
         handler = HandlerFactory("svg")
         # it works !! but HOW  ??? ......
         options = handler
-        options.timestep = 1
+        options.timestep = "day"
         options.detail = 2
         options.depth = 0
         options.view_begin = None
@@ -120,19 +131,35 @@ class MainApp(gobject.GObject):
         options.del_empty = False
         # end of mystic code ...
         renderer = GanttRenderer(options, handler)
-        output = self.get_project_path()+"gantt.svg"
+        output = osp.join(self.get_project_path(),  "gantt.svg")
         stream = handler.get_output(output)
-        renderer.render(self.project, stream)
-        self.taskeditor.w("image1").set_from_file(output)
+        try:
+            renderer.render(self.project, stream)
+        except AttributeError, exc:
+            print "ERROR [could not render Gantt; skipping]:", exc
+        self.taskeditor.w("gantt_image").set_from_file(output)
         self.emit("project-changed")
+
+    def pop_up_bad_project(self, fname, exc):
+        msg = "Could not open malformed project '%s' : %s" % (fname, exc)
+        dlg = gtk.MessageDialog(parent=None, flags=0,
+                                type=gtk.MESSAGE_WARNING,
+                                buttons=gtk.BUTTONS_OK,
+                                message_format= msg)
+        dlg.run()
+        dlg.destroy()
+
+    def on_notebook1_switch_page(self, notebook, page, page_index):
+        if notebook.get_tab_label(notebook.get_nth_page(page_index)).get_text() == "Tasks":
+            self.taskeditor.update_on_switch_page()
 
     def on_save_cmd_activate(self,*args):
         print "save", args
         basedir = osp.dirname( self.project_file )
         task_file = osp.join( basedir, self.files['tasks'] )
+        # XXX should write all files, not only task file
         write_tasks_as_xml( task_file, self.project )
         self.load_project(self.project_file)
-
 
     def on_save_as_cmd_activate(self,*args):
         print "save as", args

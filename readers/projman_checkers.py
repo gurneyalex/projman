@@ -39,6 +39,17 @@ def not_empty(attrib, attr):
         return "%s must not be the empty string" % attr
     return ""
 
+def is_ascii(attrib, attr):
+    for c in attr:
+        if not (32 <= ord(c) <= 127):
+            return "attribute %s must be ASCII %r" % (attrib, attr)
+    return ""
+
+def id_check(attrib, attr):
+    err1 = not_empty(attrib, attr)
+    err2 = is_ascii(attrib, attr)
+    return err1 + err2
+
 def iso_date(dt):
     if len(dt) == 10:
         return mx.DateTime.strptime( dt, "%Y-%m-%d" )
@@ -296,7 +307,7 @@ class ScheduleChecker(BaseEtreeChecker):
 
     def check_task(self):
         self._is_child_of("schedule")
-        self._attributes( {"id": not_empty} )
+        self._attributes( {"id": id_check} )
         pos, node = self.stack[-1]
         self._children("costs_list", "report-list",
                        "global-cost", "constraint-date*",
@@ -315,7 +326,7 @@ class ScheduleChecker(BaseEtreeChecker):
         self._empty()
         self._children()
         self._attributes( {"type": one_of(*TASK_CONSTRAINT),
-                           "idref": not_empty} )
+                           "idref": id_check} )
 
     def check_status(self):
         self._content( str )
@@ -332,7 +343,7 @@ class ScheduleChecker(BaseEtreeChecker):
     def check_cost(self):
         self._children()
         self._content( float )
-        self._attributes( {"idref" : not_empty} )
+        self._attributes( {"idref" : id_check} )
     def check_global_cost(self):
         self._children()
         self._content( float )
@@ -350,13 +361,13 @@ class ScheduleChecker(BaseEtreeChecker):
     def check_milestone(self):
         self._is_child_of('schedule')
         self._empty()
-        self._attributes({"id": not_empty})
+        self._attributes({"id": id_check})
         self._children('constraint-date', 'constraint-task*')
 
 class ResourcesChecker(BaseEtreeChecker):
     def check_resources_list(self):
         self._isroot()
-        self._attributes( { "id?" : not_empty } )
+        self._attributes( { "id?" : id_check } )
         self._children("resource+","calendar+","resource-role*")
         self._empty()
 
@@ -365,7 +376,7 @@ class ResourcesChecker(BaseEtreeChecker):
         self._children("label","use-calendar","hourly-rate?", "role*")
         self._empty()
         self._attributes( {"type?" : not_empty,
-                           "id" : not_empty,} )
+                           "id" : id_check,} )
 
     def check_label(self):
         self._children()
@@ -377,13 +388,13 @@ class ResourcesChecker(BaseEtreeChecker):
         self._children()
         self._empty()
         self._is_child_of("resource")
-        self._attributes({'idref' : not_empty})
+        self._attributes({'idref' : id_check})
 
     def check_use_calendar(self):
         self._children()
         self._empty()
         self._is_child_of( "resource" )
-        self._attributes( {"idref": not_empty} )
+        self._attributes( {"idref": id_check} )
 
     def check_hourly_rate(self):
         self._children()
@@ -395,14 +406,14 @@ class ResourcesChecker(BaseEtreeChecker):
         self._is_child_of( "resources-list" )
         self._children("label")
         self._empty()
-        self._attributes( {"id" : not_empty,
+        self._attributes( {"id" : id_check,
                            "hourly-cost" : convertible(float),
                            "cost-unit?" : one_of("EUR")} )
 
     def check_calendar(self):
         self._is_child_of( "calendar", "resources-list" )
         self._empty()
-        self._attributes( {"id": not_empty} )
+        self._attributes( {"id": id_check} )
         self._children("calendar*", "label","day-types?","day*",
                        "timeperiod*", "start-on?", "stop-on?")
 
@@ -416,7 +427,7 @@ class ResourcesChecker(BaseEtreeChecker):
         self._is_child_of("day-types")
         self._children( "label","interval*" )
         self._empty()
-        self._attributes( {"id": not_empty} )
+        self._attributes( {"id": id_check} )
 
     def check_interval(self):
         self._is_child_of("day-type")
@@ -454,7 +465,7 @@ class ResourcesChecker(BaseEtreeChecker):
 class TasksChecker(BaseEtreeChecker):
     def check_task(self):
         self._is_child_of("task",None)
-        self._attributes( {"id":not_empty,
+        self._attributes( {"id":id_check,
                            "load-type?":(one_of("oneof","shared","sameforall","spread"),
                                          depends("load") ),
                            "load?":(convertible(float),
@@ -478,7 +489,7 @@ class TasksChecker(BaseEtreeChecker):
 
     def check_milestone(self):
         self._is_child_of( "task" )
-        self._attributes( {"id":not_empty} )
+        self._attributes( {"id":id_check} )
         self._empty()
         self._children("label","description?","constraint-date*",
                        "constraint-task*")
@@ -512,14 +523,14 @@ class TasksChecker(BaseEtreeChecker):
         self._is_child_of("task","milestone")
         self._empty()
         self._attributes( {"type" : one_of(*TASK_CONSTRAINT),
-                          "idref" : not_empty,
+                          "idref" : id_check,
                           "priority?": one_of('1','2','3') } )
         self._children()
 
     def check_constraint_resource(self):
         self._is_child_of("task","milestone")
         self._empty()
-        self._attributes( {"idref" : not_empty,
+        self._attributes( {"idref" : id_check,
                            "usage?" : not_empty,
                            "type?" : not_empty} )
         self._children()
@@ -534,19 +545,19 @@ class ActivitiesChecker(BaseEtreeChecker):
     def check_activities(self):
         self._isroot()
         self._empty()
-        self._attributes( {"id": not_empty} )
+        self._attributes( {"id": id_check} )
         self._children("reports-list*")
 
     def check_reports_list(self):
         self._is_child_of("activities")
         self._empty()
-        self._attributes( {"task-id": not_empty} )
+        self._attributes( {"task-id": id_check} )
         self._children("report+")
 
     def check_report(self):
         self._is_child_of("reports-list")
         self._empty()
-        self._attributes({"idref":not_empty,
+        self._attributes({"idref":id_check,
                           "from":convertible(iso_date),
                           "to":convertible(iso_date),
                           "usage":convertible(float)})

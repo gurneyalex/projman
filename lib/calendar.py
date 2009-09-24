@@ -144,10 +144,10 @@ class Calendar(VNode):
         return work intervals on that datetime.
         """
         if not self.after_start(datetime):
-	    return []
+            return []
 
-	if not self.before_stop(datetime):
-	    return []
+        if not self.before_stop(datetime):
+            return []
 
         if self.is_a_national_day(datetime):
             return []
@@ -170,9 +170,9 @@ class Calendar(VNode):
         cal = self
         while isinstance(cal, Calendar):
             if cal.start_on:
-	        if cal.start_on <= datetime:
-		    return True
-		else:
+                if cal.start_on <= datetime:
+                    return True
+                else:
                     return False
             cal = cal.parent
         return True
@@ -181,9 +181,9 @@ class Calendar(VNode):
         cal = self
         while isinstance(cal, Calendar):
             if cal.stop_on:
-	        if datetime <= cal.stop_on:
-		    return True
-		else:
+                if datetime <= cal.stop_on:
+                    return True
+                else:
                     return False
             cal = cal.parent
         return True
