@@ -14,7 +14,7 @@ Architecture: any
 XB-Python-Version: ${python:Versions}
 Depends: ${python:Depends}, logilab-doctools, python-logilab-common (>=0.44.0),
 	 python-imaging, sgml-base, python-cairo, python-docutils, python-egenix-mxdatetime,
-	 python-elementtree, ${shlibs:Depends}
+	 python-elementtree, ${shlibs:Depends},  python-gtksourceview2
 Conflicts: projman-test (<< 0.11.0)
 Homepage: http://www.logilab.org/project/projman
 Description: tool for project management
