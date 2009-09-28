@@ -1,10 +1,14 @@
 # -*- coding:utf-8 -*-
 import gtk
 import gobject
+import os.path as osp
 from projman.lib.calendar import Calendar
 from projman.lib.resource import Resource
 from projman.lib.resource_role import ResourceRole
 from projman.lib.task import Task
+from projman.scheduling.csp import CSPScheduler
+from projman.renderers import GanttRenderer, HandlerFactory
+from projman.writers.projman_writer import write_schedule_as_xml
 
 
 class BaseEditor(gobject.GObject):
@@ -52,7 +56,59 @@ class ProjectEditor(BaseEditor):
         self.w("notebook1").set_current_page(4)
 
 
+class SchedulingUI(BaseEditor):
+    """UI for the Scheduling tab"""
+
+    def __init__(self, app):
+        BaseEditor.__init__(self, app)
+        self.scheduler = None # will be : CSPScheduler(app.project)
+        app.ui.signal_autoconnect(self)
+
+    def on_project_changed(self, app):
+        self.scheduler = CSPScheduler(app.project)
+        #self._schedule_project()
+
+    def on_button_schedule_start_clicked(self, button):
+        print "released schedule start  button", button
+        sol_max = self.w('spinbutton_solution_max').get_value_as_int()
+        max_time = self.w('spinbutton_time_max').get_value_as_int()
+        self._schedule_project(sol_max, max_time * 1000)
+
+    def _schedule_project(self, sol_max=0, max_time=400000):
+        print 'SchedulingUI schedule .. . . . .'
+        self.scheduler.schedule()
+        proj_dir = self.app.get_project_path()
+        schedule_file = osp.join(proj_dir, self.app.files["schedule"])
+        write_schedule_as_xml(schedule_file, self.app.project)
+
+        handler = HandlerFactory("svg")
+        # it works !! but HOW  ??? ......
+        options = handler
+        options.timestep = "day"
+        options.detail = 2
+        options.depth = 0
+        options.view_begin = None
+        options.view_end = None
+        options.showids = False
+        options.rappel = False
+        options.output = None
+        options.selected_resource = None
+        options.format = "svg" # ce n est plus le format par defaut ...
+        options.del_ended = False
+        options.del_empty = False
+        # end of mystic code ...
+        renderer = GanttRenderer(options, handler)
+        output = osp.join(proj_dir,  "gantt.svg")
+        stream = handler.get_output(output)
+        try:
+            renderer.render(self.app.project, stream)
+        except AttributeError, exc:
+            print "ERROR [could not render Gantt; skipping]:", exc
+        self.w("gantt_image").set_from_file(output)
+
+
 class ResourceEditor(BaseEditor):
+    """UI for the Resources tab"""
 
     def __init__(self, app):
         BaseEditor.__init__(self, app)

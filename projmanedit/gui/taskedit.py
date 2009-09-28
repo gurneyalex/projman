@@ -323,8 +323,6 @@ class TaskEditor(BaseEditor):
 
     def on_project_changed(self, app):
         """Propagates the fact that the project file has changed"""
-        print "X X X project_changed :" ,
-        print app.project, app.files
         self.refresh_task_list()
 
     def on_task_selection_changed(self, sel):
