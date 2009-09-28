@@ -25,13 +25,13 @@ except ImportError:
 
 from projman.readers import ProjectXMLReader
 from projman.renderers import GanttRenderer, HandlerFactory
-from projman.writers.projman_writer import write_tasks_as_xml, write_schedule_as_xml
+from projman.writers.projman_writer import write_tasks_as_xml
 from projman.lib._exceptions import MalformedProjectFile
 from projman.scheduling.csp import CSPScheduler
 
 from projman.projmanedit.gui.taskedit import TaskEditor
 from projman.projmanedit.gui.editors import (ProjectEditor, ResourceEditor,
-                                             ActivitiesEditor)
+                                             ActivitiesEditor, SchedulingUI)
 
 GLADE=projman.projmanedit.GLADE
 
@@ -76,6 +76,7 @@ class MainApp(gobject.GObject):
         self.resourceeditor = ResourceEditor( self )
         self.projecteditor = ProjectEditor( self )
         self.activitieseditor = ActivitiesEditor( self )
+        self.scheduling_ui = SchedulingUI( self )
 
     def get_project_path(self):
         return osp.dirname(osp.abspath(self.project_file))
@@ -107,37 +108,6 @@ class MainApp(gobject.GObject):
             self.pop_up_bad_project(fname, exc)
             return
         self.project_file = fname
-        # XXX move scheduler / Gantt stuff to some function / class ?
-        scheduler = CSPScheduler(self.project)
-        scheduler.schedule()
-        self.project = scheduler.project
-        schedule_file = osp.join(self.get_project_path(), self.files["schedule"])
-        write_schedule_as_xml(schedule_file, self.project)
-
-        handler = HandlerFactory("svg")
-        # it works !! but HOW  ??? ......
-        options = handler
-        options.timestep = "day"
-        options.detail = 2
-        options.depth = 0
-        options.view_begin = None
-        options.view_end = None
-        options.showids = False
-        options.rappel = False
-        options.output = None
-        options.selected_resource = None
-        options.format = "svg" # ce n est plus le format par defaut ...
-        options.del_ended = False
-        options.del_empty = False
-        # end of mystic code ...
-        renderer = GanttRenderer(options, handler)
-        output = osp.join(self.get_project_path(),  "gantt.svg")
-        stream = handler.get_output(output)
-        try:
-            renderer.render(self.project, stream)
-        except AttributeError, exc:
-            print "ERROR [could not render Gantt; skipping]:", exc
-        self.taskeditor.w("gantt_image").set_from_file(output)
         self.emit("project-changed")
 
     def pop_up_bad_project(self, fname, exc):
