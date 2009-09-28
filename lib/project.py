@@ -290,6 +290,11 @@ class Project(object):
         rowsize, colsize = self.activities.get_dimensions()
         return rowsize
 
+    def clear_activities(self):
+        self.activities = Table(default_value=None,
+                                col_names=['begin', 'end', 'resource', 'task',
+                                           'usage', 'src'])
+
     # usage & costs methods ###################################################
 
     def get_resources_duration_per_task(self, task_id):

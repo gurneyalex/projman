@@ -9,6 +9,7 @@ from projman.lib.task import Task
 from projman.scheduling.csp import CSPScheduler
 from projman.renderers import GanttRenderer, HandlerFactory
 from projman.writers.projman_writer import write_schedule_as_xml
+from logilab.common.table import Table
 
 
 class BaseEditor(gobject.GObject):
@@ -64,18 +65,14 @@ class SchedulingUI(BaseEditor):
         self.scheduler = None # will be : CSPScheduler(app.project)
         app.ui.signal_autoconnect(self)
 
-    def on_project_changed(self, app):
-        self.scheduler = CSPScheduler(app.project)
-        #self._schedule_project()
-
     def on_button_schedule_start_clicked(self, button):
-        print "released schedule start  button", button
         sol_max = self.w('spinbutton_solution_max').get_value_as_int()
         max_time = self.w('spinbutton_time_max').get_value_as_int()
         self._schedule_project(sol_max, max_time * 1000)
 
     def _schedule_project(self, sol_max=0, max_time=400000):
-        print 'SchedulingUI schedule .. . . . .'
+        self.app.project.clear_activities()
+        self.scheduler = CSPScheduler(self.app.project)
         self.scheduler.schedule()
         proj_dir = self.app.get_project_path()
         schedule_file = osp.join(proj_dir, self.app.files["schedule"])

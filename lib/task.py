@@ -126,6 +126,9 @@ class TaskNode(VNode):
         assert constraint_type in TASK_CONSTRAINTS, constraint_type
         self.task_constraints.add((constraint_type, task_id, priority))
 
+    def clear_task_constraints(self):
+        self.task_constraints = set()
+
     # Manipulation functions #############################################
 
     def maximum_duration(self):

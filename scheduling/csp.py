@@ -223,7 +223,7 @@ class CSPScheduler(object):
                                 tid, max(usage, 1./factor)) )
         return activities
 
-    def schedule(self, verbose=5, time=400000, sol_max=4000, **kw):
+    def schedule(self, verbose=0, time=400000, sol_max=4000, **kw):
         """
         Update the project's schedule
         Return list of errors occured during schedule

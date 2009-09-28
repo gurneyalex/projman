@@ -75,6 +75,7 @@ class TaskEditor(BaseEditor):
                                                gobject.TYPE_STRING, # task title
                                                gobject.TYPE_STRING, # color (inherited or not)
                                                gobject.TYPE_BOOLEAN, # editable
+                                               gobject.TYPE_INT, # Priority
                                                )
         rend = gtk.CellRendererCombo()
         rend.set_property('model', self.constraints_type_model )
@@ -88,6 +89,9 @@ class TaskEditor(BaseEditor):
         rend.set_property('text-column', 1)
         rend.connect('edited', self.on_constraint_arg_edited )
         col = gtk.TreeViewColumn( u"Task ID", rend, text=1, foreground=3, editable=4 )
+        tree.append_column( col )
+        col = gtk.TreeViewColumn( u"Priority", rend, text=5, foreground=3,
+                                editable=4 )
         tree.append_column( col )
         col = gtk.TreeViewColumn( u"Task Title", gtk.CellRendererText(), text=2,
                                  foreground=3, editable=4 )
@@ -304,7 +308,7 @@ class TaskEditor(BaseEditor):
             for c_type, task_id, priority in task.task_constraints:
                 title = proj.get_task(task_id).title
                 self.constraints_model.append( (c_type, task_id, title,
-                                                color, color=='black' ) )
+                                                color, color=='black', priority) )
             task = task.parent
             color = "gray" # parent dependencies are grey
 
@@ -391,18 +395,22 @@ class TaskEditor(BaseEditor):
 
     def on_constraint_type_edited(self, renderer, path, new_text):
         itr = self.constraints_model.get_iter( path )
-        constr, value = self.constraints_model.get( itr, 0, 1 )
-        assert constr in TASK_CONSTRAINTS
-        self.current_task.task_constraints.remove( (constr, value) )
-        self.current_task.add_task_constraint( new_text, value )
         self.constraints_model.set_value( itr, 0, new_text )
+        self.model_to_constraints(self.constraints_model, self.current_task)
 
     def on_constraint_arg_edited(self, renderer, path, new_text):
         itr = self.constraints_model.get_iter( path )
-        constr, value = self.constraints_model.get( itr, 0, 1 )
-        self.current_task.task_constraints.remove( (constr, value) )
-        self.current_task.add_task_constraint( constr, new_text )
         self.constraints_model.set_value( itr, 1, new_text )
+        self.model_to_constraints(self.constraints_model, self.current_task)
+
+    def model_to_constraints(self, model, task):
+        constraints = []
+        task.clear_task_constraints()
+        for (type, value, title, color, editable, priority) in model:
+            if editable:
+                task.add_task_constraint(type, value, priority)
+
+    #def constraints_to_model(self, *args): # TODO : make it symetric
 
     # task popup methods ########################################
 
