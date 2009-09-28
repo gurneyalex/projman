@@ -93,10 +93,10 @@ class CSPScheduler(object):
     def _process_node(self, node):
         max_duration = int(self.max_duration*2)
 
-        _, _, _, task_resources = self.real_tasks.setdefault( node.id,
-                                                           [len(self.real_tasks),
-                                                            node.load_type,
-                                                            node.duration, []] )
+        task_resources = self.real_tasks.setdefault(node.id,
+                                                    [len(self.real_tasks),
+                                                    node.load_type,
+                                                    node.duration, []] ) [3]
         rnge = self.task_ranges.setdefault( node.id, [None,None] )
 
         # collect task constraints
@@ -164,27 +164,76 @@ class CSPScheduler(object):
                     self.constraints.add(fi.StartsAfterEnd(high_leaf.id,
                                                            low_leaf.id))
 
-    def activity_usage_counter_by_task(self, activities, tid):
+    def _compute_activities(self, solution, pseudo_tasks, resources_map):
+        """compute the list of activities
+        
+        :rtype: List
+        :returns:
+            List of Tuples (begin, end, resource_id, task_id, usage, src)
         """
-        count number of days already affected to the task(tid)
-        """
-        usage = 0
-        for element in activities:
-            if tid == element[3]:
-                usage = usage + element[4]
-        return usage
+        factor = self.project.factor
+        # TODO : almost same code as self.read_solution ...
+        duration = solution.get_duration()
+        ntasks = solution.get_ntasks()
+        task_days = [[ day / factor for day in range(duration)
+                     if solution.isworking(task, day) ] for task in range(ntasks)]
+
+        # list of tuples (begin, end, resource_id, task_id, usage, src)
+        activities = []
+        day_cost = oneHour * CST.HOURS_PER_DAY
+        time_table = day_cost / factor
+        for pid, days in enumerate( task_days ):
+            num, tid, res_id = pseudo_tasks[pid]
+            for i, d in enumerate(days):
+                decalage = 0
+                day_resource = 0
+                if i+1 < len(days)  and factor == 2 and days[i+1] != d:
+                    decalage = day_cost /factor #ok
+                    day_resource = 2
+                elif i+1 < len(days) and factor == 4 and days[i+1] != d:
+                    decalage = day_cost /(factor/3.)
+                    day_resource = 4
+                elif i+2 < len(days) and factor == 4 and days[i+2] != d:
+                    decalage = day_cost /(factor/2.)
+                    day_resource = 3
+                elif i+3 < len(days) and factor == 4 and days[i+3] != d:
+                    decalage = day_cost /float(factor)
+                    day_resource = 2
+                else:
+                    day_resource = 1
+                date = self.start_date + d + day_cost + decalage
+                if date.hour == 0:
+                    date += day_cost
+                elif date.hour > 17:
+                    date += day_cost
+                    date += oneDay
+                elif date.hour >= 12:
+                    date += oneHour
+                if day_resource > factor:
+                    raise Exception("found non valid solution")
+                already = sum(elt[4] for elt in activities if tid==elt[3])
+                delta = (self.real_tasks[tid][2] - already) * factor
+                # duree (initiale) tache * factor - nb de jours
+                #                        deja ecoules pr cette tache
+                if delta > 1.0 / factor or delta <= 0:
+                    usage = 1.0 / factor
+                else:
+                    usage = delta
+                activities.append( (date, date + time_table, res_id,
+                                tid, max(usage, 1./factor)) )
+        return activities
 
     def schedule(self, verbose=0, time=400000, **kw):
         """
         Update the project's schedule
         Return list of errors occured during schedule
         """
+        #XXX the return value should be a list of errors, but is always '[]'
         print "\nscheduling ..."
         _VERBOSE = verbose
         # check the tasks (duration is not 0)
         for leaf in self.project.root_task.leaves():
             leaf.check_duration()
-        self.project.get_factor()
         factor = self.project.factor
         self.max_duration = int( self.max_duration * 2 )
         if _VERBOSE>1:
@@ -200,6 +249,7 @@ class CSPScheduler(object):
         if _VERBOSE>1:
             print "occupation"
             print "----------"
+        # compute resources map
         resources_map = {}
         for res_id in self.resources:
             sched = []
@@ -218,17 +268,16 @@ class CSPScheduler(object):
                         sched.append(".")
             if _VERBOSE > 1:
                 print "%02d" % res_num, "".join(sched)
+        # compute pseudo tasks
         pseudo_tasks = []
-        i = 0
-
         for tid, (num, _type, duration, resources) in real_tasks_items:
 
             task = self.project.get_task(tid)
             resources = task.resources_set # set resources according to new definition
             duration_ = duration * factor
-            if (duration * factor) % 1 > 0 :
-                duration_ = duration * factor - ((duration * factor) % 1) + 1
-                real_tasks_items[i][1][2] = duration_ / factor
+            if (duration_) % 1 > 0 :
+                duration_ = duration_ - ((duration_) % 1) + 1
+                real_tasks_items[0][1][2] = duration_ / factor
             task_num = pb.add_task( tid, _type, int(duration_), bool(task.can_interrupt[0]) )
             low, high = self.task_ranges[tid]
             if _VERBOSE>1:
@@ -269,79 +318,23 @@ class CSPScheduler(object):
             return []
         if (_VERBOSE>2):
             self.compare_solutions( pb )
-        SOL = pb.get_solution( self.project.nb_solution-1 )
-        duration = SOL.get_duration()
-        ntasks = SOL.get_ntasks()
-        tasks_days = [ [ day / factor for day in range(duration) if SOL.isworking( task, day ) ] for task in range(ntasks) ]
-        #calendar gere l'utilisation d'une resource pour un jour afin
-        # d'organiser les heures de travail si factorized_days > 1
-        calendar = []# attention si le calendrier est fonction de chaque resources
-                     # ca ne marche plus
-                     # ca ne marche pas non plus si la resource n est pas utilisee
-                     # sur une autre tache avant ...
-        for i in range(duration/factor):
-            calendar.append([])
-            for j in range(len(resources_map)):
-                calendar[i].append(0)
-
-        activities = []
-        for pid, days in enumerate( tasks_days ):
-            num, tid, res_id = pseudo_tasks[pid]
-            time_table = oneHour * CST.HOURS_PER_DAY / factor
-            for i, d in enumerate(days):
-                #print "debug"
-                #print "day:", d, i
-                decalage = calendar[d][resources_map[res_id]]* time_table
-                if decalage == 0:# and i+1 < len(days):
-                    if i+1 < len(days) and days[i+1] != d and factor == 2:
-                        decalage += CST.HOURS_PER_DAY * oneHour /factor #ok
-                        calendar[d][resources_map[res_id]] += 2
-                    elif i+1 < len(days) and factor == 4 and days[i+1] != d:
-                        decalage += CST.HOURS_PER_DAY * oneHour /(factor/3.)
-                        calendar[d][resources_map[res_id]] += 4
-                    elif i+2 < len(days) and factor == 4 and days[i+2] != d:
-                        decalage += CST.HOURS_PER_DAY * oneHour /(factor/2.)
-                        calendar[d][resources_map[res_id]] += 3
-                    elif i+3 < len(days) and factor == 4 and days[i+3] != d:
-                        decalage += CST.HOURS_PER_DAY * oneHour /float(factor)
-                        calendar[d][resources_map[res_id]] += 2
-                    else:
-                        calendar[d][resources_map[res_id]] += 1
-                else:
-                    calendar[d][resources_map[res_id]] += 1
-                date = self.start_date + d + CST.HOURS_PER_DAY * oneHour + decalage
-                if date.hour == 0:
-                    date += CST.HOURS_PER_DAY * oneHour
-                elif date.hour > 17:
-                    date += CST.HOURS_PER_DAY * oneHour
-                    date += oneDay
-                elif date.hour >= 12:
-                    date += oneHour
-                if calendar[d][resources_map[res_id]]> factor:
-                    raise Exception("found non valid solution")
-                delta = self.real_tasks[tid][2] * factor - \
-                    self.activity_usage_counter_by_task( activities, tid )* factor
-                # duree (initiale) tache * factor - nb de jours
-                #                        deja ecoules pr cette tache
-                if delta > 1.0 / factor or delta <= 0:
-                    usage = 1.0 / factor
-                else:
-                    usage = delta
-                activities.append((date, date + time_table, res_id,
-                                tid, max(usage,1./factor)))
+        solution = pb.get_solution( self.project.nb_solution-1 )
+        day_cost = oneHour * CST.HOURS_PER_DAY
+        activities = self._compute_activities(solution, pseudo_tasks,
+                                              resources_map)
         if _VERBOSE > 0:
             print "\nactivites :"
             for (db, de, res_id, tid, dur) in activities:
                 print "\tdu", db,"au", de, res_id, tid, dur
         milestone = 0
-        nmilestones = SOL.get_nmilestones()
+        nmilestones = solution.get_nmilestones()
         for tid, (num, _type, duration, resources) in self.real_tasks.items():
             if duration!=0:
                 continue
             if milestone>=nmilestones:
                 break
             d = SOL.get_milestone( milestone )
-            date = self.start_date + CST.HOURS_PER_DAY * oneHour + int(d / factor)
+            date = self.start_date + day_cost + int(d / factor)
             if (_VERBOSE>=2):
                 print "MILESTONE", tid, date
             self.project.milestones[tid] = date
@@ -350,19 +343,20 @@ class CSPScheduler(object):
         self.project.add_schedule(activities)
         return []
 
-    def read_sol( self, SOL ):
-        duration = SOL.get_duration()
-        ntasks = SOL.get_ntasks()
-        tasks_days = [ [ day for day in range(duration) if SOL.isworking( task, day ) ] for task in range(ntasks) ]
-        return tasks_days
+    def read_solution( self, sol ):
+        duration = sol.get_duration()
+        ntasks = sol.get_ntasks()
+        task_days = [ [ day for day in range(duration) if
+                        sol.isworking( task, day ) ] for task in range(ntasks) ]
+        return task_days
 
     def compare_solutions( self, pb ):
         N = pb.get_number_of_solutions()
         if N==0:
             return
-        SOL0 = self.read_sol( pb.get_solution( 0 ) )
+        SOL0 = self.read_solution( pb.get_solution( 0 ) )
         for i in range(1,N):
-            SOL1 = self.read_sol( pb.get_solution( i ) )
+            SOL1 = self.read_solution( pb.get_solution( i ) )
             for id, (task0,task1) in enumerate( zip( SOL0, SOL1 ) ):
                 if task0!=task1:
                     print id, task0
