@@ -56,8 +56,8 @@ class TaskNode(VNode):
         self.description_format = u'docbook'
         self._progress = None
         self._priority = None
-        self.duration = 0
-        self.load_type = 0
+        self.duration = None
+        self.load_type = None
         self.resources_role = None
         self.resources_set = None # will become a set
         self.can_interrupt = [True, 1] # the integer represent the priority of the constraint
@@ -134,11 +134,12 @@ class TaskNode(VNode):
         its children
         /!\ duration is in man-days.
         """
-        if self.is_leaf():
+        if self.is_leaf() and self.TYPE == "task":
             return self.duration
         else:
             assert not self.duration, "Only leaves should have duration ! %s" % self.id
-            return sum([node.maximum_duration() for node in self.children])
+            return sum([node.maximum_duration() for node in self.children
+                        if node.TYPE=="task"])
 
     def remaining_duration(self):
         """
@@ -151,7 +152,8 @@ class TaskNode(VNode):
             else:
                 raise NotImplementedError()
         else:
-            return sum([child.remaining_duration() for child in self.children])
+            return sum([child.remaining_duration() for child in self.children
+                        if child.TYPE=="task"])
 
     def is_ready(self):
         """
