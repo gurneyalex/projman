@@ -223,7 +223,7 @@ class CSPScheduler(object):
                                 tid, max(usage, 1./factor)) )
         return activities
 
-    def schedule(self, verbose=0, time=400000, **kw):
+    def schedule(self, verbose=5, time=400000, sol_max=4000, **kw):
         """
         Update the project's schedule
         Return list of errors occured during schedule
@@ -235,13 +235,13 @@ class CSPScheduler(object):
         for leaf in self.project.root_task.leaves():
             leaf.check_duration()
         factor = self.project.factor
-        self.max_duration = int( self.max_duration * 2 )
+        max_duration = int( self.max_duration * 2 )
         if _VERBOSE>1:
             print "Tasks", len(self.real_tasks)
             print "Res", len(self.resources)
             print "Dur", self.max_duration
             print "Factor", factor
-        pb = ProjmanProblem( int(self.max_duration * factor ) )
+        pb = ProjmanProblem( int(max_duration * factor ) )
         pb.set_first_day( self.first_day * factor)
         real_tasks_items = self.real_tasks.items()
         real_tasks_items.sort( key = lambda x:x[1][0] )
@@ -257,7 +257,7 @@ class CSPScheduler(object):
             res_num = pb.add_worker( res_id )
             resources_map[res_id] = res_num
             #gestion calendrier jours feries et we
-            for d in range(int(self.max_duration)):
+            for d in range(max_duration):
                 dt = self.start_date + d
                 if not res.is_available( dt ):
                     for i in range(factor):
@@ -287,7 +287,7 @@ class CSPScheduler(object):
             else:
                 low *= factor
             if high is None:
-                high = self.max_duration * factor
+                high = max_duration * factor
             else:
                 high *= factor
             pb.set_task_range( task_num, int(low), int(high), 0, 0 ) # XXX: cmp_type unused
@@ -310,7 +310,7 @@ class CSPScheduler(object):
         pb.set_convexity( True )
         pb.set_time(time)
         pb.set_verbosity( _VERBOSE )
-        pb.set_max_nb_solutions(4000)
+        pb.set_max_nb_solutions(sol_max)
         solve( pb )
 
         self.project.nb_solution = pb.get_number_of_solutions()
