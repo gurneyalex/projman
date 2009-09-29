@@ -65,6 +65,9 @@ class SchedulingUI(BaseEditor):
         self.scheduler = None # will be : CSPScheduler(app.project)
         app.ui.signal_autoconnect(self)
 
+    def on_project_changed(self, app):
+        self.w('gantt_image').clear()
+
     def on_button_schedule_start_clicked(self, button):
         sol_max = self.w('spinbutton_solution_max').get_value_as_int()
         max_time = self.w('spinbutton_time_max').get_value_as_int()
@@ -94,6 +97,14 @@ class SchedulingUI(BaseEditor):
         options.del_ended = False
         options.del_empty = False
         # end of mystic code ...
+        # TODO : better tuning of timestep
+        activities = self.app.project.activities
+        duration = max( activities.get_column_by_id('end') ) - \
+                   min( activities.get_column_by_id('begin') )
+        if duration.days > 500:
+            options.timestep = 'month'
+        elif duration.days > 100:
+            options.timestep = 'week'
         renderer = GanttRenderer(options, handler)
         output = osp.join(proj_dir,  "gantt.svg")
         stream = handler.get_output(output)
