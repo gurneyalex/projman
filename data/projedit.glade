@@ -923,144 +923,14 @@
                                   <placeholder/>
                                 </child>
                                 <child>
-                                  <widget class="GtkComboBox" id="combobox_scheduling_type">
-                                    <property name="visible">True</property>
-                                    <property name="items" translatable="yes">shared
-oneof
-sameforall
-spread
-milestone</property>
-                                    <signal name="changed" handler="on_combobox_scheduling_type_changed"/>
-                                  </widget>
-                                  <packing>
-                                    <property name="left_attach">1</property>
-                                    <property name="right_attach">2</property>
-                                    <property name="top_attach">3</property>
-                                    <property name="bottom_attach">4</property>
-                                    <property name="x_options">GTK_FILL</property>
-                                    <property name="y_options"></property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <widget class="GtkLabel" id="label19">
-                                    <property name="visible">True</property>
-                                    <property name="xalign">1</property>
-                                    <property name="label" translatable="yes">Scheduling type</property>
-                                  </widget>
-                                  <packing>
-                                    <property name="top_attach">3</property>
-                                    <property name="bottom_attach">4</property>
-                                    <property name="x_options">GTK_FILL</property>
-                                    <property name="y_options"></property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <widget class="GtkComboBox" id="combobox_role">
-                                    <property name="visible">True</property>
-                                  </widget>
-                                  <packing>
-                                    <property name="left_attach">1</property>
-                                    <property name="right_attach">2</property>
-                                    <property name="top_attach">1</property>
-                                    <property name="bottom_attach">2</property>
-                                    <property name="x_options">GTK_FILL</property>
-                                    <property name="y_options">GTK_EXPAND</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <widget class="GtkLabel" id="label27">
-                                    <property name="visible">True</property>
-                                    <property name="xalign">1</property>
-                                    <property name="label" translatable="yes">Role</property>
-                                    <property name="wrap_mode">PANGO_WRAP_WORD_CHAR</property>
-                                  </widget>
-                                  <packing>
-                                    <property name="top_attach">1</property>
-                                    <property name="bottom_attach">2</property>
-                                    <property name="x_options">GTK_FILL</property>
-                                    <property name="y_options"></property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <widget class="GtkLabel" id="label4">
-                                    <property name="visible">True</property>
-                                    <property name="xalign">1</property>
-                                    <property name="label" translatable="yes">Constraints</property>
-                                  </widget>
-                                  <packing>
-                                    <property name="left_attach">2</property>
-                                    <property name="right_attach">3</property>
-                                    <property name="top_attach">1</property>
-                                    <property name="bottom_attach">2</property>
-                                    <property name="x_options">GTK_FILL</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <widget class="GtkScrolledWindow" id="scrolledwindow4">
+                                  <widget class="GtkEntry" id="entry_task_title">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="shadow_type">GTK_SHADOW_IN</property>
-                                    <child>
-                                      <widget class="GtkTreeView" id="treeview_task_constraints">
-                                        <property name="height_request">120</property>
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                      </widget>
-                                    </child>
+                                    <signal name="changed" handler="on_entry_task_title_changed"/>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">3</property>
                                     <property name="right_attach">5</property>
-                                    <property name="top_attach">1</property>
-                                    <property name="bottom_attach">4</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <widget class="GtkLabel" id="label8">
-                                    <property name="visible">True</property>
-                                    <property name="xalign">1</property>
-                                    <property name="label" translatable="yes">Title</property>
-                                  </widget>
-                                  <packing>
-                                    <property name="left_attach">2</property>
-                                    <property name="right_attach">3</property>
-                                    <property name="x_options">GTK_FILL</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <widget class="GtkLabel" id="label20">
-                                    <property name="visible">True</property>
-                                    <property name="xalign">1</property>
-                                    <property name="label" translatable="yes">Task id</property>
-                                  </widget>
-                                  <packing>
-                                    <property name="x_options">GTK_FILL</property>
-                                    <property name="y_options"></property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <widget class="GtkLabel" id="label18">
-                                    <property name="visible">True</property>
-                                    <property name="xalign">1</property>
-                                    <property name="label" translatable="yes">Load</property>
-                                  </widget>
-                                  <packing>
-                                    <property name="top_attach">2</property>
-                                    <property name="bottom_attach">3</property>
-                                    <property name="x_options">GTK_FILL</property>
-                                    <property name="y_options"></property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <widget class="GtkEntry" id="entry_task_id">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <signal name="changed" handler="on_entry_task_id_changed"/>
-                                  </widget>
-                                  <packing>
-                                    <property name="left_attach">1</property>
-                                    <property name="right_attach">2</property>
-                                    <property name="x_options"></property>
                                     <property name="y_options"></property>
                                   </packing>
                                 </child>
@@ -1083,14 +953,145 @@ milestone</property>
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkEntry" id="entry_task_title">
+                                  <widget class="GtkEntry" id="entry_task_id">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <signal name="changed" handler="on_entry_task_title_changed"/>
+                                    <signal name="changed" handler="on_entry_task_id_changed"/>
+                                  </widget>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="right_attach">2</property>
+                                    <property name="x_options"></property>
+                                    <property name="y_options"></property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkLabel" id="label18">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">1</property>
+                                    <property name="label" translatable="yes">Load</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="top_attach">2</property>
+                                    <property name="bottom_attach">3</property>
+                                    <property name="x_options">GTK_FILL</property>
+                                    <property name="y_options"></property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkLabel" id="label20">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">1</property>
+                                    <property name="label" translatable="yes">Task id</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="x_options">GTK_FILL</property>
+                                    <property name="y_options"></property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkLabel" id="label8">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">1</property>
+                                    <property name="label" translatable="yes">Title</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="left_attach">2</property>
+                                    <property name="right_attach">3</property>
+                                    <property name="x_options">GTK_FILL</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkScrolledWindow" id="scrolledwindow4">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="shadow_type">GTK_SHADOW_IN</property>
+                                    <child>
+                                      <widget class="GtkTreeView" id="treeview_task_constraints">
+                                        <property name="height_request">120</property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <signal name="button_press_event" handler="on_treeview_task_constraints_button_press_event"/>
+                                      </widget>
+                                    </child>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">3</property>
                                     <property name="right_attach">5</property>
+                                    <property name="top_attach">1</property>
+                                    <property name="bottom_attach">4</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkLabel" id="label4">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">1</property>
+                                    <property name="label" translatable="yes">Constraints</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="left_attach">2</property>
+                                    <property name="right_attach">3</property>
+                                    <property name="top_attach">1</property>
+                                    <property name="bottom_attach">2</property>
+                                    <property name="x_options">GTK_FILL</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkLabel" id="label27">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">1</property>
+                                    <property name="label" translatable="yes">Role</property>
+                                    <property name="wrap_mode">PANGO_WRAP_WORD_CHAR</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="top_attach">1</property>
+                                    <property name="bottom_attach">2</property>
+                                    <property name="x_options">GTK_FILL</property>
+                                    <property name="y_options"></property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkComboBox" id="combobox_role">
+                                    <property name="visible">True</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="right_attach">2</property>
+                                    <property name="top_attach">1</property>
+                                    <property name="bottom_attach">2</property>
+                                    <property name="x_options">GTK_FILL</property>
+                                    <property name="y_options">GTK_EXPAND</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkLabel" id="label19">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">1</property>
+                                    <property name="label" translatable="yes">Scheduling type</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="top_attach">3</property>
+                                    <property name="bottom_attach">4</property>
+                                    <property name="x_options">GTK_FILL</property>
+                                    <property name="y_options"></property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkComboBox" id="combobox_scheduling_type">
+                                    <property name="visible">True</property>
+                                    <property name="items" translatable="yes">shared
+oneof
+sameforall
+spread
+milestone</property>
+                                    <signal name="changed" handler="on_combobox_scheduling_type_changed"/>
+                                  </widget>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="right_attach">2</property>
+                                    <property name="top_attach">3</property>
+                                    <property name="bottom_attach">4</property>
+                                    <property name="x_options">GTK_FILL</property>
                                     <property name="y_options"></property>
                                   </packing>
                                 </child>
