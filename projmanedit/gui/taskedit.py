@@ -31,6 +31,7 @@ class TaskEditor(BaseEditor):
         self.current_task = None
         self.current_task_path = None
         self.task_popup = None
+        self.constraints_popup = None
         self.setup_ui()
         app.ui.signal_autoconnect(self)
         self.w("spinbutton_duration").get_adjustment().set_all(0,0,100000,0.1,1,1)
@@ -65,6 +66,17 @@ class TaskEditor(BaseEditor):
             del_item.connect("activate", self.popup_del_task, task_path )
             task_popup.attach(del_item, 0, 1, 2, 3 )
 
+        task_popup.show_all()
+        return task_popup
+
+    def build_constraint_tree_popup(self, *args):
+        task_popup = gtk.Menu()
+        add_item = gtk.MenuItem("Add constraint")
+        add_item.connect("activate", self.popup_add_constraint, args )
+        task_popup.attach(add_item, 0, 1, 0, 1 )
+        del_item = gtk.MenuItem("Delete constraint")
+        del_item.connect("activate", self.popup_del_constraint, args )
+        task_popup.attach(del_item, 0, 1, 2, 3 )
         task_popup.show_all()
         return task_popup
 
@@ -286,7 +298,7 @@ class TaskEditor(BaseEditor):
         #securité acces load si taches filles
         has_child = task.children
         if has_child:
-            task.duration = 0.0
+            task.duration = None
         self.w("spinbutton_duration").set_sensitive(not has_child)
         self.w("combobox_scheduling_type").set_sensitive(not has_child)
 
@@ -368,6 +380,28 @@ class TaskEditor(BaseEditor):
         self.current_task.description_format = description_format.lower()
 
     def on_treeview_all_tasks_button_press_event(self, treeview, event):
+        infos = self._get_data_on_button_press_event(treeview, event)
+        if infos is None:
+            return
+        path, col, time = infos
+        if self.task_popup:
+            self.task_popup.destroy()
+        self.task_popup = self.build_task_tree_popup(path)
+        self.task_popup.popup( None, None, None, event.button, time)
+        return 1
+
+    def on_treeview_task_constraints_button_press_event(self, treeview, event):
+        infos = self._get_data_on_button_press_event(treeview, event)
+        if infos is None:
+            return
+        path, col, time = infos
+        if self.constraints_popup:
+            self.constraints_popup.destroy()
+        self.task_popup = self.build_constraint_tree_popup( col )
+        self.task_popup.popup( None, None, None, event.button, time)
+
+    def _get_data_on_button_press_event(self, treeview, event):
+        """get infos for a treeview on button press event"""
         if event.button != 3:
             return None
         x = int(event.x)
@@ -381,11 +415,7 @@ class TaskEditor(BaseEditor):
             treeview.set_cursor( path, col, 0)
         else:
             path = None
-        if self.task_popup:
-            self.task_popup.destroy()
-        self.task_popup = self.build_task_tree_popup(path)
-        self.task_popup.popup( None, None, None, event.button, time)
-        return 1
+        return path, col, time
 
     def on_textview_task_description_changed(self, buf):
         _beg = buf.get_start_iter()
@@ -412,19 +442,26 @@ class TaskEditor(BaseEditor):
 
     #def constraints_to_model(self, *args): # TODO : make it symetric
 
-    # task popup methods ########################################
+    # task and constraint popup methods ########################################
 
-    def popup_add_task(self, item, path):
+    def _popup_add_helper(self, item, path, flag):
+        """helper method to preprocess adding a task or milestone"""
         if path is None:
             return
         root_task = self.app.project.root_task
         parent_task = self.get_task_from_path( path )
 
+        if flag == 'task':
+            add_msg = ADD_TASK_MSG
+            prefix = ''
+        elif flag == 'milestone':
+            add_msg = ADD_MILESTONE
+            prefix = 'milestone_'
         if not parent_task.children:
             dlg = gtk.MessageDialog(parent=None, flags=0,
                                     type=gtk.MESSAGE_QUESTION,
                                     buttons=gtk.BUTTONS_YES_NO,
-                                    message_format= ADD_TASK_MSG % parent_task.id)
+                                    message_format= add_msg % parent_task.id)
             ret = dlg.run()
             dlg.destroy()
             if ret == gtk.RESPONSE_NO:
@@ -433,54 +470,37 @@ class TaskEditor(BaseEditor):
         if not parent_task:
             parent_task = root_task
         if not isinstance(parent_task, Task):
-            print "XXX: CAN'T ADD TASK TO MILESTONE"
+            print "XXX: CAN'T ADD %s TO MILESTONE" % flag.upper()
             return
         ids = set([ task.id for task in root_task.flatten() ])
         i = 1
         while 1:
-            new_id = parent_task.id+"_%s"%i
+            new_id = "%s%s_%s" % (prefix, parent_task.id, i)
             if new_id not in ids:
                 break
             i = i + 1
+        return new_id
+
+    def popup_add_task(self, item, path):
+        parent_task = self.get_task_from_path( path )
+        new_id = self._popup_add_helper(item, path, 'task')
+        if new_id is None:
+            return
         new_task = MODEL_FACTORY.create_task( new_id )
         new_task.title = "#TODO"
         new_task.description_raw = "#TODO"
-        parent_task.append( new_task )
+        self.get_task_from_path( path ).append( new_task )
         self.refresh_task_list(sel_task_id=new_id)
 
     def popup_add_milestone(self, item, path):
-        if path is None:
+        new_id = self._popup_add_helper(item, path, 'milestone')
+        if new_id is None:
             return
-        root_task = self.app.project.root_task
-        parent_task = self.get_task_from_path( path )
-
-        if not parent_task.children:
-            dlg = gtk.MessageDialog(parent=None, flags=0,
-                                    type=gtk.MESSAGE_QUESTION,
-                                    buttons=gtk.BUTTONS_YES_NO,
-                                    message_format= ADD_MILESTONE % parent_task.id)
-            ret = dlg.run()
-            dlg.destroy()
-            if ret == gtk.RESPONSE_NO:
-                return
-
-        if not parent_task:
-            parent_task = root_task
-        if not isinstance(parent_task, Task):
-            print "XXX: CAN'T MILESTONE TASK TO MILESTONE"
-            return
-        ids = set([ task.id for task in root_task.flatten() ])
-        i = 1
-        while 1:
-            new_id = "milestone_"+parent_task.id+"_%s"%i
-            if new_id not in ids:
-                break
-            i = i + 1
         new_task = MODEL_FACTORY.create_milestone( new_id )
         new_task.TYPE="milestone"
         new_task.load_type=LOAD_TYPE_MAP["milestone"]
         new_task.title = "#TODO"
-        parent_task.append( new_task )
+        self.get_task_from_path( path ).append( new_task )
         self.refresh_task_list(sel_task_id=new_id)
 
     def popup_del_task(self, item, path):
@@ -504,4 +524,11 @@ class TaskEditor(BaseEditor):
             return
         parent.remove( task )
         self.refresh_task_list(sel_task=parent)
+
+    def popup_add_constraint(self, *args):
+        print "try ADD constraint", args
+
+    def popup_del_constraint(self, *args):
+        print "try DEL constraint", args
+
 
