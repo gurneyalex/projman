@@ -16,6 +16,11 @@ problem definition for projman solver
 #include "gecode/int.hh"
 #include "gecode/search.hh"
 
+
+// Alternate scheduling options
+#define USE_LAST_DAYS  0
+
+
 #define PM_VERSION(a,b,c) ((a<<16)+(b<<8)+(c))
 // There is no way to test for gecode version here
 // so the build system must pass GE_VERSION accordingly
@@ -59,8 +64,10 @@ protected:
     /// Variables
     SetVarArray res_tasks;      // days a resource is scheduled for a given task
     IntVar last_day;
+#if USE_LAST_DAYS
     IntVar eta_cost;            // sum of the last days (idx) of all tasks used as a cost
     IntVarArray last_days;      // the last day of each task
+#endif
     IntVarArray milestones;
 public:
     /// The actual problem
