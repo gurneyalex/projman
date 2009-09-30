@@ -9,11 +9,14 @@
 
 using namespace std;
 
+
 ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
     : res_tasks(SELF,pb.res_tasks.size(),IntSet::empty,0,pb.max_duration-1),
       last_day(SELF,0,pb.max_duration),
+#if USE_LAST_DAYS
       eta_cost(SELF,0,pb.max_duration*pb.res_tasks.size()),
       last_days(SELF,pb.tasks.size(),0,pb.max_duration),
+#endif
       milestones(SELF,pb.milestones.size(),0,pb.max_duration-1)
 {
     /* here: real task means a task as defined by the project_task.xml
@@ -38,7 +41,7 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
 //    debug(pb,tasks);
 //    cout << "------------------" << endl;
     if (pb.verbosity>0)
-	cout << "Initializing..."<< endl;
+	cout << "Initializing ..."<< endl;
 
     for(i=0;i<pb.res_tasks.size();++i) {
 	uint_t res_id = pb.res_tasks[i].res_id;
@@ -204,12 +207,12 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
 	debug(pb, "Pseudo tasks", res_tasks);    
     }
 
-#if 1
+#if USE_LAST_DAYS
     for(uint_t task_id=0;task_id<pb.tasks.size();++task_id) {
 	max(SELF, real_tasks[task_id], last_days[task_id] );
     }
-    show_status("2x");
     linear(SELF, last_days, IRT_EQ, eta_cost );
+    show_status("2x");
 #endif
 #if 0
     // si on a des trous, ça merdoie...
@@ -219,15 +222,17 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
     
     if (pb.verbosity>3) {
 	show_status("3");
-        cout << "eta_cost:" << eta_cost << endl;
     	debug(pb, "Pseudo tasks", res_tasks);    
     }
 
+#if USE_LAST_DAYS
     if (pb.verbosity>3) {
+        cout << "eta_cost:" << eta_cost << endl;
         for(uint_t task_id=0;task_id<pb.tasks.size();++task_id) {
             cout << "last_day[" << task_id << "]=" << last_days[task_id] << endl;
         }
     } 
+#endif
     register_order( pb, real_tasks );
 
     if (pb.verbosity>3) {
@@ -441,7 +446,7 @@ void ProjmanSolver::constrain(const Space& s)
 {
     const ProjmanSolver& solver = dynamic_cast<const ProjmanSolver&>(s);
 #endif
-    uint_t day = solver.last_day.val(); // XXX -1 make it an option?
+    uint_t day = solver.last_day.val()-1; // XXX -1 make it an option?
 
 #if 1
     /* constraint 1 : finish all tasks earliest */
@@ -450,7 +455,7 @@ void ProjmanSolver::constrain(const Space& s)
 	dom(SELF,res_tasks[i],SRT_SUB,0,day);
     }
 #endif
-#if 1
+#if 0
     int _eta_cost=0;
     /* constraint 2 : the sum of finish time for all tasks must be smallest */
     for(int i=0;i<last_days.size();++i) {
@@ -466,8 +471,10 @@ ProjmanSolver::ProjmanSolver(bool share, ProjmanSolver& s) : Space(share,s)
 {
     res_tasks.update(SELF, share, s.res_tasks);
     last_day.update(SELF, share, s.last_day);
+#if USE_LAST_DAYS
     eta_cost.update(SELF, share, s.eta_cost);
     last_days.update(SELF, share, s.last_days);
+#endif
     milestones.update(SELF, share, s.milestones);
 }
 
