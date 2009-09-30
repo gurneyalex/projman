@@ -62,8 +62,7 @@ class ResourcesRenderer(AbstractRenderer) :
         self.drawer.draw_timeline()
         self.drawer.close_line()
         # print the resources informations
-        resources = [resource for resource in project.resource_set.children
-                     if resource.TYPE == 'resource']
+        resources = project.get_resources()
         if self.options.selected_resource:
             resources = [resource for resource in resources
                          if resource.id == self.options.selected_resource]

@@ -25,9 +25,8 @@ Manipulate a xml project description.
 This code is released under the GNU Public Licence v2. See www.gnu.org.
 """
 
-from logilab.common.tree import VNode
 
-class ResourceRole(VNode):
+class ResourceRole(object):
     """A resource_role i used to decribe skills of a resource, and the
         hourly cost, depending of the skill
 
@@ -37,22 +36,10 @@ class ResourceRole(VNode):
               to this resource_role
 
     """
-    TYPE = 'resource_role'
 
     def __init__(self, id, name=u'', hourly_cost=0.0, unit='EUR'):
-        VNode.__init__(self, id)
         self.id = id
         self.name = name
         self.hourly_cost = hourly_cost
         self.unit = unit
-
-class ResourceRoleSet(VNode):
-
-    TYPE = 'resource_role_set'
-
-    def __init__(self, r_id):
-        VNode.__init__(self, r_id)
-
-    add_resource_role = VNode.append
-    get_resource_role = VNode.get_node_by_id
 

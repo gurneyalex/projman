@@ -58,7 +58,7 @@ class GanttResourcesDrawer(ResourcesDrawer, GanttDrawer):
         width_gantt, height_gantt = GanttDrawer._get_table_dimension(self, project)
         width_res, height_res = ResourcesDrawer._get_table_dimension(self, project)
         #calculate height_resource_reduced
-        nb_resources = len(project.resource_set.get_resources())
+        nb_resources = len(project.resources)
         nb_tasks = len(project.root_task.flatten())
         height_resource_reduced = ROW_HEIGHT*(5+nb_tasks+nb_resources*2)
         width = max(width_gantt, width_res)

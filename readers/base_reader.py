@@ -24,8 +24,8 @@ from xml.sax.handler import feature_namespaces
 
 from projman.lib.project import Project
 from projman.lib.task import Task, MileStone
-from projman.lib.resource import Resource, ResourcesSet
-from projman.lib.resource_role import ResourceRole, ResourceRoleSet
+from projman.lib.resource import Resource
+from projman.lib.resource_role import ResourceRole
 from projman.lib.calendar import Calendar
 from projman.lib._exceptions import ProjectValidationError, MalformedProjectFile
 
@@ -53,25 +53,13 @@ class ModelProjectFactory(object):
         """ create a new task node """
         return Task(t_id)
 
-    def create_resource(self, r_id, r_name, r_type, calendar, r_hourly_rate='0.0', r_unit='euros'):
+    def create_resource(self, r_id, r_name, calendar, roles):
         """ create a new resource """
-        try:
-            float_rate = float(r_hourly_rate)
-        except ValueError:
-            raise AttributeError("Resource's hourly rate must be a float")
-        return Resource(r_id, r_name, r_type, calendar, float_rate, r_unit)
-
-    def create_resourcesset(self, rs_id):
-        """ create a new resources set """
-        return ResourcesSet(rs_id)
+        return Resource(r_id, r_name, calendar, roles)
 
     def create_resource_role(self, r_id, name, cost='0.0', unit='euros'):
         """create a new resource_role"""
         return ResourceRole(r_id, name, cost, unit)
-
-    def create_resource_role_set(self, rs_id):
-        """ create a new resource_role set """
-        return ResourceRoleSet(rs_id)
 
     def create_calendar(self, tt_id, tt_name = u''):
         """ create a new time table """

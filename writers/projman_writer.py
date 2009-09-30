@@ -94,7 +94,7 @@ def schedule_as_dom(project):
         if element.tag == "milestone":
             continue # milestone don't need more
         # global cost
-        costs = project.get_task_costs(task.id, task.duration)[0]
+        costs = project.get_task_costs(task, task.duration)[0]
         global_cost = ET.SubElement(element, 'global-cost', unit='XXX')
         global_cost.text = '%.1f' % sum(costs.values())
         # cost by resource
@@ -130,19 +130,10 @@ class TasksVisitor(object):
         elem = ET.Element('task', id=node.id)
         elem.set("xmlns:ldg", "http://www.logilab.org/2005/DocGenerator")
         self.set_common_attr( node, elem )
-        self._handle_resource_constraints(elem, node)
         self.parents.append(elem)
         for c in node.children:
             c.accept( self )
         return elem
-
-    def _handle_resource_constraints(self, elem, node):
-        for rtype, rid in node.resource_constraints:
-            if rtype == None:
-                ET.SubElement( elem, "constraint-resource", idref=rid )
-            else:
-                ET.SubElement( elem, "constraint-resource",
-                               idref=rid, type=rtype )
 
     def visit_task(self, node):
         elem = ET.SubElement( self.parents[-1], 'task', id=node.id )
@@ -152,7 +143,6 @@ class TasksVisitor(object):
         if node.resources_role:
             elem.set("resource-role", node.resources_role)
         self.set_common_attr( node, elem )
-        self._handle_resource_constraints(elem, node)
         self.parents.append( elem )
         for c in node.children:
             c.accept( self )

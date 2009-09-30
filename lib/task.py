@@ -263,9 +263,6 @@ class Task(TaskNode):
         parent's priority
       - duration: integer estimated duration of the task
       - progress: integer progress of task (in percent)
-      - resource_constraints: sequence of tuples (type, id_res),
-        can be used without id_res for planning with type of
-        resource
       - hide: boolean, used to render partial graphs (e.g. for a
         given resource)
 
@@ -277,48 +274,19 @@ class Task(TaskNode):
 
     def __init__(self, t_id):
         TaskNode.__init__(self, t_id)
-        self.resource_constraints = set()
-
-    def get_task_type(self):
-        if self.resources_role:
-                return self.resources_role
-        elif self.parent:
-            return self.parent.get_task_type()
-        else:
-            return set()
-
-    def get_resource_constraints(self):
-        """
-        get real resource constraints using parent resource constraints
-        """
-        if not self.resources_role:
-            if self.resource_constraints:
-                return self.resource_constraints
-            elif self.parent:
-                return self.parent.get_resource_constraints()
-            else:
-                return set()
-        else:
-            self.get_task_type()
-            return set()
 
     def get_resources(self):
         """
-        return a sequence of the resources in resource_constraints
+        return the set of the resources
         """
-        # according to old resources definition
-        self.resources_set = set([id_res for type_c, id_res in
-                    self.get_resource_constraints()])
-
+        assert self.resources_set is not None
         return self.resources_set
 
     def compute_resources(self, project):
         """add all the resources with type abilities in task.resources_set"""
         self.resources_set = set()
-        res_set = project.get_resources()
-        for res in res_set:
-            res = project.get_resource(res)
-            if self.resources_role in res.role_ids:
+        for res in project.get_resources():
+            if self.resources_role in res.role_ids():
                 self.resources_set.add(res.id)
 
     def get_linked_resources(self, resources_set):
@@ -331,20 +299,14 @@ class Task(TaskNode):
             for leaf in self.leaves():
                 if leaf.TYPE == 'milestone':
                     continue
-                if leaf.resources_role: # according to new definition of resources
-                    if leaf.resources_role in res.role_ids:
+                if leaf.resources_role:
+                    if leaf.resources_role in res.role_ids():
                         set_res.add(res.id)
-                else: # according to old definition of resources
-                    for ctype, res_id in leaf.get_resource_constraints():
-                        set_res.add(res_id)
             # if task is a leaf
             if not self.children:
-                if self.resources_role and not self.children: # according to new definition of resources
-                    if self.resources_role in res.role_ids:
+                if self.resources_role and not self.children:
+                    if self.resources_role in res.role_ids():
                         set_res.add(res.id)
-                else: # according to old definition of resources
-                    for ctype, res_id in self.resource_constraints:
-                        set_res.add(res_id)
         return set_res
 
 
@@ -356,10 +318,6 @@ class Task(TaskNode):
 #            if id_res == res_id:
 #                return usage
 #        return 0
-
-    def add_resource_constraint(self, resource_type, resource_id):
-        # FIXME what about node <constraint-resource idref="toto"/>
-        self.resource_constraints.add((resource_type, resource_id))
 
 
 class MileStone(TaskNode):
@@ -384,5 +342,3 @@ class MileStone(TaskNode):
 
     progress = property(get_progress, doc="milestone progress (percentage)")
 
-    def get_resource_constraints(self):
-        return set()

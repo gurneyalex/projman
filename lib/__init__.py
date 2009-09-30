@@ -17,7 +17,7 @@
 
 from projman.lib.task import MileStone, Task
 from projman.lib.project import Project
-from projman.lib.resource import Resource, ResourcesSet
+from projman.lib.resource import Resource
 from projman.lib.calendar import Calendar
 from projman.lib._exceptions import *
 

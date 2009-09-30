@@ -334,9 +334,8 @@ class TaskEditor(BaseEditor):
             box.set_title( task.resources_role )
         else:
             box.set_title( '[Please choose a role]')
-        roles = self.app.project.resource_role_set.children
         box.clear()
-        for role in roles:
+        for role in self.app.project.resources_roles.values():
             box.append_text( role.id )
 
     # event methods ###########################################################

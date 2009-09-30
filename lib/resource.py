@@ -26,56 +26,37 @@ This code is released under the GNU Public Licence v2. See www.gnu.org.
 """
 
 from mx.DateTime import Time
-from logilab.common.deprecation import deprecated
-
-from logilab.common.tree import VNode
 from projman.lib.calendar import Calendar
+from projman.lib.resource_role import ResourceRole
 
-class Resource(VNode):
-    """A Resource instance is able to perform Tasks.
+class Resource(object):
+    """A Resource represents a person that can perform Tasks.
 
     Attributes:
-      - type: resource classifier (e.g. 'engineer',
-        'manager', 'computer'...)
+      - name : A label describing the resource
       - calendar a Calendar instance to indicating when the resource is
          (not) available
-      - hourly_rate cost of one hour of work by the resource stored as
-         [rate, 'unit']
       - role_ids: list of the roles that the resource can have
      """
 
-    TYPE = 'resource'
-
-    def __init__(self, r_id, name, type=None, calendar=None,
-                 hourly_rate=0.0, unit='euros'):
-        VNode.__init__(self, r_id)
+    def __init__(self, r_id, name, calendar, roles):
+        self.id = r_id
         self.name = name
-        self.type = type
+        assert isinstance(calendar, Calendar)
         self.calendar = calendar
-        self.hourly_rate = [hourly_rate, unit]
-        self.role_ids = []
-
-    def get_default_wt_in_hours(self):
-        """return number of working hours for this resource in a default day"""
-        if self.calendar:
-            cal = self.get_node_by_id(self.calendar)
-            return cal.get_worktime(cal.default_day_type).hours
-        else:
-            return 8
+        assert isinstance(roles, list)
+        for role in roles:
+            assert isinstance(role, ResourceRole)
+        self.roles = roles
+        
+    def role_ids(self):
+        return [role.id for role in self.roles]
 
     def is_available(self, datetime):
         """
         tell if the resource may work on a given day
         """
-        if self.calendar:
-            c_init = self.get_node_by_id(self.calendar)
-            if c_init.availability(datetime):
-                return True
-            else:
-                return False
-        else:
-            return True
-    work_on = deprecated()(is_available)
+        return self.calendar.availability(datetime)
 
     def get_worktime(self, datetime):
         """
@@ -83,36 +64,7 @@ class Resource(VNode):
         """
         if not self.is_available(datetime):
             return Time(0)
-        if self.calendar:
-            cal = self.get_node_by_id(self.calendar)
-            daytype = cal.get_daytype(datetime)
-            return cal.get_worktime(daytype)
-        else:
-            # if no calendar use default value of 8 hours work
-            return Time(8)
+        daytype = self.calendar.get_daytype(datetime)
+        return self.calendar.get_worktime(daytype)
 
-class ResourcesSet(VNode):
-
-    TYPE = 'resourcesset'
-
-    def __init__(self, r_id):
-        VNode.__init__(self, r_id)
-
-    add_resource = VNode.append
-    get_resource = VNode.get_node_by_id
-    add_calendar = VNode.append
-
-    def get_calendar(self, tt_id):
-        """
-        return the time table projman object with id
-        """
-        calendar = self.get_node_by_id(tt_id)
-        assert isinstance(calendar, Calendar)
-        return calendar
-
-    def get_resources(self):
-        """
-        return the list of ids of all resources available in this resources set
-        """
-        return [r.id for r in self.flatten() if isinstance(r, Resource)]
 

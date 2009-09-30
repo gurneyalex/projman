@@ -101,8 +101,7 @@ class ProjectXMLReader(AbstractXMLReader) :
         rsrc = self.get_file(tree, "resources")
         act = self.get_file(tree, "activities")
         self.project.root_task = self.read_tasks(tasks)
-        self.project.resource_set = self.read_resources(rsrc)
-        self.project.resource_role_set = self.read_resource_role(rsrc)
+        self.read_resources_file(rsrc)
         self.project.add_activities( self.read_activities(act) )
         if sched and not self.skip_schedule:
             try:
@@ -227,8 +226,6 @@ class ProjectXMLReader(AbstractXMLReader) :
             else:
                 priority = 1
             t.add_task_constraint( ct.get("type"), ct.get("idref"), priority)
-        for cr in task.findall("constraint-resource"):
-            t.add_resource_constraint( cr.get("type"), cr.get("idref"))
 
         desc = task.find("description")
         txt_fmt = "none"
@@ -254,33 +251,37 @@ class ProjectXMLReader(AbstractXMLReader) :
 
 
     def read_resource_definition(self, res_node):
-        res = self._factory.create_resource( res_node.get('id'), u'',
-                                             res_node.get('type'), u'' )
+        res_name = u'Unknown'
+        res_cal = None
+        roles = []
         for n in res_node:
             if n.tag == 'label':
-                res.name = unicode(n.text)
-            elif n.tag == 'hourly-rate':
-                res.hourly_rate[0] = float(n.text)
-                res.hourly_rate[1] = n.get('unit','euros')
+                res_name = unicode(n.text)
             elif n.tag == 'use-calendar':
-                res.calendar = n.get('idref')
+                res_cal_id = n.get('idref')
+                res_cal = self.project.calendars[res_cal_id]
             elif n.tag == 'role':
-                res.role_ids.append(n.get('idref'))
+                role_id = n.get('idref')
+                roles.append(self.project.resources_roles[role_id])
+            else:
+                print 'Tag :', n.tag, 'not supported anymore'
+        res_id = res_node.get('id')
+        res = self._factory.create_resource(res_id, res_name, res_cal, roles)
         return res
 
-    def read_resource_role(self, fname):
-        tree = xml_parse(fname)
+    def read_resource_roles(self, tree):
         root_node = tree.getroot()
-        res_role_set = self._factory.create_resource_role_set('all_resource_role')
+        res_roles = {}
         for res_role in root_node.findall('resource-role'):
-            res = self._factory.create_resource_role( res_role.get('id'), u'')
+            res_id = res_role.get('id')
+            res = self._factory.create_resource_role( res_id, u'')
             res.hourly_cost = float(res_role.get("hourly-cost"))
             res.unit = res_role.get("cost-unit")
             for n in res_role._children:
                 if n.tag == 'label':
                     res.name = unicode(n.text)
-            res_role_set.append(res)
-        return res_role_set
+            res_roles[res_id] = res
+        return res_roles
 
     def read_calendar_definition(self, cal_node, parent_cal=None):
         cal = self._factory.create_calendar( cal_node.get('id') )
@@ -324,21 +325,30 @@ class ProjectXMLReader(AbstractXMLReader) :
                 cal.append(subcal)
         return cal
 
-    def read_resources(self, fname):
-
-        tree = xml_parse(fname)
-        checker = ResourcesChecker()
-        if not checker.validate(tree, fname):
-            raise MalformedProjectFile(str(checker))
+    def read_resources(self, tree):
         root_node = tree.getroot()
-        res_set = self._factory.create_resourcesset('all_resources')
+        res_set = {}
         for res_node in root_node.findall('resource'):
             res = self.read_resource_definition( res_node )
-            res_set.append(res)
+            res_set[res.id] = res
+        return res_set
+
+    def read_calendars(self, tree):
+        root_node = tree.getroot()
+        calendars = {}
         for cal_node in root_node.findall('calendar'):
             cal = self.read_calendar_definition( cal_node )
-            res_set.append(cal)
-        return res_set
+            calendars[cal.id] = cal
+        return calendars
+
+    def read_resources_file(self, rsrc):
+        rsrc_tree = xml_parse(rsrc)
+        checker = ResourcesChecker()
+        if not checker.validate(rsrc_tree, rsrc):
+            raise MalformedProjectFile(str(checker))
+        self.project.resources_roles = self.read_resource_roles(rsrc_tree)
+        self.project.calendars = self.read_calendars(rsrc_tree)
+        self.project.resources = self.read_resources(rsrc_tree)
 
     def read_activities(self, fname):
         tree = xml_parse(fname)
