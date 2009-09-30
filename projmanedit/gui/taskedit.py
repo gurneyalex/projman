@@ -69,13 +69,13 @@ class TaskEditor(BaseEditor):
         task_popup.show_all()
         return task_popup
 
-    def build_constraint_tree_popup(self, *args):
+    def build_constraint_tree_popup(self, path):
         task_popup = gtk.Menu()
         add_item = gtk.MenuItem("Add constraint")
-        add_item.connect("activate", self.popup_add_constraint, args )
+        add_item.connect("activate", self.popup_add_constraint )
         task_popup.attach(add_item, 0, 1, 0, 1 )
         del_item = gtk.MenuItem("Delete constraint")
-        del_item.connect("activate", self.popup_del_constraint, args )
+        del_item.connect("activate", self.popup_del_constraint, path )
         task_popup.attach(del_item, 0, 1, 2, 3 )
         task_popup.show_all()
         return task_popup
@@ -307,10 +307,14 @@ class TaskEditor(BaseEditor):
             self.w("spinbutton_duration").set_sensitive(False)
 
         buf.set_text( task.description_raw )
-        self.w("spinbutton_duration").get_adjustment().set_value( task.duration )
-        self.w("combobox_scheduling_type").set_active( task.load_type )
+        # XXX handle correctly cases where task duration and load_type are None
+        self.w("spinbutton_duration").get_adjustment().set_value( task.duration or 0)
+        self.w("combobox_scheduling_type").set_active( task.load_type or 0)
 
         self._update_role_combobox( task )
+        self._update_constraints( task )
+
+    def _update_constraints(self, task):
 
         self.constraints_model.clear()
         color = "black"
@@ -383,7 +387,7 @@ class TaskEditor(BaseEditor):
         infos = self._get_data_on_button_press_event(treeview, event)
         if infos is None:
             return
-        path, col, time = infos
+        path, time = infos
         if self.task_popup:
             self.task_popup.destroy()
         self.task_popup = self.build_task_tree_popup(path)
@@ -394,10 +398,10 @@ class TaskEditor(BaseEditor):
         infos = self._get_data_on_button_press_event(treeview, event)
         if infos is None:
             return
-        path, col, time = infos
+        path, time = infos
         if self.constraints_popup:
             self.constraints_popup.destroy()
-        self.task_popup = self.build_constraint_tree_popup( col )
+        self.task_popup = self.build_constraint_tree_popup( path )
         self.task_popup.popup( None, None, None, event.button, time)
 
     def _get_data_on_button_press_event(self, treeview, event):
@@ -415,7 +419,7 @@ class TaskEditor(BaseEditor):
             treeview.set_cursor( path, col, 0)
         else:
             path = None
-        return path, col, time
+        return path, time
 
     def on_textview_task_description_changed(self, buf):
         _beg = buf.get_start_iter()
@@ -525,10 +529,19 @@ class TaskEditor(BaseEditor):
         parent.remove( task )
         self.refresh_task_list(sel_task=parent)
 
-    def popup_add_constraint(self, *args):
-        print "try ADD constraint", args
+    def popup_add_constraint(self, item):
+        task = self.current_task
+        print "try ADD constraint", item
+        task.task_constraints.add(('begin-after-end', self.app.project.root_task.id, 1))
+        self._update_constraints( task )
 
-    def popup_del_constraint(self, *args):
-        print "try DEL constraint", args
-
+    def popup_del_constraint(self, item, path):
+        print "try DEL constraint", path
+        task = self.current_task
+        #path = args[1]
+        itr = self.constraints_model.get_iter( path )
+        values = self.constraints_model.get(itr, 0, 1, 5 )
+        task.task_constraints.remove( values )
+        #self.constraints_model.remove( itr )
+        self._update_constraints( task )
 
