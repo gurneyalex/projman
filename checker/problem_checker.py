@@ -26,7 +26,6 @@ class Checker(object):
         self.verbosity = verbose
         self.real_tasks = scheduler.real_tasks
         self.constraints = scheduler.constraints
-        self.resources = scheduler.resources
         self.max_duration = scheduler.max_duration
         self.successors = {}
         self.predecessors = {}
@@ -56,9 +55,8 @@ class Checker(object):
             task = self.project.get_task(task_id)
             print '%s (id = %s; duration = %s)' % (task.title, task.id, task.duration)
         print "\n#  Available resources for the project #"
-        for res in self.resources:
-            res = self.project.get_resource(res)
-            print res.name, " (",res.role_ids,")"
+        for res in self.project.get_resources():
+            print res.name, " (",res.role_ids(),")"
         print "\n#  Set of constraints #"
         for task in self.project.root_task.leaves():
             for c_type, date, priority in task.get_date_constraints():
@@ -193,9 +191,8 @@ class Checker(object):
             # according to new definition of resources role
             if not leaf.can_interrupt[0] and leaf.duration >5:
                 count = 0
-                for res_id in self.resources:
-                    resource = self.project.get_resource(res_id)
-                    if leaf.resources_role in resource.role_ids:
+                for resource in self.project.get_resources():
+                    if leaf.resources_role in resource.role_ids():
                         count += 1
                 duration = leaf.duration / float(count)
                 if duration > 5:

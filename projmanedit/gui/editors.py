@@ -214,8 +214,7 @@ class ResourceEditor(BaseEditor):
         col.set_sort_order(order)
 
     def update_resources_info(self):
-        res_set = self.app.project.resource_set
-        resources = [res for res in res_set.children if isinstance(res, Resource)]
+        resources = self.app.project.resources
         editable = True # TODO
         self.resources_model.clear()
         for res in resources:
@@ -223,30 +222,26 @@ class ResourceEditor(BaseEditor):
 
     def update_resource_roles_info(self):
         model = self.resource_roles_model
-        res_set = self.app.project.resource_role_set
+        res_set = self.app.project.resources_roles
         editable = True # XXX
         model.clear()
-        for role in res_set.children:
-            if isinstance(role, ResourceRole):
-                rate = '%s %s' % (role.hourly_cost, role.unit)
-                model.append( (None, role.id, role.name, rate, "blue", editable) )
+        for role in res_set.values():
+            rate = '%s %s' % (role.hourly_cost, role.unit)
+            model.append( (None, role.id, role.name, rate, "blue", editable) )
 
     def update_calendar_info(self):
-        resources = self.app.project.resource_set
-        cal_ids = self.calendar_ids
-        cal_ids.clear()
-        for cal in set(res.id for res in resources if isinstance(res, Calendar)):
-            cal_ids.append( (cal,) )
-        cal_ids.append( ('<new>',) )
-        proj_cals = [res for res in self.app.project.resource_set.children
-                if isinstance(res, Calendar)]
-        for cal in proj_cals:
+        calendars = self.app.project.calendars
+        self.calendar_ids.clear()
+        self.calendar_model.clear()
+        for cal in calendars.values():
+            self.calendar_ids.append( (cal.id,) )
             self.calendar_model.append( (cal.id, cal.name, "darkgreen", False ))
+        self.calendar_ids.append( ('<new: TODO>',) )
 
     def on_calendar_selection_changed(self, sel):
         model, itr = sel.get_selected()
         cal_id = model.get_value(itr, 0)
-        cal = self.app.project.get_resource(cal_id)
+        cal = self.app.project.get_calendar(cal_id)
         # update weekdays
         for day, val in cal.weekday.items():
             working = (val=="working")

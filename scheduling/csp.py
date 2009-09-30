@@ -39,13 +39,12 @@ class CSPScheduler(object):
     def __init__(self, project):
         self.project = project
         self.start_date = None
-        self.calc_project_length()
         #self.first_tasks = None
         self.real_tasks = {}  # task_id -> (task_number,duration,list_of_resources)
         self.constraints = {} # Constraint Type -> list of task pairs
         self.task_ranges = {} # task_id -> date range or (None,None)
-        self.resources = set()   # res_id -> res_number
-        for leaf in project.root_task.leaves():
+        self.calc_project_length()
+        for leaf in self.project.root_task.leaves():
             self._process_node(leaf)
         #self.add_priorities_as_constraints()
 
@@ -75,8 +74,7 @@ class CSPScheduler(object):
         while True:
             # this really should be the list of resources working
             # on those task that *could* begin at the start of the project
-            for res_id in self.project.get_resources():
-                res = self.project.get_resource(res_id)
+            for res in self.project.get_resources():
                 if res.is_available( d ):
                     break
             else:
@@ -122,31 +120,10 @@ class CSPScheduler(object):
         if _VERBOSE>2:
             print node.id, 'range=', rnge
         # collect resources
-            #
-            # on utilise task.resources_set pour obtenir l ensemble des
-            # resources disponibles pour une tache
-            #
-        # -> using new projman definition
-        if node.TYPE != 'milestone' and node.get_resource_constraints()== set():
-            # collect resources in root_trask
-            for r_type, r_id in self.project.root_task.get_resource_constraints():
-                if self.project.priority >= int(priority):
-                    self.resources.add( r_id )
-                    task_resources.append( r_id )
+        if node.TYPE != 'milestone':
             node.compute_resources(self.project)
-            #trouver les resources correspondantes
-            task_type = node.get_task_type()
             if _VERBOSE>1:
-                print "Resource", r_id
-        # -> using old projman definition
-        else:
-            for r_type, r_id in node.get_resource_constraints():
-                if self.project.priority >= int(priority):
-                    if _VERBOSE>1:
-                        print "Resource", r_type, r_id
-                    self.resources.add( r_id )
-                    task_resources.append( r_id )
-                    node.resources_set.add(r_id)
+                print "Resources", node.resources_set
 
     def add_priorities_as_constraints(self):
         """
@@ -223,11 +200,12 @@ class CSPScheduler(object):
                                 tid, max(usage, 1./factor)) )
         return activities
 
-    def schedule(self, verbose=0, time=400000, sol_max=4000, **kw):
+    def schedule(self, verbose=5, time=400000, sol_max=4000, **kw):
         """
         Update the project's schedule
         Return list of errors occured during schedule
         """
+        global _VERBOSE
         #XXX the return value should be a list of errors, but is always '[]'
         print "\nscheduling ..."
         _VERBOSE = verbose
@@ -237,10 +215,10 @@ class CSPScheduler(object):
         factor = self.project.factor
         max_duration = int( self.max_duration * 2 )
         if _VERBOSE>1:
-            print "Tasks", len(self.real_tasks)
-            print "Res", len(self.resources)
-            print "Dur", self.max_duration
-            print "Factor", factor
+            print "Nb Tasks :", len(self.real_tasks)
+            print "Nb Res   :", len(self.project.resources)
+            print "Duration :", self.max_duration
+            print "Factor   :", factor
         pb = ProjmanProblem( int(max_duration * factor ) )
         pb.set_first_day( self.first_day * factor)
         real_tasks_items = self.real_tasks.items()
@@ -251,9 +229,8 @@ class CSPScheduler(object):
             print "----------"
         # compute resources map
         resources_map = {}
-        for res_id in self.resources:
+        for res_id, res in self.project.resources.items():
             sched = []
-            res = self.project.get_resource( res_id )
             res_num = pb.add_worker( res_id )
             resources_map[res_id] = res_num
             #gestion calendrier jours feries et we
@@ -278,7 +255,8 @@ class CSPScheduler(object):
             if (duration_) % 1 > 0 :
                 duration_ = duration_ - ((duration_) % 1) + 1
                 real_tasks_items[0][1][2] = duration_ / factor
-            task_num = pb.add_task( tid, _type, int(duration_), bool(task.can_interrupt[0]) )
+            task_num = pb.add_task( tid, _type, int(duration_), 
+                                    bool(task.can_interrupt[0]) )
             low, high = self.task_ranges[tid]
             if _VERBOSE>1:
                 print "Task %2d = #%.2f [%4s,%4s] = '%20s'" % ((task_num,duration,low,high,tid,))
@@ -294,6 +272,8 @@ class CSPScheduler(object):
             if _type == load_types.TASK_MILESTONE:
                 continue
             for res_id in sorted(resources):
+                if _VERBOSE>2:
+                    print "   ", res_id
                 res_num = resources_map[res_id]
                 pseudo_id = pb.add_resource_to_task( task_num, res_num )
                 pseudo_tasks.append( (pseudo_id, tid, res_id) )
@@ -333,7 +313,7 @@ class CSPScheduler(object):
                 continue
             if milestone>=nmilestones:
                 break
-            d = SOL.get_milestone( milestone )
+            d = solution.get_milestone( milestone )
             date = self.start_date + day_cost + int(d / factor)
             if (_VERBOSE>=2):
                 print "MILESTONE", tid, date

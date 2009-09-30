@@ -45,8 +45,6 @@ class Project(object):
     :attr root_task: root of task hierarchy
     :attr constraints: table of constraints (caching information
                        from task hierarchy)
-    :attr resource_set: ResourcesSet() instance representing list of
-                        resources available for the project
     :attr activities: task information
     :attr schedule: Schedule() instance (planned activities)
     """
@@ -55,8 +53,9 @@ class Project(object):
 
     def __init__(self):
         self._root_task = None
-        self.resource_set = None
-        self.resource_role_set = None
+        self.resources = {}
+        self.resources_roles = {}
+        self.calendars = {}
         self._is_scheduled = False
         self.activities = Table(default_value=None,
                                 col_names=['begin', 'end', 'resource', 'task',
@@ -162,7 +161,7 @@ class Project(object):
             try:
                 begin, end = self.get_task_date_range(task)
                 status = self.compute_task_status(task, begin, end)
-                cost = self.get_task_total_cost(task.id, task.duration)
+                cost = self.get_task_total_cost(task, task.duration)
                 self.tasks.append_row((begin, end, status, cost, 'XXX'),
                                       row_name=task.id)
             except ValueError, exc:
@@ -179,11 +178,13 @@ class Project(object):
 
     # resources methods #######################################################
 
-    def add_resource_set(self, res_set):
-        warn('ResourceSet.merge is not yet implemented, replacing instead',
-             DeprecationWarning, stacklevel=2)
-        #self.resource_set.merge(res_set)
-        self.resource_set = res_set
+    def add_calendar(self, cal):
+        assert cal.id not in self.calendars
+        self.calendars[cal.id] = cal
+
+    def add_resource(self, res):
+        assert res.id not in self.resources
+        self.resources[res.id] = res
 
     def has_resource(self, res_id):
         """tests if resource <res_id> is used"""
@@ -191,10 +192,16 @@ class Project(object):
 
     def get_resources(self):
         """return all the resources available for the project"""
-        return self.resource_set.get_resources()
+        return self.resources.values()
 
     def get_resource(self, resource_id):
-        return self.resource_set.get_resource(resource_id)
+        return self.resources[resource_id]
+
+    def get_calendar(self, cal_id):
+        return self.calendars[cal_id]
+
+    def get_role(self, role_id):
+        return self.resources_roles[role_id]
 
     # tasks methods ###########################################################
 
@@ -354,14 +361,14 @@ class Project(object):
         return duration
 
 
-    def get_task_total_cost(self, task_id ,task_tot_duration):
+    def get_task_total_cost(self, task ,task_tot_duration):
         """
         obtain concatenation of costs for a task
         """
-        costs = self.get_task_costs(task_id, task_tot_duration)[0]
+        costs = self.get_task_costs(task, task_tot_duration)[0]
         return sum(costs.values())
 
-    def get_task_costs(self, task_id, task_tot_duration):
+    def get_task_costs(self, task, task_tot_duration):
         """
         run through all activities and sum up duration * usage
         # FIXME - do we really need to send back durations
@@ -370,43 +377,29 @@ class Project(object):
         costs = {}
         durations = {}
         rounded=0
+        if task.resources_role is None:
+            return {}, {}
+        role = self.get_role(task.resources_role)
+        cost_rate = role.hourly_cost
+        activities = self.activities.select('task', task.id)
         if 0 < task_tot_duration % (1./self.factor) < (1./self.factor):
             rounded = task_tot_duration % (1./self.factor) - 1./self.factor
-        for begin, end, resource, task, usage, src \
-                in self.activities.select('task', task_id):
+
+        for begin, end, resource, task, usage, src in activities:
             costs.setdefault(resource, 0)
             durations.setdefault(resource, 0)
             # FIXME - presuming 8 hour /day work
             # FIXME - leaving behind the currency
             duration = self.compute_duration(begin, end, usage)
-            tot_res_duration = 0
             durations[resource] += duration
-            # calcul du total du temps consomme sur toutes les resources pour cette tache
-            for res in durations:
-                tot_res_duration += durations[res]
         # gestion des arrondis
         if len(durations) > 0:
             rounded  = rounded / len(durations)
             for res in durations:
                 # using resources old definition
-                task =  self.get_task(task_id)
-                if self.resource_role_set.width() == 1 and not task.resources_role:
-                    try:
-                        cost_rate = self.get_resource(res).hourly_rate[0]
-                    except NodeNotFound,ex :
-                        # if resource not found ???
-                        cost_rate = 1
-                #using new resources definition
-                else:
-                    role = task.resources_role
-                    cost_rate = self.get_cost_from_role(role)
                 durations[res] += rounded
                 costs[res] += durations[res] * cost_rate * HOURS_PER_DAY
         return costs, durations
-
-    def get_cost_from_role(self, role):
-        res_role = self.resource_role_set.get_resource_role(role)
-        return res_role.hourly_cost
 
     def compute_duration(begin, end, usage):
         delta = end.day - begin.day
