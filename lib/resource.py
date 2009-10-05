@@ -44,7 +44,7 @@ class Resource(object):
         self.name = name
         assert isinstance(calendar, Calendar)
         self.calendar = calendar
-        assert isinstance(roles, list)
+        assert isinstance(roles, (list, tuple))
         for role in roles:
             assert isinstance(role, ResourceRole)
         self.roles = roles
