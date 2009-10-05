@@ -87,6 +87,7 @@ class BasicScheduler(Visitor):
         """
         create a BasicScheduler. Use open_visit() to start.
         """
+        raise NotImplementedError('This Scheduler is not uptodate')
         Visitor.__init__(self, PostfixedDepthFirstIterator)
         self._root = None
         self.errors = []
@@ -249,7 +250,7 @@ class BasicScheduler(Visitor):
             begin, begin_strict = self.get_possible_begin(node)
             end, end_strict = self.get_possible_end(node)
             nb_days = node.duration
-            res_seq = node.get_resources()
+            res_seq = node.get_resource_ids()
             # include duration of past activities in schedule
             nb_days -= self._past_activities.get_duration_worked_for_t(node.id)
             # cut up according to days worked
@@ -484,7 +485,7 @@ class BasicScheduler(Visitor):
         result = date or None
         # no adjusting can be done with a dependency on a milestone
         if task.TYPE != 'milestone':
-            for res_id in task.get_resources():
+            for res_id in task.get_resource_ids():
                 dispo = self.project.get_general_disponibility(res_id, date - 1)
                 usage = task.get_resource_dispo(res_id)
                 if dispo - usage > 0:

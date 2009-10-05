@@ -123,7 +123,7 @@ class CSPScheduler(object):
         if node.TYPE != 'milestone':
             node.compute_resources(self.project)
             if _VERBOSE>1:
-                print "Resources", node.resources_set
+                print "Resources", node.get_resource_ids()
 
     def add_priorities_as_constraints(self):
         """
@@ -250,7 +250,6 @@ class CSPScheduler(object):
         for tid, (num, _type, duration, resources) in real_tasks_items:
 
             task = self.project.get_task(tid)
-            resources = task.resources_set # set resources according to new definition
             duration_ = duration * factor
             if (duration_) % 1 > 0 :
                 duration_ = duration_ - ((duration_) % 1) + 1
@@ -271,7 +270,7 @@ class CSPScheduler(object):
             pb.set_task_range( task_num, int(low), int(high), 0, 0 ) # XXX: cmp_type unused
             if _type == load_types.TASK_MILESTONE:
                 continue
-            for res_id in sorted(resources):
+            for res_id in task.get_resource_ids()
                 if _VERBOSE>2:
                     print "   ", res_id
                 res_num = resources_map[res_id]
