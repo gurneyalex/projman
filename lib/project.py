@@ -36,15 +36,18 @@ from logilab.common.tree import NodeNotFound
 
 from projman.lib.constants import *
 from projman.lib.constants import HOURS_PER_DAY
+from projman.lib._exceptions import ProjectValidationError
 
 class Project(object):
-    """A project is made a hierachy of tasks, a set of calendars and
-    resources, and can optionally include a list of activities and a
-    list of scheduled activities
+    """A project is made of a hierachy of tasks, a dictionary of calendars,
+    a dictionary of resources, and can optionally include a list of activities
+    and a list of scheduled activities
 
     :attr root_task: root of task hierarchy
-    :attr constraints: table of constraints (caching information
-                       from task hierarchy)
+    :attr resources: dictionary of resources
+    :attr resources_roles: dictionary of resource roles
+    :attr calendars: dictionary of calendars
+    :attr milestones: dictionary of milestones
     :attr activities: task information
     :attr schedule: Schedule() instance (planned activities)
     """
@@ -176,19 +179,43 @@ class Project(object):
                 cost = sum([row[4] for row in rows])
                 self.costs.append_row((task_id, res_id, cost, 'XXX'))
 
-    # resources methods #######################################################
 
+    # calendar, role, and resource methods ###################################
+
+    # calendars
     def add_calendar(self, cal):
-        assert cal.id not in self.calendars
+        if cal.id in self.calendars:
+            raise ProjectValidationError('Calendar ID "%s" already exists' % cal.id)
         self.calendars[cal.id] = cal
 
+    def get_calendar(self, cal_id):
+        return self.calendars[cal_id]
+
+    def has_calendar(self, cal_id):
+        """tests if the given <cal_id> is used"""
+        return cal_id in self.calendars
+
+    # roles
+    def add_role(self, role):
+        if role.id in self.resources_roles:
+            raise ProjectValidationError('Role ID "%s" already exists' %
+                                         role.id)
+        #assert role.id not in self.resources_roles
+        self.resources_roles[role.id] = role
+
+    def get_role(self, role_id):
+        return self.resources_roles[role_id]
+
+    # resources
     def add_resource(self, res):
+        if res.id in self.resources:
+            raise ProjectValidationError('Resource ID "%s" already exists' % res.id)
         assert res.id not in self.resources
         self.resources[res.id] = res
 
     def has_resource(self, res_id):
         """tests if resource <res_id> is used"""
-        return res_id in self.get_resources()
+        return res_id in self.resources
 
     def get_resources(self):
         """return all the resources available for the project"""
@@ -196,12 +223,6 @@ class Project(object):
 
     def get_resource(self, resource_id):
         return self.resources[resource_id]
-
-    def get_calendar(self, cal_id):
-        return self.calendars[cal_id]
-
-    def get_role(self, role_id):
-        return self.resources_roles[role_id]
 
     # tasks methods ###########################################################
 
