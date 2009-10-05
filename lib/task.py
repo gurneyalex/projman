@@ -59,7 +59,7 @@ class TaskNode(VNode):
         self.duration = None
         self.load_type = None
         self.resources_role = None
-        self.resources_set = None # will become a set
+        self._resource_ids = None # will become a set
         self.can_interrupt = [True, 1] # the integer represent the priority of the constraint
         self.link = None
         self.level = 1
@@ -275,40 +275,19 @@ class Task(TaskNode):
     def __init__(self, t_id):
         TaskNode.__init__(self, t_id)
 
-    def get_resources(self):
+    def get_resource_ids(self):
         """
         return the set of the resources
         """
-        assert self.resources_set is not None
-        return self.resources_set
+        assert self._resource_ids is not None
+        return self._resource_ids
 
     def compute_resources(self, project):
-        """add all the resources with type abilities in task.resources_set"""
-        self.resources_set = set()
+        """compute the resources of a task and build _resource_ids """
+        self._resource_ids = set()
         for res in project.get_resources():
             if self.resources_role in res.role_ids():
-                self.resources_set.add(res.id)
-
-    def get_linked_resources(self, resources_set):
-        """ return set of resources linked to a task and his children, from all
-        resources of resources_set"""
-        set_res = set()
-        if self.TYPE == 'milestone':
-            return set()
-        for res in resources_set:
-            for leaf in self.leaves():
-                if leaf.TYPE == 'milestone':
-                    continue
-                if leaf.resources_role:
-                    if leaf.resources_role in res.role_ids():
-                        set_res.add(res.id)
-            # if task is a leaf
-            if not self.children:
-                if self.resources_role and not self.children:
-                    if self.resources_role in res.role_ids():
-                        set_res.add(res.id)
-        return set_res
-
+                self._resource_ids.add(res.id)
 
 #    def get_resource_dispo(self, res_id):
 #        """

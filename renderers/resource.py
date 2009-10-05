@@ -154,9 +154,9 @@ class ResourcesDrawer(AbstractDrawer) :
             width += FIELD_COLUMN_WIDTH*4
         width += len(self._timeline_days)*self._timestepwidth
         # calculate height
-        nb_resources = len(project.resource_set.get_resources())
+        nb_resources = len(project.get_resources())
         nb_tasks = len(project.root_task.flatten())
-        height = ROW_HEIGHT*(nb_tasks*nb_resources)
+        height = ROW_HEIGHT * nb_tasks * nb_resources
         return (width, height)
 
     # table heads #############################################################
