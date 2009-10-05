@@ -1,20 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources-list id="rss_2">
   <resource type="engineer" id="ing_1">
+    <role idref="ing_py"/>
     <label>Emmanuel Breton</label>
     <use-calendar idref="typic_cal"/>
-    <hourly-rate unit="euros">80</hourly-rate>
   </resource>
   <resource type="engineer" id="ing_2">
+    <role idref="ing_py"/>
     <label>Arthur Lutz</label>
     <use-calendar idref="typic_cal"/>
-    <hourly-rate unit="euros">80</hourly-rate>
   </resource>
   <resource type="engineer" id="ing_3">
+    <role idref="ing_py"/>
     <label>Sandrine Ribeau</label>
     <use-calendar idref="typic_cal"/>
-    <hourly-rate unit="euros">80</hourly-rate>
   </resource>
+  <resource-role id="ing_py" hourly-cost="80.00" cost-unit="EUR">
+      <label>Ingénieur développement Python</label>
+  </resource-role>
 
   <calendar id="typic_cal">
     <label>Calendrier Francais</label>
