@@ -13,83 +13,47 @@ from mx.DateTime import DateTime
 from logilab.common.compat import set
 from logilab.common.testlib import TestCase, unittest_main
 
-from projman.lib import MileStone, Task
+from projman.lib import Task
 from projman.lib.constants import *
+from projman.test.unittest_lib_Project import simple_project
 
 class TaskTC(TestCase):
 
     def setUp(self):
-        """called before each test from this class
-
-        parent (inge1/1, inge2/1)
-          |
-          |--- child1 (inge1/1), 10
-          |
-          |--- child2
-          |      |
-          |      |--- child2_1 (inge1/0.6), 5
-          |      |
-          |      `--- child2_2 (inge2/1), 12
-          |
-          `--- stone [milestone]
-        """
-        self.parent = Task('parent')
-        self.child1 = Task('child1')
-        self.child2 = Task('child2')
-        self.child2_1 = Task('child2_1')
-        self.child2_2 = Task('child2_2')
-        self.stone = MileStone('stone')
-        # building tree
-        self.parent.append(self.child1)
-        self.parent.append(self.child2)
-        self.child2.append(self.child2_1)
-        self.child2.append(self.child2_2)
-        self.parent.append(self.stone)
-        # set duration
-        self.child1.duration = 10
-        self.child2_1.duration = 5
-        self.child2_2.duration = 12
-        # set of resources constraints
-        self.parent.add_resource_constraint('worker', 'inge1')
-        self.parent.add_resource_constraint('worker', 'inge2')
-        self.child1.add_resource_constraint('worker', 'inge1')
-        self.child2_1.add_resource_constraint('worker', 'inge1')
-        self.child2_2.add_resource_constraint('worker', 'inge2')
-        # set of dates
-        self.date_last_week = DateTime(2004, 10, 1)
-        self.date_today = DateTime(2004, 10, 7)
-        self.date_tomorrow = DateTime(2004, 10, 8)
-        self.date_next_week = DateTime(2004, 10, 13)
-        self.date_next_score = DateTime(2004, 10, 26)
-        # self.short_activity = Activity(100, self.date_today, self.date_next_week)
-        # self.long_activity = Activity(100, self.date_today, self.date_next_score)
+        """setup a simple project for each test"""
+        project, tasks, resources, roles, stone, calendar = simple_project()
+        self.project = project
+        self.roles = roles
+        self.resources = resources
+        self.calendar = calendar
+        self.parent = tasks[0]
+        self.child1 = tasks[1]
+        self.child2 = tasks[2]
+        self.child2_1 = tasks[3]
+        self.child2_2 = tasks[4]
+        self.stone = stone
+        #self.parent and self.child2 have no special resource role
+        self.child1.resources_role = 'cdp'
+        self.child2_1.resources_role = 'ingpy'
+        self.child2_2.resources_role = 'ingihm'
+        for task in tasks:
+            task.compute_resources(project)
 
     def test_get_task(self):
-        """check that finds child
-        """
+        """check that a task finds one of its children"""
         self.assertEquals(self.parent.get_task('child1'), self.child1)
         self.assertEquals(self.parent.get_task('stone'), self.stone)
         self.assertEquals(self.parent.get_task('child2_1'), self.child2_1)
         self.assertEquals(self.parent.get_task('child2_2'), self.child2_2)
 
-    def test_get_resource_constraints(self):
-        """test rsource is found, even within parents
-        """
-        # XXX
-        # self.assertEquals(self.parent.get_resource_constraints(), [])
-        self.assertEquals(self.child1.get_resource_constraints(), set([('worker', 'inge1')]))
-        self.assertEquals(self.child2_1.get_resource_constraints(), set([('worker', 'inge1')]))
-        self.assertEquals(self.child2_2.get_resource_constraints(), set([('worker', 'inge2')]))
-
     def test_get_resources(self):
         """check that array of all resource id returned
         """
-        self.assertEquals(self.parent.get_resources(), set(['inge1', 'inge2']))
-        self.assertEquals(self.child1.get_resources(), set(['inge1']))
-        self.assertEquals(self.child2.get_resources(), set(['inge1', 'inge2']))
-        self.assertEquals(self.child2_1.get_resources(), set(['inge1']))
-        self.assertEquals(self.child2_2.get_resources(), set(['inge2']))
-
+        self.assertEquals(self.parent.get_resource_ids(), set())
+        self.assertEquals(self.child1.get_resource_ids(), set(['toto']))
+        self.assertEquals(self.child2.get_resource_ids(), set())
+        self.assertEquals(self.child2_1.get_resource_ids(), set(['toto', 'tata']))
+        self.assertEquals(self.child2_2.get_resource_ids(), set(['tata']))
 
     def test_get_priority(self):
         """test value returned

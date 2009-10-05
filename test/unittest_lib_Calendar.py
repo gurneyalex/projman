@@ -10,7 +10,7 @@ This code is released under the GNU Public Licence v2. See www.gnu.org.
 
 from mx.DateTime import DateTime, Time, Date
 from logilab.common import testlib
-from projman.lib import Project, Calendar, ResourcesSet, Resource
+from projman.lib import Project, Calendar, Resource
 
 MORNING = (Time(8), Time(12))
 AFTERNOON = (Time(13), Time(17))
@@ -56,27 +56,19 @@ class CalendarTC(testlib.TestCase):
     """
     def setUp(self):
         """ called before each test from this class """
-        self.o = Project()
-        self.o.title = 'Projman'
-
-        self.rss = ResourcesSet('all_resources')
-
-        self.r1 = Resource('r_1', 'Resource 1')
-        self.r1.calendar = 'c_1'
-        self.r1.type = '1'
-        self.rss.add_resource(self.r1)
-
-        self.r2 = Resource('r_2', 'Resource 2')
-        self.r2.calendar = 'c_2'
-        self.r2.type = '1'
-        self.rss.add_resource(self.r2)
-
+        self.pr = Project()
+        self.pr.title = 'Projman'
         self.c1 = mk_calendar1()
         self.c2 = mk_calendar2()
         self.c1.append(self.c2)
-        self.rss.add_calendar(self.c1)
+        self.pr.add_calendar(self.c1)
+        self.pr.add_calendar(self.c2)
 
-        self.o.add_resource_set(self.rss)
+        self.r1 = Resource('r_1', 'Resource 1', self.c1, [])
+        self.pr.add_resource(self.r1)
+        self.r2 = Resource('r_2', 'Resource 2', self.c2, [])
+        self.pr.add_resource(self.r2)
+        self.rss = self.pr.resources
 
     def test_within_bounds(self):
         self.assertEquals(self.c1.after_start(Date(2003,1,1)), False)

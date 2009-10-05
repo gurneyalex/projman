@@ -6,10 +6,10 @@
   <label>Trivial Project</label>
   <task id="t2_1">
     <label>Developpement</label>
-    <task id="t2_11" load="15" load-type="oneof">
+    <task id="t2_11" load="15" load-type="oneof" resource-role="ing_py">
       <label>Realisation</label>
     </task>
-    <task id="t2_12" load="8" load-type="oneof">
+    <task id="t2_12" load="8" load-type="oneof" resource-role="ing_py">
       <label>Validation</label>
       <constraint-resource idref="ing_2" type="engineer"/>
       <constraint-task type="begin-after-end" idref="t2_11"/>

@@ -70,23 +70,27 @@ class TaskXMLReaderVirtualRootTest(TestCase):
 
 class ResourcesXMLReaderTest(TestCase):
     def setUp(self):
-        self.reader = ProjectXMLReader(None)
-        self.resources = self.reader.read_resources(osp.join(DATADIR, 'three_resourced_list.xml'))
+        reader = ProjectXMLReader(None)
+        three_file = osp.join(DATADIR, 'three_resourced_list.xml')
+        reader.read_resources_file(three_file)
+        self.project = reader.project
 
     def test_number_of_resources(self):
-        self.assertEquals(len(self.resources.children), 4)
-        for res in self.resources.children[:-1]:
-            self.assertEquals(res.TYPE,'resource')
-        self.assertEquals(self.resources.children[-1].TYPE, 'calendar')
+        self.assertEquals(len(self.project.resources), 3)
 
     def test_resource_content(self):
-        res = self.resources.children[0]
+        res = self.project.resources['ing_1']
         self.assertEquals(res.name, "Emmanuel Breton")
-        self.assertEquals(res.hourly_rate, [80, "euros"])
-        self.assertEquals(res.calendar, 'typic_cal')
+        self.assertEquals(res.calendar.id, 'typic_cal')
+
+    def test_resources_roles(self):
+        roles = self.project.resources_roles
+        self.assertEquals(roles.keys(), ['ing_py'])
+        self.assertEquals(roles['ing_py'].hourly_cost, 80.00)
+        self.assertEquals(roles['ing_py'].unit, "EUR")
 
     def test_calendar_content(self):
-        cal = self.resources.children[-1]
+        cal = self.project.calendars.values()[0]
         self.assertEquals(cal.name, "Calendrier Francais")
         self.assertEquals(cal.weekday, {'sat': 'non_working', 'sun':'non_working'} )
         self.assertEquals(cal.national_days,
@@ -118,7 +122,8 @@ class ErrorXMLReaderTest(TestCase):
         self.reader = ProjectXMLReader(None)
 
     def test_error_project(self):
-        self.assertRaises(Exception, self.reader.read_resources, osp.join(DATADIR, 'error_project.xml'))
+        error_pr = osp.join(DATADIR, 'error_project.xml')
+        self.assertRaises(MalformedProjectFile, self.reader.read_resources_file, error_pr)
 
     def test_error_doubletask(self):
         root = self.reader.read_tasks(osp.join(DATADIR, 'error_doubletask.xml'))

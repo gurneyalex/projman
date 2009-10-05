@@ -2,7 +2,7 @@
 """
 unit tests for module logilab.projman.lib.Resource
 
-Projman - (c)2000-2002 LOGILAB <contact@logilab.fr> - All rights reserved.
+Projman - (c)2000-2009 LOGILAB <contact@logilab.fr> - All rights reserved.
 
 Home: http://www.logilab.org/projman
 
@@ -14,8 +14,9 @@ This code is released under the GNU Public Licence v2. See www.gnu.org.
 
 from logilab.common.testlib import TestCase, unittest_main
 
-from projman.lib import Resource, Calendar, ResourcesSet
+from projman.lib import Resource, Calendar
 from mx.DateTime import DateTime, Time
+from projman.test.unittest_lib_Project import simple_project
 
 class ResourceTest(TestCase):
     """
@@ -23,42 +24,36 @@ class ResourceTest(TestCase):
     """
     def setUp(self):
         """ called before each test from this class """
-        # set up resources
-        self.r1 = Resource('r_1', 'Resource 1')
-        self.r1.calendar = 'c_1'
-        self.r2 = Resource(u'où', u'là-bas')
-        self.r2.calendar = 'c_2'
+        _, _, resources, _, _, cal = simple_project()
         # set of dates
         self.date_last_week = DateTime(2004, 10, 1)
         self.date_today = DateTime(2004, 10, 7)
         self.date_tomorrow = DateTime(2004, 10, 8)
         self.date_next_week = DateTime(2004, 10, 13)
         self.date_next_score = DateTime(2004, 10, 26)
-        # set up calendar 1
-        self.c1 = Calendar('c_1', 'Defaut')
-        self.c1.day_types = {'working':['Working', [(Time(8), Time(12)),
+        # set up calendar
+        cal.day_types = {'working':['Working', [(Time(8), Time(12)),
                                                     (Time(13), Time(17))]],
                              'halfday':['HalfDay', [(Time(9), Time(15))]],
                              'nonworking': ['Nonworking', []],
                              }
-        self.c1.default_day_type = 'working'
-        self.c1.add_timeperiod(self.date_last_week, self.date_last_week, 'nonworking')
-        self.c1.add_timeperiod(self.date_today, self.date_today, 'working')
-        self.c1.add_timeperiod(self.date_tomorrow, self.date_next_week, 'halfday')
-        self.c1.weekday['sat'] = 'nonworking'
-        self.c1.weekday['sun'] = 'nonworking'
+        cal.default_day_type = 'working'
+        cal.add_timeperiod(self.date_last_week, self.date_last_week,
+                              'nonworking')
+        cal.add_timeperiod(self.date_today, self.date_today, 'working')
+        cal.add_timeperiod(self.date_tomorrow, self.date_next_week, 'halfday')
+        cal.weekday['sat'] = 'nonworking'
+        cal.weekday['sun'] = 'nonworking'
         # set up calendar 2
-        self.c2 = Calendar('c_2', u'Année 2')
-        self.c2.add_timeperiod(self.date_next_week, self.date_next_score, 'nonworking')
+        cal_2 = Calendar('c_2', 'Special Calendar')
+        cal_2.add_timeperiod(self.date_next_week, self.date_next_score,
+                               'nonworking')
         # build tree
-        self.c1.append(self.c2)
-        self.rss = ResourcesSet('all_resources')
-        self.rss.add_resource(self.r1)
-        self.rss.add_resource(self.r2)
-        self.rss.add_calendar(self.c1)
-
-    def test_get_default_wt_in_hours(self):
-        self.assertEqual(self.r1.get_default_wt_in_hours(), 8)
+        cal.append(cal_2)
+        # set up resources
+        self.r1 = resources[0] # tata
+        self.r2 = resources[1] # toto
+        self.r2.calendar = cal_2
 
     def test_is_available(self):
         """

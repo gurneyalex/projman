@@ -133,5 +133,6 @@ class ProjectTC(testlib.TestCase):
         self.assertEquals(self.project.get_task('parent'), self.parent)
         self.assertEquals(self.project.get_task('child2_2'), self.child2_2)
 
+
 if __name__ == '__main__':
     testlib.unittest_main()
