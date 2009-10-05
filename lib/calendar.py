@@ -159,41 +159,31 @@ class Calendar(VNode):
         """
         test if datetime is a national day off
         """
-        cal = self
-        while isinstance(cal, Calendar):
-            if (datetime.month, datetime.day) in cal.national_days:
-                return True
-            cal = cal.parent
+        if (datetime.month, datetime.day) in self.national_days:
+            return True
+        if self.parent:
+            return self.parent.is_a_national_day(datetime)
         return False
 
     def after_start(self, datetime):
-        cal = self
-        while isinstance(cal, Calendar):
-            if cal.start_on:
-                if cal.start_on <= datetime:
-                    return True
-                else:
-                    return False
-            cal = cal.parent
+        if self.start_on:
+            return (self.start_on <= datetime)
+        if self.parent:
+            return self.parent.after_start(datetime)
         return True
 
     def before_stop(self, datetime):
-        cal = self
-        while isinstance(cal, Calendar):
-            if cal.stop_on:
-                if datetime <= cal.stop_on:
-                    return True
-                else:
-                    return False
-            cal = cal.parent
+        if self.stop_on:
+            return (datetime <= self.stop_on)
+        if self.parent:
+            return self.parent.before_stop(datetime)
         return True
 
     def _get_intervals(self, daytype):
-        cal = self
-        while isinstance(cal, Calendar):
-            if daytype in cal.day_types:
-                return cal.day_types[daytype][1]
-            cal = cal.parent
+        if daytype in self.day_types:
+            return self.day_types[daytype][1]
+        if self.parent:
+            return self.parent._get_intervals(daytype)
         raise ValueError('Unknown day type %s' % daytype)
 
     def get_daytype(self, datetime):
@@ -233,11 +223,10 @@ class Calendar(VNode):
         return None
 
     def get_default_daytype(self):
-        cal = self
-        while isinstance(cal, Calendar):
-            if cal.default_day_type is not None:
-                return cal.default_day_type
-            cal = cal.parent
+        if self.default_day_type:
+            return self.default_day_type
+        if self.parent:
+            return self.parent.get_default_daytype()
         return None
 
     def get_worktime(self, daytype):
