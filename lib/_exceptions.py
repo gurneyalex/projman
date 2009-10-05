@@ -18,6 +18,8 @@
 
 from logilab.common.tree import NodeNotFound
 
+class ProjmanError(Exception):
+    """base class for projman errors"""
 
 class ProjectValidationError(Exception):
     """ base class for malformed project exceptions """
@@ -42,16 +44,16 @@ class ResourceNotFound (NodeNotFound):
 EX_RESOURCE_BY_ID_NOT_FOUND = 'Resource id="%s" not found'
 EX_RESOURCE_BY_SKILLS_NOT_FOUND = 'No resource with skill(s) "%s" not found'
 
-class DuplicatedResource(Exception):
+class DuplicatedResource(ProjmanError):
     """ Duplicated resource id exception """
 EX_DUPLICATED_RESOURCE = 'A resource with id="%s" already exists'
 
-class DuplicatedTaskId(Exception):
+class DuplicatedTaskId(ProjmanError):
     """ Duplicated task id exception """
 EX_DUPLICATED_TASK = 'A resource with id="%s" already exists'
 
-class TTException(Exception):
+class TTProjmanError(ProjmanError):
     """ a TimeTable exception """
 
-class ViewException(Exception):
+class ViewException(ProjmanError):
     """ too much sub task to generate views """

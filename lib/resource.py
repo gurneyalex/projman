@@ -56,7 +56,7 @@ class Resource(object):
         """
         tell if the resource may work on a given day
         """
-        return self.calendar.availability(datetime)
+        return bool(self.calendar.availability(datetime))
 
     def get_worktime(self, datetime):
         """

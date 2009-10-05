@@ -270,7 +270,7 @@ class CSPScheduler(object):
             pb.set_task_range( task_num, int(low), int(high), 0, 0 ) # XXX: cmp_type unused
             if _type == load_types.TASK_MILESTONE:
                 continue
-            for res_id in task.get_resource_ids()
+            for res_id in task.get_resource_ids():
                 if _VERBOSE>2:
                     print "   ", res_id
                 res_num = resources_map[res_id]

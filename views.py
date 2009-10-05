@@ -19,7 +19,7 @@
 """
 from projman import format_monetary
 from projman.lib.constants import HOURS_PER_DAY
-from projman.lib._exceptions import ViewException
+from projman.lib._exceptions import ViewException, ProjmanError
 try:
     import xml.etree.ElementTree as ET
 except ImportError:
@@ -434,6 +434,7 @@ class CostParaView(XMLView):
                                   format_monetary(cost * (1+TVA/100)))
         ET.SubElement(parent, 'para').text = text
 
+
 class TasksListSectionView(XMLView):
     name = 'tasks-list-section'
 
@@ -618,10 +619,10 @@ class TasksListSectionView(XMLView):
 
     def row_element(self, task, tbody):
         """ create a DOM element <row> with values in task node"""
+        row = ET.SubElement(tbody, 'row')
+        # task title
+        self.dbh.table_cell_node(row, 'left', task.title)
         if task.children:
-            row = ET.SubElement(tbody, 'row')
-            # task title
-            self.dbh.table_cell_node(row, 'left', task.title)
             # task duration and role of resources
             duration = 0
             resources = set()
@@ -629,12 +630,9 @@ class TasksListSectionView(XMLView):
                 if child.TYPE == 'milestone':
                     continue
                 if child.resources_role is None:
-                    
                     if child.children:
-                        print child
-                        print child.id
-                        print child.children
-                        assert False
+                        msg = "Cant build DOM element ; %s %s " % (child, child.children)
+                        raise ProjmanError(msg)
                     continue
                 duration += child.duration
                 res_type = child.resources_role
@@ -647,16 +645,13 @@ class TasksListSectionView(XMLView):
                 string += ', %s' %role
             self.dbh.table_cell_node(row, 'left',string +u' : %s j.h' %duration)
         else:
-            row = ET.SubElement(tbody, 'row')
-            # task title
-            self.dbh.table_cell_node(row, 'left', task.title)
             # task duration and role of resources
             duration = task.duration and unicode(task.duration) or u''
-            res_role = self.projman.get_role(task.resources_role)
-            role = res_role.name
+            role = self.projman.get_role(task.resources_role).name
             self.dbh.table_cell_node(row, 'left', u'%s : %s j.h' %(role, duration))
             # compute end of the task (used in second table)
             return row
+
 
 class DurationTableView(CostTableView):
     name = 'duration-table'
