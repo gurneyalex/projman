@@ -349,15 +349,11 @@ class TaskEditor(BaseEditor):
         handler.clear()
         active = 0
         roles = self.app.project.resources_roles.values()
+        handler.append( (None, '[None]', None, None) )
         for line, role in enumerate(roles):
             handler.append( (role.id, role.name, "red", True) )
             if role.id == task.resources_role:
-                active = line
-        if not task.resources_role:
-            if True: # if should have a role ...
-                handler.prepend( ('' , '[Please choose a role]', None, None) )
-            else:
-                box.set_sensitive(False)
+                active = line + 1
         box.set_active(active)
 
 
@@ -393,7 +389,6 @@ class TaskEditor(BaseEditor):
         if not iter:
             return
         role_id = self.resource_roles_model.get_value(iter, 0)
-        task = self.current_task
         self.current_task.resources_role = role_id
 
     def on_spinbutton_duration_changed(self, spin):
