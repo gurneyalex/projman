@@ -44,6 +44,7 @@ class TaskEditor(BaseEditor):
             self.constraints_type_model.append( (v,) )
         self.setup_task_tree()
         self.setup_constraints_tree()
+        self.setup_resource_roles_list()
 
     def build_task_tree_popup(self, task_path, del_task=True):
         task_popup = gtk.Menu()
@@ -102,15 +103,30 @@ class TaskEditor(BaseEditor):
         rend.connect('edited', self.on_constraint_arg_edited )
         col = gtk.TreeViewColumn( u"Task ID", rend, text=1, foreground=3, editable=4 )
         tree.append_column( col )
-        col = gtk.TreeViewColumn( u"Priority", rend, text=5, foreground=3,
-                                editable=4 )
+        p_rend = gtk.CellRendererText() # TODO : make it editable
+        #p_rend.connect('edited', self.on_constraint_priority_edited )
+        col = gtk.TreeViewColumn( u"Priority", p_rend, text=5,
+                                  foreground=3, editable=False )
         tree.append_column( col )
         col = gtk.TreeViewColumn( u"Task Title", gtk.CellRendererText(), text=2,
-                                 foreground=3, editable=4 )
+                                 foreground=3, editable=False )
         tree.append_column( col )
         tree.set_model( self.constraints_model )
         tree.enable_model_drag_dest( [ ("task", gtk.TARGET_SAME_APP, 0) ],
                                      gtk.gdk.ACTION_COPY )
+
+
+    def setup_resource_roles_list(self):
+        box = self.w("combobox_role")
+        self.resource_roles_model = gtk.ListStore(gobject.TYPE_STRING, # id
+                                                  gobject.TYPE_STRING, # name
+                                                  gobject.TYPE_STRING, # color
+                                                  gobject.TYPE_BOOLEAN, # editable
+                                                 )
+        cell = gtk.CellRendererText()
+        box.pack_start(cell, True)
+        box.add_attribute(cell, 'text', 1)
+        box.set_model( self.resource_roles_model )
 
     def setup_task_tree(self):
         self.task_model = gtk.TreeStore(gobject.TYPE_STRING, gobject.TYPE_STRING)
@@ -282,7 +298,6 @@ class TaskEditor(BaseEditor):
         # update widgets value
         self.w("entry_task_id").set_text( task.id )
         self.w("entry_task_title").set_text( task.title )
-        #buf = .get_buffer()
         buf = gtksourceview2.Buffer()
         buf.connect("changed", self.on_textview_task_description_changed )
         self.w("textview_task_description").set_buffer( buf )
@@ -330,13 +345,21 @@ class TaskEditor(BaseEditor):
 
     def _update_role_combobox(self, task ):
         box = self.w('combobox_role')
-        if task.resources_role:
-            box.set_title( task.resources_role )
-        else:
-            box.set_title( '[Please choose a role]')
-        box.clear()
-        for role in self.app.project.resources_roles.values():
-            box.append_text( role.id )
+        handler = self.resource_roles_model
+        handler.clear()
+        active = 0
+        roles = self.app.project.resources_roles.values()
+        for line, role in enumerate(roles):
+            handler.append( (role.id, role.name, "red", True) )
+            if role.id == task.resources_role:
+                active = line
+        if not task.resources_role:
+            if True: # if should have a role ...
+                handler.prepend( ('' , '[Please choose a role]', None, None) )
+            else:
+                box.set_sensitive(False)
+        box.set_active(active)
+
 
     # event methods ###########################################################
 
@@ -364,6 +387,14 @@ class TaskEditor(BaseEditor):
         task_id = entry.get_text()
         self.current_task.id = task_id
         self.task_model.set_value( itr, 1, task_id )
+
+    def on_combobox_role_changed(self, combo):
+        iter = combo.get_active_iter()
+        if not iter:
+            return
+        role_id = self.resource_roles_model.get_value(iter, 0)
+        task = self.current_task
+        self.current_task.resources_role = role_id
 
     def on_spinbutton_duration_changed(self, spin):
         dur = self.w("spinbutton_duration").get_adjustment().get_value()
