@@ -214,11 +214,10 @@ class ResourceEditor(BaseEditor):
         col.set_sort_order(order)
 
     def update_resources_info(self):
-        resources = self.app.project.resources
-        editable = True # TODO
+        editable = False # TODO : make it editable
         self.resources_model.clear()
-        for res in resources:
-            self.resources_model.append( (res.calendar, res.name, "blue", editable) )
+        for res in self.app.project.get_resources():
+            self.resources_model.append( (res.calendar.id, res.name, "blue", editable) )
 
     def update_resource_roles_info(self):
         model = self.resource_roles_model
@@ -259,8 +258,8 @@ class ResourceEditor(BaseEditor):
             offdays.append( ('%d-%d-%d' % begin.timetuple()[:3],
                              '%d-%d-%d' % end.timetuple()[:3], 'blue', False) )
 
-    def on_calendar_type_edited(self):
-        print "# update calendar type"
+    def on_calendar_type_edited(self, *args):
+        print "# update calendar type", args
 
 
 class ActivitiesEditor(BaseEditor):

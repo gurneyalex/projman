@@ -40,11 +40,11 @@ class CSPScheduler(object):
         self.project = project
         self.start_date = None
         #self.first_tasks = None
-        self.real_tasks = {}  # task_id -> (task_number,duration,list_of_resources)
         self.constraints = {} # Constraint Type -> list of task pairs
         self.task_ranges = {} # task_id -> date range or (None,None)
         self.calc_project_length()
-        for leaf in self.project.root_task.leaves():
+        self.real_tasks = self.project.root_task.leaves()
+        for leaf in self.real_tasks:
             self._process_node(leaf)
         #self.add_priorities_as_constraints()
 
@@ -71,17 +71,11 @@ class CSPScheduler(object):
         # find the first working day
         d = self.start_date
         self.first_day = 0
-        while True:
-            # this really should be the list of resources working
-            # on those task that *could* begin at the start of the project
-            for res in self.project.get_resources():
-                if res.is_available( d ):
-                    break
-            else:
-                d = d + 1
-                self.first_day += 1
-                continue
-            break
+        # instead of checking all resources, we should look only for resources
+        # working on those task that *could* begin at the start of the project
+        while not any(res.is_available(d) for res in self.project.get_resources()):
+            d += 1
+            self.first_day += 1
         if ends and begins:
             other_length = (max(ends) - min(begins)).days +1
         else:
@@ -90,19 +84,13 @@ class CSPScheduler(object):
 
     def _process_node(self, node):
         max_duration = int(self.max_duration*2)
-
-        task_resources = self.real_tasks.setdefault(node.id,
-                                                    [len(self.real_tasks),
-                                                    node.load_type,
-                                                    node.duration, []] ) [3]
         rnge = self.task_ranges.setdefault( node.id, [None,None] )
-
         # collect task constraints
         for constraint_type, task_id, priority in node.get_task_constraints():
             if self.project.priority >= int(priority):
                 for leaf in node.get_task(task_id).leaves():
-                    lst = self.constraints.setdefault(constraint_type, set())
-                    lst.add( (node.id, leaf.id)  )
+                    c_set = self.constraints.setdefault(constraint_type, set())
+                    c_set.add( (node.id, leaf.id)  )
         # collect date constraints
         tab_rnge0 = [0]
         tab_rnge1 = [max_duration]
@@ -149,19 +137,17 @@ class CSPScheduler(object):
             List of Tuples (begin, end, resource_id, task_id, usage, src)
         """
         factor = self.project.factor
-        # TODO : almost same code as self.read_solution ...
-        duration = solution.get_duration()
-        ntasks = solution.get_ntasks()
-        task_days = [[ day / factor for day in range(duration)
-                     if solution.isworking(task, day) ] for task in range(ntasks)]
+        task_days = self.read_solution(solution)
 
         # list of tuples (begin, end, resource_id, task_id, usage, src)
         activities = []
         day_cost = oneHour * CST.HOURS_PER_DAY
         time_table = day_cost / factor
         for pid, days in enumerate( task_days ):
-            num, tid, res_id = pseudo_tasks[pid]
-            for i, d in enumerate(days):
+            num, task, res_id = pseudo_tasks[pid]
+            tid = task.id
+            for i, day in enumerate(days):
+                d = day / factor
                 decalage = 0
                 day_resource = 0
                 if i+1 < len(days)  and factor == 2 and days[i+1] != d:
@@ -189,7 +175,7 @@ class CSPScheduler(object):
                 if day_resource > factor:
                     raise Exception("found non valid solution")
                 already = sum(elt[4] for elt in activities if tid==elt[3])
-                delta = (self.real_tasks[tid][2] - already) * factor
+                delta = (task.duration - already) * factor
                 # duree (initiale) tache * factor - nb de jours
                 #                        deja ecoules pr cette tache
                 if delta > 1.0 / factor or delta <= 0:
@@ -200,7 +186,7 @@ class CSPScheduler(object):
                                 tid, max(usage, 1./factor)) )
         return activities
 
-    def schedule(self, verbose=5, time=400000, sol_max=4000, **kw):
+    def schedule(self, verbose=0, time=400000, sol_max=4000, **kw):
         """
         Update the project's schedule
         Return list of errors occured during schedule
@@ -221,9 +207,7 @@ class CSPScheduler(object):
             print "Factor   :", factor
         pb = ProjmanProblem( int(max_duration * factor ) )
         pb.set_first_day( self.first_day * factor)
-        real_tasks_items = self.real_tasks.items()
-        real_tasks_items.sort( key = lambda x:x[1][0] )
-        dt = []
+
         if _VERBOSE>1:
             print "occupation"
             print "----------"
@@ -235,30 +219,29 @@ class CSPScheduler(object):
             resources_map[res_id] = res_num
             #gestion calendrier jours feries et we
             for d in range(max_duration):
-                dt = self.start_date + d
-                if not res.is_available( dt ):
+                if not res.is_available( self.start_date + d ):
                     for i in range(factor):
                         pb.add_not_working_day( res_num, d*factor + i )
-                        sched.append("x")
+                    sched.append("x" * factor)
                 else:
-                    for i in range(factor):
-                        sched.append(".")
+                    sched.append("." * factor)
             if _VERBOSE > 1:
                 print "%02d" % res_num, "".join(sched)
         # compute pseudo tasks
         pseudo_tasks = []
-        for tid, (num, _type, duration, resources) in real_tasks_items:
-
-            task = self.project.get_task(tid)
+        for task in self.real_tasks:
+            tid = task.id
+            duration = task.duration
+            _type = task.load_type
             duration_ = duration * factor
-            if (duration_) % 1 > 0 :
-                duration_ = duration_ - ((duration_) % 1) + 1
-                real_tasks_items[0][1][2] = duration_ / factor
-            task_num = pb.add_task( tid, _type, int(duration_), 
+            if (duration_) % 1 > 0:
+                duration_ = int(duration_) + 1
+            task_num = pb.add_task( tid, _type, int(duration_),
                                     bool(task.can_interrupt[0]) )
             low, high = self.task_ranges[tid]
             if _VERBOSE>1:
-                print "Task %2d = #%.2f [%4s,%4s] = '%20s'" % ((task_num,duration,low,high,tid,))
+                print "Task %2d = #%.2f [%4s,%4s] = '%20s'" % (task_num, duration,
+                                                               low, high, tid)
             if low is None:
                 low = 0
             else:
@@ -275,13 +258,14 @@ class CSPScheduler(object):
                     print "   ", res_id
                 res_num = resources_map[res_id]
                 pseudo_id = pb.add_resource_to_task( task_num, res_num )
-                pseudo_tasks.append( (pseudo_id, tid, res_id) )
+                pseudo_tasks.append( (pseudo_id, task, res_id) )
 
         # register constraints
+        num_tasks = dict((task.id, num) for (num, task) in enumerate(self.real_tasks))
         for type, pairs in self.constraints.items():
             for t1, t2 in pairs:
-                n1, _, _, _ = self.real_tasks[t1]
-                n2, _, _, _ = self.real_tasks[t2]
+                n1 = num_tasks[t1]
+                n2 = num_tasks[t2]
                 pb.add_task_constraint( GCSPMAP[type], n1, n2 )
                 if _VERBOSE>1:
                     print "%s %s(%s), %s(%s)" %(type, t1, n1, t2, n2)
@@ -307,8 +291,9 @@ class CSPScheduler(object):
                 print "\tdu", db,"au", de, res_id, tid, dur
         milestone = 0
         nmilestones = solution.get_nmilestones()
-        for tid, (num, _type, duration, resources) in self.real_tasks.items():
-            if duration!=0:
+        for task in self.real_tasks:
+            tid = task.id
+            if task.duration!=0:
                 continue
             if milestone>=nmilestones:
                 break

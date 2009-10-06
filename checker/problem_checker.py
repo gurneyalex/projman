@@ -51,8 +51,7 @@ class Checker(object):
     def dump(self):
         """ print principal data of the probleme """
         print "\n#  Set of real tasks (no container) #"
-        for task_id in self.real_tasks:
-            task = self.project.get_task(task_id)
+        for task in self.real_tasks:
             print '%s (id = %s; duration = %s)' % (task.title, task.id, task.duration)
         print "\n#  Available resources for the project #"
         for res in self.project.get_resources():
@@ -80,9 +79,7 @@ class Checker(object):
                 self.errors.append('Leaf %s without any duration:\n\t-> add duration, add sub tasks or write it as a milestone' %leaf.id)
 
     def check_tree(self):
-        tasks = []
-        for tid in self.real_tasks:
-            tasks.append(tid)
+        tasks = [task.id for task in self.real_tasks]
         arcs = []
         for constraint in self.constraints:
             if constraint in ('begin-after-end', 'begin-after-begin'):
@@ -103,8 +100,8 @@ class Checker(object):
         self.trees = self.depth_first_search(tasks)
 
     def depth_first_search(self, tasks):
-        """ applie DFS algorithm in set of tasks to detect cycle and find
-            tasks order """
+        """ apply DFS algorithm in set of tasks to detect cycle and find
+            task order""" # XXX DFS algorithm should look much simpler
         if self.verbosity > 1:
             print 'ALGORITHME DEPTH FIRST SEARCH'
         if not [] in self.predecessors.values() or not [] in self.successors.values():
@@ -118,15 +115,14 @@ class Checker(object):
             print "successors:", self.successors
 
         for key in self.predecessors:
-            # detect fisrt task
+            # detect first task
             tag = []
             values = self.predecessors.get(key)
             if values == []:
                 first = key
             else:
                 continue
-            Q = []
-            Q.append(first)
+            Q = [first]
             rounder = 0
             while Q:
                 rounder += 1
@@ -160,7 +156,7 @@ class Checker(object):
                 set_tag.add(elt)
             # check if every real task was considered
         for task in self.real_tasks:
-            if not task in set_tag:
+            if not task.id in set_tag:
                 self.errors.append('Cycles detected on task %s:\n\t-> change tasks constraints' %task)
                 return []
         if self.verbosity:
@@ -185,8 +181,7 @@ class Checker(object):
                     self.errors.append('Incoherent date constraint in task %s:\n\t-> change date constraints' % task.id)
 
     def check_tasks_convexity(self):
-        for leaf_id in self.real_tasks:
-            leaf = self.project.get_task(leaf_id)
+        for leaf in self.real_tasks:
             # compute the number of possible resources for the task
             # according to new definition of resources role
             if not leaf.can_interrupt[0] and leaf.duration >5:
