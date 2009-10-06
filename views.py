@@ -623,34 +623,24 @@ class TasksListSectionView(XMLView):
         # task title
         self.dbh.table_cell_node(row, 'left', task.title)
         if task.children:
-            # task duration and role of resources
-            duration = 0
-            resources = set()
-            for child in task.children:
-                if child.TYPE == 'milestone':
-                    continue
-                if child.resources_role is None:
-                    if child.children:
-                        msg = "Cant build DOM element ; %s %s " % (child, child.children)
-                        raise ProjmanError(msg)
-                    continue
-                duration += child.duration
-                res_type = child.resources_role
-                # get role title
-                res_role = self.projman.get_role(res_type)
-                role = res_role.name
-                resources.add(role)
-            string = u'%s' %resources.pop()
-            for role in resources:
-                string += ', %s' %role
-            self.dbh.table_cell_node(row, 'left',string +u' : %s j.h' %duration)
+            duration = sum(t.duration for t in task.children)
+            roles = set(self.projman.get_role( child.resources_role ).name
+                        for child in task.children if child.resources_role)
+            if not roles:
+                raise ProjmanError('Cant find a role for task %s' % task.id)
+            role = ', '.join(sorted( roles ))
         else:
-            # task duration and role of resources
             duration = task.duration and unicode(task.duration) or u''
-            role = self.projman.get_role(task.resources_role).name
-            self.dbh.table_cell_node(row, 'left', u'%s : %s j.h' %(role, duration))
-            # compute end of the task (used in second table)
-            return row
+            # get resource_role by taking possibly the parent's role
+            parent = task
+            while parent:
+                if parent.resources_role:
+                    role = self.projman.get_role(parent.resources_role).name
+                    break
+                parent = parent.parent
+            else:
+                raise ProjmanError('Cant find a role for task %s' % task.id)
+        self.dbh.table_cell_node(row, 'left', u'%s : %s j.h' % (role, duration) )
 
 
 class DurationTableView(CostTableView):
