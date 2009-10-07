@@ -12,7 +12,6 @@ LANGUAGES = gtksourceview2.language_manager_get_default().get_language_ids()
 LANGUAGES.sort()
 assert "docbook" in LANGUAGES
 XMLLANG = gtksourceview2.language_manager_get_default().get_language("docbook")
-print LANGUAGES
 
 ADD_TASK_MSG = ("Warning : Adding a Task as a child of Task(%s) will reset"
 " the load value of it. \n Are you sure ?")

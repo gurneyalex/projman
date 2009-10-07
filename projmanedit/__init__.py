@@ -12,5 +12,4 @@ if GLADE=="%GLADEFILE%":
     _main_module = sys.modules[__name__]
     _main_dir = osp.dirname( _main_module.__file__)
     _toplevel = osp.abspath(osp.join(_main_dir,".."))
-    print "Running from %s" % _toplevel
     GLADE = osp.join(_toplevel, "data", "projedit.glade")
