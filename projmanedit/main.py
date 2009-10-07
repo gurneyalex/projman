@@ -156,10 +156,12 @@ class MainApp(gobject.GObject):
     def on_window_main_destroy(self, *args):
         gtk.main_quit()
 
+def run():
+    app = MainApp()
+    if len(sys.argv)>1:
+        app.load_project( sys.argv[1] )
+    gtk.main()
 
-app = MainApp()
+if __name__ == '__main__':
+    run()
 
-if len(sys.argv)>1:
-    app.load_project( sys.argv[1] )
-
-gtk.main()
