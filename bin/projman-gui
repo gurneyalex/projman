@@ -1,0 +1,5 @@
+#!/usr/bin/python
+from projman.projmanedit.main import run
+import sys
+run()
+
