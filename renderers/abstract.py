@@ -200,7 +200,7 @@ class AbstractDrawer(object):
 
     def __init__(self, options, handler, colors_file=None, colors_stream = None):
         """
-        defines colors and initializes colors_set
+        defines colors and initializes color_set
         """
         # initialise colors
         self._colors = None
