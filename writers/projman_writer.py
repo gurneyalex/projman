@@ -20,6 +20,7 @@ from logilab.common.visitor import Visitor
 from projman.lib.constants import BEGIN_AT_DATE, END_AT_DATE, AT_DATE
 from projman.lib.constants import REVERSE_LOAD_TYPE_MAP
 from projman.lib.task import MileStone
+from projman.lib._exceptions import ProjmanError
 try:
     import xml.etree.ElementTree as ET
 except ImportError:
@@ -89,7 +90,14 @@ def schedule_as_dom(project):
 
         # task_constraints
         for ctype, ctask_id, priority in task.task_constraints:
-            ET.SubElement(element, "constraint-task", type=ctype, idref=ctask_id)
+            if ctask_id is None:
+                if ctype != 'begin-after-end-previous':
+                    raise ProjmanError("Missing task for *%s %s*" % (task.id,
+                                                                     ctype))
+                ET.SubElement(element, "constraint-task", type=ctype)
+            else:
+                ET.SubElement(element, "constraint-task", type=ctype,
+                              idref=ctask_id)
 
         if element.tag == "milestone":
             continue # milestone don't need more

@@ -25,8 +25,10 @@ from projman.scheduling.gcsp import (ProjmanProblem, solve,
 GCSPMAP = {}
 for t in CST.TASK_CONSTRAINTS:
     name = t.upper().replace("-","_")
-    GCSPMAP[t] = getattr(GCSP_CST, name)
-
+    try:
+        GCSPMAP[t] = getattr(GCSP_CST, name)
+    except AttributeError:
+        assert name == "BEGIN_AFTER_END_PREVIOUS"
 _VERBOSE=1
 
 class CSPScheduler(object):
@@ -87,6 +89,13 @@ class CSPScheduler(object):
         rnge = self.task_ranges.setdefault( node.id, [None,None] )
         # collect task constraints
         for constraint_type, task_id, priority in node.get_task_constraints():
+            if constraint_type not in GCSPMAP:
+                assert constraint_type == 'begin-after-end-previous'
+                index = self.real_tasks.index(node)
+                if index == 0:
+                    raise ProjmanError("No previous real task before %s" %node.id)
+                task_id = self.real_tasks[index - 1].id
+                constraint_type = "begin-after-end"
             if self.project.priority >= int(priority):
                 for leaf in node.get_task(task_id).leaves():
                     c_set = self.constraints.setdefault(constraint_type, set())

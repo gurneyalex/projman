@@ -21,10 +21,12 @@ HOURS_PER_DAY = 8.
 # task constraints
 BEGIN_AFTER_END = 'begin-after-end'
 BEGIN_AFTER_BEGIN = 'begin-after-begin'
+BEGIN_AFTER_END_PREVIOUS = 'begin-after-end-previous'
 END_AFTER_END = 'end-after-end'
 END_AFTER_BEGIN = 'end-after-begin'
+
 TASK_CONSTRAINTS = [BEGIN_AFTER_END, BEGIN_AFTER_BEGIN,
-                    END_AFTER_END, END_AFTER_BEGIN]
+                    BEGIN_AFTER_END_PREVIOUS, END_AFTER_END, END_AFTER_BEGIN]
 
 # date constraints
 BEGIN_AFTER_DATE = 'begin-after-date'
@@ -38,6 +40,7 @@ DATE_CONSTRAINTS = [BEGIN_AFTER_DATE, BEGIN_AT_DATE, BEGIN_BEFORE_DATE,
                     END_AFTER_DATE, END_AT_DATE, END_BEFORE_DATE]
 
 __all__ = ['FLOAT_ZERO', 'BEGIN_AFTER_END', 'BEGIN_AFTER_BEGIN',
+           'BEGIN_AFTER_END_PREVIOUS',
            'END_AFTER_END', 'END_AFTER_BEGIN', 'TASK_CONSTRAINTS',
            'BEGIN_AFTER_DATE', 'BEGIN_AT_DATE', 'BEGIN_BEFORE_DATE',
            'END_AFTER_DATE', 'END_AT_DATE', 'END_BEFORE_DATE',

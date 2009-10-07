@@ -66,13 +66,22 @@ class GanttRenderer(AbstractRenderer) :
         self.drawer.draw_separator_gantt(x_, y_min, y_max)
         self.drawer.draw_weekends_bg(x_, y_min, y_max)
 
+        real_tasks = project.root_task.leaves()
         for task in self._pending_constraints:
             for c_type, c_id, priority in task.task_constraints:
                 try:
                     ct = task.get_node_by_id(c_id)
                 except NodeNotFound :
-                    ct = None
-                if ct and ct in self._visible_tasks:
+                    if (c_type == "begin-after-end-previous" and
+                        real_tasks.index(task) != 0):
+                        # find the previous task to connect to
+                        ct = real_tasks[real_tasks.index(task) - 1]
+                        print (task.id, c_type, ct.id)
+                    else:
+                        print ("Gantt Error: Can not draw constraint "
+                               "'%s %s %s'" % (task.id, c_type, c_id))
+                        continue
+                if ct in self._visible_tasks:
                     self.drawer.task_constraints(c_type, task, ct, project.factor)
 
     def render_node(self, node, project):
