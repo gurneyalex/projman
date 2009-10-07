@@ -337,7 +337,11 @@ class TaskEditor(BaseEditor):
         # loop over the parents of the task and append constraints
         while task:
             for c_type, task_id, priority in task.task_constraints:
-                title = proj.get_task(task_id).title
+                if c_type == "begin-after-end-previous":
+                    task_id = '[previous]'
+                    title = ''
+                else:
+                    title = proj.get_task(task_id).title
                 self.constraints_model.append( (c_type, task_id, title,
                                                 color, color=='black', priority) )
             task = task.parent
@@ -453,9 +457,14 @@ class TaskEditor(BaseEditor):
         self.current_task.description_raw = txt
 
     def on_constraint_type_edited(self, renderer, path, new_text):
-        itr = self.constraints_model.get_iter( path )
-        self.constraints_model.set_value( itr, 0, new_text )
-        self.model_to_constraints(self.constraints_model, self.current_task)
+        model = self.constraints_model
+        itr = model.get_iter( path )
+        model.set_value( itr, 0, new_text )
+        old_text = model.get_value(itr, 0)
+        if new_text == "begin-after-end-previous":
+            model.set_value( itr, 1, '[previous]')
+            model.set_value( itr, 2, '')
+        self.model_to_constraints(model, self.current_task)
 
     def on_constraint_arg_edited(self, renderer, path, new_text):
         itr = self.constraints_model.get_iter( path )
@@ -465,9 +474,11 @@ class TaskEditor(BaseEditor):
     def model_to_constraints(self, model, task):
         constraints = []
         task.clear_task_constraints()
-        for (type, value, title, color, editable, priority) in model:
+        for (c_type, task_id, title, color, editable, priority) in model:
+            if c_type == "begin-after-end-previous":
+                task_id = None
             if editable:
-                task.add_task_constraint(type, value, priority)
+                task.add_task_constraint(c_type, task_id, priority)
 
     #def constraints_to_model(self, *args): # TODO : make it symetric
 
@@ -557,7 +568,8 @@ class TaskEditor(BaseEditor):
     def popup_add_constraint(self, item):
         task = self.current_task
         print "try ADD constraint", item
-        task.task_constraints.add(('begin-after-end', self.app.project.root_task.id, 1))
+        task.task_constraints.add(('begin-after-end-previous',
+                                   self.app.project.root_task.id, 1))
         self._update_constraints( task )
 
     def popup_del_constraint(self, item, path):
