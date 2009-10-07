@@ -156,9 +156,14 @@ class MainApp(gobject.GObject):
     def on_window_main_destroy(self, *args):
         gtk.main_quit()
 
+USAGE = "USAGE : projman-gui <path/to/project.xml>"
+
 def run():
     app = MainApp()
     if len(sys.argv)>1:
+        if '-h' in sys.argv or '--help' in sys.argv:
+            print USAGE
+            return
         app.load_project( sys.argv[1] )
     gtk.main()
 
