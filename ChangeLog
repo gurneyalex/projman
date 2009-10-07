@@ -1,6 +1,14 @@
 ChangeLog for Projman
 =====================
-	
+
+2209-10-07  -- 0.14.0
+    * constraints: add "begin-after-end-previous" constraint
+    * refactoring resources: remove ResourcesSet and ResourceRoleSet
+    * projmanedit: update projmanedit; add functionalities:
+        - task tab: edit resource role and task constraints
+        - resource tab: show resources, resource roles and calendars
+	* bin: add "bin/projman-gui" for projmanedit
+
 2009-02-25  -- 0.13.6.0	
     * fix bugs in projman views
     * add new examples

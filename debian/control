@@ -21,13 +21,12 @@ Description: tool for project management
  projman is a tool used for managing projects and creating reports,
  such as project costs, resource usages, Gantt diagram and resources
  activities diagram.
- It includes the following functionnalties:
+ It includes the following functionalities:
   * scheduling of a project
   * managing work-groups' actvities
   * Gantt diagrams generation
   * resources' usage diagrams generation
   * generation of xml doc (under docbook dtd) to list tasks, evaluate costs
+  * editing and testing (some of) these functionalites with projman-gui
  .
  All different format and output are XML files.
- .
-
