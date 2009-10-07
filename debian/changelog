@@ -1,3 +1,9 @@
+projman (0.14.0-1) unstable; urgency=low
+
+  * new upstream release
+
+ -- Emile Anclin <emile.anclin@logilab.fr>  Wed, 10 Oct 2009 15:57:19 +0200
+
 projman (0.13.7-1) unstable; urgency=low
 
   * new upstream release
