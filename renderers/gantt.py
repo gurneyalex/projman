@@ -63,8 +63,8 @@ class GanttRenderer(AbstractRenderer) :
         first_day = self.drawer._timeline_days[0]
         last_day = self.drawer._timeline_days[-1]+self.drawer._timestep
         rnge = self.drawer._timeline_all_days
-        self.drawer.draw_separator_gantt(rnge, x_, y_min, y_max)
-        self.drawer.draw_weekends_bg(rnge, x_, y_min, y_max)
+        self.drawer.draw_separator_gantt(x_, y_min, y_max)
+        self.drawer.draw_weekends_bg(x_, y_min, y_max)
 
         for task in self._pending_constraints:
             for c_type, c_id, priority in task.task_constraints:
@@ -103,36 +103,17 @@ class GanttRenderer(AbstractRenderer) :
         """
         generate event for a given task
         """
-        project.get_factor()
-        factor = project.factor
         if self.options.del_ended and task.is_finished():
             return
-        self.drawer.set_color_set(self._i)
-        self._i += 1
-        self._visible_tasks[task] = 1
-        for val in task.task_constraints:
-            if val:
-                self._pending_constraints[task] = 1
-                break
-
-        self.drawer.open_line()
-        self.drawer.main_content(task.title or task.id,
-                                 project, task.depth(), task)
-
-        if self.options.showids :
-            self.drawer.simple_content(task.title)
+        self._begin_render_task_or_milestone(task, project)
 
         task_begin, task_end = project.get_task_date_range(task)
-        task_end -= oneHour * HOURS_PER_DAY / factor
-        x = self.drawer._x
+        task_end -= oneHour * HOURS_PER_DAY / project.factor
         self.drawer.task_timeline_bg()
-        if not task.children:
-            self.drawer._x = x
-            self.drawer.render_leaf_task(task, task_begin, task_end, project)
-
         if task.children:
-            self.drawer._x = x
             self.drawer.render_root_task(task, task_begin, task_end, project)
+        else:
+            self.drawer.render_leaf_task(task, task_begin, task_end, project)
 
         self.drawer.close_timeline()
         if self.options.rappel:
@@ -144,22 +125,9 @@ class GanttRenderer(AbstractRenderer) :
 
     def render_milestone(self, milestone, project):
         """
-        generate event for a given task
+        generate event for a given milestone
         """
-        self.drawer.set_color_set(self._i)
-        self._i += 1
-        self._visible_tasks[milestone] = 1
-        for val in milestone.task_constraints:
-            if val:
-                self._pending_constraints[milestone] = 1
-                break
-        depth = milestone.depth()
-        self.drawer.open_line()
-        self.drawer.main_content(milestone.title or milestone.id,
-                                 project, depth, milestone)
-
-        if self.options.showids :
-            self.drawer.simple_content(milestone.title)
+        self._begin_render_task_or_milestone(milestone, project)
 
         # print task calendar
         for d in self.drawer._timeline_days:
@@ -171,6 +139,22 @@ class GanttRenderer(AbstractRenderer) :
                                      project, depth, milestone)
         # close table row
         self.drawer.close_line()
+
+    def _begin_render_task_or_milestone(self, task, project):
+        """common steps for begin of rendering task or milestone"""
+        self.drawer.set_color_set(self._i)
+        self._i += 1
+        self._visible_tasks[task] = 1
+        for val in task.task_constraints:
+            if val:
+                self._pending_constraints[task] = 1
+                break
+        self.drawer.open_line()
+        self.drawer.main_content(task.title or task.id,
+                                 project, task.depth(), task)
+        if self.options.showids:
+            self.drawer.simple_content(task.title)
+
 
 class GanttDrawer(AbstractDrawer) :
     """
@@ -298,7 +282,8 @@ class GanttDrawer(AbstractDrawer) :
                                     daywidth, ROW_HEIGHT-2,
                                     fillcolor=self._color_set['TODAY'])
 
-    def draw_weekends_bg(self, rnge, x_min, y_min, y_max):
+    def draw_weekends_bg(self, x_min, y_min, y_max):
+        rnge = self._timeline_all_days
         daywidth = self._daywidth
         #bgcolor = self._color_set['WEEKEND']
         bgcolor = (100,0,0,50)
@@ -310,7 +295,9 @@ class GanttDrawer(AbstractDrawer) :
                                     2*daywidth, y_max-y_min,
                                     fillcolor=bgcolor)
 
-    def draw_separator_gantt(self, rnge, x_min, y_min, y_max):
+    def draw_separator_gantt(self, x_min, y_min, y_max, rnge=None):
+        if rnge == None:
+            rnge = self._timeline_all_days
         daywidth = self._daywidth
         color = (204,204,204)
         if self._timestep == 1:
@@ -377,7 +364,7 @@ class GanttDrawer(AbstractDrawer) :
         rnge = list( date_range( first_day, last_day ) )
         self._handler.draw_rect(self._x, self._y, max(width, 0),
                           ROW_HEIGHT, fillcolor=bgcolor)
-        self.draw_separator_gantt([day], self._x, self._y, self._y)
+        self.draw_separator_gantt(self._x, self._y, self._y, rnge=[day])
 
         # draw milestone as diamond
         if draw:

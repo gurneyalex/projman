@@ -199,16 +199,9 @@ class ResourcesDrawer(AbstractDrawer) :
         return bgcolor
 
     def draw_separator_resources(self):
-        if self.options.timestep == 'day':
-            timestep = 1
-        elif self.options.timestep == 'week':
-            timestep = 7
-        elif self.options.timestep == 'month':
-            timestep = 31
         self._handler.draw_line(self._x, self._y,
-                                    self._x + FIELD_COLUMN_WIDTH/timestep,
-                                    self._y,
-                                    color=(204, 204, 204))
+                                self._x + FIELD_COLUMN_WIDTH/self._timestep,
+                                self._y, color=(204, 204, 204))
 
     def occupation_timeline(self, project, resource):
         """
