@@ -17,7 +17,7 @@ build: build-stamp
 build-stamp: 
 	dh_testdir
 	for v in $(PYVERS); do \
-	    python$$v setup.py -q build; \
+	    python$$v setup.py build; \
 	done
 	touch $@
 
@@ -39,12 +39,11 @@ install-stamp: build
 
 
 	for v in $(PYVERS); do \
-		python$$v setup.py -q install --no-compile --prefix=debian/projman/usr/ ; \
+		python$$v setup.py install --no-compile --prefix=debian/projman/usr ; \
+		sed -i -e 's@%GLADEFILE%@/usr/share/projman/projedit.glade@' debian/projman/usr/lib/python$$v/site-packages/projman/projmanedit/__init__.py ; \
 	done
-	# remove test directory (installed in a separated package)
-	rm -rf debian/projman/usr/lib/python-*/site-packages/projman/test
 
-	# install tests
+# install tests
 	(cd test && find . -type f -not \( -path '*/CVS/*' -or -name '*.pyc' \) -exec install -D --mode=644 {} ../debian/projman/usr/share/doc/projman/test/{} \;)
 	touch install-stamp
 
@@ -55,7 +54,8 @@ binary-arch: install
 	dh_testroot -a
 	dh_install -a
 	dh_installman -a
-	dh_pycentral -p projman
+	dh_pysupport
+
 	gzip -9 -c ChangeLog > changelog.gz
 	dh_installdocs -a -A README TODO changelog.gz 
 	dh_installchangelogs -a
