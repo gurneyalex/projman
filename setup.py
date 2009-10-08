@@ -13,14 +13,8 @@ import sys
 import shutil
 from os.path import isdir, exists, join, walk
 
-try:
-    from setuptools import setup
-    from setuptools.command import install_lib
-    USE_SETUPTOOLS = 1
-except ImportError:
-    from distutils.core import setup
-    from distutils.command import install_lib
-    USE_SETUPTOOLS = 0
+from distutils.core import setup
+from distutils.command import install_lib
 
 
 # import required features
@@ -166,22 +160,13 @@ class MyInstallLib(install_lib.install_lib):
 
 def install(**kwargs):
     """setup entry point"""
-    try:
-        if USE_SETUPTOOLS:
-            sys.argv.remove('--force-manifest')
-    except:
-        pass
     if subpackage_of:
         package = subpackage_of + '.' + modname
         kwargs['package_dir'] = {package : '.'}
         packages = [package] + get_packages(os.getcwd(), package)
-        if USE_SETUPTOOLS:
-            kwargs['namespace_packages'] = [subpackage_of]
     else:
         kwargs['package_dir'] = {modname : '.'}
         packages = [modname] + get_packages(os.getcwd(), modname)
-    if USE_SETUPTOOLS and install_requires:
-        kwargs['install_requires'] = install_requires
     kwargs['packages'] = packages
     return setup(name = distname,
                  version = version,

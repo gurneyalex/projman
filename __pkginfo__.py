@@ -46,7 +46,7 @@ web = "http://www.logilab.org/projects/%s" % modname
 ftp = "ftp://ftp.logilab.org/pub/%s" % modname
 mailinglist = "http://lists.logilab.org/mailman/listinfo/management-projects"
 
-scripts = ['bin/projman', ]
+scripts = ['bin/projman', 'bin/projman-gui']
 data_files = [['share/projman',
                ['fonts/Arial_12_72.pil',
                 'fonts/Arial Bold_12_72.pil',
@@ -55,7 +55,8 @@ data_files = [['share/projman',
                 'fonts/Arial_12_72.pbm',
                 'fonts/Arial Bold_12_72.pbm',
                 'fonts/Arial Italic_12_72.pbm',
-                'fonts/Arial Bold Italic_12_72.pbm'],
+                'fonts/Arial Bold Italic_12_72.pbm',
+                'data/projedit.glade'],
                ['share/projman/examples',
                 ['scheduling/sample.cc',
                  'scheduling/projman_gecode.cc',
@@ -107,8 +108,8 @@ ext_modules = [Extension('projman.scheduling.gcsp',
                                     'scheduling/projman_gecode.cc',
                                     'scheduling/projman_problem.cc',
                          ],
-                         libraries=['boost_python-mt', 'gecodeint', 'gecodeset',
-                                    'gecodeminimodel', 'gecodekernel', 'gecodesearch'],
+                         libraries=['boost_python', 'gecodeint', 'gecodeset',
+                                    'gecodekernel', 'gecodesearch'],
                          depends=['scheduling/projman_gecode.hh',
                                   'scheduling/projman_problem.hh',
                                   ],
