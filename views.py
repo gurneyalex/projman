@@ -32,7 +32,15 @@ LDG_NS = "{http://www.logilab.org/2005/DocGenerator}"
 ET._namespace_map[DR_NS[1:-1]] = "dr"
 ET._namespace_map[LDG_NS[1:-1]] = "ldg"
 
-PUCE = u'\u203A '
+NBSP = u'\xA0'
+PUCE = u'\u203A'+NBSP
+
+def indentation(level, puce_if_level=False):
+    """return unicode indentation string made of no-break-space"""
+    res = NBSP*(level-1)*2
+    if puce_if_level and level > 1:
+        res += PUCE
+    return res
 
 def document(root=None):
     """return a DOM document node"""
@@ -245,51 +253,43 @@ class CostTableView(XMLView):
     def add_content_nodes(self, parent):
         """return a dr:object node for the cost table view"""
         self.projman.update_caches()
-        table = ET.SubElement(parent,"table")
-        ET.SubElement(table, "title").text = self.ENTETE
-        # fill column information for table
-          # find resources roles
-        root = self.projman.get_task(self.config.task_root)
-        roles = set()
-        for task in self.projman.root_task.leaves():
-            if task.resources_role: #according to new definition of roles resources
-                role_ = self.projman.get_role(task.resources_role)
-                roles.add(role_)
-        self.roles = list(roles)
-        len_ = len(self.roles)
-        specs = [u'3*']
-        for i in range(len_):
-            specs.append(u'1*')
-        specs.append(u'1*')
+        roles = set(self.projman.get_role(task.resources_role)
+                    for task in self.projman.root_task.leaves()
+                    if task.resources_role)
+        self.roles = sorted(roles)
 
         # create table
-        layout = self.dbh.table_layout_node(table, len_+2, colspecs=specs)
-        head = self.table_head(layout, len_+2)
+        table = ET.SubElement(parent, 'table')
+        ET.SubElement(table, 'title').text = self.ENTETE
+        cols = [u'3*'] + [u'1*']*len(self.roles) + [u'1*']
+        layout = self.dbh.table_layout_node(table, len(cols), colspecs=cols)
+        self.table_head(layout)
+
         # table body
-        tbody = ET.SubElement(layout, "tbody")
-        self.set_tbody(tbody)
+        tbody = ET.SubElement(layout, 'tbody')
+        self.set_tbody_attr(tbody)
         for child in self.projman.root_task.children:
             if child.TYPE == 'task' and child.level:
                 self.color = 0
                 self._build_task_node(tbody, child, child.level)
 
-    def set_tbody(self, tbody):
+    def set_tbody_attr(self, tbody):
         tbody.set(LDG_NS+"row-borders", 'false')
         tbody.set(LDG_NS+'row-backgrounds', "never")
 
-    def set_row(self, row):
-        row.set(LDG_NS+'border-top', "true")
-        row.set(LDG_NS+'bold', "true")
+    def set_row_attr(self, row):
+        row.set(LDG_NS+'border-top', 'true')
+        row.set(LDG_NS+'bold', 'true')
 
-    def table_head(self, parent, len_):
+    def table_head(self, parent):
         """ create a DOM node <thead> """
         thead = ET.SubElement(parent, 'thead')
         row = ET.SubElement(thead, 'row')
         self.dbh.table_cell_node(row, 'left', u'Tâches')
-        for i in range(len_ - 2):
-            role = self.roles[i]
-            if type(role) == str:
-                self.dbh.table_cell_node(row, 'center', u'Charge "%s"' %role)
+        for role in self.roles:
+            if isinstance(role, str):
+                print "warning: role is a string and not an object" # XXX
+                self.dbh.table_cell_node(row, 'center', u'Charge "%s"' % role)
             else:
                 self.dbh.table_cell_node(row, 'center', u'Charge "%s"' % role.id)
         self.dbh.table_cell_node(row, 'right', u'Coût (euros)')
@@ -315,14 +315,11 @@ class CostTableView(XMLView):
         """ create a DOM element <row> with values in task node"""
         row = ET.SubElement(tbody, 'row')
         if self.color % 2:
-            row.set(LDG_NS+'background', "true")
-        indent = u'\xA0 '*(level-1)*2
+            row.set(LDG_NS+'background', 'true')
         costs, durations = self.projman.get_task_costs(task, task.duration)
         if level == 1:
-            self.set_row(row)
-            self.dbh.table_cell_node(row, 'left', indent+task.title)
-        else:
-            self.dbh.table_cell_node(row, 'left', indent+PUCE+task.title)
+            self.set_row_attr(row)
+        self.dbh.table_cell_node(row, 'left', indentation(level, True)+task.title)
         # task duration
         for role in self.roles:
             if task.children:
@@ -350,10 +347,7 @@ class CostTableView(XMLView):
         if task.children:
             self.dbh.table_cell_node(row)
         else:
-            cost = 0
-            for res in costs:
-                cost += costs[res]
-            self.dbh.table_cell_node(row,'right', u'%s' %format_monetary(cost))
+            self.dbh.table_cell_node(row, 'right', format_monetary(sum(costs.values())))
         return row
 
     def empty_row_element(self, tbody, task, level=0):
@@ -362,13 +356,8 @@ class CostTableView(XMLView):
         if self.color % 2:
             row.set(LDG_NS+'background', 'true')
         if level == 1:
-            self.set_row(row)
-        indent = u'\xA0 '*(level-1)*2
-        # task title
-        if level == 1:
-            self.dbh.table_cell_node(row, 'left', indent+task.title)
-        else:
-            self.dbh.table_cell_node(row, 'left', indent+PUCE+task.title)
+            self.set_row_attr(row)
+        self.dbh.table_cell_node(row, 'left', indentation(level, True)+task.title)
         for role in self.roles:
             self.dbh.table_cell_node(row)
         self.dbh.table_cell_node(row)
@@ -385,9 +374,8 @@ class CostTableView(XMLView):
         else:
             string = u''
         if  self.color % 2 and task.level > 1:
-            row.set(LDG_NS+'background', "true")
-        indent = u'\xA0 '*(level-1)*2
-        self.dbh.table_cell_node(row, 'left', indent+string+task.title)
+            row.set(LDG_NS+'background', 'true')
+        self.dbh.table_cell_node(row, 'left', indentation(level)+string+task.title)
         durations_ = {}
         costs_ = 0
         for child in task.children: # ?? leaves() should be better
@@ -410,12 +398,13 @@ class CostTableView(XMLView):
             duration = 0
             for res in durations_:
                 resource = self.projman.get_resource(res)
-                if not type(role) == str: # according to new resqoiurces definition
-                    if role.id in resource.role_ids():
+                if isinstance(role, str):
+                    print "warning: role is a string but should be an object" # XXX
+                    if role == resource.type:
                         duration = durations_[res]
                         self.dbh.table_cell_node(row, 'center', "%s" %duration)
-                else: #old definition of resource type
-                    if role == resource.type:
+                else:
+                    if role.id in resource.role_ids():
                         duration = durations_[res]
                         self.dbh.table_cell_node(row, 'center', "%s" %duration)
             if duration == 0:
@@ -525,8 +514,8 @@ class TasksListSectionView(XMLView):
             if not role:
                 resource = self.projman.get_resource(res)
                 role = resource.type
-            item = ET.SubElement(list_,'listitem')
-            self.dbh.para(item, u"%s (%s) : %s jour.hommes" %(role, resource.name, durations[res]))
+            item = ET.SubElement(list_, 'listitem')
+            self.dbh.para(item, u"%s : %s" %(resource.name, get_daily_labor(durations[res])))
 
 
     def resource_node(self, parent, task):
@@ -551,8 +540,8 @@ class TasksListSectionView(XMLView):
             resource = self.projman.get_resource(res)
             res_role = self.projman.get_role(task.resources_role)
             role = res_role.name
-            item = ET.SubElement(list_,'listitem')
-            self.dbh.para(item, u"%s (%s) : %s " %(role, resource.name, duration[res]))
+            item = ET.SubElement(list_, 'listitem')
+            self.dbh.para(item, u"%s (%s) : %s" %(role, resource.name, get_daily_labor(duration[res])))
         return para
 
     def _build_tables(self, task, section):
@@ -616,7 +605,7 @@ class TasksListSectionView(XMLView):
         self.dbh.table_cell_node(row, 'left', task.title)
         if task.children:
             duration = sum(t.duration for t in task.children)
-            roles = set(self.projman.get_role( child.resources_role ).name
+            roles = set(self.projman.get_role(child.resources_role).id
                         for child in task.children if child.resources_role)
             if not roles:
                 raise ProjmanError('Cant find a role for task %s' % task.id)
@@ -627,7 +616,7 @@ class TasksListSectionView(XMLView):
             parent = task
             while parent:
                 if parent.resources_role:
-                    role = self.projman.get_role(parent.resources_role).name
+                    role = self.projman.get_role(parent.resources_role).id
                     break
                 parent = parent.parent
             else:
@@ -646,23 +635,15 @@ class DurationTableView(CostTableView):
         ET.SubElement(table, 'title').text = self.ENTETE
         layout = self.dbh.table_layout_node(table, 3, colspecs=('3*', '1*', '1*'))
         self.table_head(layout)
-        # table body
-        tbody = ET.SubElement(layout, "tbody")
-        # add tbody attributes
-        self.set_tbody(tbody)
+        tbody = ET.SubElement(layout, 'tbody')
+        self.set_tbody_attr(tbody)
         for child in self.projman.root_task.children:
             if child.TYPE == 'task':
                 self.color = 0
                 self._build_task_node(tbody, child, child.level)
 
     def synthesis_row_element(self, row, task, level):
-        begin, end = self.projman.get_task_date_range(task)
-        #row =  ET.SubElement(parent, 'row')
-        # indentation
-        indent = u'\xA0 '*(level-2)*2
-        # task title
-        self.dbh.table_cell_node(row, 'left', indent+u'Synthèse ' + task.title)
-        # task begin & end
+        self.dbh.table_cell_node(row, 'left', indentation(level-1) + u'Synthèse ' + task.title)
         date_begin, date_end = self.projman.get_task_date_range(task)
         self.dbh.table_cell_node(row, 'center', date_begin.date)
         self.dbh.table_cell_node(row, 'center', date_end.date)
@@ -674,9 +655,9 @@ class DurationTableView(CostTableView):
         if self.color % 2:
             row.set(LDG_NS+'background', 'true')
         if level == 1:
-            self.set_row(row)
+            self.set_row_attr(row)
         if task.children and level < self.max_level:
-            self.row_empty_element(row, task, level)
+            self.row_element(row, task, level, empty=True)
             for child in task.children:
                 if child.TYPE == 'milestone':
                     continue
@@ -684,9 +665,9 @@ class DurationTableView(CostTableView):
                     self.color += 1
                 self._build_task_node(tbody, child, level+1)
             row = ET.SubElement(tbody, 'row')
+            row.set(LDG_NS+'italic', 'true')
             if self.color % 2 and level > 1:
-                row.set(LDG_NS+'background', "true")
-            row.set(LDG_NS+'italic', "true")
+                row.set(LDG_NS+'background', 'true')
             if task.level == 1:
                 row.set(LDG_NS+'border-bottom', 'true')
                 row.set(LDG_NS+'bold', 'true')
@@ -703,36 +684,16 @@ class DurationTableView(CostTableView):
         self.dbh.table_cell_node(row, 'center', u'Date de fin')
         return thead
 
-    def row_element(self, row, task, level=0):
+    def row_element(self, row, task, level=0, empty=False):
         """ create a DOM element <row> with values in task node"""
-        #row = ET.SubElement(tbody, 'row')
-        # indentation
-        indent = u'\xA0 '*(level-1)*2
-        # task title
-        if level == 1:
-            self.dbh.table_cell_node(row, 'left', indent+task.title)
+        self.dbh.table_cell_node(row, 'left', indentation(level, True)+task.title)
+        if empty:
+            self.dbh.table_cell_node(row)
+            self.dbh.table_cell_node(row)
         else:
-            self.dbh.table_cell_node(row, 'left', indent+PUCE+task.title)
-        # task begin & end
-        date_begin, date_end = self.projman.get_task_date_range(task)
-        self.dbh.table_cell_node(row, 'center', date_begin.date)
-
-        self.dbh.table_cell_node(row, 'center', date_end.date)
-        return row
-
-    def row_empty_element(self, row, task, level=0):
-        """ create a DOM element <row> with values in task node"""
-        #row = ET.SubElement(tbody, 'row')
-        # indentation
-        indent = u'\xA0 '*(level-1)*2
-        # task title
-        if level == 1:
-            self.dbh.table_cell_node(row, 'left', indent+task.title)
-        else:
-            self.dbh.table_cell_node(row, 'left', indent+PUCE+task.title)
-        # task begin & end
-        self.dbh.table_cell_node(row)
-        self.dbh.table_cell_node(row)
+            date_begin, date_end = self.projman.get_task_date_range(task)
+            self.dbh.table_cell_node(row, 'center', date_begin.date)
+            self.dbh.table_cell_node(row, 'center', date_end.date)
         return row
 
 ALL_VIEWS = {}
