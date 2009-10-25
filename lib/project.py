@@ -210,7 +210,6 @@ class Project(object):
     def add_resource(self, res):
         if res.id in self.resources:
             raise ProjectValidationError('Resource ID "%s" already exists' % res.id)
-        assert res.id not in self.resources
         self.resources[res.id] = res
 
     def has_resource(self, res_id):

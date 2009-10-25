@@ -256,7 +256,8 @@ class CostTableView(XMLView):
         roles = set(self.projman.get_role(task.resources_role)
                     for task in self.projman.root_task.leaves()
                     if task.resources_role)
-        self.roles = sorted(roles)
+        self.roles = sorted(roles, key=lambda x: x.id)
+        assert len(roles) == len(set(role.id for role in roles)), '%s %s' % (roles, set(role.id for role in roles))
 
         # create table
         table = ET.SubElement(parent, 'table')
@@ -287,11 +288,7 @@ class CostTableView(XMLView):
         row = ET.SubElement(thead, 'row')
         self.dbh.table_cell_node(row, 'left', u'Tâches')
         for role in self.roles:
-            if isinstance(role, str):
-                print "warning: role is a string and not an object" # XXX
-                self.dbh.table_cell_node(row, 'center', u'Charge "%s"' % role)
-            else:
-                self.dbh.table_cell_node(row, 'center', u'Charge "%s"' % role.id)
+            self.dbh.table_cell_node(row, 'center', u'Charge "%s"' % role.id)
         self.dbh.table_cell_node(row, 'right', u'Coût (euros)')
         return thead
 
@@ -320,7 +317,6 @@ class CostTableView(XMLView):
         if level == 1:
             self.set_row_attr(row)
         self.dbh.table_cell_node(row, 'left', indentation(level, True)+task.title)
-        # task duration
         for role in self.roles:
             if task.children:
                 self.dbh.table_cell_node(row)
@@ -367,7 +363,7 @@ class CostTableView(XMLView):
         row = ET.SubElement(tbody, 'row')
         if task.level <= self.max_level and task.children:
             row.set(LDG_NS+'italic', 'true')
-            string = u'Synthèse '
+            string = u'Totaux '
             if task.level == 1:
                 row.set(LDG_NS+'border-bottom', 'true')
                 row.set(LDG_NS+'bold', 'true')
@@ -398,17 +394,12 @@ class CostTableView(XMLView):
             duration = 0
             for res in durations_:
                 resource = self.projman.get_resource(res)
-                if isinstance(role, str):
-                    print "warning: role is a string but should be an object" # XXX
-                    if role == resource.type:
-                        duration = durations_[res]
-                        self.dbh.table_cell_node(row, 'center', "%s" %duration)
-                else:
-                    if role.id in resource.role_ids():
-                        duration = durations_[res]
-                        self.dbh.table_cell_node(row, 'center', "%s" %duration)
+                if role.id in resource.role_ids():
+                    duration += durations_[res]
             if duration == 0:
                 self.dbh.table_cell_node(row)
+            else:
+                self.dbh.table_cell_node(row, 'center', "%s" %duration)
         self.dbh.table_cell_node(row, 'right', format_monetary(costs_))
 
 class CostParaView(XMLView):
@@ -498,24 +489,10 @@ class TasksListSectionView(XMLView):
                 costs[res] += costs_[res]
         for res in durations:
             resource = self.projman.get_resource(res)
-
-            #parcours des feuilles pour connaitre la liste des roles, le tps consomme
-            #est donne par duration
-            # on ne peut pas retrouver le role-type d'une tache a partir d'une resource,
-            # car elle peut avoir plusieurs roles. On suppose donc que les feuilles
-            # auront le meme role-type
-            role = None
-            for leaf in task.leaves():
-                if leaf.resources_role or task.resources_role:
-                    if leaf.TYPE == 'milestone':
-                        continue
-                    role_ = self.projman.resources_roles[leaf.resources_role]
-                    role = role_.name
-            if not role:
-                resource = self.projman.get_resource(res)
-                role = resource.type
+            role_id = resource.role_ids()[0] # XXX what if more than one role ?
+            role = self.projman.get_role(role_id)
             item = ET.SubElement(list_, 'listitem')
-            self.dbh.para(item, u"%s : %s" %(resource.name, get_daily_labor(durations[res])))
+            self.dbh.para(item, u"%s (%s) : %s" % (role.name, resource.name, get_daily_labor(durations[res])))
 
 
     def resource_node(self, parent, task):
@@ -643,7 +620,7 @@ class DurationTableView(CostTableView):
                 self._build_task_node(tbody, child, child.level)
 
     def synthesis_row_element(self, row, task, level):
-        self.dbh.table_cell_node(row, 'left', indentation(level-1) + u'Synthèse ' + task.title)
+        self.dbh.table_cell_node(row, 'left', indentation(level-1) + u'Totaux ' + task.title)
         date_begin, date_end = self.projman.get_task_date_range(task)
         self.dbh.table_cell_node(row, 'center', date_begin.date)
         self.dbh.table_cell_node(row, 'center', date_end.date)
