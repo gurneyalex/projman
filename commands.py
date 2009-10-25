@@ -261,14 +261,8 @@ class DiagramCommand(ProjmanCommand):
         )
 
     def _run(self, diagrams):
-        #if self.config.renderer == 'html':
-        #    from projman.renderers.HTMLRenderer import ResourcesHTMLRenderer
-        #    renderer = ResourcesHTMLRenderer(self.options.get_render_options())
-        #else:
-        print "** diagram"
         from projman.renderers import ResourcesRenderer, GanttRenderer, \
              GanttResourcesRenderer, HandlerFactory
-        print "format = %s" % self.config.format
         handler = HandlerFactory(self.config.format)
         known_diagrams = {
             'gantt': GanttRenderer,
@@ -278,7 +272,7 @@ class DiagramCommand(ProjmanCommand):
         if self.config.output and len(diagrams)>1:
             print "You specified more than one diagram with an output file name"
             print "*** only the last one will be printed ***"
-        
+
         for diagram in diagrams:
             try:
                 renderer = known_diagrams[diagram](self.config, handler)
