@@ -70,7 +70,7 @@ def format_monetary(str_number, nb_decimal=2, space_gap=3):
     parts.insert(0, str(intval))
     int_part = u'\xA0'.join(parts)
     if nb_decimal:
-        fmt = '%%s,%%0%dd' % nb_decimal
+        fmt = u'%%s,%%0%dd' % nb_decimal
         return fmt % (int_part, fract_part)
     return int_part
 
