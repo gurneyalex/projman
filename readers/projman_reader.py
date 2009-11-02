@@ -225,6 +225,9 @@ class ProjectXMLReader(AbstractXMLReader) :
                 priority = ct.get("priority")
             else:
                 priority = 1
+            idref = ct.get("idref")
+            if idref=="none":
+                idref=None
             t.add_task_constraint( ct.get("type"), ct.get("idref"), priority)
 
         desc = task.find("description")

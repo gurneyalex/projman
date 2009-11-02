@@ -567,17 +567,16 @@ class TaskEditor(BaseEditor):
     def popup_add_constraint(self, item):
         task = self.current_task
         print "try ADD constraint", item
-        task.task_constraints.add(('begin-after-end-previous',
-                                   self.app.project.root_task.id, 1))
+        task.add_task_constraint('begin-after-end-previous', None, 1)
         self._update_constraints( task )
 
     def popup_del_constraint(self, item, path):
         print "try DEL constraint", path
         task = self.current_task
-        #path = args[1]
         itr = self.constraints_model.get_iter( path )
-        values = self.constraints_model.get(itr, 0, 1, 5 )
-        task.task_constraints.remove( values )
-        #self.constraints_model.remove( itr )
+        ctype, taskid, prio = self.constraints_model.get(itr, 0, 1, 5 )
+        if ctype=="begin-after-end-previous":
+            taskid = None
+        task.task_constraints.remove( (ctype, taskid, prio) )
         self._update_constraints( task )
 

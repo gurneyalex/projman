@@ -297,6 +297,7 @@ DATE_CONSTRAINT = ["begin-at-date", "end-at-date",
                    ]
 TASK_CONSTRAINT = ["begin-after-end", "end-after-end",
                    "begin-after-begin", "end-after-begin",
+                   "begin-after-end-previous",
                    "synchronized",]
 
 class ScheduleChecker(BaseEtreeChecker):
