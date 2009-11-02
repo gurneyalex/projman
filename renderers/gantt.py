@@ -72,6 +72,7 @@ class GanttRenderer(AbstractRenderer) :
                 try:
                     ct = task.get_node_by_id(c_id)
                 except NodeNotFound :
+                    # XXX task might be a grouping task...
                     if (c_type == "begin-after-end-previous" and
                         real_tasks.index(task) != 0):
                         # find the previous task to connect to

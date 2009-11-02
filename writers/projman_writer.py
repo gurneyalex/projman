@@ -165,7 +165,10 @@ class TasksVisitor(object):
             el = ET.SubElement( elem, "label")
             el.text = node.title
         for ctype, tid, priority in node.task_constraints:
-            ET.SubElement( elem, "constraint-task", idref=tid,  type=ctype)
+            if tid is not None:
+                ET.SubElement( elem, "constraint-task", idref=tid,  type=ctype)
+            else:
+                ET.SubElement( elem, "constraint-task", idref='none', type=ctype)
         if node.description_raw:
             if node.description_format=='docbook':
                 text = u"<description format='docbook'>%s</description>" % node.description_raw

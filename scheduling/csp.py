@@ -87,22 +87,22 @@ class CSPScheduler(object):
     def _process_node(self, node):
         max_duration = int(self.max_duration*2)
         rnge = self.task_ranges.setdefault( node.id, [None,None] )
+        tab_rnge0 = [0]
+        tab_rnge1 = [max_duration]
         # collect task constraints
         for constraint_type, task_id, priority in node.get_task_constraints():
             if constraint_type not in GCSPMAP:
                 assert constraint_type == 'begin-after-end-previous'
                 index = self.real_tasks.index(node)
                 if index == 0:
-                    raise ProjmanError("No previous real task before %s" %node.id)
+                    # apply start date
+                    continue
                 task_id = self.real_tasks[index - 1].id
                 constraint_type = "begin-after-end"
             if self.project.priority >= int(priority):
                 for leaf in node.get_task(task_id).leaves():
                     c_set = self.constraints.setdefault(constraint_type, set())
                     c_set.add( (node.id, leaf.id)  )
-        # collect date constraints
-        tab_rnge0 = [0]
-        tab_rnge1 = [max_duration]
         for c_type, date, priority in node.get_date_constraints():
             if self.project.priority >= int(priority):
                 days = (date-self.start_date).days
@@ -112,6 +112,7 @@ class CSPScheduler(object):
                     tab_rnge0.append(days)
                 elif c_type == CST.END_BEFORE_DATE:
                     tab_rnge1.append(days+1)
+        # collect date constraints
         rnge[0] = max(tab_rnge0)
         rnge[1] = min(tab_rnge1)
         if _VERBOSE>2:
