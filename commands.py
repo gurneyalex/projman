@@ -117,6 +117,13 @@ class ScheduleCommand(ProjmanCommand):
           'help': 'stop the programm after time'
           }
          ),
+        ('maxsol',
+         {'type' : 'int', 'metavar': '<1...>',
+          'default': 0,
+          'help': ('stop the programm after maxsol solutions '
+                   'have been found (0 means all solutions)')
+          }
+         ),
         )
 
     def _run(self, views):

@@ -49,6 +49,7 @@ def schedule(proj, config):
         scheduler = SimpleScheduler(proj)
     else:
         raise ValueError('bad scheduler type %s'%_type)
-    errors += scheduler.schedule(verbose=config.verbose, time=config.time)
+    errors += scheduler.schedule(verbose=config.verbose, time=config.time,
+                                 sol_max=config.maxsol)
     for error in errors:
         log.error(str(error))
