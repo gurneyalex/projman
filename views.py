@@ -262,7 +262,7 @@ class CostTableView(XMLView):
         # create table
         table = ET.SubElement(parent, 'table')
         ET.SubElement(table, 'title').text = self.ENTETE
-        cols = [u'3*'] + [u'1*']*len(self.roles) + [u'1*']
+        cols = [u'3*'] + [u'1*']*3
         layout = self.dbh.table_layout_node(table, len(cols), colspecs=cols)
         self.table_head(layout)
 
@@ -287,8 +287,8 @@ class CostTableView(XMLView):
         thead = ET.SubElement(parent, 'thead')
         row = ET.SubElement(thead, 'row')
         self.dbh.table_cell_node(row, 'left', u'Tâches')
-        for role in self.roles:
-            self.dbh.table_cell_node(row, 'center', u'Charge "%s"' % role.id)
+        self.dbh.table_cell_node(row, 'center', u'Type')
+        self.dbh.table_cell_node(row, 'center', u'Charge')
         self.dbh.table_cell_node(row, 'right', u'Coût (euros)')
         return thead
 
@@ -317,33 +317,22 @@ class CostTableView(XMLView):
         if level == 1:
             self.set_row_attr(row)
         self.dbh.table_cell_node(row, 'left', indentation(level, True)+task.title)
-        for role in self.roles:
-            if task.children:
-                self.dbh.table_cell_node(row)
-            else:
-                tot_duration = 0
-                # XXX Bug: here we should group the resources that
-                # have the same role for this task into the same
-                # column... How do we know the role played by a
-                # resource into this task, well that's a problem, and
-                # solving this problem requires changing the heart of
-                # projman.
-                #
-                # However, this should work in most of the
-                # everyday-life cases: when a resource have one and
-                # only one role...
-                for res, duration in durations.items():
-                    resource = self.projman.get_resource(res)
-                    if role.id in resource.role_ids():
-                        tot_duration += duration
-                if tot_duration == 0:
-                    self.dbh.table_cell_node(row)
-                else:
-                    self.dbh.table_cell_node(row, 'center', str(tot_duration))
-        if task.children:
+
+        # Compute total duration (days) for this task
+        tot_duration = 0
+        for res, duration in durations.items():
+            tot_duration += duration
+        
+        if tot_duration == 0 or task.children: # XXX: check
+            # This a parent Task so we output 3 empty cells
+            self.dbh.table_cell_node(row)
+            self.dbh.table_cell_node(row)
             self.dbh.table_cell_node(row)
         else:
+            self.dbh.table_cell_node(row, 'center', task.resources_role)
+            self.dbh.table_cell_node(row, 'center', str(tot_duration))
             self.dbh.table_cell_node(row, 'right', format_monetary(sum(costs.values())))
+        
         return row
 
     def empty_row_element(self, tbody, task, level=0):
@@ -354,13 +343,27 @@ class CostTableView(XMLView):
         if level == 1:
             self.set_row_attr(row)
         self.dbh.table_cell_node(row, 'left', indentation(level, True)+task.title)
-        for role in self.roles:
-            self.dbh.table_cell_node(row)
-        self.dbh.table_cell_node(row)
+        self.dbh.table_cell_node(row) # role
+        self.dbh.table_cell_node(row) # charge
+        self.dbh.table_cell_node(row) # total
         return row
+
+
+    def calc_task_cost_and_duration(self, task):
+        costs, durations = self.projman.get_task_costs(task, task.duration)
+        cost = sum(costs.values())
+        dur = sum(durations.values())
+        for child in task.children:
+            cc, dd = self.calc_task_cost_and_duration(child)
+            cost+=cc
+            dur+=dd
+        return cost, dur
+        
 
     def synthesis_row_element(self, tbody, task, level):
         row = ET.SubElement(tbody, 'row')
+        if not self.color % 2:
+            row.set(LDG_NS+'background', 'true')
         if task.level <= self.max_level and task.children:
             row.set(LDG_NS+'italic', 'true')
             string = u'Totaux '
@@ -372,35 +375,14 @@ class CostTableView(XMLView):
         if  self.color % 2 and task.level > 1:
             row.set(LDG_NS+'background', 'true')
         self.dbh.table_cell_node(row, 'left', indentation(level)+string+task.title)
-        durations_ = {}
-        costs_ = 0
-        for child in task.children: # ?? leaves() should be better
-            if child.children and child.level > self.max_level:
-                raise ViewException('task %s must have no child to generate views' % child.id)
-            costs, durations = self.projman.get_task_costs(child, child.duration)
-            for children in child.children:
-                costs_child, durations_child = self.projman.get_task_costs(children, children.duration)
-                for res in durations_child:
-                    if res not in durations_:
-                        durations_.setdefault(res, 0)
-                    durations_[res] += durations_child[res]
-                    costs_ += costs_child[res]
-            for res in durations:
-                if res not in durations_:
-                    durations_.setdefault(res, 0)
-                durations_[res] += durations[res]
-                costs_ += costs[res]
-        for role in self.roles:
-            duration = 0
-            for res in durations_:
-                resource = self.projman.get_resource(res)
-                if role.id in resource.role_ids():
-                    duration += durations_[res]
-            if duration == 0:
-                self.dbh.table_cell_node(row)
-            else:
-                self.dbh.table_cell_node(row, 'center', "%s" %duration)
-        self.dbh.table_cell_node(row, 'right', format_monetary(costs_))
+        cost, duration = self.calc_task_cost_and_duration(task)
+        self.dbh.table_cell_node(row) # role empty
+        if duration == 0.0:
+            self.dbh.table_cell_node(row) # duration empty
+            self.dbh.table_cell_node(row) # cost empty
+        else:
+            self.dbh.table_cell_node(row, 'center', "%s" %duration)
+            self.dbh.table_cell_node(row, 'right', format_monetary(cost))
 
 class CostParaView(XMLView):
     name = 'cost-para'
@@ -535,7 +517,7 @@ class TasksListSectionView(XMLView):
         for child in task.children:
             if child.TYPE != 'milestone':
                 self.row_element(child, tbody)
-        # table of liverables :
+        # table of deliverables :
         # find milestones
         milestones = []
         for child in task.children:
