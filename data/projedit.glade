@@ -925,8 +925,8 @@
                                 <child>
                                   <widget class="GtkComboBox" id="combobox_scheduling_type">
                                     <property name="visible">True</property>
-                                    <property name="items" translatable="yes">shared
-oneof
+                                    <property name="items" translatable="yes">oneof
+shared
 sameforall
 spread
 milestone</property>
