@@ -17,6 +17,7 @@ ADD_TASK_MSG = ("Warning : Adding a Task as a child of Task(%s) will reset"
 " the load value of it. \n Are you sure ?")
 ADD_MILESTONE = ("Warning : Adding a Milestone as a child of Task(%s) will "
 " reset the load value of it. \n Are you sure ?")
+BAD_ID_MSG = ('The task id "%s" already used. Please use anothoer one.')
 
 class TaskEditor(BaseEditor):
 
@@ -384,7 +385,19 @@ class TaskEditor(BaseEditor):
     def on_entry_task_id_changed(self, entry):
         itr = self.task_model.get_iter( self.current_task_path )
         task_id = entry.get_text()
-        self.current_task.id = task_id
+        if task_id == self.current_task.id:
+            return
+        # XXX the warning can be annoying when typing a new id which has
+        # as prefix an already given id, e.g. if t1 exists and we type t1_1
+        if self.app.project.has_task_id(task_id):
+            dlg = gtk.MessageDialog(parent=None, flags=0,
+                                    type=gtk.MESSAGE_ERROR,
+                                    buttons=gtk.BUTTONS_CLOSE,
+                                    message_format= BAD_ID_MSG % task_id)
+            ret = dlg.run()
+            dlg.destroy()
+            return
+        self.app.project.update_task_ids(self.current_task, task_id)
         self.task_model.set_value( itr, 1, task_id )
 
     def on_combobox_role_changed(self, combo):

@@ -234,6 +234,22 @@ class Project(object):
         (project itself)"""
         return len(self.root_task.flatten())
 
+    def has_task_id(self, task_id):
+        """return True if there is a task with given <task_id>"""
+        return task_id in [t.id for t in self.root_task.flatten()]
+
+    def update_task_ids(self, task, new_id):
+        """set the new_id for a task and update the other tasks"""
+        assert not self.has_task_id(new_id)
+        old_id, task.id = task.id, new_id
+        for task in self.root_task.flatten():
+            # update constraints; XXX do we have other task_id dependencies ?
+            constraints = task.task_constraints
+            for c_type, task_id, priority in constraints:
+                if task_id == old_id:
+                    constraints.remove((c_type, task_id, priority))
+                    constraints.add((c_type, new_id, priority))
+
     def is_in_allocated_time(self, task_id, date):
         """
         tests if day is in allocated time for task t_id
