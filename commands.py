@@ -179,6 +179,12 @@ class ViewCommand(ProjmanCommand):
          'help': 'display tasks on  1, 2, or more level in views tables',
           }
          ),
+        ('compute-sums',
+         {'type': 'yn', 'metavar': '<y or n>',
+         'default' : True,
+         'help': 'display rows with the sum for composed tasks',
+          }
+         ),
         )
 
     def _run(self, views):
