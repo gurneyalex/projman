@@ -25,7 +25,6 @@ Manipulate a xml project description.
 This code is released under the GNU Public Licence v2. See www.gnu.org.
 """
 
-import md5
 from warnings import warn
 from pprint import pprint
 from mx.DateTime import today

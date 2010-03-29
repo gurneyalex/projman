@@ -304,9 +304,11 @@ class CostTableView(XMLView):
                 if task.level == 1:
                     self.color += 1
                 self._build_task_node(tbody, child, level+1)
-            self.synthesis_row_element(tbody, task, level)
+            if self.config.compute_sums:
+                self.synthesis_row_element(tbody, task, level)
         else:
-            self.synthesis_row_element(tbody, task, level)
+            if self.config.compute_sums:
+                self.synthesis_row_element(tbody, task, level)
 
     def row_element(self, tbody, task, level=1):
         """ create a DOM element <row> with values in task node"""
@@ -322,7 +324,7 @@ class CostTableView(XMLView):
         tot_duration = 0
         for res, duration in durations.items():
             tot_duration += duration
-        
+
         if tot_duration == 0 or task.children: # XXX: check
             # This a parent Task so we output 3 empty cells
             self.dbh.table_cell_node(row)
@@ -332,7 +334,7 @@ class CostTableView(XMLView):
             self.dbh.table_cell_node(row, 'center', task.resources_role)
             self.dbh.table_cell_node(row, 'center', str(tot_duration))
             self.dbh.table_cell_node(row, 'right', format_monetary(sum(costs.values())))
-        
+
         return row
 
     def empty_row_element(self, tbody, task, level=0):
@@ -358,7 +360,7 @@ class CostTableView(XMLView):
             cost+=cc
             dur+=dd
         return cost, dur
-        
+
 
     def synthesis_row_element(self, tbody, task, level):
         row = ET.SubElement(tbody, 'row')
