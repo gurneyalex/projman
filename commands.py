@@ -179,10 +179,10 @@ class ViewCommand(ProjmanCommand):
          'help': 'display tasks on  1, 2, or more level in views tables',
           }
          ),
-        ('compute-sums',
+        ('display-synthesis',
          {'type': 'yn', 'metavar': '<y or n>',
          'default' : True,
-         'help': 'display rows with the sum for composed tasks',
+         'help': 'display synthesis rows for composed tasks (supplementary row at after children rows in the tables)',
           }
          ),
         )
