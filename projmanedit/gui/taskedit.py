@@ -567,6 +567,16 @@ class TaskEditor(BaseEditor):
             message(gtk.MESSAGE_WARNING, gtk.BUTTONS_OK,
                     "Error : Can't delete task(%s), task has children." % task.id)
         else:
+            dependencies = self.app.project.get_constraints(task.id)
+            if dependencies:
+                ret = message(gtk.MESSAGE_WARNING, gtk.BUTTONS_YES_NO,
+                              'Warning: some constraints refer to this task.\n'
+                              'Delete these constraints ?')
+                if ret == gtk.RESPONSE_NO:
+                    return
+            for c_task, constr in dependencies:
+                print c_task, constr
+                c_task.task_constraints.remove(constr)
             parent.remove( task )
             self.refresh_task_list(sel_task=parent)
 
