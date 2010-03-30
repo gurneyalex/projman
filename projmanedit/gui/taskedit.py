@@ -19,6 +19,16 @@ ADD_MILESTONE = ("Warning : Adding a Milestone as a child of Task(%s) will "
 " reset the load value of it. \n Are you sure ?")
 BAD_ID_MSG = ('The task id "%s" already used. Please use anothoer one.')
 
+
+def message(type, buttons, message_format):
+    '''simple message handler'''
+    dlg = gtk.MessageDialog(parent=None, flags=0, type=type, buttons=buttons,
+                            message_format=message_format)
+    ret = dlg.run()
+    dlg.destroy()
+    return ret
+
+
 class TaskEditor(BaseEditor):
 
     __gsignals__ = {'task-changed': (gobject.SIGNAL_RUN_FIRST,
@@ -390,15 +400,11 @@ class TaskEditor(BaseEditor):
         # XXX the warning can be annoying when typing a new id which has
         # as prefix an already given id, e.g. if t1 exists and we type t1_1
         if self.app.project.has_task_id(task_id):
-            dlg = gtk.MessageDialog(parent=None, flags=0,
-                                    type=gtk.MESSAGE_ERROR,
-                                    buttons=gtk.BUTTONS_CLOSE,
-                                    message_format= BAD_ID_MSG % task_id)
-            ret = dlg.run()
-            dlg.destroy()
-            return
-        self.app.project.update_task_ids(self.current_task, task_id)
-        self.task_model.set_value( itr, 1, task_id )
+            message(gtk.MESSAGE_ERROR, gtk.BUTTONS_CLOSE,
+                    BAD_ID_MSG % task_id)
+        else:
+            self.app.project.update_task_ids(self.current_task, task_id)
+            self.task_model.set_value( itr, 1, task_id )
 
     def on_combobox_role_changed(self, combo):
         iter = combo.get_active_iter()
@@ -510,12 +516,8 @@ class TaskEditor(BaseEditor):
             add_msg = ADD_MILESTONE
             prefix = 'milestone_'
         if not parent_task.children:
-            dlg = gtk.MessageDialog(parent=None, flags=0,
-                                    type=gtk.MESSAGE_QUESTION,
-                                    buttons=gtk.BUTTONS_YES_NO,
-                                    message_format= add_msg % parent_task.id)
-            ret = dlg.run()
-            dlg.destroy()
+            ret = message(gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO,
+                          message_format=add_msg % parent_task.id)
             if ret == gtk.RESPONSE_NO:
                 return
 
@@ -559,23 +561,14 @@ class TaskEditor(BaseEditor):
         task = self.get_task_from_path( path )
         parent = task.parent
         if not parent:
-            dlg = gtk.MessageDialog(parent=None, flags=0,
-                                    type=gtk.MESSAGE_WARNING,
-                                    buttons=gtk.BUTTONS_OK,
-                                    message_format= "Error : Root task can't be deleted.")
-            dlg.run()
-            dlg.destroy()
-            return
+            message(gtk.MESSAGE_WARNING, gtk.BUTTONS_OK,
+                    "Error : Root task can't be deleted.")
         if task.children:
-            dlg = gtk.MessageDialog(parent=None, flags=0,
-                                    type=gtk.MESSAGE_WARNING,
-                                    buttons=gtk.BUTTONS_OK,
-                                    message_format= "Error : Can't delete task(%s), task has children." % task.id)
-            dlg.run()
-            dlg.destroy()
-            return
-        parent.remove( task )
-        self.refresh_task_list(sel_task=parent)
+            message(gtk.MESSAGE_WARNING, gtk.BUTTONS_OK,
+                    "Error : Can't delete task(%s), task has children." % task.id)
+        else:
+            parent.remove( task )
+            self.refresh_task_list(sel_task=parent)
 
     def popup_add_constraint(self, item):
         task = self.current_task
@@ -592,4 +585,5 @@ class TaskEditor(BaseEditor):
             taskid = None
         task.task_constraints.remove( (ctype, taskid, prio) )
         self._update_constraints( task )
+
 
