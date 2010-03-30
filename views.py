@@ -246,10 +246,13 @@ class DurationParaView(XMLView):
         text = TOTAL_DURATION % get_daily_labor(self.projman.root_task.maximum_duration())
         ET.SubElement(parent, "para").text = text
 
-class CostTableView(XMLView):
-    name = 'cost-table'
-    ENTETE = u"Tableau récapitulatif des coûts."
-
+class LoadTableView(XMLView):
+    name = 'load-table'
+    ENTETE = u"Tableau récapitulatif des charges."
+    COLS = [("3*", "left", u"Tâches"),
+            ("1*", "center", u"Type"),
+            ("1*", "center", u"Charge")]
+    
     def add_content_nodes(self, parent):
         """return a dr:object node for the cost table view"""
         self.projman.update_caches()
@@ -262,127 +265,108 @@ class CostTableView(XMLView):
         # create table
         table = ET.SubElement(parent, 'table')
         ET.SubElement(table, 'title').text = self.ENTETE
-        cols = [u'3*'] + [u'1*']*3
+        cols = [col_def[0] for col_def in self.COLS]
         layout = self.dbh.table_layout_node(table, len(cols), colspecs=cols)
         self.table_head(layout)
 
         # table body
         tbody = ET.SubElement(layout, 'tbody')
-        self.set_tbody_attr(tbody)
+        tbody.set(LDG_NS+"row-borders", 'false')
+        tbody.set(LDG_NS+'row-backgrounds', "never")
         for child in self.projman.root_task.children:
             if child.TYPE == 'task' and child.level:
                 self.color = 0
                 self._build_task_node(tbody, child, child.level)
 
-    def set_tbody_attr(self, tbody):
-        tbody.set(LDG_NS+"row-borders", 'false')
-        tbody.set(LDG_NS+'row-backgrounds', "never")
-
-    def set_row_attr(self, row):
-        row.set(LDG_NS+'border-top', 'true')
-        row.set(LDG_NS+'bold', 'true')
-
     def table_head(self, parent):
         """ create a DOM node <thead> """
         thead = ET.SubElement(parent, 'thead')
         row = ET.SubElement(thead, 'row')
-        self.dbh.table_cell_node(row, 'left', u'Tâches')
-        self.dbh.table_cell_node(row, 'center', u'Type')
-        self.dbh.table_cell_node(row, 'center', u'Charge')
-        self.dbh.table_cell_node(row, 'right', u'Coût (euros)')
+        for col_def in self.COLS:
+            self.dbh.table_cell_node(row, col_def[1], col_def[2])
         return thead
 
     def _build_task_node(self, tbody, task, level=1):
         """format a task in as a row in the table"""
-        if not task.children:
+        if not task.children or level > self.max_level:
             self.row_element(tbody, task, level)
         elif task.children and level <= self.max_level:
-            self.empty_row_element(tbody, task, level)
+            self.row_element(tbody, task, level, empty_row=True)
             for child in task.children:
                 if child.TYPE == 'milestone':
                     continue
                 if task.level == 1:
                     self.color += 1
                 self._build_task_node(tbody, child, level+1)
-            self.synthesis_row_element(tbody, task, level)
-        else:
-            self.synthesis_row_element(tbody, task, level)
+            if self.config.display_synthesis:
+                self.row_element(tbody, task, level, synthesis_row=True)
 
-    def row_element(self, tbody, task, level=1):
-        """ create a DOM element <row> with values in task node"""
-        row = ET.SubElement(tbody, 'row')
-        if self.color % 2:
-            row.set(LDG_NS+'background', 'true')
-        costs, durations = self.projman.get_task_costs(task, task.duration)
-        if level == 1:
-            self.set_row_attr(row)
-        self.dbh.table_cell_node(row, 'left', indentation(level, True)+task.title)
-
-        # Compute total duration (days) for this task
-        tot_duration = 0
-        for res, duration in durations.items():
-            tot_duration += duration
-        
-        if tot_duration == 0 or task.children: # XXX: check
-            # This a parent Task so we output 3 empty cells
-            self.dbh.table_cell_node(row)
-            self.dbh.table_cell_node(row)
-            self.dbh.table_cell_node(row)
-        else:
-            self.dbh.table_cell_node(row, 'center', task.resources_role)
-            self.dbh.table_cell_node(row, 'center', str(tot_duration))
-            self.dbh.table_cell_node(row, 'right', format_monetary(sum(costs.values())))
-        
-        return row
-
-    def empty_row_element(self, tbody, task, level=0):
-        """create a DOM element <row> with values in task node"""
-        row =  ET.SubElement(tbody, 'row')
-        if self.color % 2:
-            row.set(LDG_NS+'background', 'true')
-        if level == 1:
-            self.set_row_attr(row)
-        self.dbh.table_cell_node(row, 'left', indentation(level, True)+task.title)
-        self.dbh.table_cell_node(row) # role
-        self.dbh.table_cell_node(row) # charge
-        self.dbh.table_cell_node(row) # total
-        return row
-
-
-    def calc_task_cost_and_duration(self, task):
+    def _calc_task_cost_and_duration(self, task):
         costs, durations = self.projman.get_task_costs(task, task.duration)
         cost = sum(costs.values())
         dur = sum(durations.values())
         for child in task.children:
-            cc, dd = self.calc_task_cost_and_duration(child)
+            cc, dd = self._calc_task_cost_and_duration(child)
             cost+=cc
             dur+=dd
         return cost, dur
         
-
-    def synthesis_row_element(self, tbody, task, level):
+    def _get_row_content(self, task, level, empty_row, synthesis_row):
+        """returns the list of the entries of the row depicting a task"""
+        cost, duration = self._calc_task_cost_and_duration(task)
+        title = u""
+        if synthesis_row:
+            title += "Totaux "
+        title += task.title
+        if duration == 0 or empty_row:
+            return [ indentation(level, True)+title, "", ""]
+        else:
+            return [ indentation(level, True)+title,
+                     task.resources_role,
+                     str(duration) ]
+                 
+    def row_element(self, tbody, task, level=1,
+                    empty_row=False, synthesis_row=False):
+        """ create a DOM element <row> with values in task node"""
         row = ET.SubElement(tbody, 'row')
-        if not self.color % 2:
+        if self.color % 2:
             row.set(LDG_NS+'background', 'true')
-        if task.level <= self.max_level and task.children:
+        if synthesis_row:
             row.set(LDG_NS+'italic', 'true')
-            string = u'Totaux '
-            if task.level == 1:
-                row.set(LDG_NS+'border-bottom', 'true')
-                row.set(LDG_NS+'bold', 'true')
+        contents = self._get_row_content(task, level, empty_row, synthesis_row)
+        if level == 1:
+            row.set(LDG_NS+'bold', 'true')
+            if not synthesis_row:
+                row.set(LDG_NS+'border-top', 'true')
+            if synthesis_row or not task.children:
+                row.set(LDG_NS+'border-bottom', 'true')                
+        for i in range(len(self.COLS)):
+            self.dbh.table_cell_node(row, self.COLS[i][1], contents[i])
+        return row
+
+
+class CostTableView(LoadTableView):
+    name = 'cost-table'
+    ENTETE = u"Tableau récapitulatif des coûts."
+    COLS = [("3*", "left", u"Tâches"),
+            ("1*", "center", u"Type"),
+            ("1*", "center", u"Charge"),
+            ("1*", "right", u"Coût")]
+
+    def _get_row_content(self, task, level, empty_row, synthesis_row):
+        """returns the list of the entries of the row depicting a task"""
+        cost, duration = self._calc_task_cost_and_duration(task)
+        title = u""
+        if synthesis_row:
+            title += "Totaux "
+        title += task.title
+        if duration == 0 or empty_row:
+            return [ indentation(level, True)+title, "", "", ""]
         else:
-            string = u''
-        if  self.color % 2 and task.level > 1:
-            row.set(LDG_NS+'background', 'true')
-        self.dbh.table_cell_node(row, 'left', indentation(level)+string+task.title)
-        cost, duration = self.calc_task_cost_and_duration(task)
-        self.dbh.table_cell_node(row) # role empty
-        if duration == 0.0:
-            self.dbh.table_cell_node(row) # duration empty
-            self.dbh.table_cell_node(row) # cost empty
-        else:
-            self.dbh.table_cell_node(row, 'center', "%s" %duration)
-            self.dbh.table_cell_node(row, 'right', format_monetary(cost))
+            return [ indentation(level, True)+title,
+                     task.resources_role,
+                     str(duration),
+                     format_monetary(cost) ]
 
 class CostParaView(XMLView):
     name = 'cost-para'
@@ -583,82 +567,31 @@ class TasksListSectionView(XMLView):
         self.dbh.table_cell_node(row, 'left', u'%s : %s j.h' % (role, duration) )
 
 
-class DurationTableView(CostTableView):
+class DurationTableView(LoadTableView):
     name = 'duration-table'
     ENTETE = u"Tableau récapitulatif des dates."
+    COLS = [("3*", "left", u"Tâches"),
+            ("1*", "center", u"Date de début"),
+            ("1*", "center", u"Date de fin") ]
 
-    def add_content_nodes(self, parent):
-        """return a dr:object node for the cost table view"""
-        self.projman.update_caches()
-        table = ET.SubElement(parent, 'table')
-        ET.SubElement(table, 'title').text = self.ENTETE
-        layout = self.dbh.table_layout_node(table, 3, colspecs=('3*', '1*', '1*'))
-        self.table_head(layout)
-        tbody = ET.SubElement(layout, 'tbody')
-        self.set_tbody_attr(tbody)
-        for child in self.projman.root_task.children:
-            if child.TYPE == 'task':
-                self.color = 0
-                self._build_task_node(tbody, child, child.level)
-
-    def synthesis_row_element(self, row, task, level):
-        self.dbh.table_cell_node(row, 'left', indentation(level-1) + u'Totaux ' + task.title)
+    def _get_row_content(self, task, level, empty_row, synthesis_row):
+        """returns the list of the entries of the row depicting a task"""
         date_begin, date_end = self.projman.get_task_date_range(task)
-        self.dbh.table_cell_node(row, 'center', date_begin.date)
-        self.dbh.table_cell_node(row, 'center', date_end.date)
-        return row
-
-    def _build_task_node(self, tbody, task, level=0):
-        """format a task in as a row in the table"""
-        row = ET.SubElement(tbody, 'row')
-        if self.color % 2:
-            row.set(LDG_NS+'background', 'true')
-        if level == 1:
-            self.set_row_attr(row)
-        if task.children and level < self.max_level:
-            self.row_element(row, task, level, empty=True)
-            for child in task.children:
-                if child.TYPE == 'milestone':
-                    continue
-                if task.level == 1:
-                    self.color += 1
-                self._build_task_node(tbody, child, level+1)
-            row = ET.SubElement(tbody, 'row')
-            row.set(LDG_NS+'italic', 'true')
-            if self.color % 2 and level > 1:
-                row.set(LDG_NS+'background', 'true')
-            if task.level == 1:
-                row.set(LDG_NS+'border-bottom', 'true')
-                row.set(LDG_NS+'bold', 'true')
-            self.synthesis_row_element(row, task, level+1)
+        title = u""
+        if synthesis_row:
+            title += "Récapitulatif "
+        title += task.title
+        if duration == 0 or empty_row:
+            return [ indentation(level, True)+title, "", ""]
         else:
-            self.row_element(row, task, level)
-
-    def table_head(self, table):
-        """ create a DOM node <thead> """
-        thead = ET.SubElement(table, "thead")
-        row = ET.SubElement(thead, "row")
-        self.dbh.table_cell_node(row, 'leaf', u'Tâches')
-        self.dbh.table_cell_node(row, 'center', u'Date de début')
-        self.dbh.table_cell_node(row, 'center', u'Date de fin')
-        return thead
-
-    def row_element(self, row, task, level=0, empty=False):
-        """ create a DOM element <row> with values in task node"""
-        self.dbh.table_cell_node(row, 'left', indentation(level, True)+task.title)
-        if empty:
-            self.dbh.table_cell_node(row)
-            self.dbh.table_cell_node(row)
-        else:
-            date_begin, date_end = self.projman.get_task_date_range(task)
-            self.dbh.table_cell_node(row, 'center', date_begin.date)
-            self.dbh.table_cell_node(row, 'center', date_end.date)
-        return row
+            return [ indentation(level, True)+title,
+                     date_begin.date,
+                     date_end.date ]
 
 ALL_VIEWS = {}
 for klass in (RatesSectionView,
               DurationTableView, DurationParaView, DurationSectionView,
-              DateParaView,
+              DateParaView, LoadTableView,
               CostTableView, CostParaView,
               TasksListSectionView):
     ALL_VIEWS[klass.name] = klass
