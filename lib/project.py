@@ -242,13 +242,20 @@ class Project(object):
         """set the new_id for a task and update the other tasks"""
         assert not self.has_task_id(new_id)
         old_id, task.id = task.id, new_id
+        # update constraints; XXX do we have other task_id dependencies ?
+        for c_task, constraint in self.get_constraints(old_id):
+            print c_task, constraint
+            c_task.task_constraints.remove(constraint)
+            c_task.task_constraints.add((constraint[0], new_id, constraint[2]))
+
+    def get_constraints(self, constr_id):
+        '''return list of tasks and constraints with given <constr_id>'''
+        dependencies = []
         for task in self.root_task.flatten():
-            # update constraints; XXX do we have other task_id dependencies ?
-            constraints = task.task_constraints
-            for c_type, task_id, priority in constraints:
-                if task_id == old_id:
-                    constraints.remove((c_type, task_id, priority))
-                    constraints.add((c_type, new_id, priority))
+            for c_type, task_id, priority in task.task_constraints:
+                if task_id == constr_id:
+                    dependencies.append((task, (c_type, task_id, priority)))
+        return dependencies
 
     def is_in_allocated_time(self, task_id, date):
         """
