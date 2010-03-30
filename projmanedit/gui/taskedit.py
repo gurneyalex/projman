@@ -575,7 +575,6 @@ class TaskEditor(BaseEditor):
                 if ret == gtk.RESPONSE_NO:
                     return
             for c_task, constr in dependencies:
-                print c_task, constr
                 c_task.task_constraints.remove(constr)
             parent.remove( task )
             self.refresh_task_list(sel_task=parent)

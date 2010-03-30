@@ -244,7 +244,6 @@ class Project(object):
         old_id, task.id = task.id, new_id
         # update constraints; XXX do we have other task_id dependencies ?
         for c_task, constraint in self.get_constraints(old_id):
-            print c_task, constraint
             c_task.task_constraints.remove(constraint)
             c_task.task_constraints.add((constraint[0], new_id, constraint[2]))
 
