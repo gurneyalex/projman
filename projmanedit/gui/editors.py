@@ -76,7 +76,7 @@ class SchedulingUI(BaseEditor):
     def _schedule_project(self, sol_max, max_time):
         self.app.project.clear_activities()
         self.scheduler = CSPScheduler(self.app.project)
-        self.scheduler.schedule(time=max_time, sol_max=sol_max)
+        self.scheduler.schedule(1, max_time, sol_max)
         proj_dir = self.app.get_project_path()
         schedule_file = osp.join(proj_dir, self.app.files["schedule"])
         write_schedule_as_xml(schedule_file, self.app.project)
