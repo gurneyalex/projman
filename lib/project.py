@@ -29,7 +29,6 @@ from warnings import warn
 from pprint import pprint
 from mx.DateTime import today
 
-from logilab.common.compat import set
 from logilab.common.table import Table
 from logilab.common.tree import NodeNotFound
 
