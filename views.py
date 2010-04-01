@@ -579,7 +579,7 @@ class DurationTableView(LoadTableView):
         date_begin, date_end = self.projman.get_task_date_range(task)
         title = u""
         if synthesis_row:
-            title += "Récapitulatif "
+            title += u"Récapitulatif "
         title += task.title
         if empty_row:
             return [ indentation(level, True)+title, "", ""]
