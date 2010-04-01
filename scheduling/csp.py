@@ -44,6 +44,8 @@ class CSPScheduler(object):
         #self.first_tasks = None
         self.constraints = {} # Constraint Type -> list of task pairs
         self.task_ranges = {} # task_id -> date range or (None,None)
+        self._resources_map = {}
+        self._pseudo_tasks = []
         self.calc_project_length()
         self.real_tasks = self.project.root_task.leaves()
         for leaf in self.real_tasks:
@@ -223,12 +225,13 @@ class CSPScheduler(object):
         if _VERBOSE>1:
             print "occupation"
             print "----------"
+
         # compute resources map
-        resources_map = {}
+        self._resources_map = {}
         for res_id, res in self.project.resources.items():
             sched = []
             res_num = pb.add_worker( res_id )
-            resources_map[res_id] = res_num
+            self._resources_map[res_id] = res_num
             #gestion calendrier jours feries et we
             for d in range(max_duration):
                 if not res.is_available( self.start_date + d ):
@@ -239,8 +242,23 @@ class CSPScheduler(object):
                     sched.append("." * factor)
             if _VERBOSE > 1:
                 print "%02d" % res_num, "".join(sched)
-        # compute pseudo tasks
-        pseudo_tasks = []
+
+        self._compute_pseudo_tasks(pb)
+        # register constraints
+        num_tasks = dict((task.id, num) for (num, task) in enumerate(self.real_tasks))
+        for type, pairs in self.constraints.items():
+            for t1, t2 in pairs:
+                n1 = num_tasks[t1]
+                n2 = num_tasks[t2]
+                pb.add_task_constraint( GCSPMAP[type], n1, n2 )
+                if _VERBOSE>1:
+                    print "%s %s(%s), %s(%s)" %(type, t1, n1, t2, n2)
+        self._run_schedule(pb, time, sol_max)
+
+    def _compute_pseudo_tasks(self, pb):
+        factor = self.project.factor
+        pseudo_tasks = self._pseudo_tasks = []
+        max_duration = int( self.max_duration * 2 )
         for task in self.real_tasks:
             tid = task.id
             duration = task.duration
@@ -268,20 +286,11 @@ class CSPScheduler(object):
             for res_id in task.get_resource_ids():
                 if _VERBOSE>2:
                     print "   ", res_id
-                res_num = resources_map[res_id]
+                res_num = self._resources_map[res_id]
                 pseudo_id = pb.add_resource_to_task( task_num, res_num )
                 pseudo_tasks.append( (pseudo_id, task, res_id) )
 
-        # register constraints
-        num_tasks = dict((task.id, num) for (num, task) in enumerate(self.real_tasks))
-        for type, pairs in self.constraints.items():
-            for t1, t2 in pairs:
-                n1 = num_tasks[t1]
-                n2 = num_tasks[t2]
-                pb.add_task_constraint( GCSPMAP[type], n1, n2 )
-                if _VERBOSE>1:
-                    print "%s %s(%s), %s(%s)" %(type, t1, n1, t2, n2)
-
+    def _run_schedule(self, pb, time, sol_max):
         pb.set_convexity( True )
         pb.set_time(time)
         pb.set_verbosity( _VERBOSE )
@@ -290,19 +299,20 @@ class CSPScheduler(object):
 
         self.project.nb_solution = pb.get_number_of_solutions()
         if self.project.nb_solution==0:
-            return []
+            return
         if (_VERBOSE>2):
             self.compare_solutions( pb )
         solution = pb.get_solution( self.project.nb_solution-1 )
         day_cost = oneHour * CST.HOURS_PER_DAY
-        activities = self._compute_activities(solution, pseudo_tasks,
-                                              resources_map)
+        activities = self._compute_activities(solution, self._pseudo_tasks,
+                                              self._resources_map)
         if _VERBOSE > 0:
             print "\nactivites :"
             for (db, de, res_id, tid, dur) in activities:
                 print "\tdu", db,"au", de, res_id, tid, dur
         milestone = 0
         nmilestones = solution.get_nmilestones()
+        factor = self.project.factor
         for task in self.real_tasks:
             tid = task.id
             if task.duration!=0:
@@ -317,7 +327,6 @@ class CSPScheduler(object):
             milestone += 1
 
         self.project.add_schedule(activities)
-        return []
 
     def read_solution( self, sol ):
         duration = sol.get_duration()
