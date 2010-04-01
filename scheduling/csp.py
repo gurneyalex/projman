@@ -207,7 +207,7 @@ class CSPScheduler(object):
         #XXX the return value should be a list of errors, but is always '[]'
         print "\nscheduling ..."
         _VERBOSE = verbose
-        if _VERBOSE >=0:
+        if _VERBOSE >=1:
             print "searching max %d solution, max %d msec" % (sol_max, time)
         # check the tasks (duration is not 0)
         for leaf in self.project.root_task.leaves():
