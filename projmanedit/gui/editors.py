@@ -73,10 +73,10 @@ class SchedulingUI(BaseEditor):
         max_time = self.w('spinbutton_time_max').get_value_as_int()
         self._schedule_project(sol_max, max_time * 1000)
 
-    def _schedule_project(self, sol_max=0, max_time=400000):
+    def _schedule_project(self, sol_max, max_time):
         self.app.project.clear_activities()
         self.scheduler = CSPScheduler(self.app.project)
-        self.scheduler.schedule()
+        self.scheduler.schedule(time=max_time, sol_max=sol_max)
         proj_dir = self.app.get_project_path()
         schedule_file = osp.join(proj_dir, self.app.files["schedule"])
         write_schedule_as_xml(schedule_file, self.app.project)
