@@ -581,7 +581,7 @@ class DurationTableView(LoadTableView):
         if synthesis_row:
             title += "Récapitulatif "
         title += task.title
-        if duration == 0 or empty_row:
+        if empty_row:
             return [ indentation(level, True)+title, "", ""]
         else:
             return [ indentation(level, True)+title,
