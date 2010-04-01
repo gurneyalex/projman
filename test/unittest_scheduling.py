@@ -11,7 +11,6 @@ import sys
 import os.path as osp
 
 from logilab.common.testlib import unittest_main, TestCase
-from logilab.common.compat import set
 from projman.lib import *
 from projman.scheduling import schedule
 from projman.scheduling.simple import SimpleScheduler, cmp_tasks

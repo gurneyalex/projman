@@ -17,7 +17,6 @@
 """ schedule project using Constraint Solving Programing """
 
 from mx.DateTime import oneDay, oneHour, today
-from logilab.common.compat import set
 import projman.lib.constants as CST
 from projman.scheduling.gcsp import (ProjmanProblem, solve,
                                      constraint_types as GCSP_CST, load_types)

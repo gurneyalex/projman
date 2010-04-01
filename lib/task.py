@@ -26,7 +26,6 @@ This code is released under the GNU Public Licence v2. See www.gnu.org.
 """
 
 from logilab.common.tree import VNode
-from logilab.common.compat import set
 
 from mx.DateTime import now
 from projman.lib.constants import *

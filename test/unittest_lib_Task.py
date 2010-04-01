@@ -10,7 +10,6 @@ This code is released under the GNU Public Licence v2. See www.gnu.org.
 
 from mx.DateTime import DateTime
 
-from logilab.common.compat import set
 from logilab.common.testlib import TestCase, unittest_main
 
 from projman.lib import Task
