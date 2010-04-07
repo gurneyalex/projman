@@ -29,7 +29,7 @@ from logilab.common.tree import VNode
 
 from mx.DateTime import now
 from projman.lib.constants import *
-
+from projman.lib._exceptions import ProjmanError
 
 __all__ = ['MileStone', 'Task']
 
@@ -210,7 +210,12 @@ class TaskNode(VNode):
     def check_duration(self):
         """check non valid duration (0)"""
         if self.TYPE != 'milestone' and self.duration == 0:
-            raise Exception("non valid task duration for '%s'" %self.id)
+            raise ProjmanError("non valid task duration for '%s'" %self.id)
+
+    def check_role(self):
+        """check that the task has a valid role"""
+        if self.resources_role is None:
+            raise ProjmanError("Task %s has no resource role" % self.id)
 
     def check_consistency(self):
         """

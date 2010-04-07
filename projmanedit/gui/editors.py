@@ -6,10 +6,21 @@ from projman.lib.calendar import Calendar
 from projman.lib.resource import Resource
 from projman.lib.resource_role import ResourceRole
 from projman.lib.task import Task
+from projman.lib._exceptions import ProjmanError
 from projman.scheduling.csp import CSPScheduler
 from projman.renderers import GanttRenderer, HandlerFactory
 from projman.writers.projman_writer import write_schedule_as_xml
 from logilab.common.table import Table
+
+
+def message(type, buttons, message_format):
+    '''simple message handler'''
+    dlg = gtk.MessageDialog(parent=None, flags=0, type=type, buttons=buttons,
+                            message_format=message_format)
+    ret = dlg.run()
+    dlg.destroy()
+    return ret
+
 
 
 class BaseEditor(gobject.GObject):
@@ -76,7 +87,12 @@ class SchedulingUI(BaseEditor):
     def _schedule_project(self, sol_max, max_time):
         self.app.project.clear_activities()
         self.scheduler = CSPScheduler(self.app.project)
-        self.scheduler.schedule(1, max_time, sol_max)
+        try:
+            self.scheduler.schedule(1, max_time, sol_max)
+        except ProjmanError, exc:
+            message(gtk.MESSAGE_ERROR, gtk.BUTTONS_CLOSE,
+                    'The project could not be scheduled: %s'  % exc)
+            return
         proj_dir = self.app.get_project_path()
         schedule_file = osp.join(proj_dir, self.app.files["schedule"])
         write_schedule_as_xml(schedule_file, self.app.project)
