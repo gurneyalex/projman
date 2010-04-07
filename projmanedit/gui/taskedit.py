@@ -6,7 +6,7 @@ import gobject
 from projman.lib.constants import LOAD_TYPE_MAP, TASK_CONSTRAINTS
 from projman.lib.task import Task
 from projman.readers.base_reader import MODEL_FACTORY
-from projman.projmanedit.gui.editors import BaseEditor
+from projman.projmanedit.gui.editors import BaseEditor, message
 
 LANGUAGES = gtksourceview2.language_manager_get_default().get_language_ids()
 LANGUAGES.sort()
@@ -18,15 +18,6 @@ ADD_TASK_MSG = ("Warning : Adding a Task as a child of Task(%s) will reset"
 ADD_MILESTONE = ("Warning : Adding a Milestone as a child of Task(%s) will "
 " reset the load value of it. \n Are you sure ?")
 BAD_ID_MSG = ('The task id "%s" already used. Please use anothoer one.')
-
-
-def message(type, buttons, message_format):
-    '''simple message handler'''
-    dlg = gtk.MessageDialog(parent=None, flags=0, type=type, buttons=buttons,
-                            message_format=message_format)
-    ret = dlg.run()
-    dlg.destroy()
-    return ret
 
 
 class TaskEditor(BaseEditor):
