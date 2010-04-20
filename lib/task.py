@@ -212,10 +212,13 @@ class TaskNode(VNode):
         if self.TYPE != 'milestone' and self.duration == 0:
             raise ProjmanError("non valid task duration for '%s'" %self.id)
 
-    def check_role(self):
+    def check_role(self, project):
         """check that the task has a valid role"""
         if self.resources_role is None:
-            raise ProjmanError("Task %s has no resource role" % self.id)
+            raise ProjmanError("\nTask <%s> has no resource role" % self.id)
+        if self.resources_role not in project.resources_roles:
+            msg = "\nTask <%s> has invalid resource role <%s>"
+            raise ProjmanError(msg % (self.id, self.resources_role))
 
     def check_consistency(self):
         """
