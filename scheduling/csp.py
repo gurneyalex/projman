@@ -211,7 +211,7 @@ class CSPScheduler(object):
         # check the tasks (duration is not 0)
         for leaf in self.project.root_task.leaves():
             leaf.check_duration()
-            leaf.check_role()
+            leaf.check_role(self.project)
         factor = self.project.factor
         max_duration = int( self.max_duration * 2 )
         if _VERBOSE>1:
