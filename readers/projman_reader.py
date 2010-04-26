@@ -342,6 +342,8 @@ class ProjectXMLReader(AbstractXMLReader) :
         for cal_node in root_node.findall('calendar'):
             cal = self.read_calendar_definition( cal_node )
             calendars[cal.id] = cal
+            for subcal in cal.children:
+                calendars[subcal.id] = subcal
         return calendars
 
     def read_resources_file(self, rsrc):
