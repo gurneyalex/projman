@@ -197,17 +197,19 @@ class CSPScheduler(object):
                                 tid, max(usage, 1./factor)) )
         return activities
 
-    def schedule(self, verbose=0, time=400000, sol_max=4000, **kw):
+    def schedule(self, verbose=0, time=60000, sol_max=4000, **kw):
         """
         Update the project's schedule
         Return list of errors occured during schedule
         """
         global _VERBOSE
         #XXX the return value should be a list of errors, but is always '[]'
-        print "\nscheduling ..."
+
+        # print always the scheduling options to reminder the user of them
+        sol_msg = 'all' if (sol_max==0) else 'max %d' % sol_max
+        print ("\nscheduling ... (searching %s solutions, max %d msec; "
+               "see options)" % (sol_msg, time))
         _VERBOSE = verbose
-        if _VERBOSE >=1:
-            print "searching max %d solution, max %d msec" % (sol_max, time)
         # check the tasks (duration is not 0)
         for leaf in self.project.root_task.leaves():
             leaf.check_duration()
