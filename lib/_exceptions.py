@@ -56,4 +56,7 @@ class TTProjmanError(ProjmanError):
     """ a TimeTable exception """
 
 class ViewException(ProjmanError):
-    """ too much sub task to generate views """
+    """Exceptions raised on project view problems
+
+    * Project could not be scheduled
+    * too much sub task to generate views """

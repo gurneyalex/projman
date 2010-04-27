@@ -18,6 +18,7 @@
 from mx.DateTime import now, today, oneDay
 from projman import ENCODING
 from projman.lib import date_range
+from projman.lib._exceptions import ViewException
 
 TITLE_COLUMN_WIDTH  = 220
 FIELD_COLUMN_WIDTH  = 40
@@ -144,6 +145,9 @@ class AbstractRenderer(object):
         Method called to draw & return diagram. Must be overridden
         """
         self.output = stream
+        if project.nb_solution == 0:
+            raise ViewException('Can not render the project: no schedule '
+                                'solutions found. Malformed project?')
         self._render_init(project)
         self._render_body(project)
         self._render_end()
