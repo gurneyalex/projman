@@ -113,8 +113,8 @@ class ScheduleCommand(ProjmanCommand):
          ),
         ('time',
          {'type' : 'int', 'metavar': '<1...>',
-          'default': 400000,
-          'help': 'stop the programm after time'
+          'default': 60000,
+          'help': 'stop the programm after <time> msec'
           }
          ),
         ('maxsol',
