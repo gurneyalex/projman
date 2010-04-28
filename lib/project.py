@@ -116,6 +116,17 @@ class Project(object):
         errors += self.root_task.check_consistency()
         return errors
 
+    def check_tasks(self):
+        resources = self.resources
+        roles = self.resources_roles
+        for leaf in self.root_rask.leaves():
+            leaf.check_duration()
+            leaf.check_role(self)
+        for role in roles:
+            for res in role.resource_roles:
+                if res.id not in self.resources:
+                    raise ProjmanError
+
     # schedule methods ########################################################
 
     def add_schedule(self, activities):
