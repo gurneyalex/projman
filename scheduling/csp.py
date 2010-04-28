@@ -207,8 +207,8 @@ class CSPScheduler(object):
 
         # print always the scheduling options to reminder the user of them
         sol_msg = 'all' if (sol_max==0) else 'max %d' % sol_max
-        print ("\nscheduling ... (searching %s solutions, max %d msec; "
-               "see options)" % (sol_msg, time))
+        print ("\nscheduling ...\n  (searching for %s solutions, max %d msec;"
+               " see projman schedule options)" % (sol_msg, time))
         _VERBOSE = verbose
         # check the tasks (duration is not 0)
         for leaf in self.project.root_task.leaves():
