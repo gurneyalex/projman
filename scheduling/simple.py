@@ -136,7 +136,7 @@ class SimpleScheduler(object):
                 bucket.append(task)
         return buckets
 
-    def schedule(self, verbose=0, time=None):
+    def schedule(self, verbose=0, time=None, sol_max=0):
         """
         Update the project's schedule
         Return list of errors occured during schedule
