@@ -1,5 +1,5 @@
 # -*- coding: iso-8859-1 -*-
-# Copyright (c) 2004 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2000-2010 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -16,13 +16,7 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 """
-Projman - (c)2000-2004 LOGILAB <contact@logilab.fr> - All rights reserved.
-
-Home: http://www.logilab.org/projman
-
 Manipulate a xml project description.
-
-This code is released under the GNU Public Licence v2. See www.gnu.org.
 """
 
 from logilab.common.tree import VNode

@@ -12,7 +12,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-"""Copyright (c) 2000-2009 LOGILAB S.A. (Paris, FRANCE).
+"""Copyright (c) 2000-2010 LOGILAB S.A. (Paris, FRANCE).
 http://www.logilab.fr/ -- mailto:contact@logilab.fr
 """
 
@@ -22,21 +22,22 @@ numversion = (0, 14, 0)
 version = '.'.join([str(num) for num in numversion])
 
 license = 'GPL'
-copyright = '''Copyright © 2000-2009 LOGILAB S.A. (Paris, FRANCE).
+copyright = '''Copyright © 2000-2010 LOGILAB S.A. (Paris, FRANCE).
 http://www.logilab.fr/ -- mailto:contact@logilab.fr'''
 
 short_desc = "project management tool"
 
 long_desc = """projman is a tool for project management and diagrams creation,
-as Gantt diagram and resources activities diagram.
-It includes lots of functionnalties as
-* scheduling of a project
-* managing work-groups'actvities
-* Gantt diagrams generation
-* Resources'usage diagrams generation
-* generation of xml doc (under docbook dtd) to list tasks, evaluate costs
+like Gantt diagrams and resources activities diagram.
 
-All different format and output are XML files.
+It includes many functionnalties:
+* scheduling of a project,
+* managing work-groups'actvities,
+* Gantt diagrams generation,
+* resources usage diagrams generation,
+* generation of xml doc (under docbook dtd) to list tasks, evaluate costs.
+
+Input and output files are easily parseable XML files.
 """
 
 author = "Logilab"

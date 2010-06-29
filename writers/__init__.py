@@ -1,4 +1,4 @@
-# Copyright (c) 2000-2005 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2000-2010 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -13,6 +13,5 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-"""Projman - (c)2005 Logilab - All rights reserved."""
 
 from projman.writers.projman_writer import write_schedule_as_xml
