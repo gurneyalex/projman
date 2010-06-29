@@ -170,7 +170,8 @@ class Checker(object):
             for c_type, date, priority in task.get_date_constraints():
                 if c_type in ('begin-after-date', 'begin-at-date'):
                     first.append(date)
-        self.first_day = min(first)
+        if first:
+            self.first_day = min(first)
         for tree in self.trees:
             # find date constraints on first task of the tree
             task = self.project.get_task(tree[0])
