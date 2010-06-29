@@ -80,6 +80,7 @@ __depends__ = {'logilab-common': '>= 0.44.0',
                'PIL': None,
                }
 
+import sys
 from os.path import join
 include_dirs = [join('test', 'data')]
 
@@ -102,13 +103,14 @@ def encode_version(a,b,c):
     return ((a<<16)+(b<<8)+c)
 
 GECODE_VERSION = encode_version(*gecode_version())
-
+PYTHON_VERSION = sys.version_info[:2]
+BOOST_LIB = 'boost_python-mt-py%s%s' % PYTHON_VERSION
 ext_modules = [Extension('projman.scheduling.gcsp',
                          sources = ['scheduling/gcspmodule.cc',
                                     'scheduling/projman_gecode.cc',
                                     'scheduling/projman_problem.cc',
                          ],
-                         libraries=['boost_python-mt-py25', 'gecodeint', 'gecodeset',
+                         libraries=[BOOST_LIB, 'gecodeint', 'gecodeset',
                                     'gecodekernel', 'gecodesearch'],
                          depends=['scheduling/projman_gecode.hh',
                                   'scheduling/projman_problem.hh',
