@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2006 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2006-2010 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -252,7 +252,7 @@ class LoadTableView(XMLView):
     COLS = [("3*", "left", u"Tâches"),
             ("1*", "center", u"Type"),
             ("1*", "center", u"Charge")]
-    
+
     def add_content_nodes(self, parent):
         """return a dr:object node for the cost table view"""
         self.projman.update_caches()
@@ -310,7 +310,7 @@ class LoadTableView(XMLView):
             cost+=cc
             dur+=dd
         return cost, dur
-        
+
     def _get_row_content(self, task, level, empty_row, synthesis_row):
         """returns the list of the entries of the row depicting a task"""
         cost, duration = self._calc_task_cost_and_duration(task)
@@ -324,7 +324,7 @@ class LoadTableView(XMLView):
             return [ indentation(level, True)+title,
                      task.resources_role,
                      str(duration) ]
-                 
+
     def row_element(self, tbody, task, level=1,
                     empty_row=False, synthesis_row=False):
         """ create a DOM element <row> with values in task node"""
@@ -339,7 +339,7 @@ class LoadTableView(XMLView):
             if not synthesis_row:
                 row.set(LDG_NS+'border-top', 'true')
             if synthesis_row or not task.children:
-                row.set(LDG_NS+'border-bottom', 'true')                
+                row.set(LDG_NS+'border-bottom', 'true')
         for i in range(len(self.COLS)):
             self.dbh.table_cell_node(row, self.COLS[i][1], contents[i])
         return row

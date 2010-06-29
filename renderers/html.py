@@ -1,4 +1,4 @@
-# Copyright (c) 2000-2008 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2000-2010 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -14,10 +14,7 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """
-Projman - (c)2000-2005 LOGILAB <contact@logilab.fr> - All rights reserved.
-Home: http://www.logilab.org/projman
-
-Render a Project to HTML.
+Projman: Render a Project to HTML.
 """
 
 from projman.lib import *

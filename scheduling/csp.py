@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2000-2004 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2000-2010 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -142,7 +142,7 @@ class CSPScheduler(object):
 
     def _compute_activities(self, solution, pseudo_tasks, resources_map):
         """compute the list of activities
-        
+
         :rtype: List
         :returns:
             List of Tuples (begin, end, resource_id, task_id, usage, src)
