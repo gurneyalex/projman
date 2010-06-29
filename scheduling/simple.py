@@ -145,5 +145,6 @@ class SimpleScheduler(object):
         for bucket in self.get_ordered_buckets():
             for leaf in bucket:
                 self._process_node(leaf)
-        return []
+
+        self.project.nb_solution = 1
 

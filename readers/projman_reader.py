@@ -161,6 +161,8 @@ class ProjectXMLReader(AbstractXMLReader) :
         self.project.add_schedule(activities)
         self.project.tasks = tasks
         self.project.costs = costs
+        self.project.nb_solution = 1 # if we read a schedule from an xml file,
+                                     # we obviusly have one solution
 
     def read_tasks(self, fname):
         tasks = xml_parse( fname )
