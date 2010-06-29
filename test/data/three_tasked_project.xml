@@ -4,6 +4,7 @@
   <constraint-resource idref="ing_2" type="engineer"/>
   <constraint-resource idref="ing_3" type="engineer"/>
   <label>Trivial Project</label>
+
   <task id="t2_1">
     <label>Developpement</label>
     <task id="t2_11" load="15" load-type="oneof" resource-role="ing_py">
@@ -16,7 +17,7 @@
     </task>
   </task>
 
-  <task id="t2_2" load="2" load-type="oneof">
+  <task id="t2_2" load="2" load-type="oneof" resource-role="ing_py">
     <label>Conclusion</label>
       <constraint-task type="begin-after-end" idref="t2_1"/>
   </task>

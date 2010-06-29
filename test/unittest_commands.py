@@ -23,8 +23,8 @@ from logilab.common.clcommands import cmd_run
 
 from projman import commands # load commands
 
-from projman.test import DATADIR, XML_PROJMAN, XML_SCHEDULED_PROJMAN, \
-     XML_SCHEDULED_PROJMAN_FULL, TAR_PROJMAN
+from projman.test import (DATADIR, XML_PROJMAN, XML_SCHEDULED_PROJMAN,
+                          XML_SCHEDULED_PROJMAN_FULL, TAR_PROJMAN)
 
 
 XML_PROJMAN = osp.join(DATADIR, XML_PROJMAN)
@@ -45,10 +45,12 @@ class ScheduleTest(AbstractCommandTest):
     """testing """
 
     def setUp(self):
+        print "setUp"
         AbstractCommandTest.setUp(self)
         self.projman_path =  osp.join(DATADIR, "tmp_projman.xml")
         shutil.copyfile(XML_PROJMAN, self.projman_path)
         self.sched = osp.join(DATADIR, 'schedule.xml')
+        print "setUp DONE"
 
     def tearDown(self):
         shutil.rmtree(self.tmpdir)
@@ -56,11 +58,10 @@ class ScheduleTest(AbstractCommandTest):
 
     def test_default(self):
         """Check if a schedule file is created and can be read again"""
-        self.skip("this test needs rewrite")
+        print "TST DEFAULT"
         try:
             os.remove(self.sched)
         except OSError, e:
-            print "ERROR:", self.sched, e
             pass
         print "PROJECT FILE:", self.projman_path
         cmd_run('schedule', '--type', 'csp', '-f', self.projman_path)
