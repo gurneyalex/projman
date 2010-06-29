@@ -214,11 +214,7 @@ class TaskNode(VNode):
 
     def check_role(self, project):
         """check that the task has a valid role"""
-        if self.resources_role is None:
-            raise ProjmanError("\nTask <%s> has no resource role" % self.id)
-        if self.resources_role not in project.resources_roles:
-            msg = "\nTask <%s> has invalid resource role <%s>"
-            raise ProjmanError(msg % (self.id, self.resources_role))
+        return
 
     def check_consistency(self):
         """
@@ -295,6 +291,14 @@ class Task(TaskNode):
         for res in project.get_resources():
             if self.resources_role in res.role_ids():
                 self._resource_ids.add(res.id)
+
+    def check_role(self, project):
+        """check that the task has a valid role"""
+        if self.resources_role is None:
+            raise ProjmanError("\nTask <%s> has no resource role" % self.id)
+        if self.resources_role not in project.resources_roles:
+            msg = "\nTask <%s> has invalid resource role <%s>"
+            raise ProjmanError(msg % (self.id, self.resources_role))
 
 #    def get_resource_dispo(self, res_id):
 #        """
