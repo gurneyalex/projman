@@ -17,14 +17,16 @@
 
 import logging
 
-from logilab.common.clcommands import BadCommandUsage, Command, \
-     register_commands
+from logilab.common import clcommands as cli
+#import BadCommandUsage, Command
 
 from projman.__pkginfo__ import version
 from projman.views import document
 from projman.readers import ProjectXMLReader
 from projman.writers.projman_writer import write_schedule_as_xml, indent
 from projman.views import ALL_VIEWS
+
+PROJMAN = cli.CommandLine('projman', version=version)
 
 # verbosity to logging level mapping
 LEVELS = {
@@ -34,10 +36,8 @@ LEVELS = {
     3 : logging.DEBUG,
     }
 
-class ProjmanCommand(Command):
+class ProjmanCommand(cli.Command):
     """base class providing common behaviour for projman commands"""
-    def __init__(self, __doc__):
-        Command.__init__(self, __doc__=__doc__, version=version)
 
     options = (
         ('project-file',
@@ -97,6 +97,9 @@ class CheckCommand(ProjmanCommand):
         check_project = Checker(self.project, self.config.verbose)
         check_project.problem_checker()
 
+PROJMAN.register(CheckCommand)
+
+
 class ScheduleCommand(ProjmanCommand):
     """schedule a project"""
     name = 'schedule'
@@ -150,6 +153,8 @@ class ScheduleCommand(ProjmanCommand):
             nb_solution = self.project.nb_solution
         write_schedule_as_xml(self.files['schedule'], self.project)
 
+PROJMAN.register(ScheduleCommand)
+
 
 class ViewCommand(ProjmanCommand):
     """generate XML view(s) from a project file (usually using Documentor +
@@ -195,13 +200,15 @@ class ViewCommand(ProjmanCommand):
             try:
                 viewklass = ALL_VIEWS[viewname]
             except KeyError:
-                raise BadCommandUsage('unknown view %s' % viewname)
+                raise cli.BadCommandUsage('unknown view %s' % viewname)
             view = viewklass(self.config)
             view.generate(tree, self.project)
         output = file(self.config.output, 'w')
         indent(tree.getroot())
         tree.write( output, encoding="UTF-8" )
         output.close()
+
+PROJMAN.register(ViewCommand)
 
 
 class DiagramCommand(ProjmanCommand):
@@ -290,15 +297,17 @@ class DiagramCommand(ProjmanCommand):
             try:
                 renderer = known_diagrams[diagram](self.config, handler)
             except KeyError:
-                raise BadCommandUsage('unknown diagram %s' % diagram)
+                raise cli.BadCommandUsage('unknown diagram %s' % diagram)
         if self.config.timestep:
             if not self.config.timestep in ['day', 'month', 'week']:
-                raise BadCommandUsage('non valid timestep %s' %self.config.timestep)
+                raise cli.BadCommandUsage('non valid timestep %s'
+                                          % self.config.timestep)
 
             output = self.config.output or '%s.%s' % (diagram, self.config.format)
             stream = handler.get_output(output)
             renderer.render(self.project, stream)
 
+PROJMAN.register(DiagramCommand)
 
 
 class DiagramCommand2(ProjmanCommand):  # a test...
@@ -318,6 +327,3 @@ class DiagramCommand2(ProjmanCommand):  # a test...
         gantt = GanttRenderer2(self.config, self.project)
         gantt.render("gantt2.svg")
         gantt.save()
-
-
-register_commands((CheckCommand, ScheduleCommand, ViewCommand, DiagramCommand))
