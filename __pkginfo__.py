@@ -75,7 +75,7 @@ debian_maintainer = 'Alexandre Fayolle '
 debian_maintainer_email = 'alexandre.fayolle@logilab.fr'
 pyversions = ["2.5"]
 
-__depends__ = {'logilab-common': '>= 0.44.0',
+__depends__ = {'logilab-common': '>= 0.51.0',
                'python-gtksourceview': '>= 2.2.0',
                'python-docutils': None,
                'PIL': None,

@@ -1,1 +1,1 @@
-python.exe -c "import sys, projman.main; projman.main.run(sys.argv[1:])" %*
+python.exe -c "import sys, projman.commands; projman.commands.PROJMAN.run(sys.argv[1:])" %*
