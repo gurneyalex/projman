@@ -44,23 +44,25 @@ class DumbScheduler(object):
 
         # add activities
         activities = []
-        resources = [self.project.get_resource(r_id)
-                     for r_type, r_id, usage in node.get_resource_constraints()]
-        if node.TYPE=="milestone":
+        # collect resources
+        if node.TYPE == "milestone":
             self.project.milestones[node.id] = begin
             return []
-        if not resources:
-            print "WARNING: task %s has no resource and will not be scheduled"%node.id
+        node.compute_resources(self.project)
+        resources = [self.project.resources[r_id] for r_id in node.get_resource_ids()]
+#         if not resources:
+#             print "WARNING: task %s has no resource and will not be scheduled"%node.id
         days = {}
         duration = node.duration*(1-node.progress)
         if begin:
             for resource in resources:
                 days[resource] = begin
-            while duration and resources:
+            while duration > 0 and resources:
                 for resource in resources:
                     date = days[resource]
-                    while not resource.is_available(date):
-                        date += 1
+#                     while not resource.is_available(date):
+#                         date += 1
+#                         print date
                     # usage = 1
                     activities.append( (date, date, resource.id, node.id, 1) )
                     days[resource] = date + 1
@@ -68,11 +70,12 @@ class DumbScheduler(object):
         else:
             for resource in resources:
                 days[resource] = end
-            while duration and resources:
+            while duration > 0 and resources:
                 for resource in resources:
                     date = days[resource]
-                    while not resource.is_available(date):
-                        date -= 1
+#                     while not resource.is_available(date):
+#                         date -= 1
+#                         print date
                     # usage = 1
                     activities.append( (date, date, resource.id, node.id, 1) )
                     days[resource] = date - 1
