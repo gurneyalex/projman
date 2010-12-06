@@ -71,12 +71,12 @@ class CalendarTC(testlib.TestCase):
         self.rss = self.pr.resources
 
     def test_within_bounds(self):
-        self.assertEquals(self.c1.after_start(Date(2003,1,1)), False)
-        self.assertEquals(self.c1.after_start(Date(2004,1,5)), False)
-        self.assertEquals(self.c1.after_start(Date(2004,1,6)), True)
-        self.assertEquals(self.c1.after_start(Date(2005,1,1)), True)
-        self.assertEquals(self.c1.before_stop(Date(2003,1,1)), True)
-        self.assertEquals(self.c1.before_stop(Date(2006,12,30)), False)
+        self.assertEqual(self.c1.after_start(Date(2003,1,1)), False)
+        self.assertEqual(self.c1.after_start(Date(2004,1,5)), False)
+        self.assertEqual(self.c1.after_start(Date(2004,1,6)), True)
+        self.assertEqual(self.c1.after_start(Date(2005,1,1)), True)
+        self.assertEqual(self.c1.before_stop(Date(2003,1,1)), True)
+        self.assertEqual(self.c1.before_stop(Date(2006,12,30)), False)
 
     def test_availability(self):
         DAY = [MORNING, AFTERNOON]
@@ -100,8 +100,8 @@ class CalendarTC(testlib.TestCase):
         self.assertEqual(self.c2.is_a_national_day(DateTime(2012, 02, 02)), False)
 
     def test_get_daytype(self):
-        self.assertEquals(self.c1.get_default_daytype(), 'working')
-        self.assertEquals(self.c2.get_default_daytype(), 'working')
+        self.assertEqual(self.c1.get_default_daytype(), 'working')
+        self.assertEqual(self.c2.get_default_daytype(), 'working')
 
 if __name__ == '__main__':
     testlib.unittest_main()

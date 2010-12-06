@@ -16,21 +16,21 @@ class Test(testlib.TestCase):
                 (7.9999999999999991, u"8,00"),
                 ]
         for input, expected in data:
-            self.assertEquals(format_monetary(input), expected)
+            self.assertEqual(format_monetary(input), expected)
 
     def test_format(self):
-        self.assertEquals(u"1\xA0200,0", format_monetary("1200.00", nb_decimal=1))
-        self.assertEquals(u"1\xA0200,0", format_monetary(1200.00, nb_decimal=1))
-        self.assertEquals(u"1\xA0200", format_monetary(u"1200.00", nb_decimal=0))
-        self.assertEquals(u"1\xA0200", format_monetary(1200.00, nb_decimal=0))
-        self.assertEquals(u"12", format_monetary(u"12", nb_decimal=0))
-        self.assertEquals(u"1200,0", format_monetary("1200", nb_decimal=1, space_gap=0))
-        self.assertEquals(u"1\xA02\xA00\xA00,00", format_monetary(u"1200", space_gap=1))
+        self.assertEqual(u"1\xA0200,0", format_monetary("1200.00", nb_decimal=1))
+        self.assertEqual(u"1\xA0200,0", format_monetary(1200.00, nb_decimal=1))
+        self.assertEqual(u"1\xA0200", format_monetary(u"1200.00", nb_decimal=0))
+        self.assertEqual(u"1\xA0200", format_monetary(1200.00, nb_decimal=0))
+        self.assertEqual(u"12", format_monetary(u"12", nb_decimal=0))
+        self.assertEqual(u"1200,0", format_monetary("1200", nb_decimal=1, space_gap=0))
+        self.assertEqual(u"1\xA02\xA00\xA00,00", format_monetary(u"1200", space_gap=1))
 
     def test_extract_extension(self):
-        self.assertEquals(("foo", ""), extract_extension("foo"))
-        self.assertEquals(("foo", "txt"), extract_extension("foo.txt"))
-        self.assertEquals(("foo", "txt.old"), extract_extension("foo.txt.old"))
+        self.assertEqual(("foo", ""), extract_extension("foo"))
+        self.assertEqual(("foo", "txt"), extract_extension("foo.txt"))
+        self.assertEqual(("foo", "txt.old"), extract_extension("foo.txt.old"))
 
 if __name__ == "__main__":
     testlib.unittest_main()

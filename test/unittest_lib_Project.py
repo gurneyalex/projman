@@ -85,31 +85,30 @@ class ProjectTC(testlib.TestCase):
         self.stone = stone
 
     def test_project(self):
-        self.assertEquals(self.project.root_task, self.parent)
+        self.assertEqual(self.project.root_task, self.parent)
 
     def test_project_errors(self):
         """tests inconsistent projects"""
         # expliclity add duplicate node id
         self.parent.append(Task('child1'))
-        self.assertEquals(self.project.check_consistency(), ['Duplicate task id: child1'])
+        self.assertEqual(self.project.check_consistency(), ['Duplicate task id: child1'])
 
     def test_resources(self):
         """test setters & getters of resources"""
-        self.assertEquals(self.project.has_resource('toto'), True)
-        self.assertEquals(self.project.has_resource('Mike'), False)
-        self.assertUnorderedIterableEquals(self.project.get_resources(),
-                                           self.resources)
+        self.assertEqual(self.project.has_resource('toto'), True)
+        self.assertEqual(self.project.has_resource('Mike'), False)
+        self.assertItemsEqual(self.project.get_resources(), self.resources)
         toto = self.resources[1]
-        self.assertEquals(self.project.get_resource('toto'), toto)
+        self.assertEqual(self.project.get_resource('toto'), toto)
         jean = Resource('jojo', 'Jean', self.calendar, self.roles)
         self.project.add_resource(jean)
-        self.assertEquals(self.project.has_resource('jojo'), True)
-        self.assertEquals(self.project.has_resource('Jean'), False)
+        self.assertEqual(self.project.has_resource('jojo'), True)
+        self.assertEqual(self.project.has_resource('Jean'), False)
         self.assertRaises(ProjectValidationError, self.project.add_resource, jean)
 
     def test_tasks(self):
-        self.assertEquals(self.project.get_nb_tasks(), 6)
-        self.assertEquals(self.project.is_in_allocated_time('child1', now()), False)
+        self.assertEqual(self.project.get_nb_tasks(), 6)
+        self.assertEqual(self.project.is_in_allocated_time('child1', now()), False)
 
     def test_calendars(self):
         """test setters & getters of calendars"""
@@ -129,9 +128,9 @@ class ProjectTC(testlib.TestCase):
         self.assertRaises(ProjectValidationError, self.project.add_role, cwd)
 
     def test_get_task(self):
-        self.assertEquals(self.project.get_task('stone'), self.stone)
-        self.assertEquals(self.project.get_task('parent'), self.parent)
-        self.assertEquals(self.project.get_task('child2_2'), self.child2_2)
+        self.assertEqual(self.project.get_task('stone'), self.stone)
+        self.assertEqual(self.project.get_task('parent'), self.parent)
+        self.assertEqual(self.project.get_task('child2_2'), self.child2_2)
 
 
 if __name__ == '__main__':
