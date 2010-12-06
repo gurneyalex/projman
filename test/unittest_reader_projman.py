@@ -32,25 +32,25 @@ class TaskXMLReaderTest(TestCase):
 
     def test_multiline_project_label(self):
         expected_title = "Simplest Project with a multiline label, gosh can you believe it"
-        self.assertEquals(expected_title, self.root.title)
-        self.assertEquals(len(self.root.children), 3)
+        self.assertEqual(expected_title, self.root.title)
+        self.assertEqual(len(self.root.children), 3)
 
     def test_multiline_task_desc(self):
         task = self.root.children[0]
         expected_desc = u"Réunions de début et de fin de tranche, réunions\n      hebdomadaires, <emphasis>comptes-rendus</emphasis>, etc."
-        self.assertEquals(expected_desc, task.description)
+        self.assertEqual(expected_desc, task.description)
 
     def test_multiline_task_duration(self):
         task = self.root.children[0]
-        self.assertEquals(25, task.duration)
+        self.assertEqual(25, task.duration)
         task = self.root.children[1]
-        self.assertEquals(10.6, task.duration)
+        self.assertEqual(10.6, task.duration)
         task = self.root.children[2]
-        self.assertEquals(0, task.duration)
+        self.assertEqual(0, task.duration)
 
     def test_multiline_task_progress(self):
         task = self.root.children[0]
-        self.assertEquals(0, task.progress)
+        self.assertEqual(0, task.progress)
 
 
 class TaskXMLReaderVirtualRootTest(TestCase):
@@ -61,12 +61,12 @@ class TaskXMLReaderVirtualRootTest(TestCase):
     def test_virtual_root(self):
         task = self.root
         expected_title = "Suivi de projet"
-        self.assertEquals(expected_title, task.title)
-        self.assertEquals(len(task.children), 0)
+        self.assertEqual(expected_title, task.title)
+        self.assertEqual(len(task.children), 0)
         expected_desc = u"Réunions de début et de fin de tranche, réunions\n      hebdomadaires, <emphasis>comptes-rendus</emphasis>, etc."
-        self.assertEquals(expected_desc, task.description)
-        self.assertEquals(25, task.duration)
-        self.assertEquals(0, task.progress)
+        self.assertEqual(expected_desc, task.description)
+        self.assertEqual(25, task.duration)
+        self.assertEqual(0, task.progress)
 
 class ResourcesXMLReaderTest(TestCase):
     def setUp(self):
@@ -76,34 +76,34 @@ class ResourcesXMLReaderTest(TestCase):
         self.project = reader.project
 
     def test_number_of_resources(self):
-        self.assertEquals(len(self.project.resources), 3)
+        self.assertEqual(len(self.project.resources), 3)
 
     def test_resource_content(self):
         res = self.project.resources['ing_1']
-        self.assertEquals(res.name, "Emmanuel Breton")
-        self.assertEquals(res.calendar.id, 'typic_cal')
+        self.assertEqual(res.name, "Emmanuel Breton")
+        self.assertEqual(res.calendar.id, 'typic_cal')
 
     def test_resources_roles(self):
         roles = self.project.resources_roles
-        self.assertEquals(roles.keys(), ['ing_py'])
-        self.assertEquals(roles['ing_py'].hourly_cost, 80.00)
-        self.assertEquals(roles['ing_py'].unit, "EUR")
+        self.assertEqual(roles.keys(), ['ing_py'])
+        self.assertEqual(roles['ing_py'].hourly_cost, 80.00)
+        self.assertEqual(roles['ing_py'].unit, "EUR")
 
     def test_calendar_content(self):
         cal = self.project.calendars.values()[0]
-        self.assertEquals(cal.name, "Calendrier Francais")
-        self.assertEquals(cal.weekday, {'sat': 'non_working', 'sun':'non_working'} )
-        self.assertEquals(cal.national_days,
+        self.assertEqual(cal.name, "Calendrier Francais")
+        self.assertEqual(cal.weekday, {'sat': 'non_working', 'sun':'non_working'} )
+        self.assertEqual(cal.national_days,
                           [(1,1), (5,1), (5,8), (7,14),
                            (8,15), (11,1), (11,11), (12,25)])
-        self.assertEquals(cal.start_on, None)
-        self.assertEquals(cal.stop_on, None)
-        self.assertEquals(cal.day_types,
+        self.assertEqual(cal.start_on, None)
+        self.assertEqual(cal.stop_on, None)
+        self.assertEqual(cal.day_types,
                           {'working': [u'Standard work day', [(Time(8), Time(12)),
                                                              (Time(13), Time(17,24))]],
                            'non_working': [u'Week-end day', []],
                            'holiday': [u'Day Off',[]],})
-        self.assertEquals(cal.default_day_type, 'working')
+        self.assertEqual(cal.default_day_type, 'working')
         dates = [("2002-12-31","2002-12-26"),
                  ("2003-03-14","2003-03-10"),
                  ("2003-08-18","2003-08-14"),
@@ -111,9 +111,9 @@ class ResourcesXMLReaderTest(TestCase):
         for (expected_end, expected_start), (start, end, working) in zip(dates, cal.timeperiods):
             start = str(start).split()[0]
             end = str(end).split()[0]
-            self.assertEquals(start, expected_start)
-            self.assertEquals(end, expected_end)
-            self.assertEquals(working, 'holiday')
+            self.assertEqual(start, expected_start)
+            self.assertEqual(end, expected_end)
+            self.assertEqual(working, 'holiday')
 
 
 
@@ -127,7 +127,7 @@ class ErrorXMLReaderTest(TestCase):
 
     def test_error_doubletask(self):
         root = self.reader.read_tasks(osp.join(DATADIR, 'error_doubletask.xml'))
-        self.assertEquals(root.check_consistency(), ['Duplicate task id: double_t1_1'])
+        self.assertEqual(root.check_consistency(), ['Duplicate task id: double_t1_1'])
 
 
     def test_error_dtd_project(self):
@@ -141,7 +141,7 @@ class ErrorXMLReaderTest(TestCase):
             self.reader.read_tasks(osp.join(DATADIR, 'multi_error_dtd_project.xml'))
         except MalformedProjectFile, ex:
             # more than one line of errors
-            self.assertEquals(len(str(ex).split('\n')), 4)
+            self.assertEqual(len(str(ex).split('\n')), 4)
 
 if __name__ == '__main__':
     unittest_main()

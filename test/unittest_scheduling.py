@@ -27,7 +27,7 @@ DATADIR = osp.abspath(osp.join(osp.dirname(__file__), "data"))
 class RawSchedulingTC(TestCase):
 
     def test_solve_simple(self):
-        self.skip()
+        self.skipTest('skip this')
         # 2 tasks, no time -> no solution
         variables = []
         domains = {}
@@ -46,7 +46,7 @@ class RawSchedulingTC(TestCase):
         self.assertEquals(len(solutions), 0)
 
     def test_solve_harder(self):
-        self.skip()
+        self.skipTest('skip this')
         variables = []
         domains = {}
         constraints = []
@@ -65,7 +65,7 @@ class RawSchedulingTC(TestCase):
         self.assertEquals(len(solutions), 1)
 
     def test_solve_harder2(self):
-        self.skip()
+        self.skipTest('skip this')
         variables = []
         domains = {}
         constraints = []
@@ -98,7 +98,7 @@ class CSPSchedulerTC(TestCase):
 
 
     def test_visit(self):
-        self.skip()
+        self.skipTest('skip this')
         scheduler = CSPScheduler(self.project)
         scheduler.schedule()
         self.assertEquals(len(scheduler.variables), 4)
@@ -115,7 +115,7 @@ class CSPSchedulerTC(TestCase):
 class CmpTasksTC(TestCase):
 
     def test_cmp(self):
-        self.skip()
+        self.skipTest('skip this')
         t0 = Task('0')
         t1 = Task('1')
         self.assertEquals( cmp_tasks(t0,None),  1)
@@ -123,7 +123,7 @@ class CmpTasksTC(TestCase):
         self.assertEquals( cmp_tasks(t0,t1),  -1)
 
     def test_cmp2(self):
-        self.skip()
+        self.skipTest('skip this')
         t0 = Task('0')
         t1 = Task('1')
         self.assertEquals( cmp_tasks(t0,None),  1)
@@ -143,7 +143,7 @@ class SimpleSchedulerTC(TestCase):
         self.project, files = reader.read()
 
     def test_visit1(self):
-        self.skip()
+        self.skipTest('skip this')
         scheduler = SimpleScheduler(self.project)
         ordered_buckets = scheduler.get_ordered_buckets()
         self.assertEquals(len(ordered_buckets), 3)
@@ -152,7 +152,7 @@ class SimpleSchedulerTC(TestCase):
         self.assertEquals(len(ordered_buckets[2]), 1)
 
     def skip_test_visit2(self):
-        self.skip()
+        self.skipTest('skip this')
         scheduler = SimpleScheduler(self.project)
         scheduler.schedule()
 
