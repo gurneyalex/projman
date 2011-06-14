@@ -2,7 +2,6 @@ Source: projman
 Section: python
 Priority: optional
 Maintainer: Alexandre Fayolle <alexandre.fayolle@logilab.fr>
-Uploaders: Charlotte Le Calvez <charlotte.lecalvez@logilab.fr>
 Build-Depends: debhelper (>= 5.0.38), libboost-python-dev (>=1.34.0), python-dev, libgecode-dev, python-support
 Standards-Version: 3.8.0
 XS-Python-Version: current
