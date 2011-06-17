@@ -22,7 +22,7 @@ from os.path import exists
 from cStringIO import StringIO
 from PIL import Image, ImageDraw, ImageFont
 import projman
-from colorutils import delta_color
+from colorutils import delta_color, rgb
 
 DEFAULT_FONT_DIRS = ('/usr/share/projman',
                      os.path.join(projman.__path__[0],
