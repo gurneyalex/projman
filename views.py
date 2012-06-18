@@ -543,11 +543,18 @@ class TasksListSectionView(XMLView):
 
     def row_element(self, task, tbody):
         """ create a DOM element <row> with values in task node"""
+        def compute_duration(task):
+            accumul = 0.0
+            for sub_task in task.children:
+                accumul += compute_duration(sub_task)
+            else:
+                accumul += task.duration or 0.0
+            return accumul
         row = ET.SubElement(tbody, 'row')
         # task title
         self.dbh.table_cell_node(row, 'left', task.title)
         if task.children:
-            duration = sum(t.duration for t in task.children)
+            duration = compute_duration(task)
             roles = set(self.projman.get_role(child.resources_role).id
                         for child in task.children if child.resources_role)
             if not roles:
