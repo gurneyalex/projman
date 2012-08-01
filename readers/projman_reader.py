@@ -25,12 +25,11 @@ from projman.readers.projman_checkers import iso_date, iso_time
 from os.path import dirname, abspath, isabs, join
 from logilab.common.table import Table
 from docutils.core import publish_string
-from logilab.doctools.rest_docbook import FragmentWriter
+from logilab.doctools.rest_docbook import rest_dbk_transform
 from logilab.common.textutils import colorize_ansi
 from projman.lib._exceptions import ProjectValidationError, MalformedProjectFile, MalformedId
 from projman import DAY_WEEK
 from projman.lib.constants import LOAD_TYPE_MAP, TASK_MILESTONE
-docbook_writer = FragmentWriter()
 
 try:
     import xml.etree.ElementTree as ET
@@ -246,10 +245,10 @@ class ProjectXMLReader(AbstractXMLReader) :
             raw_txt = txt
             if desc.get("format")=="rest":
                 txt_fmt = "rest"
-                txt = publish_string(txt,
-                                     settings_overrides={'output_encoding': 'unicode'},
-                                     writer=docbook_writer,
-                                     source_path=self.tasks_file + "<%s>"%t.id)
+                dbk_elts = rest_dbk_transform(txt)
+                txt = u""
+                for n in dbk_elts:
+                    txt+=unicode(ET.tostring(n,"utf-8"),"utf-8")
         t.description = txt
         t.description_raw = raw_txt
         t.description_format = txt_fmt
