@@ -246,12 +246,56 @@ class DurationParaView(XMLView):
         text = TOTAL_DURATION % get_daily_labor(self.projman.root_task.maximum_duration())
         ET.SubElement(parent, "para").text = text
 
+
+class RoleLoadsTableView(XMLView):
+    name = 'role-loads'
+    ENTETE = u"Tableau de synthèse des charges."
+    COLS = [("2*", "left", u"Type de ressource"),
+            ("1*", "right", u"Charge totale")]
+
+    def add_content_nodes(self, parent):
+        """return a dr:object node for the cost table view"""
+        self.projman.update_caches()
+
+        # create table
+        table = ET.SubElement(parent, 'table')
+        ET.SubElement(table, 'title').text = self.ENTETE
+        cols = [col_def[0] for col_def in self.COLS]
+        layout = self.dbh.table_layout_node(table, len(cols), colspecs=cols)
+
+        # table head
+        thead = ET.SubElement(layout, 'thead')
+        row = ET.SubElement(thead, 'row')
+        for col_def in self.COLS:
+            self.dbh.table_cell_node(row, "center", col_def[2])
+
+        # table body
+        tbody = ET.SubElement(layout, 'tbody')
+        tbody.set(LDG_NS+"row-borders", 'true')
+        tbody.set(LDG_NS+'row-backgrounds', "never")
+        for rid, load in self._calc_res_loads(self.projman.root_task).items():
+            row = ET.SubElement(tbody, 'row')
+            role = self.projman.get_role(rid)
+            content = [u"%s (%s)" % (role.name, role.id), str(load)]
+            for i,txt in enumerate(content):
+                self.dbh.table_cell_node(row, self.COLS[i][1], txt)
+
+    def _calc_res_loads(self, task, loads=None):
+        if loads is None:
+            loads = {}
+        if task.duration > 0:
+            loads.setdefault(task.resources_role, 0.0)
+            loads[task.resources_role] += task.duration
+        for child in task.children:
+            self._calc_res_loads(child, loads)
+        return loads
+
 class LoadTableView(XMLView):
     name = 'load-table'
     ENTETE = u"Tableau récapitulatif des charges."
     COLS = [("3*", "left", u"Tâches"),
             ("1*", "center", u"Type"),
-            ("1*", "center", u"Charge")]
+            ("1*", "right", u"Charge")]
 
     def add_content_nodes(self, parent):
         """return a dr:object node for the cost table view"""
@@ -283,7 +327,7 @@ class LoadTableView(XMLView):
         thead = ET.SubElement(parent, 'thead')
         row = ET.SubElement(thead, 'row')
         for col_def in self.COLS:
-            self.dbh.table_cell_node(row, col_def[1], col_def[2])
+            self.dbh.table_cell_node(row, "center", col_def[2])
         return thead
 
     def _build_task_node(self, tbody, task, level=1):
@@ -350,7 +394,7 @@ class CostTableView(LoadTableView):
     ENTETE = u"Tableau récapitulatif des coûts."
     COLS = [("3*", "left", u"Tâches"),
             ("1*", "center", u"Type"),
-            ("1*", "center", u"Charge"),
+            ("1*", "right", u"Charge"),
             ("1*", "right", u"Coût")]
 
     def _get_row_content(self, task, level, empty_row, synthesis_row):
@@ -596,7 +640,7 @@ class DurationTableView(LoadTableView):
                      date_end.date ]
 
 ALL_VIEWS = {}
-for klass in (RatesSectionView,
+for klass in (RatesSectionView, RoleLoadsTableView,
               DurationTableView, DurationParaView, DurationSectionView,
               DateParaView, LoadTableView,
               CostTableView, CostParaView,
