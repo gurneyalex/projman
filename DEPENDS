@@ -1,4 +1,7 @@
 python-egenix-mxdatetime
-python-logilab-common
-python-xml
+python-logilab-common>=0.51
+logilab-doctools>=0.4
+python-lxml>=2.1
 python-imaging
+python-matplotlib
+python-gtksourceview2>=2.2

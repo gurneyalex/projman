@@ -22,7 +22,7 @@ numversion = (0, 16, 0)
 version = '.'.join([str(num) for num in numversion])
 
 license = 'GPL'
-copyright = '''Copyright © 2000-2011 LOGILAB S.A. (Paris, FRANCE).
+copyright = '''Copyright © 2000-2013 LOGILAB S.A. (Paris, FRANCE).
 http://www.logilab.fr/ -- mailto:contact@logilab.fr'''
 
 short_desc = "project management tool"
@@ -71,9 +71,7 @@ data_files = [['share/projman',
              ]
 
 debian_name = 'projman'
-debian_maintainer = 'Alexandre Fayolle '
-debian_maintainer_email = 'alexandre.fayolle@logilab.fr'
-pyversions = ["2.5"]
+pyversions = ["2.5","2.6","2.7"]
 
 __depends__ = {'logilab-common': '>= 0.59.0',
                'logilab-doctools': '>= 0.4.0',

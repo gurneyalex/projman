@@ -1,7 +1,16 @@
 ChangeLog for Projman
 =====================
 
-2209-10-07  -- 0.14.0
+2013-03-07  -- 0.16.0
+    * #121502 corrected import error
+    * #121503 corrected task load computation
+    * #121504 added a new XML View dispatching task load per resource role
+    * #121505 adapted to logilab-doctools new API for ReST transform
+
+2011-06-14  -- 0.15.0
+    * various enhancements
+
+2009-10-07  -- 0.14.0
     * constraints: add "begin-after-end-previous" constraint
     * refactoring resources: remove ResourcesSet and ResourceRoleSet
     * projmanedit: update projmanedit; add functionalities:
