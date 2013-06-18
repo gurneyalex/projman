@@ -1,5 +1,5 @@
 """
-Projman - (c)2000-2010 LOGILAB <contact@logilab.fr> - All rights reserved.
+Projman - (c)2000-2013 LOGILAB <contact@logilab.fr> - All rights reserved.
 
 Home: http://www.logilab.org/projects/projman
 

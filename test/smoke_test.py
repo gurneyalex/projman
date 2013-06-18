@@ -2,7 +2,7 @@
 
 import os, sys
 
-from logilab.common import testlib 
+from logilab.common import testlib
 
 class SmokeTC(testlib.TestCase):
     CMD = 'projman'
