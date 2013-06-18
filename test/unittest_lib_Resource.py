@@ -2,7 +2,7 @@
 """
 unit tests for module logilab.projman.lib.Resource
 
-Projman - (c)2000-2010 LOGILAB <contact@logilab.fr> - All rights reserved.
+Projman - (c)2000-2013 LOGILAB <contact@logilab.fr> - All rights reserved.
 
 Home: http://www.logilab.org/projman
 
