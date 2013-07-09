@@ -18,7 +18,7 @@ http://www.logilab.fr/ -- mailto:contact@logilab.fr
 
 modname = 'projman'
 
-numversion = (0, 15, 0)
+numversion = (0, 16, 0)
 version = '.'.join([str(num) for num in numversion])
 
 license = 'GPL'
@@ -75,7 +75,8 @@ debian_maintainer = 'Alexandre Fayolle '
 debian_maintainer_email = 'alexandre.fayolle@logilab.fr'
 pyversions = ["2.5"]
 
-__depends__ = {'logilab-common': '>= 0.51.0',
+__depends__ = {'logilab-common': '>= 0.59.0',
+               'logilab-doctools': '>= 0.4.0',
                'python-gtksourceview': '>= 2.2.0',
                'python-docutils': None,
                'PIL': None,
