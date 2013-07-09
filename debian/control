@@ -11,7 +11,7 @@ Vcs-Browser: http://www.logilab.org/cgi-bin/hgwebdir.cgi/projman
 Package: projman
 Architecture: any
 XB-Python-Version: ${python:Versions}
-Depends: ${python:Depends}, logilab-doctools, python-logilab-common (>=0.51.0),
+Depends: ${python:Depends}, logilab-doctools (>=0.4.0), python-logilab-common (>=0.51.0),
 	 python-imaging, sgml-base, python-cairo, python-docutils, python-egenix-mxdatetime,
 	 ${shlibs:Depends},  python-gtksourceview2, python-glade2
 Conflicts: projman-test (<< 0.11.0)
