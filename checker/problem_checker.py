@@ -164,7 +164,7 @@ class Checker(object):
 
     def check_first_days(self):
         """detect unconsistant probleme due to the hypothese that
-        the fist day of a project must be work """
+        the first day of a project must be work """
         first = []
         for task in self.project.root_task.leaves():
             for c_type, date, priority in task.get_date_constraints():
