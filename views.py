@@ -101,7 +101,7 @@ class DocbookHelper(object):
 
 # XXXFIXME handle english (lang='en')
 
-TVA = 19.6
+TVA = 20.0
 EXT_DATE_FORMAT = u'%Y-%m-%d'
 FULL_DATE_FORMAT = u'%d/%m/%Y'
 DATE_NOT_SPECIFIED = "non spécifié"
