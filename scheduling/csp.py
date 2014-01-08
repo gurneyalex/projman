@@ -16,6 +16,7 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """ schedule project using Constraint Solving Programing """
 
+import itertools
 from mx.DateTime import oneDay, oneHour, today
 import projman.lib.constants as CST
 from projman.scheduling.gcsp import (ProjmanProblem, solve,
@@ -53,7 +54,6 @@ class CSPScheduler(object):
 
     def calc_project_length(self):
         """Computes start_date and max_duration (duration of the project)"""
-        max_duration = self.project.root_task.maximum_duration()
         begins, ends = [], []
         for leaf in self.project.root_task.leaves():
             for c_type, date, priority in leaf.get_date_constraints():
@@ -79,11 +79,10 @@ class CSPScheduler(object):
         while not any(res.is_available(d) for res in self.project.get_resources()):
             d += 1
             self.first_day += 1
-        if ends and begins:
-            other_length = (max(ends) - min(begins)).days +1
-        else:
-            other_length = 0
-        self.max_duration = max(max_duration, other_length)
+        # play it safe and add sum of loads plus time to latest date constraint
+        self.max_duration = self.project.root_task.maximum_duration()
+        if begins or ends:
+            self.max_duration += (max(itertools.chain(begins,ends)) - self.start_date).days
 
     def _process_node(self, node):
         max_duration = int(self.max_duration*2)
