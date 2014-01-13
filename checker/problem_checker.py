@@ -176,7 +176,9 @@ class Checker(object):
             # find date constraints on first task of the tree
             task = self.project.get_task(tree[0])
             for c_type, date, priority in task.get_date_constraints():
-                if date > self.first_day:
+                if date < self.first_day:
+                    if c_type in ('begin-after-date', 'end-after-date'):
+                        continue
                     self.errors.append('Incoherent date constraint in task %s:\n\t-> change date constraints' % task.id)
 
     def check_tasks_convexity(self):
