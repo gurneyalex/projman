@@ -240,7 +240,7 @@ class TaskNode(VNode):
                         errors.append(msg % (self.id, other_c_type,
                                              other_date, c_type, date))
             elif c_type in (END_AT_DATE, END_BEFORE_DATE):
-                for c_type, date in self.date_constraints:
+                for c_type, date, priority in self.date_constraints:
                     if date > other_date:
                         errors.append(msg % (self.id, other_c_type,
                                              other_date, c_type, date))
