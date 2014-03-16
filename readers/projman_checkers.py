@@ -144,8 +144,9 @@ class BaseEtreeChecker(object):
     def _error(self, msg):
         pos = [ p for p,n in self.stack ]
         pos = [0]+pos[:-1]
-        tag = [ n.tag for p,n in self.stack]
-        path = "/".join( [ t+"[%s]"%p for t,p in zip(tag,pos) ] )
+        tag = [n.tag for p,n in self.stack]
+        ids = [n.get('id', pos[i]) for i, (p, n) in enumerate(self.stack)]
+        path = "/".join( [ t+"[%s]"%(i) for t, p, i in zip(tag, pos, ids) ] )
         self._errors.append( "%s:%s" % (path,msg) )
 
     def __str__(self):
