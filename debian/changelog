@@ -1,3 +1,9 @@
+projman (0.16.1-1) unstable; urgency=low
+
+  * new upstream release
+
+ -- Nicolas Chauvat <nicolas.chauvat@logilab.fr>  Tue, 15 Apr 2014 00:36:32 +0200
+
 projman (0.16.0-1) unstable; urgency=low
 
   * new upstream release
