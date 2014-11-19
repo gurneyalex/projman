@@ -278,8 +278,13 @@ ProjmanSolver::ProjmanSolver(const ProjmanProblem& pb)
 
     	cout << "ALL DAYS:" << all_days << endl;
     }
+#if GE_VERSION >= PM_VERSION(4,0,0)
+    branch(SELF, res_tasks, SET_VAR_MAX_MIN(), SET_VAL_MIN_INC());
+    branch(SELF, milestones, INT_VAR_NONE(), INT_VAL_MIN());
+#else
     branch(SELF, res_tasks, SET_VAR_MAX_MIN, SET_VAL_MIN_INC);
     branch(SELF, milestones, INT_VAR_NONE, INT_VAL_MIN);
+#endif
 }
 
 #if GE_VERSION < PM_VERSION(3,0,0)
@@ -446,8 +451,10 @@ void ProjmanSolver::run( ProjmanProblem& pb, Search::Stop *stop )
 	     << "\tdepth:        " << stat.depth << endl
 	     << "\tnode:       " << stat.node << endl
 #endif
+#if GE_VERSION < PM_VERSION(4,0,0)
 	     << "\tpeak memory:   "
 	     << static_cast<int>((stat.memory+1023) / 1024) << " KB"
+#endif
 	     << endl;
     }
 }
