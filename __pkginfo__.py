@@ -104,7 +104,7 @@ def encode_version(a,b,c):
 
 GECODE_VERSION = encode_version(*gecode_version())
 PYTHON_VERSION = sys.version_info[:2]
-BOOST_LIB = 'boost_python-mt-py%s%s' % PYTHON_VERSION
+BOOST_LIB = 'boost_python-py%s%s' % PYTHON_VERSION
 ext_modules = [Extension('projman.scheduling.gcsp',
                          sources = ['scheduling/gcspmodule.cc',
                                     'scheduling/projman_gecode.cc',
