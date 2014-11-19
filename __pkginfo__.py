@@ -57,7 +57,7 @@ data_files = [['share/projman',
                 'fonts/Arial Bold_12_72.pbm',
                 'fonts/Arial Italic_12_72.pbm',
                 'fonts/Arial Bold Italic_12_72.pbm',
-                'data/projedit.glade'],
+                'data/projedit.glade']],
                ['share/projman/examples',
                 ['scheduling/sample.cc',
                  'scheduling/projman_gecode.cc',
@@ -68,7 +68,6 @@ data_files = [['share/projman',
                 ]
                ]
               ]
-             ]
 
 debian_name = 'projman'
 pyversions = ["2.5","2.6","2.7"]
