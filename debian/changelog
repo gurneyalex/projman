@@ -1,3 +1,9 @@
+projman (0.16.2-1) unstable; urgency=low
+
+  * new upstream release
+
+ -- Julien Cristau <julien.cristau@logilab.fr>  Wed, 19 Nov 2014 14:54:24 +0100
+
 projman (0.16.1-1) unstable; urgency=low
 
   * new upstream release

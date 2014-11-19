@@ -18,7 +18,7 @@ http://www.logilab.fr/ -- mailto:contact@logilab.fr
 
 modname = 'projman'
 
-numversion = (0, 16, 1)
+numversion = (0, 16, 2)
 version = '.'.join([str(num) for num in numversion])
 
 license = 'GPL'
