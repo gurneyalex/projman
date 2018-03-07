@@ -498,6 +498,7 @@ void ProjmanSolver::constrain(const Space& s)
 #endif
 }
 
+#if GE_VERSION < PM_VERSION(6,0,0)
 ProjmanSolver::ProjmanSolver(bool share, ProjmanSolver& s) : Space(share,s)
 {
     res_tasks.update(SELF, share, s.res_tasks);
@@ -513,6 +514,24 @@ Space* ProjmanSolver::copy(bool share)
 {
     return new ProjmanSolver(share,*this);
 }
+
+#else
+ProjmanSolver::ProjmanSolver(ProjmanSolver& s) : Space(s)
+{
+    res_tasks.update(SELF, s.res_tasks);
+    last_day.update(SELF, s.last_day);
+#if USE_LAST_DAYS
+    eta_cost.update(SELF, s.eta_cost);
+    last_days.update(SELF, s.last_days);
+#endif
+    milestones.update(SELF, s.milestones);
+}
+
+Space* ProjmanSolver::copy()
+{
+    return new ProjmanSolver(*this);
+}
+#endif
 
 void ProjmanSolver::register_order( const ProjmanProblem& pb,
 				    SetVarArray& real_tasks )

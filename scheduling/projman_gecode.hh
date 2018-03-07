@@ -96,10 +96,17 @@ public:
 #else
     void constrain(const Space& s);
 #endif
+#if GE_VERSION < PM_VERSION(6,0,0)
     /// Constructor for cloning \a s
     ProjmanSolver(bool share, ProjmanSolver& s);
     /// Perform copying during cloning
     virtual Space* copy(bool share);
+#else
+    /// Constructor for cloning \a s
+    ProjmanSolver(ProjmanSolver& s);
+    /// Perform copying during cloning
+    virtual Space* copy();
+#endif
     virtual void print(ProjmanProblem& pb);
     virtual void debug(const ProjmanProblem& pb, std::string s, SetVarArray& _tasks);
 
