@@ -3,7 +3,11 @@
 
 
 ProjmanProblem::ProjmanProblem(uint_t _maxdur):
+#if GE_VERSION<PM_VERSION(5, 0, 0)
     icl(ICL_DEF),
+#else
+    ipl(IPL_DEF),
+#endif
     c_d(Search::Config::c_d),
     a_d(Search::Config::a_d),
     solutions(2000),
