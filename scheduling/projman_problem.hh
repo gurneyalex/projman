@@ -5,6 +5,7 @@
 */
 #ifndef _PROJMAN_PROBLEM_
 #define _PROJMAN_PROBLEM_
+#define PM_VERSION(a,b,c) ((a<<16)+(b<<8)+(c))
 
 #include <vector>
 #include <stdexcept>
@@ -119,7 +120,11 @@ public:
 class ProjmanProblem {
 public:
     // Gecode Solver options
+#if GE_VERSION<PM_VERSION(5, 0, 0)
     IntConLevel  icl;        ///< integer consistency level
+#else
+    IntPropLevel  ipl;        ///< integer propagation level
+#endif
     unsigned int c_d;        ///< recomputation copy distance
     unsigned int a_d;        ///< recomputation adaption distance
     unsigned int solutions;  ///< how many solutions (0 == all)
